@@ -103,7 +103,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .cbar i{display:block;height:100%;border-radius:99px}
 .cv{font-size:13px;color:var(--muted);white-space:nowrap}
 .dh{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin:14px 2px 6px}
-.tx{display:grid;grid-template-columns:1fr auto auto auto;gap:8px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:6px}
+.tx{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:6px}
 .tx .tdesc{word-break:break-word}
 .tx .ftag{background:transparent;border:1px solid currentColor;margin-top:4px}
 .tamt{font-weight:700;white-space:nowrap}
@@ -253,6 +253,13 @@ main{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
 main>div#notesView,main>div#finView{margin-bottom:120px}
 }
 .note.newtag{margin-top:22px}
+.acts{display:inline-flex;flex-direction:column;align-items:center;gap:6px;margin-left:auto;flex:none}
+.acts-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.acts-row .nmain{flex:1;min-width:0}
+.acts-row .acts{margin-left:0}
+.acts-row .pick{flex:0 0 100%}
+.acts .ebtn,.acts .del{margin:0;padding:6px 10px}
+.acts .del{color:#e58a84;color:color-mix(in srgb,var(--bad) 60%,var(--surface))}
 </style>
 </head>
 <body>
@@ -485,7 +492,7 @@ function renderNotes(){
   var L=document.getElementById("list");
   if(!list.length){L.innerHTML='<div class="empty">'+(vis().length?"Không có ghi chú nào khớp.":"Chưa có ghi chú. Gõ vào ô phía trên để bắt đầu.")+'</div>';return}
   L.innerHTML=list.map(function(x,i){var c=CATS[x.cat]||CATS.other,nc=(i>0&&list[i-1].cat!==x.cat)?" newtag":"";if(editing==x.id)return'<div class="note'+nc+'">'+editForm(x)+'</div>';
-    return '<div class="note'+nc+'"><div class="txt'+(expanded[x.id]?' open':'')+'" data-exp="'+x.id+'" title="Bấm để xem đầy đủ">'+linkify(x.text)+'</div><div class="meta"><button class="tag" data-pick="'+x.id+'" title="Bấm để chọn loại" style="background:var(--c-'+c.c+'-bg);color:var(--c-'+c.c+')">'+c.n+'</button>'+(x.area?'<span class="area">'+esc(x.area)+'</span>':'')+(function(){var ml=mapLink(x),has=x.link||MAPRE.test(x.text);return (ml?'<a class="tag map'+(has?'':' ghost')+'" data-pend="'+(has?'':x.id)+'" href="'+esc(ml.u)+'" target="_blank" rel="noopener noreferrer">'+(has?ml.l:'Bản đồ')+'</a>':'')+(ml&&!has&&pending==x.id?'<button class="tag" data-paste="'+x.id+'" style="background:var(--c-other-bg);color:var(--c-other)">Dán link</button>':'')})()+priceTag(x)+'<span>'+fmt(x.ts)+'</span>'+(x.text.indexOf("\n")>-1&&!expanded[x.id]?'<span>+'+(x.text.split("\n").length-1)+' dòng</span>':'')+'<button class="ebtn" data-edit="'+x.id+'" aria-label="Sửa ghi chú">Sửa</button><button class="del" data-del="'+x.id+'" aria-label="Xóa ghi chú">Xóa</button></div>'+(openId==x.id?picker(x):'')+'</div>'}).join("");
+    return '<div class="note acts-row'+nc+'"><div class="nmain"><div class="txt'+(expanded[x.id]?' open':'')+'" data-exp="'+x.id+'" title="Bấm để xem đầy đủ">'+linkify(x.text)+'</div><div class="meta"><button class="tag" data-pick="'+x.id+'" title="Bấm để chọn loại" style="background:var(--c-'+c.c+'-bg);color:var(--c-'+c.c+')">'+c.n+'</button>'+(x.area?'<span class="area">'+esc(x.area)+'</span>':'')+(function(){var ml=mapLink(x),has=x.link||MAPRE.test(x.text);return (ml?'<a class="tag map'+(has?'':' ghost')+'" data-pend="'+(has?'':x.id)+'" href="'+esc(ml.u)+'" target="_blank" rel="noopener noreferrer">'+(has?ml.l:'Bản đồ')+'</a>':'')+(ml&&!has&&pending==x.id?'<button class="tag" data-paste="'+x.id+'" style="background:var(--c-other-bg);color:var(--c-other)">Dán link</button>':'')})()+priceTag(x)+'<span>'+fmt(x.ts)+'</span>'+(x.text.indexOf("\n")>-1&&!expanded[x.id]?'<span>+'+(x.text.split("\n").length-1)+' dòng</span>':'')+'</div></div><span class="acts"><button class="ebtn" data-edit="'+x.id+'" aria-label="Sửa ghi chú">Sửa</button><button class="del" data-del="'+x.id+'" aria-label="Xóa ghi chú">Xóa</button></span>'+(openId==x.id?picker(x):'')+'</div>'}).join("");
 }
 document.addEventListener("click",function(e){
   var t=e.target.closest("button");if(!t)return;
@@ -774,7 +781,7 @@ function renderTx(top,body){
       h+='<div class="dh"><span>'+dayLabel(day)+'</span><span>'+(ds?"Chi "+money(ds):"")+'</span></div>';
       arr.forEach(function(x){
         if(editing==x.id){h+='<div class="tx" style="display:block">'+editForm(x)+'</div>';return}
-        h+='<div class="tx"><div><div class="tdesc">'+esc(x.desc||"")+'</div><button class="tag ftag" data-ftx="'+x.id+'" title="Bấm để đổi mục" style="color:'+catColor(x)+'">'+catName(x)+'</button></div><div class="tamt '+(x.t==="in"?"good":"bad")+'">'+(x.t==="in"?"+":"-")+money(x.amt)+'</div><button class="ebtn" data-edit="'+x.id+'" aria-label="Sửa giao dịch">Sửa</button><button class="del" data-fdel="'+x.id+'" aria-label="Xóa giao dịch">Xóa</button>'+(openTx==x.id?pickerFin(x):'')+'</div>';
+        h+='<div class="tx"><div><div class="tdesc">'+esc(x.desc||"")+'</div><button class="tag ftag" data-ftx="'+x.id+'" title="Bấm để đổi mục" style="color:'+catColor(x)+'">'+catName(x)+'</button></div><div class="tamt '+(x.t==="in"?"good":"bad")+'">'+(x.t==="in"?"+":"-")+money(x.amt)+'</div><span class="acts"><button class="ebtn" data-edit="'+x.id+'" aria-label="Sửa giao dịch">Sửa</button><button class="del" data-fdel="'+x.id+'" aria-label="Xóa giao dịch">Xóa</button></span>'+(openTx==x.id?pickerFin(x):'')+'</div>';
       });
     });
   }
@@ -788,10 +795,10 @@ function renderDebt(top,body){
   if(!ds.length){body.innerHTML='<div class="empty">Chưa có khoản nợ nào.</div>';return}
   body.innerHTML=ds.map(function(x){
     var rem=Math.max(0,x.amt-(x.paid||0)),done=rem<=0,own=x.dir==="owe";if(editing==x.id)return'<div class="note">'+editForm(x)+'</div>';
-    return'<div class="note'+(done?' done':'')+'"><div class="tdesc" style="word-break:break-word">'+esc(x.desc||"")+'</div>'+
+    return'<div class="note acts-row'+(done?' done':'')+'"><div class="nmain"><div class="tdesc" style="word-break:break-word">'+esc(x.desc||"")+'</div>'+
     '<div class="meta"><span class="tag" style="background:transparent;border:1px solid currentColor;color:'+(own?"var(--bad)":"var(--good)")+'">'+(own?"Mình nợ":"Họ nợ mình")+'</span>'+
     '<b style="color:var(--ink)">'+(done?"Đã xong · "+money(x.amt):"Còn "+money(rem)+" / "+money(x.amt))+'</b><span>'+(x.day?dayLabel(x.day):"")+'</span></div>'+
-    '<div class="meta">'+(done?'<button class="dtn" data-dreopen="'+x.id+'">Mở lại</button>':'<button class="dtn" data-dpay="'+x.id+'">'+(own?"Trả bớt":"Thu bớt")+'</button><button class="dtn" data-ddone="'+x.id+'">Đã xong</button>')+'<button class="ebtn" data-edit="'+x.id+'" aria-label="Sửa khoản nợ">Sửa</button><button class="del" data-ddel="'+x.id+'" aria-label="Xóa khoản nợ">Xóa</button></div></div>';
+    '<div class="meta">'+(done?'<button class="dtn" data-dreopen="'+x.id+'">Mở lại</button>':'<button class="dtn" data-dpay="'+x.id+'">'+(own?"Trả bớt":"Thu bớt")+'</button><button class="dtn" data-ddone="'+x.id+'">Đã xong</button>')+'</div></div><span class="acts"><button class="ebtn" data-edit="'+x.id+'" aria-label="Sửa khoản nợ">Sửa</button><button class="del" data-ddel="'+x.id+'" aria-label="Xóa khoản nợ">Xóa</button></span></div>';
   }).join("");
 }
 function renderFin(){
