@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Ghi chú nhanh</title>
+<title>NoteEverything</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#0f6b5c">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Ghi chú">
+<meta name="apple-mobile-web-app-title" content="NoteEverything">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
@@ -132,11 +132,26 @@ svg text{font-family:inherit}
 .tabin-l{animation:tabInL .28s cubic-bezier(.2,.7,.2,1)}
 main{overflow-x:clip}
 @media (prefers-reduced-motion:reduce){.tabin-r,.tabin-l{animation:none}}
+/* Tab Ghi chú / Chi tiêu: bỏ khung, dạng chữ gạch chân để khác hẳn hàng tag ở dưới */
+.tabs{gap:0;margin:0 0 18px;border-bottom:1px solid var(--line)}
+.tabs .chip{flex:1;background:none;border:0;border-bottom:3px solid transparent;border-radius:0;margin-bottom:-1px;padding:8px 4px 10px;font-size:18px;font-weight:500;letter-spacing:.01em;color:var(--muted);transition:color .15s,border-color .15s}
+.tabs .chip[aria-pressed="true"]{background:none;color:var(--ink);font-weight:700;border-bottom-color:var(--accent)}
+.tabs .chip:focus-visible{outline-offset:-2px;border-radius:6px}
+/* Tách khung nhập và ô tìm kiếm */
+#notesView .search{margin:28px 0 14px}
+/* Đồng bộ: gom vào một nút dropdown */
+.syncmenu{margin-top:24px;text-align:center}
+.syncmenu>summary{display:inline-flex;align-items:center;gap:6px;list-style:none;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:6px 14px;font-size:14px;user-select:none;-webkit-tap-highlight-color:transparent}
+.syncmenu>summary::-webkit-details-marker{display:none}
+.syncmenu>summary::after{content:"";width:6px;height:6px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-2px) rotate(45deg);transition:transform .15s}
+.syncmenu[open]>summary::after{transform:translateY(1px) rotate(-135deg)}
+.syncmenu>summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.syncmenu .sync{margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
 </style>
 </head>
 <body>
 <main>
-<h1>Ghi chú nhanh</h1>
+<h1>NoteEverything</h1>
 <div class="tabs"><button class="chip" data-tab="notes" aria-pressed="true">Ghi chú</button><button class="chip" data-tab="fin" aria-pressed="false">Chi tiêu</button></div>
 <div id="notesView">
 <div class="box">
@@ -158,7 +173,9 @@ main{overflow-x:clip}
 <div id="finBody" style="margin-top:14px"></div>
 </div>
 
+<details class="syncmenu" id="syncmenu"><summary>Đồng bộ</summary>
 <div class="sync"><input id="code" placeholder="Mã đồng bộ" autocomplete="off" spellcheck="false"><button id="conn">Kết nối</button><button id="gen">Tạo mã mới</button><button id="off">Ngắt</button><span id="st" class="hint"></span></div>
+</details>
 <div class="tools"><button id="copy">Sao chép tất cả</button><button id="theme">Đổi giao diện</button></div>
 </main>
 <button type="button" class="fab" id="fab" aria-label="Viết ghi chú mới" title="Viết ghi chú mới"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
@@ -791,28 +808,28 @@ if(code)sync();
     if(Math.abs(dx)>=60&&Math.abs(dx)>Math.abs(dy)*1.3&&Date.now()-st<1200)go(dx)},{passive:true});
 })();
 
-/* Khi bàn phím đang mở: chạm ra ngoài vùng nhập chỉ để hạ bàn phím, không kích hoạt nút bên dưới */
-(function(){var kb=false,tx=0,ty=0,tt=0,hit=false,swallowUntil=0;
+/* Khi bàn phím đang mở: chạm ra ngoài vùng nhập vừa hạ bàn phím, vừa để nút bên dưới nhận chạm bình thường.
+   Không preventDefault, không nuốt click; chỉ blur SAU khi click đã xử lý xong để bố cục không xê dịch giữa chừng. */
+(function(){var arm=null,tx=0,ty=0,tt=0;
   var TXT=/^(text|search|tel|number|email|url|password|)$/i;
   function isField(el){return !!el&&((el.tagName==="TEXTAREA")||(el.tagName==="INPUT"&&TXT.test(el.getAttribute("type")||"")))}
   document.addEventListener("touchstart",function(e){
-    hit=false;if(e.touches.length!==1)return;
-    var a=document.activeElement,t=e.target;kb=false;
+    arm=null;if(e.touches.length!==1)return;
+    var a=document.activeElement,t=e.target;
     if(!isField(a)||!t||t.nodeType!==1)return;
     if(isField(t)||t.closest("#fab"))return;               /* chạm sang ô nhập khác / nút bút: để bình thường */
     var c=a.closest(".box,.edit,.sync");
-    if(c&&c.contains(t))return;                            /* chạm trong vùng nhập (Lưu, thẻ...): để bình thường */
-    kb=true;var p=e.touches[0];tx=p.clientX;ty=p.clientY;tt=Date.now()},{passive:true,capture:true});
+    if(c&&c.contains(t))return;                            /* chạm trong vùng nhập (Lưu, thẻ...): giữ bàn phím */
+    arm=a;var p=e.touches[0];tx=p.clientX;ty=p.clientY;tt=Date.now()},{passive:true,capture:true});
   document.addEventListener("touchend",function(e){
-    if(!kb)return;kb=false;
+    var a=arm;arm=null;if(!a)return;
     var p=e.changedTouches[0];
     if(Math.abs(p.clientX-tx)>10||Math.abs(p.clientY-ty)>10||Date.now()-tt>600)return;  /* đang cuộn/vuốt: bỏ qua */
-    hit=true;swallowUntil=Date.now()+600;
-    if(e.cancelable)e.preventDefault();
-    try{document.activeElement.blur()}catch(_){}},{passive:false,capture:true});
-  document.addEventListener("click",function(e){
-    if(Date.now()<swallowUntil){swallowUntil=0;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation()}},true);
+    setTimeout(function(){if(document.activeElement===a){try{a.blur()}catch(_){}}},150)},{passive:true,capture:true});
 })();
+
+/* Đóng dropdown đồng bộ khi chạm ra ngoài */
+document.addEventListener("click",function(e){var m=document.getElementById("syncmenu");if(m&&m.open&&!m.contains(e.target))m.open=false});
 </script>
 </body>
 </html>
