@@ -207,7 +207,7 @@ main{padding:24px 16px 96px}
 .foot .tools button{padding:4px 0}
 
 /* ===== Tiêu đề, tab giữa, lọc/sắp xếp, khung nhập dạng bút trên mobile ===== */
-h1{font-size:30px;margin:0 0 14px}
+h1{font-size:30px;margin:0 0 28px}
 .tabs{justify-content:center}
 .sbar{order:3;position:relative;z-index:30;display:flex;gap:8px;align-items:stretch;margin:32px 0 12px}
 .fbtn{flex:none;width:44px;position:relative;display:flex;align-items:center;justify-content:center;padding:0;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:12px;box-shadow:var(--shadow);-webkit-tap-highlight-color:transparent}
@@ -224,11 +224,12 @@ h1{font-size:30px;margin:0 0 14px}
 .price{font-weight:700;color:var(--ink)}
 .cbd,.cclose{display:none}
 @media (max-width:700px),(pointer:coarse){
-h1{font-size:26px}
+h1{font-size:26px;margin-bottom:24px}
 main{padding-top:18px}
+.tabs{margin-bottom:14px}
 /* sửa lỗi: thanh tag bị margin-bottom 16px đẩy lên khỏi đáy */
 #filters{margin:0}
-.sbar{margin:12px 0}
+.sbar{margin:0 0 12px}
 /* khung nhập ẩn, chỉ mở khi bấm nút bút */
 #notesView>.box{display:none;position:fixed;z-index:60;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 12px);margin:0;box-shadow:0 14px 40px rgba(0,0,0,.3)}
 body.composing #notesView>.box{display:block}
