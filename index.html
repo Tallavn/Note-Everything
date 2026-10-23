@@ -406,7 +406,7 @@ function catIdx(x){var l=x.t==="in"?INC:OUT,i;for(i=0;i<l.length;i++)if(l[i].k==
 function catName(x){return(x.t==="in"?INC:OUT)[catIdx(x)].n}
 function catColor(x){return x.t==="in"?"var(--good)":"var(--k"+catIdx(x)+")"}
 function monthSum(y,m){var key=mkey(y,m),r={"in":0,"out":0};fins().forEach(function(x){if(x.k==="tx"&&x.day&&x.day.indexOf(key)===0)r[x.t]+=x.amt});return r}
-function balance(){var b=0,o=0;fins().forEach(function(x){if(x.k==="open"){o=x.amt;b+=x.amt}else if(x.k==="tx")b+=x.t==="in"?x.amt:-x.amt});return{b:b,o:o}}
+function balance(){var b=0,o=0;fins().forEach(function(x){if(x.k==="open"){o=x.amt;b+=x.amt}else if(x.k==="tx")b+=x.t==="in"?x.amt:-x.amt;else if(x.k==="debt"){var rm=Math.max(0,x.amt-(x.paid||0));b+=x.dir==="owe"?rm:-rm}});return{b:b,o:o}}
 function touch(){save();renderFin();sync()}
 function setMsg(t){document.getElementById("fin-msg").textContent=t}
 function defMsg(){setMsg(sub==="debt"?"Gõ số tiền và tên, ví dụ: 500k Nam tiền ăn. Rồi bấm Mình nợ hoặc Họ nợ mình.":"Enter để lưu. Có dấu + là khoản thu. k = nghìn, tr = triệu (1tr2 = 1,2 triệu).")}
@@ -525,8 +525,9 @@ function pickerFin(x){var l=x.t==="in"?INC:OUT;return'<div class="pick">'+l.map(
 function renderTx(top,body){
   var key=mkey(ym.y,ym.m),ms=monthSum(ym.y,ym.m),bl=balance(),days=new Date(ym.y,ym.m,0).getDate();
   var all=fins().filter(function(x){return x.k==="tx"&&x.day&&x.day.indexOf(key)===0});
+  var dOwe=0,dLent=0;fins().forEach(function(x){if(x.k==="debt"){var r=Math.max(0,x.amt-(x.paid||0));if(x.dir==="owe")dOwe+=r;else dLent+=r}});
   top.innerHTML='<div class="mnav"><button data-mo="-1" aria-label="Tháng trước">‹</button><b>Tháng '+ym.m+'/'+ym.y+'</b><button data-mo="1" aria-label="Tháng sau">›</button></div>'+
-   '<div class="wallet"><button class="plus" data-add="1" aria-label="Thêm khoản thu chi">+</button><div class="hint">Tổng ví</div><div class="big'+(bl.b<0?' neg':'')+'">'+(bl.b<0?"-":"")+money(bl.b)+'</div><div class="two"><div><span class="hint">Thu tháng này</span><b class="good">+'+money(ms["in"])+'</b></div><div><span class="hint">Chi tháng này</span><b class="bad">-'+money(ms["out"])+'</b></div></div><button class="lnk" data-open="1">'+(bl.o?"Sửa số dư ban đầu ("+money(bl.o)+")":"Đặt số dư ban đầu")+'</button></div>';
+   '<div class="wallet"><button class="plus" data-add="1" aria-label="Thêm khoản thu chi">+</button><div class="hint">Tổng ví</div><div class="big'+(bl.b<0?' neg':'')+'">'+(bl.b<0?"-":"")+money(bl.b)+'</div><div class="two"><div><span class="hint">Thu tháng này</span><b class="good">+'+money(ms["in"])+'</b></div><div><span class="hint">Chi tháng này</span><b class="bad">-'+money(ms["out"])+'</b></div></div><div class="two" style="margin-top:10px"><div><span class="hint">Mình đang nợ</span><b class="bad">'+money(dOwe)+'</b></div><div><span class="hint">Họ đang nợ mình</span><b class="good">'+money(dLent)+'</b></div></div><button class="lnk" data-open="1">'+(bl.o?"Sửa số dư ban đầu ("+money(bl.o)+")":"Đặt số dư ban đầu")+'</button></div>';
   var h="",by={},cs={},tot=0;
   all.forEach(function(x){if(x.t==="out"){by[+x.day.slice(8)]=(by[+x.day.slice(8)]||0)+x.amt;cs[x.cat]=(cs[x.cat]||0)+x.amt;tot+=x.amt}});
   var views={};
@@ -568,7 +569,7 @@ function renderTx(top,body){
 function renderDebt(top,body){
   var ds=fins().filter(function(x){return x.k==="debt"}),owe=0,lent=0;
   ds.forEach(function(x){var r=Math.max(0,x.amt-(x.paid||0));if(x.dir==="owe")owe+=r;else lent+=r});
-  top.innerHTML='<div class="wallet"><button class="plus" data-add="1" aria-label="Thêm khoản nợ">+</button><div class="two"><div><span class="hint">Mình đang nợ</span><b class="bad" style="font-size:22px">'+money(owe)+'</b></div><div><span class="hint">Họ đang nợ mình</span><b class="good" style="font-size:22px">'+money(lent)+'</b></div></div><div class="hint" style="margin-top:8px">Khoản nợ tính riêng, không cộng trừ vào Tổng ví.</div></div>';
+  top.innerHTML='<div class="wallet"><button class="plus" data-add="1" aria-label="Thêm khoản nợ">+</button><div class="two"><div><span class="hint">Mình đang nợ</span><b class="bad" style="font-size:22px">'+money(owe)+'</b></div><div><span class="hint">Họ đang nợ mình</span><b class="good" style="font-size:22px">'+money(lent)+'</b></div></div><div class="hint" style="margin-top:8px">Cho vay thì trừ khỏi Tổng ví, đi vay thì cộng vào. Khi thu hoặc trả lại thì Tổng ví hoàn lại tương ứng.</div></div>';
   ds.sort(function(a,b){var ad=a.amt-(a.paid||0)<=0,bd=b.amt-(b.paid||0)<=0;return ad!==bd?(ad?1:-1):b.ts-a.ts});
   if(!ds.length){body.innerHTML='<div class="empty">Chưa có khoản nợ nào.</div>';return}
   body.innerHTML=ds.map(function(x){
