@@ -420,6 +420,21 @@ function dailyChart(by,days){
   }
   return s+'<line x1="0" x2="'+W+'" y1="'+(T+H)+'" y2="'+(T+H)+'" style="stroke:var(--line)"/></svg>';
 }
+function hourChart(list){
+  var W=600,H=110,T=18,bw=W/24,by=[],mx=0,i,s;
+  for(i=0;i<24;i++)by.push(0);
+  list.forEach(function(x){if(x.t==="out"){var h=new Date(x.ts||0).getHours();by[h]+=x.amt;}});
+  by.forEach(function(v){mx=Math.max(mx,v)});
+  if(!mx)return'<div class="empty">Ngày này không có khoản chi.</div>';
+  s='<svg viewBox="0 0 '+W+' '+(T+H+26)+'" width="100%" role="img" aria-label="Chi theo giờ">';
+  for(i=0;i<24;i++){
+    var v=by[i],h=v?Math.max(3,v/mx*H):0;
+    s+='<rect x="'+(i*bw+bw*.15).toFixed(1)+'" y="'+(T+H-h).toFixed(1)+'" width="'+(bw*.7).toFixed(1)+'" height="'+h.toFixed(1)+'" rx="2" style="fill:var(--bad)"><title>'+i+'h: '+money(v)+'</title></rect>';
+    if(v)s+='<text x="'+((i+.5)*bw).toFixed(1)+'" y="'+(T+H-h-4).toFixed(1)+'" text-anchor="middle" font-size="13" style="fill:var(--muted)">'+(v>=1000?Math.round(v/1000)+"k":v)+'</text>';
+    if(i%3===0)s+='<text x="'+((i+.5)*bw).toFixed(1)+'" y="'+(T+H+19)+'" text-anchor="middle" font-size="16" style="fill:var(--muted)">'+i+'h</text>';
+  }
+  return s+'<line x1="0" x2="'+W+'" y1="'+(T+H)+'" y2="'+(T+H)+'" style="stroke:var(--line)"/></svg>';
+}
 function weekChart(){
   var key=mkey(ym.y,ym.m),days=new Date(ym.y,ym.m,0).getDate(),di=[],dout=[],i,mx=0;
   for(i=0;i<=days;i++){di.push(0);dout.push(0)}
@@ -487,9 +502,10 @@ function renderTx(top,body){
     var rows=OUT.map(function(c,i){return{k:c.k,n:c.n,i:i,v:cs[c.k]||0}}).filter(function(r){return r.v>0}).sort(function(a,b){return b.v-a.v});
     views.cat='<div class="hint" style="margin:0 0 6px">Bấm một mục để lọc danh sách bên dưới</div>'+rows.map(function(r){return'<button class="crow" data-fcat="'+r.k+'" aria-pressed="'+(fcat===r.k)+'"><span>'+r.n+'</span><span class="cbar"><i style="width:'+Math.max(2,Math.round(r.v/tot*100))+'%;background:var(--k'+r.i+')"></i></span><span class="cv">'+money(r.v)+' · '+Math.round(r.v/tot*100)+'%</span></button>'}).join("");
   }
+  if(fday)views.day=hourChart(all.filter(function(x){return x.day===fday}));
   var tr=trendChart();
   if(tr)views.trend='<div class="hint" style="margin:0 0 6px"><span class="good">■ Thu</span> <span class="bad">■ Chi</span></div>'+tr;
-  var avail=[["day","Theo ngày"],["cat","Theo mục"],["trend",trendN+" tháng"]].filter(function(a){return views[a[0]]});
+  var avail=[["day",fday?dayLabel(fday):"Theo ngày"],["cat","Theo mục"],["trend",trendN+" tháng"]].filter(function(a){return views[a[0]]});
   if(avail.length){
     if(!views[chartView])chartView=avail[0][0];
     h+='<div class="card"><div class="cvt">'+avail.map(function(a){return'<button class="chip" data-cv="'+a[0]+'" aria-pressed="'+(chartView===a[0])+'">'+a[1]+'</button>'}).join("")+'</div>'+views[chartView]+'</div>';
