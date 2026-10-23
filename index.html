@@ -742,7 +742,7 @@ setSt(code?"":"Chưa bật đồng bộ");
 setTab(tab);render();
 if(code)sync();
 
-/* Vuốt trái/phải để đổi tab Ghi chú <-> Chi tiêu */
+/* Vuốt trái/phải để đổi tab Ghi chú <-> Chi tiêu (nhận ngay trong lúc kéo, không chờ nhấc tay) */
 (function(){var sx=0,sy=0,st=0,ok=false;
   function blocked(el){
     while(el&&el!==document.body&&el.nodeType===1){
@@ -753,16 +753,45 @@ if(code)sync();
       if((ox==="auto"||ox==="scroll")&&el.scrollWidth>el.clientWidth+2)return true;
       el=el.parentNode}
     return false}
+  function go(dx){
+    if(dx<0&&tab==="notes")setTab("fin");
+    else if(dx>0&&tab==="fin")setTab("notes")}
   document.addEventListener("touchstart",function(e){
     if(e.touches.length!==1){ok=false;return}
     var t=e.touches[0];sx=t.clientX;sy=t.clientY;st=Date.now();
     ok=!blocked(e.target)&&!document.querySelector(".sheet:not([hidden])")},{passive:true});
+  document.addEventListener("touchmove",function(e){
+    if(!ok)return;
+    var t=e.touches[0],dx=t.clientX-sx,dy=t.clientY-sy;
+    if(Math.abs(dy)>45&&Math.abs(dy)>Math.abs(dx)){ok=false;return}       /* đang cuộn dọc */
+    if(Math.abs(dx)>=60&&Math.abs(dx)>Math.abs(dy)*1.3&&Date.now()-st<1200){ok=false;go(dx)}},{passive:true});
   document.addEventListener("touchend",function(e){
     if(!ok)return;ok=false;
     var t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;
-    if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.6||Date.now()-st>700)return;
-    if(dx<0&&tab==="notes")setTab("fin");
-    else if(dx>0&&tab==="fin")setTab("notes")},{passive:true});
+    if(Math.abs(dx)>=60&&Math.abs(dx)>Math.abs(dy)*1.3&&Date.now()-st<1200)go(dx)},{passive:true});
+})();
+
+/* Khi bàn phím đang mở: chạm ra ngoài vùng nhập chỉ để hạ bàn phím, không kích hoạt nút bên dưới */
+(function(){var kb=false,tx=0,ty=0,tt=0,hit=false,swallowUntil=0;
+  var TXT=/^(text|search|tel|number|email|url|password|)$/i;
+  function isField(el){return !!el&&((el.tagName==="TEXTAREA")||(el.tagName==="INPUT"&&TXT.test(el.getAttribute("type")||"")))}
+  document.addEventListener("touchstart",function(e){
+    hit=false;if(e.touches.length!==1)return;
+    var a=document.activeElement,t=e.target;kb=false;
+    if(!isField(a)||!t||t.nodeType!==1)return;
+    if(isField(t)||t.closest("#fab"))return;               /* chạm sang ô nhập khác / nút bút: để bình thường */
+    var c=a.closest(".box,.edit,.sync");
+    if(c&&c.contains(t))return;                            /* chạm trong vùng nhập (Lưu, thẻ...): để bình thường */
+    kb=true;var p=e.touches[0];tx=p.clientX;ty=p.clientY;tt=Date.now()},{passive:true,capture:true});
+  document.addEventListener("touchend",function(e){
+    if(!kb)return;kb=false;
+    var p=e.changedTouches[0];
+    if(Math.abs(p.clientX-tx)>10||Math.abs(p.clientY-ty)>10||Date.now()-tt>600)return;  /* đang cuộn/vuốt: bỏ qua */
+    hit=true;swallowUntil=Date.now()+600;
+    if(e.cancelable)e.preventDefault();
+    try{document.activeElement.blur()}catch(_){}},{passive:false,capture:true});
+  document.addEventListener("click",function(e){
+    if(Date.now()<swallowUntil){swallowUntil=0;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation()}},true);
 })();
 </script>
 </body>
