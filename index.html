@@ -120,7 +120,12 @@ svg text{font-family:inherit}
 .fab{display:none;position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;border:0;padding:0;background:var(--accent);color:var(--accent-ink);box-shadow:0 4px 14px rgba(0,0,0,.28);align-items:center;justify-content:center;z-index:20;-webkit-tap-highlight-color:transparent}
 .fab svg{width:26px;height:26px;display:block}
 .fab:active{transform:scale(.94)}
-@media (max-width:700px),(pointer:coarse){.fab.show{display:flex}}
+@media (max-width:700px),(pointer:coarse){
+.fab.show{display:flex}
+.fab{bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+#notesView{padding-bottom:64px}
+#filters{position:fixed;left:0;right:0;bottom:0;z-index:15;margin:0;padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--line)}
+}
 @keyframes tabInR{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
 @keyframes tabInL{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:none}}
 .tabin-r{animation:tabInR .28s cubic-bezier(.2,.7,.2,1)}
@@ -135,7 +140,7 @@ main{overflow-x:clip}
 <div class="tabs"><button class="chip" data-tab="notes" aria-pressed="true">Ghi chú</button><button class="chip" data-tab="fin" aria-pressed="false">Chi tiêu</button></div>
 <div id="notesView">
 <div class="box">
-<textarea id="in" placeholder="Gõ gì cũng được, ví dụ: bún chả Hương Liên Hai Bà Trưng, ngon, nhớ quay lại" autofocus></textarea>
+<textarea id="in" placeholder="Gõ gì cũng được, ví dụ: bún chả Hương Liên Hai Bà Trưng, ngon, nhớ quay lại"></textarea>
 <div class="intags" id="inTags"></div>
 <div class="row"><span class="hint">Enter để lưu. Xuống dòng: Shift+Enter</span><button class="add" id="add">Lưu</button></div>
 </div>
