@@ -618,11 +618,12 @@ function renderFin(){
   document.getElementById("fin-in").placeholder=sub==="debt"?"500k Nam tiền ăn":"45k phở bò · 1tr2 tiền điện · +15tr lương";
   if(sub==="debt")renderDebt(top,body);else renderTx(top,body);
 }
-var composerFocus=false;
-function updateFab(){var f=document.getElementById("fab");if(f)f.classList.toggle("show",tab==="notes"&&!composerFocus)}
-(function(){var i=document.getElementById("in");if(!i)return;
+var composerFocus=false,composerSeen=true;
+function updateFab(){var f=document.getElementById("fab");if(f)f.classList.toggle("show",tab==="notes"&&!(composerFocus&&composerSeen))}
+(function(){var i=document.getElementById("in"),bx=document.querySelector("#notesView .box");if(!i)return;
   i.addEventListener("focus",function(){composerFocus=true;updateFab()});
-  i.addEventListener("blur",function(){composerFocus=false;updateFab()})})();
+  i.addEventListener("blur",function(){composerFocus=false;updateFab()});
+  if(bx&&"IntersectionObserver" in window)new IntersectionObserver(function(en){composerSeen=en[0].isIntersecting;updateFab()}).observe(bx)})();
 document.getElementById("fab").addEventListener("click",function(){
   var el=document.getElementById("in");window.scrollTo({top:0,behavior:"smooth"});
   setTimeout(function(){try{el.focus({preventScroll:true})}catch(e){el.focus()}},250)});
@@ -740,6 +741,29 @@ document.getElementById("code").value=code;
 setSt(code?"":"Chưa bật đồng bộ");
 setTab(tab);render();
 if(code)sync();
+
+/* Vuốt trái/phải để đổi tab Ghi chú <-> Chi tiêu */
+(function(){var sx=0,sy=0,st=0,ok=false;
+  function blocked(el){
+    while(el&&el!==document.body&&el.nodeType===1){
+      var t=el.tagName;
+      if(t==="INPUT"||t==="TEXTAREA"||t==="SELECT"||el.isContentEditable)return true;
+      if(el.classList&&el.classList.contains("sheet"))return true;
+      var ox=getComputedStyle(el).overflowX;
+      if((ox==="auto"||ox==="scroll")&&el.scrollWidth>el.clientWidth+2)return true;
+      el=el.parentNode}
+    return false}
+  document.addEventListener("touchstart",function(e){
+    if(e.touches.length!==1){ok=false;return}
+    var t=e.touches[0];sx=t.clientX;sy=t.clientY;st=Date.now();
+    ok=!blocked(e.target)&&!document.querySelector(".sheet:not([hidden])")},{passive:true});
+  document.addEventListener("touchend",function(e){
+    if(!ok)return;ok=false;
+    var t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;
+    if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.6||Date.now()-st>700)return;
+    if(dx<0&&tab==="notes")setTab("fin");
+    else if(dx>0&&tab==="fin")setTab("notes")},{passive:true});
+})();
 </script>
 </body>
 </html>
