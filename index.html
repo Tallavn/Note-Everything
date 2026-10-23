@@ -137,7 +137,27 @@ svg text{font-family:inherit}
 </main>
 <script>
 var CATS={food:{n:"Quán ăn",c:"food"},mem:{n:"Cần nhớ",c:"mem"},idea:{n:"Ý tưởng",c:"idea"},todo:{n:"Việc cần làm",c:"todo"},other:{n:"Khác",c:"other"}};
-var KEYS=Object.keys(CATS);
+var KEYS=Object.keys(CATS),BASE=Object.assign({},CATS),PAL=["food","mem","idea","todo"];
+function tagStore(){return notes.find(function(x){return x.k==="ctags"&&x.fin})}
+function applyCustom(){CATS=Object.assign({},BASE);var st=tagStore();((st&&!st.del&&st.list)||[]).forEach(function(t,i){CATS[t.k]={n:t.n,c:PAL[i%PAL.length]}});KEYS=Object.keys(CATS)}
+function addTag(name){
+  name=(name||"").trim().slice(0,20);if(!name)return;
+  var low=name.toLowerCase(),dup=Object.keys(CATS).some(function(k){return CATS[k].n.toLowerCase()===low});
+  if(dup){alert("Tag này đã có rồi.");return}
+  var st=tagStore(),now=Date.now();
+  if(!st){st={id:2,fin:1,k:"ctags",list:[],ts:now,upd:now};notes.push(st)}
+  st.list=(st.list||[]).concat([{k:"c"+now,n:name}]);st.upd=now;
+  save();render();sync();
+  var f=document.getElementById("filters");f.scrollLeft=f.scrollWidth;
+}
+function delTag(k){
+  var st=tagStore();if(!st||!confirm("Xóa tag "+(CATS[k]?CATS[k].n:"")+"? Các ghi chú trong tag sẽ chuyển sang Khác."))return;
+  var now=Date.now();
+  st.list=(st.list||[]).filter(function(t){return t.k!==k});st.upd=now;
+  notes.forEach(function(x){if(!x.fin&&x.cat===k){x.cat="other";x.upd=now}});
+  if(filter===k)filter="all";
+  save();render();sync();
+}
 var TAGS={"#quanan":"food","#an":"food","#nho":"mem","#ytuong":"idea","#idea":"idea","#viec":"todo","#todo":"todo"};
 var RULES={
 food:["pho","bun","banh","com ","ca phe","cafe","coffee","tra ","lau","nuong","nha hang","bia","che ","xoi","mien","mi ","ga ","bo ","hai san","ngon","menu","buffet","kem","oc ","lau "],
@@ -240,18 +260,23 @@ function addNote(forceRaw){
   save();render();sync();el.focus();
 }
 function renderNotes(){
+  applyCustom();
   var f=document.getElementById("filters"),h='<button class="chip" aria-pressed="'+(filter==="all")+'" data-f="all">Tất cả ('+vis().length+')</button>';
   KEYS.forEach(function(k){var n=vis().filter(function(x){return x.cat===k}).length;h+='<button class="chip" aria-pressed="'+(filter===k)+'" data-f="'+k+'">'+CATS[k].n+' ('+n+')</button>'});
-  f.innerHTML=h;
+  if(filter!=="all"&&!BASE[filter]&&CATS[filter])h+='<button class="chip" data-deltag="'+filter+'" aria-label="Xóa tag đang chọn">Xóa tag</button>';
+  h+='<button class="chip" data-addtag="1" aria-label="Thêm tag mới" title="Thêm tag mới">+</button>';
+  var sl=f.scrollLeft;f.innerHTML=h;f.scrollLeft=sl;
   var q=norm(query).trim(),list=vis().filter(function(x){return(filter==="all"||x.cat===filter)&&(!q||norm(x.text+" "+x.area).indexOf(q)>-1)});
   var L=document.getElementById("list");
   if(!list.length){L.innerHTML='<div class="empty">'+(vis().length?"Không có ghi chú nào khớp.":"Chưa có ghi chú. Gõ vào ô phía trên để bắt đầu.")+'</div>';return}
-  L.innerHTML=list.map(function(x){var c=CATS[x.cat];if(editing==x.id)return'<div class="note">'+editForm(x)+'</div>';
+  L.innerHTML=list.map(function(x){var c=CATS[x.cat]||CATS.other;if(editing==x.id)return'<div class="note">'+editForm(x)+'</div>';
     return '<div class="note"><div class="txt'+(expanded[x.id]?' open':'')+'" data-exp="'+x.id+'" title="Bấm để xem đầy đủ">'+linkify(x.text)+'</div><div class="meta"><button class="tag" data-pick="'+x.id+'" title="Bấm để chọn loại" style="background:var(--c-'+c.c+'-bg);color:var(--c-'+c.c+')">'+c.n+'</button>'+(x.area?'<span class="area">'+esc(x.area)+'</span>':'')+(function(){var ml=mapLink(x),has=x.link||MAPRE.test(x.text);return (ml?'<a class="tag map'+(has?'':' ghost')+'" data-pend="'+(has?'':x.id)+'" href="'+esc(ml.u)+'" target="_blank" rel="noopener noreferrer">'+(has?ml.l:'Bản đồ')+'</a>':'')+(ml&&!has&&pending==x.id?'<button class="tag" data-paste="'+x.id+'" style="background:var(--c-other-bg);color:var(--c-other)">Dán link</button>':'')})()+'<span>'+fmt(x.ts)+'</span>'+(x.text.indexOf("\n")>-1&&!expanded[x.id]?'<span>+'+(x.text.split("\n").length-1)+' dòng</span>':'')+'<button class="ebtn" data-edit="'+x.id+'" aria-label="Sửa ghi chú">Sửa</button><button class="del" data-del="'+x.id+'" aria-label="Xóa ghi chú">Xóa</button></div>'+(openId==x.id?picker(x):'')+'</div>'}).join("");
 }
 document.addEventListener("click",function(e){
   var t=e.target.closest("button");if(!t)return;
   if(t.dataset.unfin&&lastFin){var u=notes.find(function(x){return x.id==lastFin.id});if(u){u.del=true;u.desc="";u.amt=0;u.paid=0;u.upd=Date.now()}var rw=lastFin.raw;lastFin=null;inMsg("");addNote(rw);return}
+  if(t.dataset.addtag){addTag(prompt("Tên tag mới"));return}
+  if(t.dataset.deltag){delTag(t.dataset.deltag);return}
   if(t.dataset.f){filter=t.dataset.f;render()}
   if(t.dataset.pick){openId=openId==t.dataset.pick?null:t.dataset.pick;render()}
   if(t.dataset.set){var n=notes.find(function(x){return x.id==t.dataset.id});if(n){n.cat=t.dataset.set;n.upd=Date.now();openId=null;save();render();sync()}}
@@ -421,16 +446,21 @@ function dailyChart(by,days){
   return s+'<line x1="0" x2="'+W+'" y1="'+(T+H)+'" y2="'+(T+H)+'" style="stroke:var(--line)"/></svg>';
 }
 function hourChart(list){
-  var W=600,H=110,T=18,bw=W/24,by=[],mx=0,i,s;
-  for(i=0;i<24;i++)by.push(0);
-  list.forEach(function(x){if(x.t==="out"){var h=new Date(x.ts||0).getHours();by[h]+=x.amt;}});
-  by.forEach(function(v){mx=Math.max(mx,v)});
-  if(!mx)return'<div class="empty">Ngày này không có khoản chi.</div>';
-  s='<svg viewBox="0 0 '+W+' '+(T+H+26)+'" width="100%" role="img" aria-label="Chi theo giờ">';
+  var W=600,H=110,T=18,bw=W/24,vi=[],vo=[],mx=0,i,s;
+  for(i=0;i<24;i++){vi.push(0);vo.push(0)}
+  list.forEach(function(x){var h=new Date(x.ts||0).getHours();if(x.t==="in")vi[h]+=x.amt;else if(x.t==="out")vo[h]+=x.amt});
+  for(i=0;i<24;i++)mx=Math.max(mx,vi[i],vo[i]);
+  if(!mx)return'<div class="empty">Ngày này chưa có giao dịch.</div>';
+  function cmp2(v){return v>=1000000?(Math.round(v/100000)/10)+"tr":v>=1000?Math.round(v/1000)+"k":String(v)}
+  s='<div class="hint" style="margin:0 0 6px"><span class="good">■ Thu</span> <span class="bad">■ Chi</span></div><svg viewBox="0 0 '+W+' '+(T+H+26)+'" width="100%" role="img" aria-label="Thu chi theo giờ">';
   for(i=0;i<24;i++){
-    var v=by[i],h=v?Math.max(3,v/mx*H):0;
-    s+='<rect x="'+(i*bw+bw*.15).toFixed(1)+'" y="'+(T+H-h).toFixed(1)+'" width="'+(bw*.7).toFixed(1)+'" height="'+h.toFixed(1)+'" rx="2" style="fill:var(--bad)"><title>'+i+'h: '+money(v)+'</title></rect>';
-    if(v)s+='<text x="'+((i+.5)*bw).toFixed(1)+'" y="'+(T+H-h-4).toFixed(1)+'" text-anchor="middle" font-size="13" style="fill:var(--muted)">'+(v>=1000?Math.round(v/1000)+"k":v)+'</text>';
+    var x0=i*bw+bw*.1,w=bw*.38;
+    [[vi[i],"var(--good)",x0,"Thu"],[vo[i],"var(--bad)",x0+w+bw*.04,"Chi"]].forEach(function(b){
+      var v=b[0];if(!v)return;
+      var h=Math.max(3,v/mx*H);
+      s+='<rect x="'+b[2].toFixed(1)+'" y="'+(T+H-h).toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+h.toFixed(1)+'" rx="2" style="fill:'+b[1]+'"><title>'+i+'h - '+b[3]+': '+money(v)+'</title></rect>';
+      s+='<text x="'+(b[2]+w/2).toFixed(1)+'" y="'+(T+H-h-4).toFixed(1)+'" text-anchor="middle" font-size="10" style="fill:var(--muted)">'+cmp2(v)+'</text>';
+    });
     if(i%3===0)s+='<text x="'+((i+.5)*bw).toFixed(1)+'" y="'+(T+H+19)+'" text-anchor="middle" font-size="16" style="fill:var(--muted)">'+i+'h</text>';
   }
   return s+'<line x1="0" x2="'+W+'" y1="'+(T+H)+'" y2="'+(T+H)+'" style="stroke:var(--line)"/></svg>';
