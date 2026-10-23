@@ -218,6 +218,9 @@ function autoFin(raw){
   if(raw.indexOf("\n")>-1||raw.length>80||/https?:\/\//i.test(raw)||raw.indexOf("#")>-1||area(raw))return null;
   var tk=raw.trim().split(/\s+/),idx=-1,v=0,i;
   for(i=0;i<tk.length;i++){v=strongAmt(tk[i]);if(v){idx=i;break}}
+  if(idx<0&&tk.some(function(w){var b=bare(w);return b==="no"||b==="vay"||b==="muon"})){
+    for(i=0;i<tk.length;i++){var tn=tk[i].replace(/[;:!?]+$/,"");if(/^\d+([.,]\d{3})*$/.test(tn)){var nv=Number(tn.replace(/[.,]/g,""));if(nv>=1000){v=nv;idx=i;break}}}
+  }
   if(idx<0)return null;
   var tok=tk[idx],prev=idx>0?tk[idx-1]:"",c0=tok.charAt(0);
   var sign=(c0==="+"||prev==="+")?"+":((c0==="-"||prev==="-")?"-":"");
