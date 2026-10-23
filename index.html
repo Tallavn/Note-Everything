@@ -56,7 +56,7 @@ button{font:inherit;cursor:pointer}
 .empty{text-align:center;color:var(--muted);padding:32px 0}
 .tools{display:flex;gap:12px;justify-content:center;margin-top:20px}
 .tools button{background:none;border:0;color:var(--muted);font-size:13px;text-decoration:underline}
-.sync{margin-top:20px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;font-size:13px;color:var(--muted)}
+.sync{margin-top:34px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;font-size:13px;color:var(--muted)}
 .sync input{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:6px 10px;font:inherit;font-size:14px;width:200px}
 .sync button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:6px 12px;font-size:13px}
 .sync #st{flex-basis:100%;text-align:center}
@@ -591,6 +591,7 @@ var tab="notes",sub="tx",fcat="",chartView="day",trendN=6,fday="",openTx=null,_n
 try{tab=localStorage.getItem("ghichu_tab")||"notes"}catch(e){}
 function p2(n){return("0"+n).slice(-2)}
 function today(){var d=new Date();return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate())}
+fday=today();
 function money(n){return String(Math.round(Math.abs(n))).replace(/\B(?=(\d{3})+(?!\d))/g,".")+"đ"}
 function cmp(n){if(n>=1e6)return(n/1e6).toFixed(1).replace(".0","").replace(".",",")+"tr";if(n>=1e3)return Math.round(n/1e3)+"k";return String(n)}
 function mkey(y,m){return y+"-"+p2(m)}
@@ -679,7 +680,7 @@ function hourChart(list){
   for(i=0;i<24;i++){vi.push(0);vo.push(0)}
   list.forEach(function(x){var h=new Date(x.ts||0).getHours();if(x.t==="in")vi[h]+=x.amt;else if(x.t==="out")vo[h]+=x.amt});
   for(i=0;i<24;i++)mx=Math.max(mx,vi[i],vo[i]);
-  if(!mx)return'<div class="empty">Ngày này chưa có giao dịch.</div>';
+  if(!mx){/* Vẫn hiển thị đủ 24 giờ của ngày được chọn. */}
   function cmp2(v){return v>=1000000?(Math.round(v/100000)/10)+"tr":v>=1000?Math.round(v/1000)+"k":String(v)}
   s='<div class="hint" style="margin:0 0 6px"><span class="good">■ Thu</span> <span class="bad">■ Chi</span></div><svg viewBox="0 0 '+W+' '+(T+H+26)+'" width="100%" role="img" aria-label="Thu chi theo giờ">';
   for(i=0;i<24;i++){
@@ -906,9 +907,9 @@ document.addEventListener("click",function(e){
   if(d.tab){setTab(d.tab);return}
   if(d.add){openSheet();return}
   if(d.sheetclose){closeSheet();return}
-  if(d.fclear){fday="";renderFin();return}
+  if(d.fclear){fday=today();chartView="day";var p=fday.split("-");ym={y:+p[0],m:+p[1]};renderFin();return}
   if(d.cv){if(d.cv==="trend"&&chartView==="trend"){trendN=trendN===1?3:trendN===3?6:trendN===6?12:1}chartView=d.cv;renderFin();return}
-  if(d.sub){sub=d.sub;fcat="";fday="";openTx=null;defMsg();renderFin();return}
+  if(d.sub){sub=d.sub;fcat="";if(sub==="tx"&&!fday)fday=today();openTx=null;defMsg();renderFin();return}
   if(d.mo){var mm=ym.m+Number(d.mo),yy=ym.y;if(mm<1){mm=12;yy--}if(mm>12){mm=1;yy++}ym={y:yy,m:mm};fcat="";fday="";openTx=null;renderFin();return}
   if(d.fcat){fcat=fcat===d.fcat?"":d.fcat;renderFin();return}
   if(d.ftx){openTx=openTx==d.ftx?null:d.ftx;renderFin();return}
@@ -941,11 +942,26 @@ document.getElementById("fin-add").onclick=function(){addFin()};
 document.addEventListener("click",function(e){
   var g=e.target.closest&&e.target.closest("[data-fday]");
   if(!g||g.tagName==="BUTTON")return;
-  fday=fday===g.getAttribute("data-fday")?"":g.getAttribute("data-fday");renderFin();
+  var selected=g.getAttribute("data-fday");
+  fday=selected;
+  var p=selected.split("-");
+  ym={y:+p[0],m:+p[1]};
+  fcat="";
+  chartView="day";
+  renderFin();
 });
 document.addEventListener("change",function(e){
   var t=e.target;if(!t.dataset||!t.dataset.fdpick)return;
-  if(t.value){var p=t.value.split("-");ym={y:+p[0],m:+p[1]};fday=t.value;fcat=""}else fday="";
+  if(t.value){
+    var p=t.value.split("-");
+    ym={y:+p[0],m:+p[1]};
+    fday=t.value;
+    fcat="";
+    chartView="day";
+  }else{
+    fday=today();
+    chartView="day";
+  }
   renderFin();
 });
 document.getElementById("finSheet").addEventListener("mousedown",function(e){if(e.target===this)closeSheet()});
