@@ -121,6 +121,12 @@ svg text{font-family:inherit}
 .fab svg{width:26px;height:26px;display:block}
 .fab:active{transform:scale(.94)}
 @media (max-width:700px),(pointer:coarse){.fab.show{display:flex}}
+@keyframes tabInR{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
+@keyframes tabInL{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:none}}
+.tabin-r{animation:tabInR .28s cubic-bezier(.2,.7,.2,1)}
+.tabin-l{animation:tabInL .28s cubic-bezier(.2,.7,.2,1)}
+main{overflow-x:clip}
+@media (prefers-reduced-motion:reduce){.tabin-r,.tabin-l{animation:none}}
 </style>
 </head>
 <body>
@@ -618,22 +624,31 @@ function renderFin(){
   document.getElementById("fin-in").placeholder=sub==="debt"?"500k Nam tiền ăn":"45k phở bò · 1tr2 tiền điện · +15tr lương";
   if(sub==="debt")renderDebt(top,body);else renderTx(top,body);
 }
-var composerFocus=false,composerSeen=true;
-function updateFab(){var f=document.getElementById("fab");if(f)f.classList.toggle("show",tab==="notes"&&!(composerFocus&&composerSeen))}
+var composerSeen=true,userTouched=false;
+function updateFab(){var f=document.getElementById("fab"),i=document.getElementById("in");
+  if(f)f.classList.toggle("show",tab==="notes"&&!(document.activeElement===i&&composerSeen))}
 (function(){var i=document.getElementById("in"),bx=document.querySelector("#notesView .box");if(!i)return;
-  i.addEventListener("focus",function(){composerFocus=true;updateFab()});
-  i.addEventListener("blur",function(){composerFocus=false;updateFab()});
-  if(bx&&"IntersectionObserver" in window)new IntersectionObserver(function(en){composerSeen=en[0].isIntersecting;updateFab()}).observe(bx)})();
+  i.addEventListener("focus",updateFab);
+  i.addEventListener("blur",function(){setTimeout(updateFab,0)});
+  document.addEventListener("touchstart",function(){userTouched=true},{passive:true,capture:true,once:true});
+  if(bx&&"IntersectionObserver" in window)new IntersectionObserver(function(en){composerSeen=en[0].isIntersecting;updateFab()}).observe(bx);
+  /* F5 trên điện thoại: bỏ autofocus để không bị coi là đang gõ và giấu nút bút */
+  function settle(){if(!userTouched&&window.matchMedia&&matchMedia("(pointer:coarse)").matches&&document.activeElement===i)i.blur();updateFab()}
+  window.addEventListener("load",function(){setTimeout(settle,120);setTimeout(settle,600)});
+  window.addEventListener("pageshow",function(){setTimeout(settle,50)});
+  setTimeout(settle,0)})();
 document.getElementById("fab").addEventListener("click",function(){
   var el=document.getElementById("in");window.scrollTo({top:0,behavior:"smooth"});
   setTimeout(function(){try{el.focus({preventScroll:true})}catch(e){el.focus()}},250)});
 function setTab(t){
-  tab=t;try{localStorage.setItem("ghichu_tab",t)}catch(e){}
+  var prev=tab;tab=t;try{localStorage.setItem("ghichu_tab",t)}catch(e){}
   document.getElementById("notesView").hidden=t!=="notes";
   document.getElementById("finView").hidden=t!=="fin";
   document.getElementById("copy").hidden=t!=="notes";
   Array.prototype.forEach.call(document.querySelectorAll("[data-tab]"),function(b){b.setAttribute("aria-pressed",b.dataset.tab===t)});
   if(t==="fin")renderFin();
+  if(prev!==t){var v=document.getElementById(t==="fin"?"finView":"notesView"),c=t==="fin"?"tabin-r":"tabin-l";
+    v.classList.remove("tabin-r","tabin-l");void v.offsetWidth;v.classList.add(c);setTimeout(function(){v.classList.remove(c)},340)}
   updateFab();
 }
 var editing=null,editVal="",editDay="",editDir="",editErr="";
