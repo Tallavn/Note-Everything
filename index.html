@@ -260,7 +260,7 @@ function renderInTags(){
   var el=document.getElementById("inTags");if(!el)return;
   if(inCat&&!CATS[inCat])inCat="";
   var c=inCat?CATS[inCat]:null;
-  var h='<button type="button" class="tag'+(c?'':' ghost')+'" data-inopen="1" aria-expanded="'+inOpen+'" title="Bấm để chọn loại" '+(c?'style="background:var(--c-'+c.c+'-bg);color:var(--c-'+c.c+')"':'')+'>'+(c?c.n:'Tự động')+' ▾</button>';
+  var h='<button type="button" class="tag'+(c?'':' ghost')+'" data-inopen="1" aria-expanded="'+inOpen+'" title="Bấm để chọn loại" '+(c?'style="background:var(--c-'+c.c+'-bg);color:var(--c-'+c.c+')"':'')+'>'+(c?c.n:'Tag')+' ▾</button>';
   if(inOpen){
     h+='<div class="pick">'+KEYS.map(function(k){var d=CATS[k];return '<button type="button" class="tag" data-incat="'+k+'" aria-pressed="'+(inCat===k)+'" style="background:var(--c-'+d.c+'-bg);color:var(--c-'+d.c+')">'+d.n+'</button>'}).join("")+'<button type="button" class="tag ghost" data-incat="" style="background:transparent;color:var(--muted);border:1px solid var(--line)">Tự động</button></div>';
   }
