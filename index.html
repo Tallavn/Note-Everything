@@ -259,10 +259,12 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .acts-row .acts{margin-left:0}
 .acts-row .pick{flex:0 0 100%}
 .note.acts-row{padding-top:7px;padding-bottom:7px}
-.acts-row .acts{gap:2px}
-.acts-row .acts .ebtn,.acts-row .acts .del{padding:3px 10px;line-height:1.3}
+.acts-row .acts{gap:8px}
+.acts-row .acts .ebtn,.acts-row .acts .del{padding:4px 10px;line-height:0}
 .acts .ebtn,.acts .del{margin:0;padding:6px 10px}
 .acts .del{color:#e58a84;color:color-mix(in srgb,var(--bad) 60%,var(--surface))}
+.acts .ebtn,.acts .del{display:inline-flex;align-items:center;justify-content:center;min-width:36px}
+.acts svg{width:18px;height:18px;display:block}
 </style>
 </head>
 <body>
@@ -495,7 +497,7 @@ function renderNotes(){
   var L=document.getElementById("list");
   if(!list.length){L.innerHTML='<div class="empty">'+(vis().length?"Không có ghi chú nào khớp.":"Chưa có ghi chú. Gõ vào ô phía trên để bắt đầu.")+'</div>';return}
   L.innerHTML=list.map(function(x,i){var c=CATS[x.cat]||CATS.other,nc=(i>0&&list[i-1].cat!==x.cat)?" newtag":"";if(editing==x.id)return'<div class="note'+nc+'">'+editForm(x)+'</div>';
-    return '<div class="note acts-row'+nc+'"><div class="nmain"><div class="txt'+(expanded[x.id]?' open':'')+'" data-exp="'+x.id+'" title="Bấm để xem đầy đủ">'+linkify(x.text)+'</div><div class="meta"><button class="tag" data-pick="'+x.id+'" title="Bấm để chọn loại" style="background:var(--c-'+c.c+'-bg);color:var(--c-'+c.c+')">'+c.n+'</button>'+(x.area?'<span class="area">'+esc(x.area)+'</span>':'')+(function(){var ml=mapLink(x),has=x.link||MAPRE.test(x.text);return (ml?'<a class="tag map'+(has?'':' ghost')+'" data-pend="'+(has?'':x.id)+'" href="'+esc(ml.u)+'" target="_blank" rel="noopener noreferrer">'+(has?ml.l:'Bản đồ')+'</a>':'')+(ml&&!has&&pending==x.id?'<button class="tag" data-paste="'+x.id+'" style="background:var(--c-other-bg);color:var(--c-other)">Dán link</button>':'')})()+priceTag(x)+'<span>'+fmt(x.ts)+'</span>'+(x.text.indexOf("\n")>-1&&!expanded[x.id]?'<span>+'+(x.text.split("\n").length-1)+' dòng</span>':'')+'</div></div><span class="acts"><button class="ebtn" data-edit="'+x.id+'" aria-label="Sửa ghi chú">Sửa</button><button class="del" data-del="'+x.id+'" aria-label="Xóa ghi chú">Xóa</button></span>'+(openId==x.id?picker(x):'')+'</div>'}).join("");
+    return '<div class="note acts-row'+nc+'"><div class="nmain"><div class="txt'+(expanded[x.id]?' open':'')+'" data-exp="'+x.id+'" title="Bấm để xem đầy đủ">'+linkify(x.text)+'</div><div class="meta"><button class="tag" data-pick="'+x.id+'" title="Bấm để chọn loại" style="background:var(--c-'+c.c+'-bg);color:var(--c-'+c.c+')">'+c.n+'</button>'+(x.area?'<span class="area">'+esc(x.area)+'</span>':'')+(function(){var ml=mapLink(x),has=x.link||MAPRE.test(x.text);return (ml?'<a class="tag map'+(has?'':' ghost')+'" data-pend="'+(has?'':x.id)+'" href="'+esc(ml.u)+'" target="_blank" rel="noopener noreferrer">'+(has?ml.l:'Bản đồ')+'</a>':'')+(ml&&!has&&pending==x.id?'<button class="tag" data-paste="'+x.id+'" style="background:var(--c-other-bg);color:var(--c-other)">Dán link</button>':'')})()+priceTag(x)+'<span>'+fmt(x.ts)+'</span>'+(x.text.indexOf("\n")>-1&&!expanded[x.id]?'<span>+'+(x.text.split("\n").length-1)+' dòng</span>':'')+'</div></div><span class="acts"><button class="ebtn" data-edit="'+x.id+'" aria-label="Sửa ghi chú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button><button class="del" data-del="'+x.id+'" aria-label="Xóa ghi chú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></span>'+(openId==x.id?picker(x):'')+'</div>'}).join("");
 }
 document.addEventListener("click",function(e){
   var t=e.target.closest("button");if(!t)return;
@@ -784,7 +786,7 @@ function renderTx(top,body){
       h+='<div class="dh"><span>'+dayLabel(day)+'</span><span>'+(ds?"Chi "+money(ds):"")+'</span></div>';
       arr.forEach(function(x){
         if(editing==x.id){h+='<div class="tx" style="display:block">'+editForm(x)+'</div>';return}
-        h+='<div class="tx"><div><div class="tdesc">'+esc(x.desc||"")+'</div><button class="tag ftag" data-ftx="'+x.id+'" title="Bấm để đổi mục" style="color:'+catColor(x)+'">'+catName(x)+'</button></div><div class="tamt '+(x.t==="in"?"good":"bad")+'">'+(x.t==="in"?"+":"-")+money(x.amt)+'</div><span class="acts"><button class="ebtn" data-edit="'+x.id+'" aria-label="Sửa giao dịch">Sửa</button><button class="del" data-fdel="'+x.id+'" aria-label="Xóa giao dịch">Xóa</button></span>'+(openTx==x.id?pickerFin(x):'')+'</div>';
+        h+='<div class="tx"><div><div class="tdesc">'+esc(x.desc||"")+'</div><button class="tag ftag" data-ftx="'+x.id+'" title="Bấm để đổi mục" style="color:'+catColor(x)+'">'+catName(x)+'</button></div><div class="tamt '+(x.t==="in"?"good":"bad")+'">'+(x.t==="in"?"+":"-")+money(x.amt)+'</div><span class="acts"><button class="ebtn" data-edit="'+x.id+'" aria-label="Sửa giao dịch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button><button class="del" data-fdel="'+x.id+'" aria-label="Xóa giao dịch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></span>'+(openTx==x.id?pickerFin(x):'')+'</div>';
       });
     });
   }
@@ -801,7 +803,7 @@ function renderDebt(top,body){
     return'<div class="note acts-row'+(done?' done':'')+'"><div class="nmain"><div class="tdesc" style="word-break:break-word">'+esc(x.desc||"")+'</div>'+
     '<div class="meta"><span class="tag" style="background:transparent;border:1px solid currentColor;color:'+(own?"var(--bad)":"var(--good)")+'">'+(own?"Mình nợ":"Họ nợ mình")+'</span>'+
     '<b style="color:var(--ink)">'+(done?"Đã xong · "+money(x.amt):"Còn "+money(rem)+" / "+money(x.amt))+'</b><span>'+(x.day?dayLabel(x.day):"")+'</span></div>'+
-    '<div class="meta">'+(done?'<button class="dtn" data-dreopen="'+x.id+'">Mở lại</button>':'<button class="dtn" data-dpay="'+x.id+'">'+(own?"Trả bớt":"Thu bớt")+'</button><button class="dtn" data-ddone="'+x.id+'">Đã xong</button>')+'</div></div><span class="acts"><button class="ebtn" data-edit="'+x.id+'" aria-label="Sửa khoản nợ">Sửa</button><button class="del" data-ddel="'+x.id+'" aria-label="Xóa khoản nợ">Xóa</button></span></div>';
+    '<div class="meta">'+(done?'<button class="dtn" data-dreopen="'+x.id+'">Mở lại</button>':'<button class="dtn" data-dpay="'+x.id+'">'+(own?"Trả bớt":"Thu bớt")+'</button><button class="dtn" data-ddone="'+x.id+'">Đã xong</button>')+'</div></div><span class="acts"><button class="ebtn" data-edit="'+x.id+'" aria-label="Sửa khoản nợ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button><button class="del" data-ddel="'+x.id+'" aria-label="Xóa khoản nợ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></span></div>';
   }).join("");
 }
 function renderFin(){
