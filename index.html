@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ghi chú nhanh</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0f6b5c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Ghi chú">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#eef2f0;--surface:#fff;--ink:#14231e;--muted:#5d6f68;--line:#d5ddd9;--accent:#0f6b5c;--accent-ink:#fff;
@@ -39,6 +46,9 @@ button{font:inherit;cursor:pointer}
 .map.ghost{background:transparent;color:var(--accent);border:1px solid var(--line)}
 .pick{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
 .pick .tag{padding:5px 12px;font-size:14px}
+.intags{margin:6px 0 2px;padding-top:8px;border-top:1px dashed var(--line)}
+.intags .tag.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+.intags .pick{margin-top:8px;padding-top:8px}
 .pick .tag[aria-pressed="true"]{outline:2px solid currentColor}
 .map{text-decoration:none;background:var(--accent);color:var(--accent-ink)}
 .del{margin-left:auto;background:none;border:0;color:var(--muted);padding:2px 6px}
@@ -116,6 +126,7 @@ svg text{font-family:inherit}
 <div id="notesView">
 <div class="box">
 <textarea id="in" placeholder="Gõ gì cũng được, ví dụ: bún chả Hương Liên Hai Bà Trưng, ngon, nhớ quay lại" autofocus></textarea>
+<div class="intags" id="inTags"></div>
 <div class="row"><span class="hint">Enter để lưu. Xuống dòng: Shift+Enter</span><button class="add" id="add">Lưu</button></div>
 </div>
 <div class="hint" id="in-msg" style="margin-top:6px" role="status"></div>
@@ -243,10 +254,22 @@ function autoFin(raw){
 }
 var lastFin=null,inTimer=null;
 function inMsg(h){var m=document.getElementById("in-msg");m.innerHTML=h;clearTimeout(inTimer);if(h)inTimer=setTimeout(function(){m.innerHTML=""},9000)}
+var inCat="";
+var inOpen=false;
+function renderInTags(){
+  var el=document.getElementById("inTags");if(!el)return;
+  if(inCat&&!CATS[inCat])inCat="";
+  var c=inCat?CATS[inCat]:null;
+  var h='<button type="button" class="tag'+(c?'':' ghost')+'" data-inopen="1" aria-expanded="'+inOpen+'" title="Bấm để chọn loại" '+(c?'style="background:var(--c-'+c.c+'-bg);color:var(--c-'+c.c+')"':'')+'>'+(c?c.n:'Tự động')+' ▾</button>';
+  if(inOpen){
+    h+='<div class="pick">'+KEYS.map(function(k){var d=CATS[k];return '<button type="button" class="tag" data-incat="'+k+'" aria-pressed="'+(inCat===k)+'" style="background:var(--c-'+d.c+'-bg);color:var(--c-'+d.c+')">'+d.n+'</button>'}).join("")+'<button type="button" class="tag ghost" data-incat="" style="background:transparent;color:var(--muted);border:1px solid var(--line)">Tự động</button></div>';
+  }
+  el.innerHTML=h;
+}
 function addNote(forceRaw){
   var el=document.getElementById("in"),raw=forceRaw!==undefined?forceRaw:el.value.trim();if(!raw)return;
   if(forceRaw===undefined){
-    var f=autoFin(raw);
+    var f=inCat?null:autoFin(raw);
     if(f){
       var o=f.obj,dd=o.day.split("-"),txt;
       notes.unshift(o);ym={y:+dd[0],m:+dd[1]};fcat="";
@@ -258,12 +281,12 @@ function addNote(forceRaw){
       return;
     }
   }
-  notes.unshift({id:Date.now(),text:clean(raw),cat:classify(raw),area:area(raw),ts:Date.now(),upd:Date.now()});
-  if(forceRaw===undefined){el.value="";inMsg("")}
+  notes.unshift({id:Date.now(),text:clean(raw),cat:(forceRaw===undefined&&inCat&&CATS[inCat])?inCat:classify(raw),area:area(raw),ts:Date.now(),upd:Date.now()});
+  if(forceRaw===undefined){el.value="";inMsg("");inCat="";inOpen=false;renderInTags()}
   save();render();sync();el.focus();
 }
 function renderNotes(){
-  applyCustom();
+  applyCustom();renderInTags();
   var f=document.getElementById("filters"),h='<button class="chip" aria-pressed="'+(filter==="all")+'" data-f="all">Tất cả ('+vis().length+')</button>';
   KEYS.forEach(function(k){var n=vis().filter(function(x){return x.cat===k}).length;h+='<button class="chip" aria-pressed="'+(filter===k)+'" data-f="'+k+'">'+CATS[k].n+' ('+n+')</button>'});
   if(filter!=="all"&&!BASE[filter]&&CATS[filter])h+='<button class="chip" data-deltag="'+filter+'" aria-label="Xóa tag đang chọn">Xóa tag</button>';
@@ -278,6 +301,8 @@ function renderNotes(){
 document.addEventListener("click",function(e){
   var t=e.target.closest("button");if(!t)return;
   if(t.dataset.unfin&&lastFin){var u=notes.find(function(x){return x.id==lastFin.id});if(u){u.del=true;u.desc="";u.amt=0;u.paid=0;u.upd=Date.now()}var rw=lastFin.raw;lastFin=null;inMsg("");addNote(rw);return}
+  if(t.dataset.inopen){inOpen=!inOpen;renderInTags();return}
+  if(t.dataset.incat!==undefined){inCat=t.dataset.incat;inOpen=false;renderInTags();document.getElementById("in").focus();return}
   if(t.dataset.addtag){addTag(prompt("Tên tag mới"));return}
   if(t.dataset.deltag){delTag(t.dataset.deltag);return}
   if(t.dataset.f){filter=t.dataset.f;render()}
@@ -694,6 +719,7 @@ document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!document.g
 document.getElementById("fin-in").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();addFin()}});
 document.getElementById("fin-date").value=today();
 defMsg();
+if("serviceWorker" in navigator)window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})});
 load();
 try{code=localStorage.getItem("ghichu_code")||""}catch(e){}
 document.getElementById("code").value=code;
