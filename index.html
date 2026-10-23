@@ -618,10 +618,11 @@ function renderFin(){
   document.getElementById("fin-in").placeholder=sub==="debt"?"500k Nam tiền ăn":"45k phở bò · 1tr2 tiền điện · +15tr lương";
   if(sub==="debt")renderDebt(top,body);else renderTx(top,body);
 }
-var composerSeen=true;
-function updateFab(){var f=document.getElementById("fab");if(f)f.classList.toggle("show",tab==="notes"&&!composerSeen)}
-(function(){var b=document.querySelector("#notesView .box");if(!b||!("IntersectionObserver" in window))return;
-  new IntersectionObserver(function(en){composerSeen=en[0].isIntersecting;updateFab()}).observe(b)})();
+var composerFocus=false;
+function updateFab(){var f=document.getElementById("fab");if(f)f.classList.toggle("show",tab==="notes"&&!composerFocus)}
+(function(){var i=document.getElementById("in");if(!i)return;
+  i.addEventListener("focus",function(){composerFocus=true;updateFab()});
+  i.addEventListener("blur",function(){composerFocus=false;updateFab()})})();
 document.getElementById("fab").addEventListener("click",function(){
   var el=document.getElementById("in");window.scrollTo({top:0,behavior:"smooth"});
   setTimeout(function(){try{el.focus({preventScroll:true})}catch(e){el.focus()}},250)});
