@@ -117,6 +117,10 @@ textarea.ed{min-height:64px;resize:vertical}
 .add.sm{padding:5px 14px;font-size:14px}
 .edit .meta{margin-top:8px}
 svg text{font-family:inherit}
+.fab{display:none;position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;border:0;padding:0;background:var(--accent);color:var(--accent-ink);box-shadow:0 4px 14px rgba(0,0,0,.28);align-items:center;justify-content:center;z-index:20;-webkit-tap-highlight-color:transparent}
+.fab svg{width:26px;height:26px;display:block}
+.fab:active{transform:scale(.94)}
+@media (max-width:700px),(pointer:coarse){.fab.show{display:flex}}
 </style>
 </head>
 <body>
@@ -146,6 +150,7 @@ svg text{font-family:inherit}
 <div class="sync"><input id="code" placeholder="Mã đồng bộ" autocomplete="off" spellcheck="false"><button id="conn">Kết nối</button><button id="gen">Tạo mã mới</button><button id="off">Ngắt</button><span id="st" class="hint"></span></div>
 <div class="tools"><button id="copy">Sao chép tất cả</button><button id="theme">Đổi giao diện</button></div>
 </main>
+<button type="button" class="fab" id="fab" aria-label="Viết ghi chú mới" title="Viết ghi chú mới"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
 <script>
 var CATS={food:{n:"Quán ăn",c:"food"},mem:{n:"Cần nhớ",c:"mem"},idea:{n:"Ý tưởng",c:"idea"},todo:{n:"Việc cần làm",c:"todo"},other:{n:"Khác",c:"other"}};
 var KEYS=Object.keys(CATS),BASE=Object.assign({},CATS),PAL=["food","mem","idea","todo"];
@@ -613,6 +618,13 @@ function renderFin(){
   document.getElementById("fin-in").placeholder=sub==="debt"?"500k Nam tiền ăn":"45k phở bò · 1tr2 tiền điện · +15tr lương";
   if(sub==="debt")renderDebt(top,body);else renderTx(top,body);
 }
+var composerSeen=true;
+function updateFab(){var f=document.getElementById("fab");if(f)f.classList.toggle("show",tab==="notes"&&!composerSeen)}
+(function(){var b=document.querySelector("#notesView .box");if(!b||!("IntersectionObserver" in window))return;
+  new IntersectionObserver(function(en){composerSeen=en[0].isIntersecting;updateFab()}).observe(b)})();
+document.getElementById("fab").addEventListener("click",function(){
+  var el=document.getElementById("in");window.scrollTo({top:0,behavior:"smooth"});
+  setTimeout(function(){try{el.focus({preventScroll:true})}catch(e){el.focus()}},250)});
 function setTab(t){
   tab=t;try{localStorage.setItem("ghichu_tab",t)}catch(e){}
   document.getElementById("notesView").hidden=t!=="notes";
@@ -620,6 +632,7 @@ function setTab(t){
   document.getElementById("copy").hidden=t!=="notes";
   Array.prototype.forEach.call(document.querySelectorAll("[data-tab]"),function(b){b.setAttribute("aria-pressed",b.dataset.tab===t)});
   if(t==="fin")renderFin();
+  updateFab();
 }
 var editing=null,editVal="",editDay="",editDir="",editErr="";
 function amtStr(n){if(n<1000)return n+"d";if(n%1e6===0)return n/1e6+"tr";if(n%1000===0)return n/1000+"k";return String(n)}
