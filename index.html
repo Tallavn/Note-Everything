@@ -1438,7 +1438,7 @@ document.addEventListener("click",function(e){
 });
 document.addEventListener("click",function(e){
   var c=e.target.closest(".pc[data-pc]");if(!c||e.target.closest("button,input,select,a,label"))return;
-  var fd=c.classList.contains("pcf");if(!fd&&!e.target.closest(".pph,.pbar"))return;
+  var fd=c.classList.contains("pcf");if(!fd){var tb=c.querySelector(".pchips");if(!tb||e.clientY>=tb.getBoundingClientRect().top)return}
   plFold[c.dataset.pc]=!fd;try{localStorage.setItem("ghichu_planfold",JSON.stringify(plFold))}catch(x){}renderPlan()});
 document.addEventListener("change",function(e){
   var t=e.target,c=t.dataset&&t.dataset.plc;if(!c)return;
