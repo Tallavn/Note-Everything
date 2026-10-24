@@ -235,6 +235,7 @@ main{padding-top:18px}
 /* sửa lỗi: thanh tag bị margin-bottom 16px đẩy lên khỏi đáy */
 #filters{margin:0}
 .sbar{margin:0 0 12px}
+/* KHÓA: khung nhập bám bàn phím — xem ghi chú "KHUNG NHẬP BÁM BÀN PHÍM" ở phần script, đừng sửa khi chưa báo */
 /* khung nhập ẩn, chỉ mở khi bấm nút bút */
 #notesView>.box{display:none;position:fixed;z-index:60;left:12px;right:12px;top:auto;bottom:calc(var(--kb,0px) + 10px + env(safe-area-inset-bottom,0px));margin:0;box-shadow:0 -6px 30px rgba(0,0,0,.3);transition:border-color .15s,box-shadow .15s;transform-origin:50% 100%}
 body.composing #notesView>.box{display:block;animation:sheetPop .12s ease-out both}
@@ -1207,6 +1208,30 @@ function updateFab(){var f=document.getElementById("fab");
   if(f){f.classList.toggle("show",(tab==="notes"&&!document.body.classList.contains("composing"))||(tab==="plan"&&!document.body.classList.contains("psheet")));var l=tab==="plan"?"Tạo dự án mới":"Tạo ghi chú mới";f.setAttribute("aria-label",l);f.title=l}}
 var pT=null;
 var plCtx=null;
+/* =====================================================================
+   KHÓA — KHUNG NHẬP BÁM BÀN PHÍM (đã chốt, chạy tốt trên mobile)
+   ĐỪNG SỬA khi chưa báo trước cho chủ app. Muốn đổi thì hỏi rồi mới làm.
+   Áp dụng cho: khung ghi chú (#notesView>.box), popup dự án (.psh),
+   form Sửa (.edit), popup .sheet. Dùng làm MẪU cho mọi khung/popup có ô nhập khác.
+
+   Nguyên tắc:
+   1. Mở: kbPrep() -> thêm class (composing/psheet/ein) -> focus({preventScroll:true}), cùng một nhịp.
+   2. Vị trí: bottom:calc(var(--kb) + 10px + safe-area). KHÔNG transition trên bottom.
+      Hiệu ứng hiện chỉ là mờ dần tại chỗ (sheetPop .12s), không trượt từ dưới lên.
+   3. --kb chỉ gán lên các khung (setKb/applyKb). TUYỆT ĐỐI không gán lên :root:
+      làm trình duyệt tính lại style cả danh sách, chậm ~200ms mỗi lần.
+   4. Dự đoán: kbPrep() lấy chiều cao phím đã nhớ (localStorage "kbh"); chưa có thì ước tính
+      (iOS 0.48, còn lại 0.40 chiều cao màn hình). Giữ vị trí đó (__kbHold) tới khi đo được phím;
+      quá 0.9s không thấy phím thì hạ khung xuống.
+   5. Đo: kb() — h>120 thì dùng h. Không được ghi đè bằng 0 khi đang chờ phím
+      (lỗi cũ: khung rớt xuống đáy rồi mới nhảy lên sau phím).
+   6. Chỉ lưu "kbh" khi đã đứng yên 250ms và đang có ô nhập focus (tránh lưu số lúc phím đang trượt).
+      "kbm"="layout" nếu trình duyệt tự co layout theo phím (khi đó --kb = 0).
+   7. --kb chia cho zoom của body (kbZ) để đúng ở mọi cỡ giao diện.
+   8. Thẻ viewport có interactive-widget=resizes-visual.
+   9. Form Sửa render động: phải gọi applyKb() ngay sau render (đã có trong focusEdit).
+   Làm khung mới: gọi kbPrep() khi mở, dùng cùng công thức bottom/class CSS như .psh.
+   ===================================================================== */
 /* Chiều cao bàn phím: body có zoom nên chia lại cho zoom, để khung luôn nằm sát phím */
 function kbZ(){return parseFloat(document.body.style.zoom)||1}
 /* --kb chỉ gán lên đúng các khung cần dùng (không gán lên :root): gán lên :root làm trình duyệt tính lại style cả danh sách ghi chú mỗi lần, rất chậm */
