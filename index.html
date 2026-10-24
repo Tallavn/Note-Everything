@@ -103,16 +103,21 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .sheet .fin-in+.fin-in,.psh .fin-in+.fin-in{margin-top:8px}
 /* bảng dự án: khoảng cách giống khung thêm ghi chú */
 .psh .box{padding:14px 14px 12px}
-.psh .fin-in{margin-inline:-8px;width:calc(100% + 16px)}
+.psh .fin-in{margin-inline:-4px;width:calc(100% + 8px)}
+#plSheet .hint.nh{margin-left:6px!important}
 #pl-new2{margin-bottom:8px}
+/* ô trống: nút Lưu/Tạo thành xám với mũi tên ⌄ để đóng bảng */
+#add,#pl-go{position:relative}
+#notesView>.box:has(#in:placeholder-shown) #add,#plSheet:has(#pl-new2:placeholder-shown) #pl-go{background:var(--line);color:transparent}
+#notesView>.box:has(#in:placeholder-shown) #add::after,#plSheet:has(#pl-new2:placeholder-shown) #pl-go::after{content:"";position:absolute;left:50%;top:50%;width:9px;height:9px;border:solid var(--muted);border-width:0 2px 2px 0;transform:translate(-50%,-70%) rotate(45deg)}
 .psh .shead{position:relative;top:-4px}
 #pl-note{margin-top:2px!important;font-size:13.5px!important}
 #pl-hint,.box .hint.nh{font-size:10.8px;opacity:.7}
-.box .inrow .hint.nh{flex:1;min-width:0;margin:0 0 0 2px;align-self:center}
+.box .inrow .hint.nh{flex:1;min-width:0;margin:0 0 0 6px;align-self:center}
 #notesView .inrow .intags{flex:none}
 #notesView .inrow:has(.pick,.indue) .intags{flex:1}
 #notesView .inrow:has(.pick,.indue) .hint.nh{display:none}
-#in-note{margin-inline:-8px;width:calc(100% + 16px);padding-inline:10px!important}
+#in-note{margin-inline:-4px;width:calc(100% + 8px);padding-inline:10px!important}
 #in-note:focus-visible,.sheet .fin-in+.fin-in:focus-visible,.psh .fin-in+.fin-in:focus-visible{border-top-color:transparent}
 .date{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:5px 8px;font:inherit;font-size:12.6px}
 .add.alt{background:transparent;color:var(--accent);border:1px solid var(--accent)}
@@ -281,7 +286,7 @@ body.pout .cbd{animation:cbdOut .14s ease-in both;pointer-events:none}
 body.ein .edit{animation:sheetPop .12s ease-out both}
 .edit.out{pointer-events:none;animation:sheetOut .14s cubic-bezier(.4,0,1,1) both}
 @media (prefers-reduced-motion:reduce){body.composing #notesView>.box,body.ein .edit,.fab.show,body.composing .cbd,body.editing .cbd{animation:none}body.cout #notesView>.box,body.cout .cbd{display:none}.edit.out{animation:none;opacity:0}#notesView>.box,.edit{transition:none}}
-#notesView>.box textarea{margin:0 -8px 8px;width:calc(100% + 16px);padding:8px 38px 8px 10px;border-radius:10px;resize:none}
+#notesView>.box textarea{margin:0 -4px 8px;width:calc(100% + 8px);padding:8px 38px 8px 10px;border-radius:10px;resize:none}
 #notesView>.box textarea:focus-visible{outline:1px solid var(--accent);outline-offset:0}
 .cclose{display:block;position:absolute;top:20px;right:18px;z-index:1;background:none;border:0;color:var(--muted);font-size:21.6px;line-height:1;padding:2px 6px}
 #notesView>.box:has(#in:placeholder-shown) .cclose{visibility:hidden}
@@ -929,7 +934,7 @@ document.addEventListener("click",function(e){var a=e.target.closest("a[data-pen
 function back(){if(pending&&!document.hidden)pasteInto(pending,false)}
 document.addEventListener("visibilitychange",back);
 window.addEventListener("focus",back);
-document.getElementById("add").onclick=function(){addNote()};
+document.getElementById("add").onclick=function(){if(!document.getElementById("in").value.trim()){closeComposer();return}addNote()};
 document.getElementById("in").addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();addNote()}});
 document.getElementById("in-note").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();addNote()}});
 document.getElementById("q").addEventListener("input",function(e){query=e.target.value;render()});
@@ -1731,7 +1736,7 @@ function renderBud(top,body){
 document.addEventListener("click",function(e){
   var b=e.target.closest("[data-pl]");if(!b)return;var a=b.dataset.pl,d=b.dataset,p=d.pid?findFin(d.pid):null,j=+d.pj,it=p&&p.items&&p.items[j];
   if(a==="new")plNew();
-  else if(a==="new2")plSubmit();
+  else if(a==="new2"){if(!$i("pl-new2").value.trim())closePSheet();else plSubmit()}
   else if(a==="pclose")closePSheet()
   else if(a==="tick"&&it){if(b.checked){plAsk=d.pid+"/"+j;renderPlan()}else{plAsk=null;var sn3=snapOf([p].concat(plTx(it)));plSet(p,function(){plTx(it).forEach(plKill);it.txs=[]});setUndo("Đã bỏ khoản chi khỏi Chi tiêu",sn3)}}
   else if(a==="edit"&&it){plAsk=d.pid+"/"+j;renderPlan()}
