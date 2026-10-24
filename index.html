@@ -1439,7 +1439,8 @@ function geoNeed(x){
 }
 /* Tự tra tên đường + quận cho ghi chú quán ăn: có toạ độ (link Google Maps đầy đủ) thì tra ngược, không thì tìm theo tên quán */
 var SHORTRE=/https?:\/\/(?:maps\.app\.goo\.gl|goo\.gl\/maps)\/[^\s]*/i,expTried={};
-function workerUrl(){try{return(localStorage.getItem("ghichu_worker")||"").trim()}catch(e){return""}}
+var DEFWORKER="https://maplink.locbh1223.workers.dev";
+function workerUrl(){try{var v=localStorage.getItem("ghichu_worker");return v===null?DEFWORKER:v.trim()}catch(e){return DEFWORKER}}
 function shortOf(x){var m=((x.link||"")+" "+(x.text||"")).match(SHORTRE);return m?m[0]:""}
 /* link rút gọn không có toạ độ: nhờ Worker mở ra link đầy đủ rồi lưu lại */
 function expandShort(){
