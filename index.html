@@ -939,6 +939,19 @@ function openSheet(){
   defMsg();sh.hidden=false;document.getElementById("fin-in").focus();
 }
 function closeSheet(){document.getElementById("finSheet").hidden=true}
+/* "trả Tuấn Anh 500k" / "thu Nam 200k": trừ vào khoản nợ đang mở thay vì tạo khoản mới */
+function payByText(desc,amt){
+  var w=(desc||"").trim().split(/\s+/),k=bare(w[0]||"");
+  if(k!=="tra"&&k!=="thu")return null;
+  var name=norm(w.slice(1).join(" ")).trim();if(!name)return null;
+  var dir=k==="tra"?"owe":"lent";
+  var m=fins().filter(function(x){return x.k==="debt"&&x.dir===dir&&x.amt-(x.paid||0)>0&&norm(x.desc||"").trim().indexOf(name)>-1});
+  if(!m.length)return null;
+  m.sort(function(a,b){return(a.ts||0)-(b.ts||0)});
+  var left=amt,used=0;
+  m.forEach(function(x){if(left<=0)return;var rm=x.amt-(x.paid||0),t=Math.min(rm,left);x.paid=(x.paid||0)+t;x.upd=Date.now();left-=t;used+=t});
+  return (dir==="owe"?"Đã trả ":"Đã thu ")+money(used)+" · "+m[0].desc+(left>0?" (dư "+money(left)+" không trừ vào đâu)":"");
+}
 function addFin(dir){
   var el=document.getElementById("fin-in"),r;
   if(!el.value.trim())return;
@@ -947,6 +960,8 @@ function addFin(dir){
   var day=document.getElementById("fin-date").value||today(),now=Date.now(),o;
   if(sub==="debt"){
     if(!dir){setMsg("Bấm Mình nợ hoặc Họ nợ mình để lưu.");return}
+    var pr=payByText(r.desc,r.amt);
+    if(pr){el.value="";defMsg();closeSheet();touch();toast(pr);return}
     o={id:now,fin:1,k:"debt",dir:dir,amt:r.amt,paid:0,desc:r.desc||"(không ghi chú)",day:day,ts:now,upd:now};
   }else{
     o={id:now,fin:1,k:"tx",t:r.inc?"in":"out",amt:r.amt,desc:r.desc,day:day,ts:now,upd:now};
@@ -1181,9 +1196,10 @@ if(MQM.addEventListener)MQM.addEventListener("change",function(){closeComposer()
   setTimeout(settle,0)})();
 /* khung nhập bám sát phía trên bàn phím */
 (function(){var vv=window.visualViewport;if(!vv)return;
-  function kb(){var h=Math.max(0,Math.round(window.innerHeight-vv.height-vv.offsetTop)),c=document.body.classList.contains("psheet")||document.body.classList.contains("pout")||document.body.classList.contains("composing")||document.body.classList.contains("cout")||document.body.classList.contains("editing");
+  /* đo đáy thật của layout viewport bằng phần tử fixed: đúng cho cả trình duyệt co layout lẫn chỉ co visual viewport */
+  var probe=document.createElement("div");probe.style.cssText="position:fixed;left:0;bottom:0;width:1px;height:0;pointer-events:none;visibility:hidden";document.body.appendChild(probe);
+  function kb(){var h=Math.max(0,Math.round(probe.getBoundingClientRect().bottom-(vv.offsetTop+vv.height))),c=document.body.classList.contains("psheet")||document.body.classList.contains("pout")||document.body.classList.contains("composing")||document.body.classList.contains("cout")||document.body.classList.contains("editing");
     if(h>120){try{localStorage.setItem("kbh",h)}catch(e){}window.__kbh=h}
-    if(c&&h<=120&&window.__kbh){h=window.__kbh}
     document.documentElement.style.setProperty("--kb",(c||h>120?h:0)+"px");document.body.style.paddingBottom=(!c&&h>120)?h+"px":""}
   window.__kb=kb;
   /* mọi ô nhập: tự cuộn lên phía trên bàn phím */
