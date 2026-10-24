@@ -1291,7 +1291,14 @@ function kbPrep(){
   var h=0,m="";try{h=window.__kbh||parseInt(localStorage.getItem("kbh"))||0;m=localStorage.getItem("kbm")||""}catch(e){}
   window.__kbBase=window.innerHeight;
   /* trình duyệt tự co khung nhìn theo bàn phím: khung đã tự sát phím, không cộng thêm */
-  if(m==="layout"){setKb(0);return}
+  /* (sửa) kiểu co layout: layout chỉ co SAU khi phím lên xong nên trước đây khung nằm đáy rồi mới bị kéo lên.
+     Giờ dự đoán bằng độ co đã nhớ ("kbs"), giữ vị trí đó tới khi layout co thật (kb() sẽ đặt về 0) */
+  if(m==="layout"){
+    var d=0;try{d=window.__kbs||parseInt(localStorage.getItem("kbs"))||0}catch(e){}
+    if(d<=120)d=h>120?h:0;
+    setKb(d>120?d:0);
+    if(d>120){window.__kbHold=true;clearTimeout(window.__kbHT);window.__kbHT=setTimeout(function(){window.__kbHold=false;if(window.__kb)window.__kb()},1200)}
+    return}
   if(h>120)window.__kbh=h;else h=Math.round(window.innerHeight*(/iP(hone|ad|od)/.test(navigator.userAgent)?0.48:0.40));
   setKb(h);
   /* giữ vị trí dự đoán tới khi đo được phím; quá 0.9s mà phím không lên (bàn phím rời, v.v.) thì hạ khung xuống */
@@ -1368,6 +1375,8 @@ if(MQM.addEventListener)MQM.addEventListener("change",function(){closeComposer()
     if(h>120&&isField(document.activeElement)){clearTimeout(kbT);kbT=setTimeout(function(){if(window.__kbCur>120&&isField(document.activeElement)){try{localStorage.setItem("kbh",window.__kbCur)}catch(e){}window.__kbh=window.__kbCur}},250)}
     /* nhớ kiểu trình duyệt: co layout (innerHeight giảm) hay chỉ co visual viewport */
     if(window.__kbBase&&isField(document.activeElement)){var shr=window.innerHeight<window.__kbBase-120;if(shr||h>120){try{localStorage.setItem("kbm",shr?"layout":"visual")}catch(e){}}}
+    /* nhớ độ co layout ("kbs") khi đã đứng yên 250ms, để lần mở sau đặt khung đúng chỗ ngay từ đầu */
+    if(window.__kbBase&&isField(document.activeElement)&&window.innerHeight<window.__kbBase-120){clearTimeout(window.__kbsT);window.__kbsT=setTimeout(function(){var dd=window.__kbBase-window.innerHeight;if(dd>120&&isField(document.activeElement)){try{localStorage.setItem("kbs",dd)}catch(e){}window.__kbs=dd}},250)}
     /* Nguyên nhân khung lên sau phím: lúc mới mở phím chưa hiện (đo ra 0) nên trước đây khung bị hạ về đáy rồi mới nhảy lên.
        Giờ: đang chờ phím thì GIỮ vị trí dự đoán; chỉ đặt 0 khi phím thật sự không lên / đã hạ / trình duyệt tự co layout */
     var shr2=window.__kbBase&&window.innerHeight<window.__kbBase-120,act=isField(document.activeElement),v;
