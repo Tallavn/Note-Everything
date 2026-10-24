@@ -364,7 +364,7 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .pam,.px{background:none;border:0;font-size:13px;color:var(--muted);padding:0 2px;white-space:nowrap}
 .pask{display:flex;gap:6px;padding:6px 0 10px 30px}
 #planView .pin{flex:1;min-width:0;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:8px 12px;font:inherit}
-.plim{width:92px;text-align:right;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:3px 8px;font:inherit;font-size:14px}
+.plim{width:128px;text-align:right;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:3px 8px;font:inherit;font-size:14px}
 .prow{padding:10px 0;border-top:1px solid var(--line)}.prow:first-child{border-top:0}
 .prt{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .pw{color:var(--k0)}.po{color:var(--bad)}.pm{color:var(--muted);font-size:13px}
@@ -1433,6 +1433,8 @@ function renderPlan(){
     h+='<div style="display:flex;margin-top:10px"><input class="pin" data-plk="item" data-pid="'+pid+'" placeholder="Thêm hạng mục: thuê xe máy 300k" aria-label="Thêm hạng mục" autocomplete="off" style="padding:6px 10px;font-size:14px"></div>'+del+'</div>'});
   el.innerHTML=h;
   var f=document.querySelector('[data-plk="ask"]');if(f){f.focus();f.select()}}
+function numStr(n){return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,".")}
+document.addEventListener("input",function(e){var t=e.target,c=t.dataset&&t.dataset.plc;if((c!=="lim"&&c!=="inc")||!/^[\d.]+$/.test(t.value))return;var d=t.value.replace(/\D/g,"");t.value=d?numStr(+d):""});
 function budNote(mk){var b=notes.find(function(x){return x.k==="bud"&&!x.del});if(!b&&mk){var n=Date.now();b={id:3,fin:1,k:"bud",lim:{},inc:0,ts:n,upd:n};notes.push(b)}return b}
 function renderBud(top,body){
   var key=mkey(ym.y,ym.m),b=budNote(),lim=(b&&b.lim)||{},inc=(b&&b.inc)||0,sp={},tot=0,L=0;
@@ -1441,12 +1443,12 @@ function renderBud(top,body){
   top.innerHTML='<div class="mnav"><button data-mo="-1" aria-label="Tháng trước">‹</button><b>Tháng '+ym.m+'/'+ym.y+'</b><button data-mo="1" aria-label="Tháng sau">›</button></div>';
   var keep=inc-L,q;
   q=L?tot/L:0;
-  var h='<div class="pc"><div class="prt"><span>Thu dự kiến</span><input class="plim" data-plc="inc" value="'+(inc?cmp(inc):"")+'" placeholder="0" aria-label="Thu dự kiến"></div><div class="prt" style="margin-top:6px"><span>Tổng hạn mức</span><b>'+money(L)+'</b></div>'+
+  var h='<div class="pc"><div class="prt"><span>Thu dự kiến</span><input class="plim" data-plc="inc" value="'+(inc?numStr(inc):"")+'" placeholder="0" aria-label="Thu dự kiến"></div><div class="prt" style="margin-top:6px"><span>Tổng hạn mức</span><b>'+money(L)+'</b></div>'+
     (inc&&L?'<div class="prt" style="margin-top:6px"><span>Dự kiến để dành</span><b class="'+(keep<0?'bad':'good')+'">'+(keep<0?"-":"")+money(keep)+'</b></div>':'')+
     (L?'<div class="pbar '+plBc(q)+'"><i style="width:'+Math.min(100,Math.round(q*100))+'%"></i></div><div class="pm" style="margin-top:6px">Đã chi '+money(tot)+' / '+money(L)+'</div>':'')+'</div><div class="pc">';
   OUT.forEach(function(c){
     var l=lim[c.k]||0,s=sp[c.k]||0,q2=l?s/l:0;
-    h+='<div class="prow"><div class="prt"><span>'+c.n+'</span><input class="plim" data-plc="lim" data-k="'+c.k+'" value="'+(l?cmp(l):"")+'" placeholder="hạn mức" aria-label="Hạn mức '+c.n+'"></div><div class="prt pm" style="margin-top:2px"><span>Đã chi '+money(s)+'</span>'+
+    h+='<div class="prow"><div class="prt"><span>'+c.n+'</span><input class="plim" data-plc="lim" data-k="'+c.k+'" value="'+(l?numStr(l):"")+'" placeholder="hạn mức" aria-label="Hạn mức '+c.n+'"></div><div class="prt pm" style="margin-top:2px"><span>Đã chi '+money(s)+'</span>'+
       (l?(q2>1?'<span class="po">vượt '+money(s-l)+'</span>':'<span class="'+(q2>=.85?'pw':'')+'">còn '+money(l-s)+'</span>'):'')+'</div>'+(l?'<div class="pbar '+plBc(q2)+'" style="margin-top:6px"><i style="width:'+Math.min(100,Math.round(q2*100))+'%"></i></div>':'')+'</div>'});
   body.innerHTML=h+'</div><div class="hint">Gõ 2tr hoặc 800k vào ô hạn mức. Số đã chi lấy tự động từ các khoản chi trong tháng.</div>'}
 document.addEventListener("click",function(e){
