@@ -1054,7 +1054,7 @@ function renderFin(){
 var composerSeen=true,userTouched=false;
 var MQM=window.matchMedia("(max-width:700px),(pointer:coarse)");
 function updateFab(){var f=document.getElementById("fab");
-  if(f)f.classList.toggle("show",tab==="notes"&&!document.body.classList.contains("composing"))}
+  if(f){f.classList.toggle("show",(tab==="notes"&&!document.body.classList.contains("composing"))||tab==="plan");var l=tab==="plan"?"Tạo dự án mới":"Tạo ghi chú mới";f.setAttribute("aria-label",l);f.title=l}}
 var cT=null,eT=null;
 function openComposer(){
   var el=document.getElementById("in");clearTimeout(cT);document.body.classList.remove("cout");
@@ -1114,7 +1114,10 @@ if(MQM.addEventListener)MQM.addEventListener("change",function(){closeComposer()
   document.addEventListener("focusin",function(ev){if(!isField(ev.target))return;[0,120,300,550].forEach(function(t){setTimeout(function(){kb();lift()},t)})});
   vv.addEventListener("resize",function(){setTimeout(lift,0)});
   vv.addEventListener("resize",kb);vv.addEventListener("scroll",kb);kb()})();
-document.getElementById("fab").addEventListener("click",openComposer);
+document.getElementById("fab").addEventListener("click",function(){
+  if(tab!=="plan"){openComposer();return}
+  var el=$i("pl-new");if(!el)return;
+  if(el.value.trim())plNew();else{window.scrollTo({top:0,behavior:"smooth"});el.focus()}});
 document.getElementById("cbd").addEventListener("click",function(){if(document.body.classList.contains("editing")){endEditAnim(function(){editing=null;editErr="";render()})}else closeComposer()});
 document.getElementById("cclose").addEventListener("click",closeComposer);
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&document.body.classList.contains("composing"))closeComposer()});
@@ -1337,7 +1340,7 @@ function plActsHtml(p){
   return h}
 function renderPlan(){
   var el=$i("planView"),ps=plList().sort(function(a,b){var d=planOn(b)-planOn(a);if(d)return d;return(a.date||"9")<(b.date||"9")?-1:1});
-  var h='<div style="display:flex;gap:8px;margin-bottom:14px"><input class="pin" id="pl-new" data-plk="new" placeholder="Tạo dự án: đà lạt 3 ngày 5tr, hoặc chỉ gõ tên" aria-label="Tạo dự án" autocomplete="off"><button class="add" data-pl="new">Tạo</button></div>';
+  var h='<div style="display:flex;gap:8px;margin-bottom:14px"><input class="pin" id="pl-new" data-plk="new" placeholder="Tạo dự án: đà lạt 3 ngày 5tr, hoặc chỉ gõ tên" aria-label="Tạo dự án" autocomplete="off" enterkeyhint="done"></div>';
   if(!ps.length)h+='<div class="empty">Chưa có dự án. Gõ tên và ngân sách ở trên, ví dụ: đà lạt 3 ngày 5tr.</div>';
   ps.forEach(function(p){
     var sp=0,pl=0;p.items.forEach(function(it){if(plTx(it).length){var r=plR(it);sp+=r;pl+=r}else pl+=it.a});
