@@ -242,7 +242,6 @@ body.cout #notesView>.box{display:block;pointer-events:none;animation:sheetOut .
 body.composing .cbd,body.editing .cbd,body.cout .cbd{display:block;position:fixed;inset:0;z-index:55;background:rgba(0,0,0,.42)}
 body.composing .cbd,body.editing .cbd{animation:cbdIn .18s ease-out both}
 body.cout .cbd,body.eout .cbd{animation:cbdOut .14s ease-in both;pointer-events:none}
-body.kbwait #notesView>.box,body.kbwait .psh,body.kbwait .edit{animation:none!important;opacity:0!important}
 @keyframes sheetPop{from{opacity:0}to{opacity:1}}
 @keyframes sheetIn{0%{opacity:0;transform:translateY(32px) scale(.98)}50%{opacity:1}100%{opacity:1;transform:none}}
 @keyframes sheetOut{from{opacity:1;transform:none}to{opacity:0;transform:translateY(24px) scale(.985)}}
@@ -473,7 +472,7 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 <body>
 <div class="cbd" id="cbd"></div>
 <main>
-<div class="hdr"><h1 class="logo" aria-label="Note Everything"><b class="lg-n">Note.</b><i class="lg-l" aria-hidden="true"></i><span class="lg-e">EVERYTHING</span></h1><div class="hr"><div class="hsearch sbar" id="hsearch"><input class="search" id="q" type="search" placeholder="Tìm trong ghi chú"></div><div class="setw"><button type="button" class="fbtn sbtn" id="setBtn" aria-label="Cài đặt" aria-haspopup="true" aria-expanded="false" title="Cài đặt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button><div class="smenu" id="setMenu" hidden><div class="sm-row"><span>Cỡ giao diện</span><span class="zc"><button type="button" id="zDn" aria-label="Giảm cỡ giao diện">−</button><button type="button" id="zVal" title="Về 100%">100%</button><button type="button" id="zUp" aria-label="Tăng cỡ giao diện">+</button></span></div><div class="sm-row"><span>Ngôn ngữ</span><span class="zc nolang"><button type="button" id="lgVi">Tiếng Việt</button><button type="button" id="lgEn">English</button></span></div><button type="button" class="sm-btn" id="theme">Đổi giao diện</button><button type="button" class="sm-btn" id="copy">Sao chép tất cả</button><details class="syncmenu" id="syncmenu"><summary>Đồng bộ</summary>
+<div class="hdr"><h1 class="logo" aria-label="Note Everything"><b class="lg-n">Note.</b><i class="lg-l" aria-hidden="true"></i><span class="lg-e">EVERYTHING</span></h1><div class="hr"><div class="hsearch sbar" id="hsearch"><input class="search" id="q" type="search" placeholder="Tìm trong ghi chú"></div><div class="setw"><button type="button" class="fbtn sbtn" id="setBtn" aria-label="Cài đặt" aria-haspopup="true" aria-expanded="false" title="Cài đặt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button><div class="smenu" id="setMenu" hidden><div class="sm-row"><span>Cỡ giao diện</span><span class="zc"><button type="button" id="zDn" aria-label="Giảm cỡ giao diện">−</button><button type="button" id="zVal" title="Về 100%">100%</button><button type="button" id="zUp" aria-label="Tăng cỡ giao diện">+</button></span></div><div class="sm-row"><span>Ngôn ngữ</span><span class="zc nolang"><button type="button" id="lgVi">Tiếng Việt</button><button type="button" id="lgEn">English</button></span></div><button type="button" class="sm-btn" id="theme">Đổi giao diện</button><button type="button" class="sm-btn" id="copy">Sao chép tất cả</button><div class="sm-row" style="font-size:10.8px;color:var(--muted)"><span>Build</span><span>24.10-d</span></div><details class="syncmenu" id="syncmenu"><summary>Đồng bộ</summary>
 <div class="sync"><input id="code" placeholder="Mã đồng bộ" autocomplete="off" spellcheck="false"><button id="conn">Kết nối</button><button id="gen">Tạo mã mới</button><button id="off">Ngắt</button><span id="st" class="hint"></span></div>
 </details></div></div></div></div>
 <div class="tabs"><button class="chip" data-tab="notes" aria-pressed="true">Ghi chú</button><button class="chip" data-tab="fin" aria-pressed="false">Chi tiêu</button><button class="chip" data-tab="plan" aria-pressed="false">Dự án</button></div>
@@ -1212,13 +1211,14 @@ var plCtx=null;
 function kbZ(){return parseFloat(document.body.style.zoom)||1}
 function setKb(h){document.documentElement.style.setProperty("--kb",(h/kbZ())+"px")}
 function kbPrep(){
-  var h=0;try{h=window.__kbh||parseInt(localStorage.getItem("kbh"))||0}catch(e){}
-  if(h>120){window.__kbh=h;setKb(h)}
-  else{ /* chưa biết chiều cao phím: giấu khung đến khi đo được, rồi hiện đúng chỗ, không trượt */
-    setKb(Math.round(window.innerHeight*0.42));
-    document.body.classList.add("kbwait");clearTimeout(window.__kbw);
-    window.__kbw=setTimeout(function(){document.body.classList.remove("kbwait")},700)}
+  var h=0,m="";try{h=window.__kbh||parseInt(localStorage.getItem("kbh"))||0;m=localStorage.getItem("kbm")||""}catch(e){}
+  window.__kbBase=window.innerHeight;
+  /* trình duyệt tự co khung nhìn theo bàn phím: khung đã tự sát phím, không cộng thêm */
+  if(m==="layout"){setKb(0);return}
+  if(h>120)window.__kbh=h;else h=Math.round(window.innerHeight*0.42);
+  setKb(h);
 }
+
 function openPSheet(ctx){
   var b=document.body;clearTimeout(pT);b.classList.remove("pout");
   plCtx=ctx||null;
@@ -1286,7 +1286,8 @@ if(MQM.addEventListener)MQM.addEventListener("change",function(){closeComposer()
     window.__kbCur=h;
     /* chỉ nhớ chiều cao khi đã đứng yên 250ms và đang có ô nhập focus (tránh lưu số lúc phím đang trượt lên/xuống) */
     if(h>120&&isField(document.activeElement)){clearTimeout(kbT);kbT=setTimeout(function(){if(window.__kbCur>120&&isField(document.activeElement)){try{localStorage.setItem("kbh",window.__kbCur)}catch(e){}window.__kbh=window.__kbCur}},250)}
-    if(h>120){clearTimeout(window.__kbw);document.body.classList.remove("kbwait")}
+    /* nhớ kiểu trình duyệt: co layout (innerHeight giảm) hay chỉ co visual viewport */
+    if(window.__kbBase&&isField(document.activeElement)){var shr=window.innerHeight<window.__kbBase-120;if(shr||h>120){try{localStorage.setItem("kbm",shr?"layout":"visual")}catch(e){}}}
     setKb(c||h>120?h:0);document.body.style.paddingBottom=(!c&&h>120)?h+"px":""}
   window.__kb=kb;
   /* mọi ô nhập: tự cuộn lên phía trên bàn phím */
@@ -1458,7 +1459,10 @@ document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!document.g
 document.getElementById("fin-in").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();addFin()}});
 document.getElementById("fin-date").value=today();
 defMsg();
-if("serviceWorker" in navigator)window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})});
+if("serviceWorker" in navigator)window.addEventListener("load",function(){
+  var had=!!navigator.serviceWorker.controller,rl=false;
+  navigator.serviceWorker.register("sw.js").then(function(r){try{r.update()}catch(e){}}).catch(function(){});
+  navigator.serviceWorker.addEventListener("controllerchange",function(){if(!had||rl)return;rl=true;location.reload()})});
 load();
 try{code=localStorage.getItem("ghichu_code")||""}catch(e){}
 document.getElementById("code").value=code;
