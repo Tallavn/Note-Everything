@@ -373,6 +373,23 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .pask .ok{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .pfold{background:none;border:0;padding:0;font:inherit;font-weight:700;color:var(--ink);text-align:left;cursor:pointer}.pfold:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
 #planView .pin:focus-visible,.plim:focus-visible,.pit input:focus-visible,.pchips button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.txw{margin-bottom:8px;border-radius:12px}
+.tx.swcard{grid-template-columns:1fr auto;border-left:1px solid var(--line);padding-left:14px;margin-bottom:0}
+.cbtn{top:auto;bottom:12px;right:12px;width:38px;height:38px;background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.cbtn svg{width:20px;height:20px;display:block;margin:auto}
+.cbtn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.cbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wallet{padding:12px 14px;margin-bottom:10px}
+.wallet .hint{font-size:12px;line-height:1.3}
+.wallet .big{font-size:24px;margin:0 0 8px}
+.wallet .two{gap:4px 10px}
+.wallet .two b{font-size:15px}
+.wallet .two+.two{margin-top:6px!important}
+.wallet .lnk{padding:6px 0 0;font-size:12px}
+.wallet .plus{top:10px;right:10px;width:34px;height:34px;font-size:22px}
+.wallet .cbtn{top:auto;bottom:10px;right:10px;width:30px;height:30px}
+.wallet .cbtn svg{width:17px;height:17px}
+.mnav{margin-bottom:10px}
 </style>
 </head>
 <body>
@@ -1014,12 +1031,13 @@ function trendChart(){
   return s+'<line x1="0" x2="'+W+'" y1="'+(T+H)+'" y2="'+(T+H)+'" style="stroke:var(--line)"/></svg>';
 }
 function pickerFin(x){var l=x.t==="in"?INC:OUT;return'<div class="pick">'+l.map(function(c,i){var col=x.t==="in"?"var(--good)":"var(--k"+i+")";return'<button class="tag ftag" data-fset="'+c.k+'" data-id="'+x.id+'" aria-pressed="'+(x.cat===c.k)+'" style="color:'+col+';background:transparent;border:1px solid currentColor">'+c.n+'</button>'}).join("")+'</div>'}
+var showChart=false;try{showChart=localStorage.getItem("ghichu_chart")==="1"}catch(e){}
 function renderTx(top,body){
   var key=mkey(ym.y,ym.m),ms=monthSum(ym.y,ym.m),bl=balance(),days=new Date(ym.y,ym.m,0).getDate();
   var all=fins().filter(function(x){return x.k==="tx"&&x.day&&x.day.indexOf(key)===0});
   var dOwe=0,dLent=0;fins().forEach(function(x){if(x.k==="debt"){var r=Math.max(0,x.amt-(x.paid||0));if(x.dir==="owe")dOwe+=r;else dLent+=r}});
   top.innerHTML='<div class="mnav"><button data-mo="-1" aria-label="Tháng trước">‹</button><b>Tháng '+ym.m+'/'+ym.y+'</b><button data-mo="1" aria-label="Tháng sau">›</button></div>'+
-   '<div class="wallet"><button class="plus" data-add="1" aria-label="Thêm khoản thu chi">+</button><div class="hint">Tổng ví</div><div class="big'+(bl.b<0?' neg':'')+'">'+(bl.b<0?"-":"")+money(bl.b)+'</div><div class="two"><div><span class="hint">Thu tháng này</span><b class="good">+'+money(ms["in"])+'</b></div><div><span class="hint">Chi tháng này</span><b class="bad">-'+money(ms["out"])+'</b></div></div><div class="two" style="margin-top:10px"><div><span class="hint">Mình đang nợ</span><b class="bad">'+money(dOwe)+'</b></div><div><span class="hint">Họ đang nợ mình</span><b class="good">'+money(dLent)+'</b></div></div><button class="lnk" data-open="1">'+(bl.o?"Sửa số dư ban đầu ("+money(bl.o)+")":"Đặt số dư ban đầu")+'</button></div>';
+   '<div class="wallet"><button class="plus" data-add="1" aria-label="Thêm khoản thu chi">+</button><button type="button" class="plus cbtn" data-chart="1" aria-pressed="'+showChart+'" aria-label="Hiện hoặc ẩn biểu đồ" title="Biểu đồ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V11M12 20V4M19 20v-6"/></svg></button><div class="hint">Tổng ví</div><div class="big'+(bl.b<0?' neg':'')+'">'+(bl.b<0?"-":"")+money(bl.b)+'</div><div class="two"><div><span class="hint">Thu tháng này</span><b class="good">+'+money(ms["in"])+'</b></div><div><span class="hint">Chi tháng này</span><b class="bad">-'+money(ms["out"])+'</b></div></div><div class="two" style="margin-top:10px"><div><span class="hint">Mình đang nợ</span><b class="bad">'+money(dOwe)+'</b></div><div><span class="hint">Họ đang nợ mình</span><b class="good">'+money(dLent)+'</b></div></div><button class="lnk" data-open="1">'+(bl.o?"Sửa số dư ban đầu ("+money(bl.o)+")":"Đặt số dư ban đầu")+'</button></div>';
   var h="",by={},cs={},tot=0;
   all.forEach(function(x){if(x.t==="out"){by[+x.day.slice(8)]=(by[+x.day.slice(8)]||0)+x.amt;cs[x.cat]=(cs[x.cat]||0)+x.amt;tot+=x.amt}});
   var views={};
@@ -1032,7 +1050,7 @@ function renderTx(top,body){
   var tr=trendChart();
   if(tr)views.trend='<div class="hint" style="margin:0 0 6px"><span class="good">■ Thu</span> <span class="bad">■ Chi</span></div>'+tr;
   var avail=[["day",fday?dayLabel(fday):"Theo ngày"],["cat","Theo mục"],["trend",trendN+" tháng"]].filter(function(a){return views[a[0]]});
-  if(avail.length){
+  if(showChart&&avail.length){
     if(!views[chartView])chartView=avail[0][0];
     h+='<div class="card"><div class="cvt">'+avail.map(function(a){return'<button class="chip" data-cv="'+a[0]+'" aria-pressed="'+(chartView===a[0])+'">'+a[1]+'</button>'}).join("")+'</div>'+views[chartView]+'</div>';
   }
@@ -1052,7 +1070,8 @@ function renderTx(top,body){
       h+='<div class="dh"><span>'+dayLabel(day)+'</span><span>'+(ds?"Chi "+money(ds):"")+'</span></div>';
       arr.forEach(function(x){
         if(editing==x.id){h+='<div class="tx" style="display:block">'+editForm(x)+'</div>';return}
-        h+='<div class="tx"><div><div class="tdesc">'+esc(x.desc||"")+'</div><button class="tag ftag" data-ftx="'+x.id+'" title="Bấm để đổi mục" style="color:'+catColor(x)+'">'+catName(x)+'</button></div><div class="tamt '+(x.t==="in"?"good":"bad")+'">'+(x.t==="in"?"+":"-")+money(x.amt)+'</div><span class="acts"><button class="ebtn" data-edit="'+x.id+'" aria-label="Sửa giao dịch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button><button class="del" data-fdel="'+x.id+'" aria-label="Xóa giao dịch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></span>'+(openTx==x.id?pickerFin(x):'')+'</div>';
+        var sw=swipedId==x.id;
+        h+='<div class="swrap txw'+(sw?' swiped':'')+'" data-id="'+x.id+'"><div class="swact"><button type="button" class="sw-edit" data-edit="'+x.id+'" aria-label="Sửa giao dịch">'+IC_EDIT+'<span>Sửa</span></button><button type="button" class="sw-del" data-fdel="'+x.id+'" aria-label="Xóa giao dịch">'+IC_DEL+'<span>Xóa</span></button></div><div class="tx swcard" data-id="'+x.id+'" role="button" tabindex="0" aria-expanded="'+sw+'"><div><div class="tdesc">'+esc(x.desc||"")+'</div><button class="tag ftag" data-ftx="'+x.id+'" title="Bấm để đổi mục" style="color:'+catColor(x)+'">'+catName(x)+'</button></div><div class="tamt '+(x.t==="in"?"good":"bad")+'">'+(x.t==="in"?"+":"-")+money(x.amt)+'</div>'+(openTx==x.id?pickerFin(x):'')+'</div></div>';
       });
     });
   }
@@ -1258,6 +1277,7 @@ document.addEventListener("click",function(e){
   var t=e.target.closest("button");if(!t)return;var d=t.dataset,x;
   if(d.tab){setTab(d.tab);return}
   if(d.add){openSheet();return}
+  if(d.chart){showChart=!showChart;if(!showChart)fcat="";try{localStorage.setItem("ghichu_chart",showChart?"1":"0")}catch(e){}renderFin();return}
   if(d.sheetclose){closeSheet();return}
   if(d.fclear){fday=today();chartView="day";var p=fday.split("-");ym={y:+p[0],m:+p[1]};renderFin();return}
   if(d.cv){if(d.cv==="trend"&&chartView==="trend"){trendN=trendN===1?3:trendN===3?6:trendN===6?12:1}chartView=d.cv;renderFin();return}
@@ -1266,7 +1286,7 @@ document.addEventListener("click",function(e){
   if(d.fcat){fcat=fcat===d.fcat?"":d.fcat;renderFin();return}
   if(d.ftx){openTx=openTx==d.ftx?null:d.ftx;renderFin();return}
   if(d.fset){x=findFin(d.id);if(x){x.cat=d.fset;x.upd=Date.now();openTx=null;touch()}return}
-  if(d.fdel){x=findFin(d.fdel);if(x){var sn1=snapOf([x]);x.del=true;x.desc="";x.amt=0;x.upd=Date.now();touch();setUndo("Đã xóa khoản này",sn1)}return}
+  if(d.fdel){x=findFin(d.fdel);if(x){swipedId=null;var sn1=snapOf([x]);x.del=true;x.desc="";x.amt=0;x.upd=Date.now();touch();setUndo("Đã xóa khoản này",sn1)}return}
   if(d.open){
     var cur=findFin(1),v=prompt("Số dư ban đầu của ví (ví dụ 5tr, 2tr300). Nhập 0 để bỏ.",cur&&!cur.del&&cur.amt?String(cur.amt):"");
     if(v===null)return;
