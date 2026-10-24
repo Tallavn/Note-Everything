@@ -1209,7 +1209,10 @@ var pT=null;
 var plCtx=null;
 /* Chiều cao bàn phím: body có zoom nên chia lại cho zoom, để khung luôn nằm sát phím */
 function kbZ(){return parseFloat(document.body.style.zoom)||1}
-function setKb(h){document.documentElement.style.setProperty("--kb",(h/kbZ())+"px")}
+/* --kb chỉ gán lên đúng các khung cần dùng (không gán lên :root): gán lên :root làm trình duyệt tính lại style cả danh sách ghi chú mỗi lần, rất chậm */
+var kbS="",kbV="0px";
+function applyKb(){var l=document.querySelectorAll("#notesView>.box,.psh,.sheet,.edit");for(var i=0;i<l.length;i++)l[i].style.setProperty("--kb",kbV)}
+function setKb(h){var v=(h/kbZ())+"px";if(v===kbS)return;kbS=v;kbV=v;applyKb()}
 function kbPrep(){
   var h=0,m="";try{h=window.__kbh||parseInt(localStorage.getItem("kbh"))||0;m=localStorage.getItem("kbm")||""}catch(e){}
   window.__kbBase=window.innerHeight;
@@ -1288,7 +1291,7 @@ if(MQM.addEventListener)MQM.addEventListener("change",function(){closeComposer()
     if(h>120&&isField(document.activeElement)){clearTimeout(kbT);kbT=setTimeout(function(){if(window.__kbCur>120&&isField(document.activeElement)){try{localStorage.setItem("kbh",window.__kbCur)}catch(e){}window.__kbh=window.__kbCur}},250)}
     /* nhớ kiểu trình duyệt: co layout (innerHeight giảm) hay chỉ co visual viewport */
     if(window.__kbBase&&isField(document.activeElement)){var shr=window.innerHeight<window.__kbBase-120;if(shr||h>120){try{localStorage.setItem("kbm",shr?"layout":"visual")}catch(e){}}}
-    setKb(c||h>120?h:0);document.body.style.paddingBottom=(!c&&h>120)?h+"px":""}
+    setKb(c||h>120?h:0);var pb=(!c&&h>120)?h+"px":"";if(document.body.style.paddingBottom!==pb)document.body.style.paddingBottom=pb}
   window.__kb=kb;
   /* mọi ô nhập: tự cuộn lên phía trên bàn phím */
   function isField(e){return e&&e.matches&&e.matches("input:not([type=checkbox]):not([type=radio]):not([type=button]),textarea,select")}
@@ -1337,7 +1340,7 @@ function editForm(x){
   if(editErr)h+='<div class="meta bad">'+esc(editErr)+'</div>';
   return h+'<div class="meta"><button class="add sm" data-esave="'+x.id+'">Lưu</button><button class="add alt sm" data-ecancel="1">Hủy</button></div></div>';
 }
-function focusEdit(){setTimeout(function(){var f=document.querySelector("[data-ef]");if(f){f.focus();try{f.setSelectionRange(f.value.length,f.value.length)}catch(e){}}},0)}
+function focusEdit(){applyKb();setTimeout(function(){var f=document.querySelector("[data-ef]");if(f){f.focus();try{f.setSelectionRange(f.value.length,f.value.length)}catch(e){}}},0)}
 function startEdit(id){
   var x=findFin(id);if(!x||x.del)return;
   editing=x.id;swipedId=null;editErr="";openId=null;openTx=null;editDay=x.day||today();editDue=x.due||"";editDir=x.dir||"";prepEdit();
