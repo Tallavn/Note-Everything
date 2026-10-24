@@ -269,7 +269,8 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 /* ===== Thẻ ghi chú: chạm để kéo thẻ sang trái, lộ nút Sửa/Xóa ===== */
 .dgrp{font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.02em;margin:20px 4px 8px}
 #list>.dgrp:first-child{margin-top:4px}
-.swrap{position:relative;border-radius:var(--r);margin-bottom:10px;overflow:hidden;background:var(--bg)}
+.tgap{height:14px}
+.swrap{position:relative;border-radius:var(--r);margin-bottom:6px;overflow:hidden;background:var(--bg)}
 .swrap .swcard{position:relative;z-index:1;margin-bottom:0;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .3s cubic-bezier(.2,.8,.2,1)}
 .swrap.swiped .swcard{transform:translateX(-144px)}
 .swcard:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
@@ -340,6 +341,9 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 <div class="fgrp">Theo thời gian</div>
 <button type="button" class="fopt" data-sort="new" aria-pressed="true">Mới nhất trước</button>
 <button type="button" class="fopt" data-sort="old" aria-pressed="false">Cũ nhất trước</button>
+<div class="fgrp">Theo vị trí</div>
+<button type="button" class="fopt" data-sort="near" aria-pressed="false">Gần tôi nhất</button>
+<button type="button" class="fopt" data-sort="area" aria-pressed="false">Nhóm theo khu vực</button>
 <div class="fgrp">Theo mức giá</div>
 <button type="button" class="fopt" data-sort="asc" aria-pressed="false">Giá tăng dần</button>
 <button type="button" class="fopt" data-sort="desc" aria-pressed="false">Giá giảm dần</button>
@@ -511,10 +515,22 @@ function notePrice(t){
   return 0;
 }
 function priceTag(x){
+  if(sortBy==="near"){var d=noteDist(x);return d==null?"":'<span class="price">'+fmtKm(d)+'</span>'}
   if(sortBy!=="asc"&&sortBy!=="desc")return"";
   var p=notePrice(x.text);return p?'<span class="price">'+money(p)+'</span>':"";
 }
+var userPos=null,posMsg="";
+function coords(x){
+  var t=(x.link||"")+" "+(x.text||""),m=t.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/)||t.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/)||t.match(/[?&](?:q|ll|query|destination)=(-?\d+\.\d+)(?:,|%2C)(-?\d+\.\d+)/i);
+  return m?[parseFloat(m[1]),parseFloat(m[2])]:null;
+}
+function distKm(a,b){var r=Math.PI/180,dl=(b[0]-a[0])*r,dg=(b[1]-a[1])*r,h=Math.sin(dl/2)*Math.sin(dl/2)+Math.cos(a[0]*r)*Math.cos(b[0]*r)*Math.sin(dg/2)*Math.sin(dg/2);return 12742*Math.asin(Math.sqrt(h))}
+function noteDist(x){var c=userPos&&coords(x);return c?distKm(userPos,c):null}
+function fmtKm(d){return d<1?Math.round(d*10)*100+" m":(d<10?d.toFixed(1):Math.round(d))+" km"}
+function areaLabel(x){return x.area||prov(x)||"Chưa rõ khu vực"}
 function sortNotes(list){
+  if(sortBy==="near"){return list.map(function(x){return{x:x,d:noteDist(x)}}).sort(function(a,b){if(a.d==null&&b.d==null)return(b.x.ts||0)-(a.x.ts||0);if(a.d==null)return 1;if(b.d==null)return -1;return a.d-b.d}).map(function(o){return o.x})}
+  if(sortBy==="area"){return list.slice().sort(function(a,b){var la=areaLabel(a),lb=areaLabel(b),ua=la==="Chưa rõ khu vực",ub=lb==="Chưa rõ khu vực";if(ua!==ub)return ua?1:-1;return la.localeCompare(lb,"vi")||(b.ts||0)-(a.ts||0)})}
   var dir=sortBy==="asc"?1:sortBy==="desc"?-1:0;
   if(sortBy==="old")return list.slice().sort(function(a,b){return(a.ts||0)-(b.ts||0)});
   if(!dir)return list.slice().sort(function(a,b){return(b.ts||0)-(a.ts||0)});
@@ -537,7 +553,12 @@ function toggleSortMenu(open){
 document.addEventListener("click",function(e){
   var m=document.getElementById("sortMenu"),b=e.target.closest("#sortBtn"),o=e.target.closest("[data-sort]");
   if(b){toggleSortMenu(m.hidden);return}
-  if(o){sortBy=o.dataset.sort;syncSortUI();toggleSortMenu(false);render();return}
+  if(o){sortBy=o.dataset.sort;syncSortUI();toggleSortMenu(false);
+    if(sortBy==="near"&&!userPos){
+      if(!navigator.geolocation){toast("Thiết bị không hỗ trợ định vị");sortBy="new";syncSortUI();render();return}
+      navigator.geolocation.getCurrentPosition(function(p){userPos=[p.coords.latitude,p.coords.longitude];render()},function(){toast("Không lấy được vị trí. Hãy cho phép truy cập vị trí.");sortBy="new";syncSortUI();render()},{enableHighAccuracy:false,timeout:10000,maximumAge:120000});
+    }
+    render();return}
   if(!m.hidden&&!e.target.closest("#sortMenu"))toggleSortMenu(false);
 });
 
@@ -612,10 +633,13 @@ function renderNotes(){
   var q=norm(query).trim(),list=sortNotes(vis().filter(function(x){return(filter==="all"||x.cat===filter)&&(!q||norm(x.text+" "+x.area).indexOf(q)>-1)}));
   var L=document.getElementById("list");
   if(!list.length){L.innerHTML='<div class="empty">'+(vis().length?"Không có ghi chú nào khớp.":"Chưa có ghi chú. Gõ vào ô phía trên để bắt đầu.")+'</div>';return}
-  var grouped=false,lastDay=null;
+  var grouped=false,lastDay=null,lastArea=null,lastCat=null;
   L.innerHTML=list.map(function(x){
     var head="";
     if(grouped){var dk=dayStart(x.ts||0);if(dk!==lastDay){lastDay=dk;head='<div class="dgrp">'+dayLabelN(x.ts||0)+'</div>'}}
+    if(sortBy==="area"){var al=areaLabel(x);if(al!==lastArea){lastArea=al;head='<div class="dgrp">'+esc(al)+'</div>'}}
+    if(!head&&lastCat!==null&&x.cat!==lastCat)head='<div class="tgap"></div>';
+    lastCat=x.cat;
     if(editing==x.id)return head+'<div class="note">'+editForm(x)+'</div>';
     return head+noteCard(x,grouped);
   }).join("");
