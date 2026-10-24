@@ -581,7 +581,7 @@ function relTime(ts,grouped){
   return grouped?hm(ts):dayShort(ts)+" "+hm(ts);
 }
 var PROV=[["ho chi minh","HCM"],["tp hcm","HCM"],["tphcm","HCM"],["hcm","HCM"],["sai gon","HCM"],["ha noi","HN"],["da nang","ĐN"],["hai phong","HP"],["can tho","Cần Thơ"],["hue","Huế"],["quang ninh","QN"],["ha long","QN"],["bac ninh","Bắc Ninh"],["hai duong","Hải Dương"],["hung yen","Hưng Yên"],["vinh phuc","Vĩnh Phúc"],["thai nguyen","Thái Nguyên"],["nam dinh","Nam Định"],["thai binh","Thái Bình"],["ninh binh","Ninh Bình"],["thanh hoa","Thanh Hóa"],["nghe an","Nghệ An"],["ha tinh","Hà Tĩnh"],["quang binh","Quảng Bình"],["quang tri","Quảng Trị"],["quang nam","Quảng Nam"],["hoi an","Hội An"],["quang ngai","Quảng Ngãi"],["binh dinh","Bình Định"],["quy nhon","Quy Nhơn"],["nha trang","Nha Trang"],["khanh hoa","Khánh Hòa"],["da lat","Đà Lạt"],["lam dong","Lâm Đồng"],["vung tau","Vũng Tàu"],["dong nai","Đồng Nai"],["bien hoa","Biên Hòa"],["binh duong","Bình Dương"],["lao cai","Lào Cai"],["sa pa","Sa Pa"],["son la","Sơn La"],["lang son","Lạng Sơn"],["cao bang","Cao Bằng"],["ha giang","Hà Giang"],["phu tho","Phú Thọ"],["bac giang","Bắc Giang"],["hoa binh","Hòa Bình"],["ha nam","Hà Nam"],["phu quoc","Phú Quốc"],["kien giang","Kiên Giang"],["ca mau","Cà Mau"],["dak lak","Đắk Lắk"],["buon ma thuot","BMT"],["gia lai","Gia Lai"],["pleiku","Pleiku"]];
-function prov(x){var s=" "+norm((x.text||"")+" "+(x.link||"")).replace(/[^a-z0-9]+/g," ")+" ";for(var i=0;i<PROV.length;i++)if(s.indexOf(" "+PROV[i][0]+" ")>-1)return PROV[i][1];return ""}
+function prov(x){if(x.prov)return x.prov;var s=" "+norm((x.text||"")+" "+(x.link||"")).replace(/[^a-z0-9]+/g," ")+" ";for(var i=0;i<PROV.length;i++)if(s.indexOf(" "+PROV[i][0]+" ")>-1)return PROV[i][1];return ""}
 function shortAddr(x){
   var t=x.text||"",m=t.match(/(?:số\s+)?\d+[A-Za-z]?(?:[\/-]\d+[A-Za-z]?)*\s+(?:ngõ|ngách|ngo|ngach|phố|pho|đường|duong)\s+[\p{L}\d]+(?:\s+[\p{L}\d]+){0,2}/iu),a="";
   if(m){
@@ -1071,7 +1071,25 @@ function saveEdit(id){
   }
   x.upd=Date.now();editing=null;save();render();sync();
 }
-function render(){renderNotes();if(tab==="fin")renderFin()}
+var geoBusy=false,geoTried={};
+try{geoTried=JSON.parse(localStorage.getItem("geotried")||"{}")}catch(e){}
+function geoFill(){
+  if(geoBusy||!navigator.onLine)return;
+  var n=vis().find(function(x){return !x.del&&!x.area&&!geoTried[x.id]&&(x.cat==="food"||x.link||MAPRE.test(x.text))&&(x.text||"").trim()});
+  if(!n)return;
+  geoBusy=true;geoTried[n.id]=1;try{localStorage.setItem("geotried",JSON.stringify(geoTried))}catch(e){}
+  var c=coords(n),q=(n.text||"").split("\n")[0].replace(/https?:\/\/\S+/g,"").trim(),pv=prov(n),city=pv==="HCM"?"Hồ Chí Minh":"Hà Nội",
+    u=c?"https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&accept-language=vi&lat="+c[0]+"&lon="+c[1]:"https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&accept-language=vi&countrycodes=vn&limit=1&q="+encodeURIComponent(q+" "+city);
+  fetch(u).then(function(r){return r.json()}).then(function(j){
+    var r0=Array.isArray(j)?j[0]:j,a=r0&&r0.address;
+    if(a){
+      var d=a.city_district||a.district||a.county||a.suburb||a.quarter||"";
+      d=d.replace(/^(Quận|Huyện|Thị xã|Phường|Xã)\s+/i,"");
+      if(d){n.area=d;if(/Hồ Chí Minh/i.test((a.city||"")+(a.state||"")))n.prov="HCM";n.upd=Date.now();save();sync();renderNotes()}
+    }
+  }).catch(function(){}).then(function(){setTimeout(function(){geoBusy=false;geoFill()},1200)});
+}
+function render(){renderNotes();if(tab==="fin")renderFin();setTimeout(geoFill,600)}
 function findFin(id){return notes.find(function(x){return x.id==id})}
 document.addEventListener("click",function(e){
   var t=e.target.closest("button");if(!t)return;var d=t.dataset,x;
