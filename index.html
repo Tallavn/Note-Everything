@@ -231,7 +231,7 @@ main{padding-top:18px}
 #filters{margin:0}
 .sbar{margin:0 0 12px}
 /* khung nhập ẩn, chỉ mở khi bấm nút bút */
-#notesView>.box{display:none;position:fixed;z-index:60;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 12px);margin:0;box-shadow:0 14px 40px rgba(0,0,0,.3)}
+#notesView>.box{display:none;position:fixed;z-index:60;left:12px;right:12px;top:auto;bottom:calc(var(--kb,0px) + 10px + env(safe-area-inset-bottom,0px));margin:0;box-shadow:0 -6px 30px rgba(0,0,0,.3)}
 body.composing #notesView>.box{display:block}
 body.composing .cbd{display:block;position:fixed;inset:0;z-index:55;background:rgba(0,0,0,.42)}
 #notesView>.box textarea{padding-right:32px}
@@ -284,7 +284,7 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 @media (prefers-reduced-motion:reduce){.swrap .swcard{transition:none}}
 
 /* Ô tick: tick xong thì ô vuông biến thành dấu ✓ */
-.ck{flex:none;width:28px;height:28px;margin:-2px 0 0 -4px;padding:0;border:0;background:none;display:flex;align-items:center;justify-content:center;align-self:flex-start;color:var(--accent);-webkit-tap-highlight-color:transparent}
+.ck{flex:none;width:28px;height:28px;margin:0 -4px 0 8px;padding:0;border:0;background:none;display:flex;align-items:center;justify-content:center;align-self:center;color:var(--accent);-webkit-tap-highlight-color:transparent}
 .ck .bx{width:22px;height:22px;border:2px solid var(--muted);border-radius:7px;transition:border-color .15s}
 .ck:active .bx{border-color:var(--accent)}
 .ck .tk{display:none;width:26px;height:26px}
@@ -311,7 +311,7 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 @media (max-width:700px),(pointer:coarse){#list{padding-bottom:104px}}
 
 /* Vạch màu mỏng bên trái theo loại */
-.swcard{border-left:4px solid var(--bar,var(--line));padding-left:13px}
+.swcard{border-left:2px solid var(--bar,var(--line));padding-left:15px}
 .swcard.cat-food{--bar:var(--c-food)}
 .swcard.cat-mem{--bar:var(--c-mem)}
 .swcard.cat-idea{--bar:var(--c-idea)}
@@ -558,6 +558,8 @@ function relTime(ts,grouped){
   if(n<=0){if(sec<60)return"Vừa xong";if(sec<3600)return Math.floor(sec/60)+" phút trước";return Math.floor(sec/3600)+" giờ trước"}
   return grouped?hm(ts):dayShort(ts)+" "+hm(ts);
 }
+var PROV=[["ho chi minh","HCM"],["tp hcm","HCM"],["tphcm","HCM"],["hcm","HCM"],["sai gon","HCM"],["ha noi","HN"],["da nang","ĐN"],["hai phong","HP"],["can tho","Cần Thơ"],["hue","Huế"],["quang ninh","QN"],["ha long","QN"],["bac ninh","Bắc Ninh"],["hai duong","Hải Dương"],["hung yen","Hưng Yên"],["vinh phuc","Vĩnh Phúc"],["thai nguyen","Thái Nguyên"],["nam dinh","Nam Định"],["thai binh","Thái Bình"],["ninh binh","Ninh Bình"],["thanh hoa","Thanh Hóa"],["nghe an","Nghệ An"],["ha tinh","Hà Tĩnh"],["quang binh","Quảng Bình"],["quang tri","Quảng Trị"],["quang nam","Quảng Nam"],["hoi an","Hội An"],["quang ngai","Quảng Ngãi"],["binh dinh","Bình Định"],["quy nhon","Quy Nhơn"],["nha trang","Nha Trang"],["khanh hoa","Khánh Hòa"],["da lat","Đà Lạt"],["lam dong","Lâm Đồng"],["vung tau","Vũng Tàu"],["dong nai","Đồng Nai"],["bien hoa","Biên Hòa"],["binh duong","Bình Dương"],["lao cai","Lào Cai"],["sa pa","Sa Pa"],["son la","Sơn La"],["lang son","Lạng Sơn"],["cao bang","Cao Bằng"],["ha giang","Hà Giang"],["phu tho","Phú Thọ"],["bac giang","Bắc Giang"],["hoa binh","Hòa Bình"],["ha nam","Hà Nam"],["phu quoc","Phú Quốc"],["kien giang","Kiên Giang"],["ca mau","Cà Mau"],["dak lak","Đắk Lắk"],["buon ma thuot","BMT"],["gia lai","Gia Lai"],["pleiku","Pleiku"]];
+function prov(x){var s=" "+norm((x.text||"")+" "+(x.link||"")).replace(/[^a-z0-9]+/g," ")+" ";for(var i=0;i<PROV.length;i++)if(s.indexOf(" "+PROV[i][0]+" ")>-1)return PROV[i][1];return ""}
 function shortAddr(x){
   var t=x.text||"",m=t.match(/(?:số\s+)?\d+[A-Za-z]?(?:[\/-]\d+[A-Za-z]?)*\s+(?:ngõ|ngách|ngo|ngach|phố|pho|đường|duong)\s+[\p{L}\d]+(?:\s+[\p{L}\d]+){0,2}/iu),a="";
   if(m){
@@ -565,19 +567,20 @@ function shortAddr(x){
     for(k=3;k<w.length;k++){suf=norm(w.slice(k).join(" ")).trim();if(Object.keys(AREAS).some(function(key){return key.indexOf(suf)===0})){w=w.slice(0,k);break}}
     a=w.join(" ");
   }
-  return[a,x.area].filter(Boolean).join(", ");
+  var b=[a,x.area].filter(Boolean).join(", "),p=prov(x);return b?(p?b+" - "+p:b):p;
 }
 function noteCard(x,grouped){
   var c=CATS[x.cat]||CATS.other,open=swipedId==x.id,mem=x.cat==="mem",done=mem&&!!x.done,ml=mapLink(x),has=x.link||MAPRE.test(x.text),ts=x.ts||0,h;
   h='<div class="swrap'+(open?' swiped':'')+'" data-id="'+x.id+'"><div class="swact"><button type="button" class="sw-edit" data-edit="'+x.id+'" aria-label="Sửa ghi chú">'+IC_EDIT+'<span>Sửa</span></button><button type="button" class="sw-del" data-del="'+x.id+'" aria-label="Xóa ghi chú">'+IC_DEL+'<span>Xóa</span></button></div>';
   h+='<div class="note swcard acts-row cat-'+c.c+(done?' done':'')+'" data-id="'+x.id+'" role="button" tabindex="0" aria-expanded="'+open+'">';
-  if(mem)h+='<button type="button" class="ck" role="checkbox" aria-checked="'+done+'" data-done="'+x.id+'" aria-label="Đánh dấu đã xong"><span class="bx"></span><svg class="tk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12.5l5 5L19.5 7"/></svg></button>';
   h+='<div class="nmain"><div class="txt'+(open?' open':'')+'">'+linkify(x.text)+'</div><div class="meta"><button class="tag" data-pick="'+x.id+'" title="Bấm để chọn loại" style="background:var(--c-'+c.c+'-bg);color:var(--c-'+c.c+')">'+c.n+'</button>';
   if(ml){var ad=shortAddr(x),lb=(has?'Mở bản đồ':'Tìm trên bản đồ')+(ad?': '+ad:'');h+='<a class="pin'+(has?'':' ghost')+'" data-pend="'+(has?'':x.id)+'" href="'+esc(ml.u)+'" target="_blank" rel="noopener noreferrer" aria-label="'+esc(lb)+'" title="'+esc(lb)+'">'+IC_PIN+(ad?'<span>'+esc(ad)+'</span>':'')+'</a>'}
   if(ml&&!has&&pending==x.id)h+='<button class="tag" data-paste="'+x.id+'" style="background:var(--c-other-bg);color:var(--c-other)">Dán link</button>';
   h+=priceTag(x)+'<span class="rt" data-ts="'+ts+'" data-g="'+(grouped?1:0)+'">'+relTime(ts,grouped)+'</span>';
   if(x.text.indexOf("\n")>-1)h+='<span class="more">+'+(x.text.split("\n").length-1)+' dòng</span>';
-  h+='</div></div>'+(openId==x.id?picker(x):'')+'</div></div>';
+  h+='</div></div>';
+  if(mem)h+='<button type="button" class="ck" role="checkbox" aria-checked="'+done+'" data-done="'+x.id+'" aria-label="Đánh dấu đã xong"><span class="bx"></span><svg class="tk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12.5l5 5L19.5 7"/></svg></button>';
+  h+=(openId==x.id?picker(x):'')+'</div></div>';
   return h;
 }
 function setSwipe(id){
@@ -609,7 +612,7 @@ function renderNotes(){
   var q=norm(query).trim(),list=sortNotes(vis().filter(function(x){return(filter==="all"||x.cat===filter)&&(!q||norm(x.text+" "+x.area).indexOf(q)>-1)}));
   var L=document.getElementById("list");
   if(!list.length){L.innerHTML='<div class="empty">'+(vis().length?"Không có ghi chú nào khớp.":"Chưa có ghi chú. Gõ vào ô phía trên để bắt đầu.")+'</div>';return}
-  var grouped=sortBy==="new"||sortBy==="old",lastDay=null;
+  var grouped=false,lastDay=null;
   L.innerHTML=list.map(function(x){
     var head="";
     if(grouped){var dk=dayStart(x.ts||0);if(dk!==lastDay){lastDay=dk;head='<div class="dgrp">'+dayLabelN(x.ts||0)+'</div>'}}
@@ -972,6 +975,10 @@ if(MQM.addEventListener)MQM.addEventListener("change",function(){closeComposer()
   window.addEventListener("load",function(){setTimeout(settle,120);setTimeout(settle,600)});
   window.addEventListener("pageshow",function(){setTimeout(settle,50)});
   setTimeout(settle,0)})();
+/* khung nhập bám sát phía trên bàn phím */
+(function(){var vv=window.visualViewport;if(!vv)return;
+  function kb(){var h=Math.max(0,Math.round(window.innerHeight-vv.height-vv.offsetTop));document.documentElement.style.setProperty("--kb",h+"px")}
+  vv.addEventListener("resize",kb);vv.addEventListener("scroll",kb);kb()})();
 document.getElementById("fab").addEventListener("click",openComposer);
 document.getElementById("cbd").addEventListener("click",closeComposer);
 document.getElementById("cclose").addEventListener("click",closeComposer);
