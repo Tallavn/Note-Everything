@@ -1495,7 +1495,7 @@ if(code)sync();
   function blocked(el){
     while(el&&el!==document.body&&el.nodeType===1){
       var t=el.tagName;
-      if(t==="INPUT"||t==="TEXTAREA"||t==="SELECT"||el.isContentEditable)return true;
+      if((t==="INPUT"||t==="TEXTAREA"||t==="SELECT"||el.isContentEditable)&&(el===document.activeElement||t==="SELECT"||(t==="INPUT"&&/^(date|datetime-local|range)$/.test(el.type))))return true;
       if(el.classList&&el.classList.contains("sheet"))return true;
       var ox=getComputedStyle(el).overflowX;
       if((ox==="auto"||ox==="scroll")&&el.scrollWidth>el.clientWidth+2)return true;
