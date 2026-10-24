@@ -161,10 +161,11 @@ body.fabmove .fab.show+.fablock{display:flex}
 }
 @keyframes tabInR{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
 @keyframes tabInL{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:none}}
-.tabin-r{animation:tabInR .28s cubic-bezier(.2,.7,.2,1)}
-.tabin-l{animation:tabInL .28s cubic-bezier(.2,.7,.2,1)}
+/* Chỉ trượt phần nội dung. Không áp transform lên cả khung tab, vì transform làm các thanh position:fixed bên trong (lọc, seg, khung nhập) bị tính vị trí theo khung đó rồi nhảy về khi hết hiệu ứng */
+.tabin-r>*:not(.box):not(.seg):not(.frow):not(.plbar):not(.sheet):not(.psh):not(#in-msg){animation:tabInR .28s cubic-bezier(.2,.7,.2,1)}
+.tabin-l>*:not(.box):not(.seg):not(.frow):not(.plbar):not(.sheet):not(.psh):not(#in-msg){animation:tabInL .28s cubic-bezier(.2,.7,.2,1)}
 main{overflow-x:clip}
-@media (prefers-reduced-motion:reduce){.tabin-r,.tabin-l{animation:none}}
+@media (prefers-reduced-motion:reduce){.tabin-r>*,.tabin-l>*{animation:none!important}}
 /* Tab Ghi chú / Chi tiêu: chữ + gạch chân đúng bằng độ rộng chữ, căn trái, không khung */
 .tabs{gap:24px;margin:0 0 20px;border-bottom:1px solid var(--line)}
 .tabs .chip{flex:none;background:none;border:0;border-bottom:2px solid transparent;border-radius:0;margin-bottom:-1px;padding:8px 2px 10px;font-size:14.4px;font-weight:400;letter-spacing:.01em;color:var(--muted);transition:color .15s,border-color .15s}
