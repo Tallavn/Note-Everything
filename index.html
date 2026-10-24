@@ -590,7 +590,7 @@ function shortAddr(x){
     a=w.join(" ");
   }
   if(!a&&x.link){var pm=x.link.match(/\/maps\/place\/([^\/@?]+)/)||x.link.match(/[?&](?:q|query)=([^&]+)/);if(pm){try{var pn=decodeURIComponent(pm[1].replace(/\+/g," ")).split(",")[0].trim();if(pn&&!/^-?\d+\.\d+/.test(pn))a=pn}catch(e){}}}
-  var ak=areaKey((x.text||"")+" "+(x.area||"")),ar=x.area||(ak?AREAS[ak]:""),b=[a,ar].filter(Boolean).join(", "),p=prov(x);if(!p&&ak)p=HCMK.indexOf(ak)>-1?"HCM":"HN";if(!p&&!x.link)p="HN";return b?(p?b+" - "+p:b):p;
+  var ak=areaKey((x.text||"")+" "+(x.area||"")),ar=x.area||(ak?AREAS[ak]:""),b=[a,ar].filter(Boolean).join(", "),p=prov(x);if(!p&&ak)p=HCMK.indexOf(ak)>-1?"HCM":"HN";if(!p)p="HN";return b?(p?b+" - "+p:b):p;
 }
 function noteCard(x,grouped){
   var c=CATS[x.cat]||CATS.other,open=swipedId==x.id,mem=x.cat==="mem",done=mem&&!!x.done,ml=mapLink(x),has=x.link||MAPRE.test(x.text),ts=x.ts||0,h;
@@ -980,11 +980,14 @@ var MQM=window.matchMedia("(max-width:700px),(pointer:coarse)");
 function updateFab(){var f=document.getElementById("fab");
   if(f)f.classList.toggle("show",tab==="notes"&&!document.body.classList.contains("composing"))}
 function openComposer(){
-  var el=document.getElementById("in");document.body.classList.add("composing");updateFab();
+  var el=document.getElementById("in");
+  if(!window.__kbh){try{window.__kbh=parseInt(localStorage.getItem("kbh"))||0}catch(e){}}
+  document.documentElement.style.setProperty("--kb",(window.__kbh||Math.round(window.innerHeight*0.4))+"px");
+  document.body.classList.add("composing");updateFab();
   try{el.focus({preventScroll:true})}catch(e){el.focus()}
 }
 function closeComposer(){
-  var el=document.getElementById("in");document.body.classList.remove("composing");
+  var el=document.getElementById("in");document.body.classList.remove("composing");document.documentElement.style.setProperty("--kb","0px");
   if(document.activeElement===el)el.blur();
   if(inOpen){inOpen=false;renderInTags()}
   updateFab();
@@ -1003,7 +1006,11 @@ if(MQM.addEventListener)MQM.addEventListener("change",function(){closeComposer()
   setTimeout(settle,0)})();
 /* khung nhập bám sát phía trên bàn phím */
 (function(){var vv=window.visualViewport;if(!vv)return;
-  function kb(){var h=Math.max(0,Math.round(window.innerHeight-vv.height-vv.offsetTop));document.documentElement.style.setProperty("--kb",h+"px")}
+  function kb(){var h=Math.max(0,Math.round(window.innerHeight-vv.height-vv.offsetTop)),c=document.body.classList.contains("composing");
+    if(h>120){try{localStorage.setItem("kbh",h)}catch(e){}window.__kbh=h}
+    if(c&&h<=120&&window.__kbh){h=window.__kbh}
+    document.documentElement.style.setProperty("--kb",(c||h>120?h:0)+"px")}
+  window.__kb=kb;
   vv.addEventListener("resize",kb);vv.addEventListener("scroll",kb);kb()})();
 document.getElementById("fab").addEventListener("click",openComposer);
 document.getElementById("cbd").addEventListener("click",closeComposer);
