@@ -74,7 +74,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .mnav button{width:40px;height:36px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;font-size:20px;line-height:1}
 .wallet{position:relative}
 .plus{position:absolute;top:12px;right:12px;width:42px;height:42px;border-radius:50%;border:0;background:var(--accent);color:#fff;font-size:26px;line-height:1;padding:0}
-.sheet{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;padding:16px}
+.sheet{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;padding:16px;padding-bottom:calc(16px + var(--kb,0px))}
 .sheet[hidden]{display:none}
 .sheet .box{width:100%;max-width:520px}
 .shead{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
@@ -589,15 +589,31 @@ function shortAddr(x){
     for(k=3;k<w.length;k++){suf=norm(w.slice(k).join(" ")).trim();if(Object.keys(AREAS).some(function(key){return key.indexOf(suf)===0})){w=w.slice(0,k);break}}
     a=w.join(" ");
   }
-  if(!a&&x.link){var pm=x.link.match(/\/maps\/place\/([^\/@?]+)/)||x.link.match(/[?&](?:q|query)=([^&]+)/);if(pm){try{var pn=decodeURIComponent(pm[1].replace(/\+/g," ")).split(",")[0].trim();if(pn&&!/^-?\d+\.\d+/.test(pn))a=pn}catch(e){}}}
+  var lkArea="";
+  if(x.link){var pm=x.link.match(/\/maps\/place\/([^\/@?]+)/)||x.link.match(/[?&](?:q|query)=([^&]+)/);if(pm){try{var parts=decodeURIComponent(pm[1].replace(/\+/g," ")).split(",").map(function(z){return z.trim()}).filter(Boolean);
+    if(parts.length>=4){if(!a)a=/^\d/.test(parts[1])?parts[1]:parts[0].replace(/\s*\(.*\)\s*$/,"");lkArea=parts[parts.length-2].replace(/^(Quận|Huyện|Thị xã|Phường|Xã)\s+/i,"")}
+    else if(!a){var pn=parts[0];if(pn&&!/^-?\d+\.\d+/.test(pn))a=pn}}catch(e){}}}
   if(!a&&!x.area&&!areaKey(x.text||"")){var hm=(x.text||"").replace(/https?:\/\/\S+/g,"").match(/^(.*?)\s+(?:HN|Hà Nội|HCM|TPHCM|Sài Gòn)\s*$/iu);if(hm){var ww=hm[1].trim().split(/\s+/);if(ww.length>=3)a=ww.slice(-2).join(" ")}}
-  var ak=areaKey((x.text||"")+" "+(x.area||"")),ar=x.area||(ak?AREAS[ak]:""),b=[a,ar].filter(Boolean).join(", "),p=prov(x);if(!p&&ak)p=HCMK.indexOf(ak)>-1?"HCM":"HN";if(!p)p="HN";return b?(p?b+" - "+p:b):p;
+  var ak=areaKey((x.text||"")+" "+(x.area||"")),ar=x.area||(ak?AREAS[ak]:"")||lkArea,b=[a,ar].filter(Boolean).join(", "),p=prov(x);if(!p&&ak)p=HCMK.indexOf(ak)>-1?"HCM":"HN";if(!p)p="HN";return b?(p?b+" - "+p:b):p;
+}
+function nw(w){return norm(w).replace(/[^a-z0-9]+/g,"")}
+function stripAddr(x){
+  var t=x.text||"",nl=t.indexOf("\n"),first=nl>-1?t.slice(0,nl):t,rest=nl>-1?t.slice(nl):"";
+  if(/https?:\/\//.test(first))return t;
+  var w=first.trim().split(/\s+/),n=w.map(nw),cut=false,i,ks;
+  function endsWith(k){var p=k.split(" "),o=n.length-p.length,j;if(o<1)return 0;for(j=0;j<p.length;j++)if(n[o+j]!==p[j].replace(/[^a-z0-9]/g,""))return 0;return p.length}
+  var pv=["ha noi","ho chi minh","tphcm","tp hcm","hcm","hn","sai gon"],c;
+  for(i=0;i<pv.length;i++){c=endsWith(pv[i]);if(c){w.length-=c;n.length-=c;cut=true;break}}
+  ks=Object.keys(AREAS).sort(function(a,b){return b.length-a.length});
+  for(i=0;i<ks.length;i++){c=endsWith(ks[i]);if(c){w.length-=c;n.length-=c;cut=true;break}}
+  if(!cut||!w.length)return t;
+  return w.join(" ")+rest;
 }
 function noteCard(x,grouped){
   var c=CATS[x.cat]||CATS.other,open=swipedId==x.id,mem=x.cat==="mem",done=mem&&!!x.done,ml=mapLink(x),has=x.link||MAPRE.test(x.text),ts=x.ts||0,h;
   h='<div class="swrap'+(open?' swiped':'')+'" data-id="'+x.id+'"><div class="swact"><button type="button" class="sw-edit" data-edit="'+x.id+'" aria-label="Sửa ghi chú">'+IC_EDIT+'<span>Sửa</span></button><button type="button" class="sw-del" data-del="'+x.id+'" aria-label="Xóa ghi chú">'+IC_DEL+'<span>Xóa</span></button></div>';
   h+='<div class="note swcard acts-row cat-'+c.c+(done?' done':'')+'" data-id="'+x.id+'" role="button" tabindex="0" aria-expanded="'+open+'">';
-  h+='<div class="nmain"><div class="txt'+(open?' open':'')+'">'+linkify(x.text)+'</div><div class="meta"><button class="tag" data-pick="'+x.id+'" title="Bấm để chọn loại" style="background:var(--c-'+c.c+'-bg);color:var(--c-'+c.c+')">'+c.n+'</button>';
+  h+='<div class="nmain"><div class="txt'+(open?' open':'')+'">'+linkify(ml?stripAddr(x):x.text)+'</div><div class="meta"><button class="tag" data-pick="'+x.id+'" title="Bấm để chọn loại" style="background:var(--c-'+c.c+'-bg);color:var(--c-'+c.c+')">'+c.n+'</button>';
   if(ml){var ad=shortAddr(x),lb=(has?'Mở bản đồ':'Tìm trên bản đồ')+(ad?': '+ad:'');h+='<a class="pin'+(has?'':' ghost')+'" data-pend="'+(has?'':x.id)+'" href="'+esc(ml.u)+'" target="_blank" rel="noopener noreferrer" aria-label="'+esc(lb)+'" title="'+esc(lb)+'">'+IC_PIN+(ad?'<span>'+esc(ad)+'</span>':'')+'</a>'}
   if(ml&&!has&&pending==x.id)h+='<button class="tag" data-paste="'+x.id+'" style="background:var(--c-other-bg);color:var(--c-other)">Dán link</button>';
   h+=priceTag(x);
@@ -1010,8 +1026,18 @@ if(MQM.addEventListener)MQM.addEventListener("change",function(){closeComposer()
   function kb(){var h=Math.max(0,Math.round(window.innerHeight-vv.height-vv.offsetTop)),c=document.body.classList.contains("composing");
     if(h>120){try{localStorage.setItem("kbh",h)}catch(e){}window.__kbh=h}
     if(c&&h<=120&&window.__kbh){h=window.__kbh}
-    document.documentElement.style.setProperty("--kb",(c||h>120?h:0)+"px")}
+    document.documentElement.style.setProperty("--kb",(c||h>120?h:0)+"px");document.body.style.paddingBottom=(!c&&h>120)?h+"px":""}
   window.__kb=kb;
+  /* mọi ô nhập: tự cuộn lên phía trên bàn phím */
+  function isField(e){return e&&e.matches&&e.matches("input:not([type=checkbox]):not([type=radio]):not([type=button]),textarea,select")}
+  function lift(){
+    var e=document.activeElement;if(!isField(e)||e.id==="in")return;
+    var r=e.getBoundingClientRect(),vb=vv.offsetTop+vv.height,over=r.bottom+16-vb;
+    if(over>0)window.scrollBy({top:over,behavior:"auto"});
+    else if(r.top<vv.offsetTop+8)window.scrollBy({top:r.top-vv.offsetTop-16,behavior:"auto"});
+  }
+  document.addEventListener("focusin",function(ev){if(!isField(ev.target))return;[0,120,300,550].forEach(function(t){setTimeout(function(){kb();lift()},t)})});
+  vv.addEventListener("resize",function(){setTimeout(lift,0)});
   vv.addEventListener("resize",kb);vv.addEventListener("scroll",kb);kb()})();
 document.getElementById("fab").addEventListener("click",openComposer);
 document.getElementById("cbd").addEventListener("click",closeComposer);
