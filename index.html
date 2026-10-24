@@ -242,6 +242,7 @@ body.cout #notesView>.box{display:block;pointer-events:none;animation:sheetOut .
 body.composing .cbd,body.editing .cbd,body.cout .cbd{display:block;position:fixed;inset:0;z-index:55;background:rgba(0,0,0,.42)}
 body.composing .cbd,body.editing .cbd{animation:cbdIn .18s ease-out both}
 body.cout .cbd,body.eout .cbd{animation:cbdOut .14s ease-in both;pointer-events:none}
+body.kbwait #notesView>.box,body.kbwait .psh,body.kbwait .edit{animation:none!important;opacity:0!important}
 @keyframes sheetPop{from{opacity:0}to{opacity:1}}
 @keyframes sheetIn{0%{opacity:0;transform:translateY(32px) scale(.98)}50%{opacity:1}100%{opacity:1;transform:none}}
 @keyframes sheetOut{from{opacity:1;transform:none}to{opacity:0;transform:translateY(24px) scale(.985)}}
@@ -433,6 +434,12 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .frow .fbtn.on::after{top:6px;right:6px}
 @media (max-width:700px),(pointer:coarse){
 .hdr{margin-bottom:24px}
+/* Thanh tag nằm ở đáy: hàng .frow không còn chiếm chỗ ở vị trí cũ, nội dung dồn lên lấp khoảng trống */
+.frow{display:contents}
+.frow #filters{position:fixed;left:0;right:0;bottom:0;z-index:15;flex:none;padding:10px 62px calc(10px + env(safe-area-inset-bottom,0px)) 14px;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -4px 16px rgba(15,35,30,.07)}
+/* nút lọc/sắp xếp đi cùng xuống đáy, nằm cuối thanh tag; menu mở lên phía trên */
+.fwrap{position:fixed;top:auto;right:14px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:16}
+.fmenu{top:auto;bottom:calc(100% + 8px)}
 }
 
 /* Nút cài đặt + menu */
@@ -1201,6 +1208,17 @@ function updateFab(){var f=document.getElementById("fab");
   if(f){f.classList.toggle("show",(tab==="notes"&&!document.body.classList.contains("composing"))||(tab==="plan"&&!document.body.classList.contains("psheet")));var l=tab==="plan"?"Tạo dự án mới":"Tạo ghi chú mới";f.setAttribute("aria-label",l);f.title=l}}
 var pT=null;
 var plCtx=null;
+/* Chiều cao bàn phím: body có zoom nên chia lại cho zoom, để khung luôn nằm sát phím */
+function kbZ(){return parseFloat(document.body.style.zoom)||1}
+function setKb(h){document.documentElement.style.setProperty("--kb",(h/kbZ())+"px")}
+function kbPrep(){
+  var h=0;try{h=window.__kbh||parseInt(localStorage.getItem("kbh"))||0}catch(e){}
+  if(h>120){window.__kbh=h;setKb(h)}
+  else{ /* chưa biết chiều cao phím: giấu khung đến khi đo được, rồi hiện đúng chỗ, không trượt */
+    setKb(Math.round(window.innerHeight*0.42));
+    document.body.classList.add("kbwait");clearTimeout(window.__kbw);
+    window.__kbw=setTimeout(function(){document.body.classList.remove("kbwait")},700)}
+}
 function openPSheet(ctx){
   var b=document.body;clearTimeout(pT);b.classList.remove("pout");
   plCtx=ctx||null;
@@ -1209,8 +1227,7 @@ function openPSheet(ctx){
     :{t:"Thêm hạng mục",p:"thuê xe máy 300k",h:"Gõ tên và số tiền ở cuối, ví dụ: vé xe 600k.",b:"Thêm"};
   $i("pl-title").textContent=cfg.t;$i("pl-hint").textContent=cfg.h;$i("pl-go").textContent=cfg.b;
   var el0=$i("pl-new2");el0.placeholder=cfg.p;el0.value="";
-  if(!window.__kbh){try{window.__kbh=parseInt(localStorage.getItem("kbh"))||0}catch(e){}}
-  document.documentElement.style.setProperty("--kb",(window.__kbh||Math.round(window.innerHeight*0.4))+"px");
+  kbPrep();
   b.classList.add("psheet");updateFab();
   var el=document.getElementById("pl-new2");try{el.focus({preventScroll:true})}catch(e){el.focus()}
 }
@@ -1219,13 +1236,12 @@ function closePSheet(){
   if(!b.classList.contains("psheet"))return;
   if(document.activeElement===el)el.blur();
   b.classList.remove("psheet");b.classList.add("pout");updateFab();plCtx=null;
-  clearTimeout(pT);pT=setTimeout(function(){b.classList.remove("pout");if(!b.classList.contains("composing")&&!b.classList.contains("editing"))document.documentElement.style.setProperty("--kb","0px");if(window.__kb)window.__kb()},160);
+  clearTimeout(pT);pT=setTimeout(function(){b.classList.remove("pout");if(!b.classList.contains("composing")&&!b.classList.contains("editing"))setKb(0);if(window.__kb)window.__kb()},160);
 }
 var cT=null,eT=null;
 function openComposer(){
   var el=document.getElementById("in");clearTimeout(cT);document.body.classList.remove("cout");
-  if(!window.__kbh){try{window.__kbh=parseInt(localStorage.getItem("kbh"))||0}catch(e){}}
-  document.documentElement.style.setProperty("--kb",(window.__kbh||Math.round(window.innerHeight*0.4))+"px");
+  kbPrep();
   document.body.classList.add("composing");updateFab();
   try{el.focus({preventScroll:true})}catch(e){el.focus()}
 }
@@ -1233,15 +1249,14 @@ function closeComposer(){
   var b=document.body,el=document.getElementById("in"),was=b.classList.contains("composing");
   if(inOpen){inOpen=false;renderInTags()}
   if(document.activeElement===el)el.blur();
-  if(!was){if(!b.classList.contains("cout")&&!b.classList.contains("editing"))document.documentElement.style.setProperty("--kb","0px");updateFab();return}
+  if(!was){if(!b.classList.contains("cout")&&!b.classList.contains("editing"))setKb(0);updateFab();return}
   b.classList.remove("composing");b.classList.add("cout");updateFab();
-  clearTimeout(cT);cT=setTimeout(function(){b.classList.remove("cout");if(!b.classList.contains("composing")&&!b.classList.contains("editing"))document.documentElement.style.setProperty("--kb","0px");if(window.__kb)window.__kb()},160);
+  clearTimeout(cT);cT=setTimeout(function(){b.classList.remove("cout");if(!b.classList.contains("composing")&&!b.classList.contains("editing"))setKb(0);if(window.__kb)window.__kb()},160);
 }
 /* form Sửa dạng popup: mở / đóng có animation */
 function prepEdit(){
   var b=document.body;if(!MQM.matches)return;
-  if(!window.__kbh){try{window.__kbh=parseInt(localStorage.getItem("kbh"))||0}catch(e){}}
-  document.documentElement.style.setProperty("--kb",(window.__kbh||Math.round(window.innerHeight*0.4))+"px");
+  kbPrep();
   clearTimeout(eT);b.classList.remove("eout");b.classList.add("ein");eT=setTimeout(function(){b.classList.remove("ein")},320);
 }
 function endEditAnim(fn){
@@ -1266,9 +1281,13 @@ if(MQM.addEventListener)MQM.addEventListener("change",function(){closeComposer()
 (function(){var vv=window.visualViewport;if(!vv)return;
   /* đo đáy thật của layout viewport bằng phần tử fixed: đúng cho cả trình duyệt co layout lẫn chỉ co visual viewport */
   var probe=document.createElement("div");probe.style.cssText="position:fixed;left:0;bottom:0;width:1px;height:0;pointer-events:none;visibility:hidden";document.body.appendChild(probe);
+  var kbT=null;
   function kb(){var h=Math.max(0,Math.round(probe.getBoundingClientRect().bottom-(vv.offsetTop+vv.height))),c=document.body.classList.contains("psheet")||document.body.classList.contains("pout")||document.body.classList.contains("composing")||document.body.classList.contains("cout")||document.body.classList.contains("editing");
-    if(h>120){try{localStorage.setItem("kbh",h)}catch(e){}window.__kbh=h}
-    document.documentElement.style.setProperty("--kb",(c||h>120?h:0)+"px");document.body.style.paddingBottom=(!c&&h>120)?h+"px":""}
+    window.__kbCur=h;
+    /* chỉ nhớ chiều cao khi đã đứng yên 250ms và đang có ô nhập focus (tránh lưu số lúc phím đang trượt lên/xuống) */
+    if(h>120&&isField(document.activeElement)){clearTimeout(kbT);kbT=setTimeout(function(){if(window.__kbCur>120&&isField(document.activeElement)){try{localStorage.setItem("kbh",window.__kbCur)}catch(e){}window.__kbh=window.__kbCur}},250)}
+    if(h>120){clearTimeout(window.__kbw);document.body.classList.remove("kbwait")}
+    setKb(c||h>120?h:0);document.body.style.paddingBottom=(!c&&h>120)?h+"px":""}
   window.__kb=kb;
   /* mọi ô nhập: tự cuộn lên phía trên bàn phím */
   function isField(e){return e&&e.matches&&e.matches("input:not([type=checkbox]):not([type=radio]):not([type=button]),textarea,select")}
