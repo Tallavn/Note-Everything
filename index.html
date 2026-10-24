@@ -576,7 +576,6 @@ function dayLabelN(ts){
 }
 function relTime(ts,grouped){
   var n=dayDiff(ts),sec=(Date.now()-ts)/1000;
-  if(n<=0){if(sec<60)return"Vừa xong";if(sec<3600)return Math.floor(sec/60)+" phút trước";return Math.floor(sec/3600)+" giờ trước"}
   return grouped?hm(ts):dayShort(ts)+" "+hm(ts);
 }
 var PROV=[["ho chi minh","HCM"],["tp hcm","HCM"],["tphcm","HCM"],["hcm","HCM"],["sai gon","HCM"],["ha noi","HN"],["da nang","ĐN"],["hai phong","HP"],["can tho","Cần Thơ"],["hue","Huế"],["quang ninh","QN"],["ha long","QN"],["bac ninh","Bắc Ninh"],["hai duong","Hải Dương"],["hung yen","Hưng Yên"],["vinh phuc","Vĩnh Phúc"],["thai nguyen","Thái Nguyên"],["nam dinh","Nam Định"],["thai binh","Thái Bình"],["ninh binh","Ninh Bình"],["thanh hoa","Thanh Hóa"],["nghe an","Nghệ An"],["ha tinh","Hà Tĩnh"],["quang binh","Quảng Bình"],["quang tri","Quảng Trị"],["quang nam","Quảng Nam"],["hoi an","Hội An"],["quang ngai","Quảng Ngãi"],["binh dinh","Bình Định"],["quy nhon","Quy Nhơn"],["nha trang","Nha Trang"],["khanh hoa","Khánh Hòa"],["da lat","Đà Lạt"],["lam dong","Lâm Đồng"],["vung tau","Vũng Tàu"],["dong nai","Đồng Nai"],["bien hoa","Biên Hòa"],["binh duong","Bình Dương"],["lao cai","Lào Cai"],["sa pa","Sa Pa"],["son la","Sơn La"],["lang son","Lạng Sơn"],["cao bang","Cao Bằng"],["ha giang","Hà Giang"],["phu tho","Phú Thọ"],["bac giang","Bắc Giang"],["hoa binh","Hòa Bình"],["ha nam","Hà Nam"],["phu quoc","Phú Quốc"],["kien giang","Kiên Giang"],["ca mau","Cà Mau"],["dak lak","Đắk Lắk"],["buon ma thuot","BMT"],["gia lai","Gia Lai"],["pleiku","Pleiku"]];
