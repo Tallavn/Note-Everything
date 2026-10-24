@@ -507,6 +507,11 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 
 .zc button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .box .hint.nh,.edit .hint.nh{margin:2px 2px 0;line-height:1.4}
+/* Header (logo + cài đặt) và hàng tab cùng đứng yên khi cuộn: tab trôi lên rồi dừng ngay dưới header */
+.hdr{position:sticky;top:0;z-index:30;background:var(--bg);margin:-18px -16px 14px;padding:18px 16px 10px}
+.tabs{margin-top:0;position:sticky;z-index:29;background:var(--bg)}
+/* Thanh gạch chân sát chữ hơn (cố định, không đổi theo cuộn) */
+.tabs .chip{padding:8px 2px 6px}
 </style>
 </head>
 <body>
@@ -515,7 +520,7 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 <div class="hdr"><h1 class="logo" aria-label="Note Everything"><b class="lg-n">Note.</b><i class="lg-l" aria-hidden="true"></i><span class="lg-e">EVERYTHING</span></h1><div class="hr"><div class="hsearch sbar" id="hsearch"><input class="search" id="q" type="search" placeholder="Tìm trong ghi chú"></div><div class="setw"><button type="button" class="fbtn sbtn" id="setBtn" aria-label="Cài đặt" aria-haspopup="true" aria-expanded="false" title="Cài đặt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button><div class="smenu" id="setMenu" hidden><div class="sm-row"><span>Cỡ giao diện</span><span class="zc"><button type="button" id="zDn" aria-label="Giảm cỡ giao diện">−</button><button type="button" id="zVal" title="Về 100%">100%</button><button type="button" id="zUp" aria-label="Tăng cỡ giao diện">+</button></span></div><div class="sm-row"><span>Ngôn ngữ</span><span class="zc nolang"><button type="button" id="lgVi">Tiếng Việt</button><button type="button" id="lgEn">English</button></span></div><button type="button" class="sm-btn" id="theme">Đổi giao diện</button><button type="button" class="sm-btn" id="copy">Sao chép tất cả</button><div class="sm-row" style="font-size:10.8px;color:var(--muted)"><span>Build</span><span>24.10-h</span></div><details class="syncmenu" id="syncmenu"><summary>Đồng bộ</summary>
 <div class="sync"><input id="code" placeholder="Mã đồng bộ" autocomplete="off" spellcheck="false"><button id="conn">Kết nối</button><button id="gen">Tạo mã mới</button><button id="off">Ngắt</button><span id="st" class="hint"></span></div>
 </details></div></div></div></div>
-<div class="tabs"><button class="chip" data-tab="notes" aria-pressed="true">Ghi chú</button><button class="chip" data-tab="fin" aria-pressed="false">Chi tiêu</button><button class="chip" data-tab="plan" aria-pressed="false">Dự án</button></div>
+<div class="tabs"><button class="chip" data-tab="notes" aria-pressed="true"><span class="tl">Ghi chú</span></button><button class="chip" data-tab="fin" aria-pressed="false"><span class="tl">Chi tiêu</span></button><button class="chip" data-tab="plan" aria-pressed="false"><span class="tl">Dự án</span></button></div>
 <div id="notesView">
 <div class="box">
 <button type="button" class="cclose" id="cclose" aria-label="Xóa văn bản">×</button>
@@ -661,7 +666,13 @@ function pasteInto(id,manual){
 }
 function esc(s){return s.replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 function linkify(s){return esc(s).replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>')}
-function load(){try{var r=localStorage.getItem("ghichu");if(r)notes=JSON.parse(r)||[]}catch(e){notes=[]}}
+/* Firebase bỏ mảng/đối tượng rỗng khi lưu (items:[] , lim:{}), máy kia kéo về thì thiếu trường -> p.items.forEach lỗi, khoản chi vừa gõ không được lưu/đồng bộ. Chuẩn hóa lại sau khi kéo về và khi đọc dữ liệu cũ. */
+function toArr(v){return Array.isArray(v)?v:(v&&typeof v==="object"?Object.keys(v).map(function(k){return v[k]}):[])}
+function fixFin(x){if(!x||typeof x!=="object")return x;
+  if(x.k==="plan"){x.items=toArr(x.items).filter(function(it){return it&&typeof it==="object"});x.items.forEach(function(it){it.txs=toArr(it.txs)})}
+  else if(x.k==="bud"&&(!x.lim||typeof x.lim!=="object"))x.lim={};
+  return x}
+function load(){try{var r=localStorage.getItem("ghichu");if(r)notes=JSON.parse(r)||[]}catch(e){notes=[]}notes.forEach(fixFin)}
 function save(){try{localStorage.setItem("ghichu",JSON.stringify(notes))}catch(e){}}
 function fmt(ts){var d=new Date(ts);return d.getDate()+"/"+(d.getMonth()+1)+" "+("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2)}
 function strongAmt(tok){
@@ -974,7 +985,7 @@ function sync(){
     notes.forEach(function(l){have[l.id]=l});
     Object.keys(rem).forEach(function(k){
       var v=rem[k];if(!v||typeof v!=="object")return;
-      v.id=Number(k);var l=have[k];
+      v.id=Number(k);fixFin(v);var l=have[k];
       if(!l){notes.push(v);changed=true}
       else if(tsOf(v)>tsOf(l)){notes[notes.indexOf(l)]=v;changed=true}
       else if(tsOf(l)>tsOf(v))patch[k]=l;
@@ -1413,6 +1424,12 @@ if(MQM.addEventListener)MQM.addEventListener("change",function(){closeComposer()
   document.addEventListener("focusin",function(ev){if(!isField(ev.target))return;[0,120,300,550].forEach(function(t){setTimeout(function(){kb();lift()},t)})});
   vv.addEventListener("resize",function(){setTimeout(lift,0)});
   vv.addEventListener("resize",kb);vv.addEventListener("scroll",kb);kb()})();
+/* Hàng tab dừng lại sát dưới header khi cuộn */
+(function(){var hdr=document.querySelector(".hdr"),tabs=document.querySelector(".tabs");if(!hdr||!tabs)return;
+  function dock(){tabs.style.top=hdr.offsetHeight+"px"}
+  window.addEventListener("resize",dock);window.addEventListener("load",dock);
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(dock);
+  dock()})();
 /* Nút +: nhấn giữ ~0,5s để mở khoá, kéo đến chỗ muốn, bấm "Khoá vị trí" để cố định */
 (function(){var fab=document.getElementById("fab"),bar=document.getElementById("fablock");if(!fab||!bar)return;
   var KEY="ghichu_fabpos",S=56,M=8,pos=null,unlocked=false,tm=null,drag=false,moved=false,sup=false,sx=0,sy=0,ox=0,oy=0;
