@@ -349,7 +349,7 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .pit em{font-style:normal;font-size:13px;color:var(--muted);white-space:nowrap}
 .pam,.px{background:none;border:0;font-size:13px;color:var(--muted);padding:0 2px;white-space:nowrap}
 .pask{display:flex;gap:6px;padding:6px 0 10px 30px}
-.pin{flex:1;min-width:0;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:8px 12px;font:inherit}
+#planView .pin{flex:1;min-width:0;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:8px 12px;font:inherit}
 .plim{width:92px;text-align:right;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:3px 8px;font:inherit;font-size:14px}
 .prow{padding:10px 0;border-top:1px solid var(--line)}.prow:first-child{border-top:0}
 .prt{display:flex;justify-content:space-between;align-items:center;gap:10px}
@@ -358,7 +358,7 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .pchips button,.pask button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:3px 12px;font:inherit;font-size:13px}
 .pask .ok{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .pfold{background:none;border:0;padding:0;font:inherit;font-weight:700;color:var(--ink);text-align:left;cursor:pointer}.pfold:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
-.pin:focus-visible,.plim:focus-visible,.pit input:focus-visible,.pchips button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#planView .pin:focus-visible,.plim:focus-visible,.pit input:focus-visible,.pchips button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 </style>
 </head>
 <body>
@@ -1354,7 +1354,7 @@ function renderPlan(){
     var on=planOn(p),q=p.budget?sp/p.budget:0,over=pl-p.budget,pid=p.id;
     var sw='<label class="pm" style="display:inline-flex;gap:5px;align-items:center"><input type="checkbox" data-plc="on" data-pid="'+pid+'"'+(on?' checked':'')+'> '+(on?'Đang bật':typeof p.m==="boolean"?'Đã tắt':'Quá hạn · tự tắt')+'</label>';
     var tot='<div style="text-align:right;white-space:nowrap"><b>'+money(sp)+'</b> / '+'<button class="pam" style="font:inherit;color:inherit;text-decoration:underline dotted" data-pl="bud" data-pid="'+pid+'" aria-label="Sửa ngân sách">'+money(p.budget)+'</button><div class="pm">đã chi / ngân sách</div></div>';
-    var del='<div style="text-align:right;margin-top:8px"><button class="pam" style="text-decoration:underline" data-pl="delp" data-pid="'+pid+'">Xóa dự án</button></div>';
+    var del='<div style="text-align:right;margin-top:8px"><button class="pam" style="text-decoration:underline" data-pl="ren" data-pid="'+pid+'">Sửa tên</button> <span class="pm" aria-hidden="true">·</span> <button class="pam" style="text-decoration:underline" data-pl="delp" data-pid="'+pid+'">Xóa dự án</button></div>';
     if(!on){h+='<div class="pc off"><div class="pph"><div><h3>'+esc(p.name)+'</h3><div style="margin-top:2px">'+sw+'</div></div>'+tot+'</div>'+del+'</div>';return}
     var fold=!!plFold[pid],ft='<button class="pfold" data-pl="fold" data-pid="'+pid+'" aria-expanded="'+(!fold)+'"><span aria-hidden="true">'+(fold?'▸':'▾')+'</span> '+esc(p.name)+'</button>';
     h+='<div class="pc"><div class="pph"><div><h3>'+ft+'</h3>'+(fold?'<div class="pm" style="margin-top:2px">'+(p.date?p.date.split("-").reverse().join("/")+' · ':'')+(p.acts||[]).length+' hoạt động · '+p.items.length+' khoản</div>':'<div class="pm" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:2px"><input type="date" class="date" data-plc="date" data-pid="'+pid+'" value="'+esc(p.date||"")+'" aria-label="Ngày dự kiến">'+sw+'</div>')+'</div>'+tot+'</div>';
@@ -1399,6 +1399,7 @@ document.addEventListener("click",function(e){
   else if(a==="ok"){var f=document.querySelector('[data-plk="ask"]');if(f)plConf(f.dataset.pid,+f.dataset.pj,f.value)}
   else if(a==="no"){plAsk=null;renderPlan()}
   else if(a==="bud"&&p){var nv=prompt("Ngân sách dự án (ví dụ 5tr, 800k):",p.budget?cmp(p.budget):"");if(nv!==null){var bv=plAmt(nv);if(bv)plSet(p,function(){p.budget=bv});else toast("Chưa đọc được số tiền")}}
+  else if(a==="ren"&&p){var nn=prompt("Tên dự án:",p.name);if(nn!==null){nn=nn.trim();if(nn)plSet(p,function(){p.name=plCap(nn)});else toast("Tên không được để trống")}}
   else if(a==="ptab"&&p){plTab[d.pid]=d.t;renderPlan()}
   else if(a==="pday"&&p){plDay[d.pid]=+d.d;renderPlan()}
   else if(a==="addday"&&p){plSet(p,function(){p.nd=plNd(p)+1;plDay[d.pid]=p.nd})}
