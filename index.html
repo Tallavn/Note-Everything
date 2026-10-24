@@ -415,8 +415,8 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 </div>
 
 <div id="planView" hidden></div>
-<div id="plSheet" class="psh"><div class="box"><div class="shead"><b>Tạo dự án mới</b><button class="x" data-pl="pclose" aria-label="Đóng">×</button></div><input id="pl-new2" data-plk="new2" class="fin-in" type="text" autocomplete="off" enterkeyhint="done" placeholder="đà lạt 3 ngày 5tr, hoặc chỉ gõ tên">
-<div class="row"><span class="hint">Có số tiền ở cuối thì thành ngân sách dự án.</span><button class="add" data-pl="new2">Tạo</button></div></div></div>
+<div id="plSheet" class="psh"><div class="box"><div class="shead"><b id="pl-title">Tạo dự án mới</b><button class="x" data-pl="pclose" aria-label="Đóng">×</button></div><input id="pl-new2" data-plk="new2" class="fin-in" type="text" autocomplete="off" enterkeyhint="done" placeholder="đà lạt 3 ngày 5tr, hoặc chỉ gõ tên">
+<div class="row"><span class="hint" id="pl-hint">Có số tiền ở cuối thì thành ngân sách dự án.</span><button class="add" id="pl-go" data-pl="new2">Tạo</button></div></div></div>
 
 <footer class="foot">
 <details class="syncmenu" id="syncmenu"><summary>Đồng bộ</summary>
@@ -583,7 +583,10 @@ function addNote(forceRaw){
   if(forceRaw===undefined){el.value="";inMsg(MQM.matches?"Đã lưu ghi chú":"");inCat="";inDue="";inOpen=false;renderInTags()}
   save();render();sync();refocus(el);
 }
-var sortBy="new";
+var sortBy="new",sortMap={};
+try{sortMap=JSON.parse(localStorage.getItem("ghichu_sort")||"{}")||{}}catch(e){}
+function effSort(f){return sortMap[f]||sortMap.all||"new"}
+function setSortFor(f,v){sortMap[f]=v;try{localStorage.setItem("ghichu_sort",JSON.stringify(sortMap))}catch(e){}}
 function notePrice(t){
   var tk=(t||"").split(/\s+/),i,v;
   for(i=0;i<tk.length;i++){v=strongAmt(tk[i].replace(/^[("'\[]+|[)"'\]]+$/g,""));if(v)return v}
@@ -628,10 +631,10 @@ function toggleSortMenu(open){
 document.addEventListener("click",function(e){
   var m=document.getElementById("sortMenu"),b=e.target.closest("#sortBtn"),o=e.target.closest("[data-sort]");
   if(b){toggleSortMenu(m.hidden);return}
-  if(o){sortBy=o.dataset.sort;syncSortUI();toggleSortMenu(false);
+  if(o){var fk=filter;sortBy=o.dataset.sort;setSortFor(fk,sortBy);syncSortUI();toggleSortMenu(false);
     if(sortBy==="near"&&!userPos){
-      if(!navigator.geolocation){toast("Thiết bị không hỗ trợ định vị");sortBy="new";syncSortUI();render();return}
-      navigator.geolocation.getCurrentPosition(function(p){userPos=[p.coords.latitude,p.coords.longitude];render()},function(){toast("Không lấy được vị trí. Hãy cho phép truy cập vị trí.");sortBy="new";syncSortUI();render()},{enableHighAccuracy:false,timeout:10000,maximumAge:120000});
+      if(!navigator.geolocation){toast("Thiết bị không hỗ trợ định vị");sortBy="new";setSortFor(fk,"new");syncSortUI();render();return}
+      navigator.geolocation.getCurrentPosition(function(p){userPos=[p.coords.latitude,p.coords.longitude];render()},function(){toast("Không lấy được vị trí. Hãy cho phép truy cập vị trí.");sortBy="new";setSortFor(fk,"new");syncSortUI();render()},{enableHighAccuracy:false,timeout:10000,maximumAge:120000});
     }
     render();return}
   if(!m.hidden&&!e.target.closest("#sortMenu"))toggleSortMenu(false);
@@ -724,6 +727,7 @@ function undoDel(){
   hideToast();
 }
 function renderNotes(){
+  sortBy=effSort(filter);syncSortUI();
   applyCustom();renderInTags();
   var f=document.getElementById("filters"),h='<button class="chip" aria-pressed="'+(filter==="all")+'" data-f="all">Tất cả ('+vis().filter(function(x){return !isDone(x)}).length+')</button>';
   KEYS.forEach(function(k){var n=vis().filter(function(x){return x.cat===k}).length;h+='<button class="chip" aria-pressed="'+(filter===k)+'" data-f="'+k+'">'+CATS[k].n+' ('+n+')</button>'});
@@ -1081,8 +1085,15 @@ var MQM=window.matchMedia("(max-width:700px),(pointer:coarse)");
 function updateFab(){var f=document.getElementById("fab");
   if(f){f.classList.toggle("show",(tab==="notes"&&!document.body.classList.contains("composing"))||(tab==="plan"&&!document.body.classList.contains("psheet")));var l=tab==="plan"?"Tạo dự án mới":"Tạo ghi chú mới";f.setAttribute("aria-label",l);f.title=l}}
 var pT=null;
-function openPSheet(){
+var plCtx=null;
+function openPSheet(ctx){
   var b=document.body;clearTimeout(pT);b.classList.remove("pout");
+  plCtx=ctx||null;
+  var cfg=!ctx?{t:"Tạo dự án mới",p:"đà lạt 3 ngày 5tr, hoặc chỉ gõ tên",h:"Có số tiền ở cuối thì thành ngân sách dự án.",b:"Tạo"}
+    :ctx.k==="act"?{t:"Thêm hoạt động",p:"8h phở bà Hai 60k",h:"Có số tiền thì khoản đó tự vào tab Thu chi. Thêm vào Ngày "+(plDay[ctx.pid]||1)+".",b:"Thêm"}
+    :{t:"Thêm hạng mục",p:"thuê xe máy 300k",h:"Gõ tên và số tiền ở cuối, ví dụ: vé xe 600k.",b:"Thêm"};
+  $i("pl-title").textContent=cfg.t;$i("pl-hint").textContent=cfg.h;$i("pl-go").textContent=cfg.b;
+  var el0=$i("pl-new2");el0.placeholder=cfg.p;el0.value="";
   if(!window.__kbh){try{window.__kbh=parseInt(localStorage.getItem("kbh"))||0}catch(e){}}
   document.documentElement.style.setProperty("--kb",(window.__kbh||Math.round(window.innerHeight*0.4))+"px");
   b.classList.add("psheet");updateFab();
@@ -1092,7 +1103,7 @@ function closePSheet(){
   var b=document.body,el=document.getElementById("pl-new2");
   if(!b.classList.contains("psheet"))return;
   if(document.activeElement===el)el.blur();
-  b.classList.remove("psheet");b.classList.add("pout");updateFab();
+  b.classList.remove("psheet");b.classList.add("pout");updateFab();plCtx=null;
   clearTimeout(pT);pT=setTimeout(function(){b.classList.remove("pout");if(!b.classList.contains("composing")&&!b.classList.contains("editing"))document.documentElement.style.setProperty("--kb","0px");if(window.__kb)window.__kb()},160);
 }
 var cT=null,eT=null;
@@ -1162,9 +1173,13 @@ document.getElementById("fab").addEventListener("click",function(){
 document.getElementById("cbd").addEventListener("click",function(){if(document.body.classList.contains("psheet")){closePSheet();return}if(document.body.classList.contains("editing")){endEditAnim(function(){editing=null;editErr="";render()})}else closeComposer()});
 document.getElementById("cclose").addEventListener("click",closeComposer);
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&document.body.classList.contains("composing"))closeComposer()});
+var scrollPos={};
+function viewKey(){return tab==="fin"?"fin:"+sub:tab}
+function scrollSave(){scrollPos[viewKey()]=window.scrollY||document.documentElement.scrollTop||0}
+function scrollRestore(){window.scrollTo(0,scrollPos[viewKey()]||0)}
 function setTab(t){
   if(swipedId!=null)setSwipe(null);
-  var prev=tab;tab=t;if(t!=="notes")closeComposer();try{localStorage.setItem("ghichu_tab",t)}catch(e){}
+  scrollSave();var prev=tab;tab=t;if(t!=="notes")closeComposer();try{localStorage.setItem("ghichu_tab",t)}catch(e){}
   document.getElementById("notesView").hidden=t!=="notes";
   document.getElementById("finView").hidden=t!=="fin";document.getElementById("planView").hidden=t!=="plan";
   document.getElementById("copy").hidden=t!=="notes";
@@ -1172,7 +1187,7 @@ function setTab(t){
   if(t==="fin")renderFin();if(t==="plan")renderPlan();
   if(prev!==t){var OD={notes:0,fin:1,plan:2},v=document.getElementById(t+"View"),c=OD[t]>OD[prev]?"tabin-r":"tabin-l";
     v.classList.remove("tabin-r","tabin-l");void v.offsetWidth;v.classList.add(c);setTimeout(function(){v.classList.remove(c)},340)}
-  updateFab();
+  scrollRestore();updateFab();
 }
 var editing=null,editVal="",editDue="",editDay="",editDir="",editErr="";
 function amtStr(n){if(n<1000)return n+"d";if(n%1e6===0)return n/1e6+"tr";if(n%1000===0)return n/1000+"k";return String(n)}
@@ -1246,7 +1261,7 @@ document.addEventListener("click",function(e){
   if(d.sheetclose){closeSheet();return}
   if(d.fclear){fday=today();chartView="day";var p=fday.split("-");ym={y:+p[0],m:+p[1]};renderFin();return}
   if(d.cv){if(d.cv==="trend"&&chartView==="trend"){trendN=trendN===1?3:trendN===3?6:trendN===6?12:1}chartView=d.cv;renderFin();return}
-  if(d.sub){sub=d.sub;fcat="";if(sub==="tx"&&!fday)fday=today();openTx=null;defMsg();renderFin();return}
+  if(d.sub){scrollSave();sub=d.sub;fcat="";if(sub==="tx"&&!fday)fday=today();openTx=null;defMsg();renderFin();scrollRestore();return}
   if(d.mo){var mm=ym.m+Number(d.mo),yy=ym.y;if(mm<1){mm=12;yy--}if(mm>12){mm=1;yy++}ym={y:yy,m:mm};fcat="";fday="";openTx=null;renderFin();return}
   if(d.fcat){fcat=fcat===d.fcat?"":d.fcat;renderFin();return}
   if(d.ftx){openTx=openTx==d.ftx?null:d.ftx;renderFin();return}
@@ -1352,6 +1367,14 @@ function plItem(pid,val){
   var p=findFin(pid),r=p&&plSplit(val);if(!p)return;
   if(!r||!r.name){toast("Gõ tên và số tiền, ví dụ: vé xe 600k");return}
   plSet(p,function(){p.items.push({t:plCap(r.name),a:r.v,txs:[]})})}
+function plSubmit(){
+  var el=$i("pl-new2"),v=el.value.trim(),c=plCtx;
+  if(!c){plNew("pl-new2");return}
+  if(!v){toast(c.k==="act"?"Gõ hoạt động, ví dụ: 8h phở bà Hai 60k":"Gõ tên và số tiền, ví dụ: vé xe 600k");return}
+  if(c.k==="item"){var r=plSplit(v);if(!r||!r.name){toast("Gõ tên và số tiền, ví dụ: vé xe 600k");return}}
+  el.value="";closePSheet();
+  if(c.k==="act")plAct(c.pid,v);else plItem(c.pid,v);
+}
 var plTab={},plDay={};
 function plTmv(a){if(!a.tm)return 9999;var q=a.tm.split("h");return(+q[0]||0)*60+(+q[1]||0)}
 function plDate(p,d){var x=p.date?new Date(p.date+"T00:00:00"):new Date(p.ts||p.id);if(isNaN(x))return"";x.setDate(x.getDate()+d-1);return(x.getDate()<10?"0":"")+x.getDate()+"/"+(x.getMonth()<9?"0":"")+(x.getMonth()+1)}
@@ -1429,7 +1452,7 @@ function renderBud(top,body){
 document.addEventListener("click",function(e){
   var b=e.target.closest("[data-pl]");if(!b)return;var a=b.dataset.pl,d=b.dataset,p=d.pid?findFin(d.pid):null,j=+d.pj,it=p&&p.items&&p.items[j];
   if(a==="new")plNew();
-  else if(a==="new2")plNew("pl-new2");
+  else if(a==="new2")plSubmit();
   else if(a==="pclose")closePSheet()
   else if(a==="tick"&&it){if(b.checked){plAsk=d.pid+"/"+j;renderPlan()}else{plAsk=null;var sn3=snapOf([p].concat(plTx(it)));plSet(p,function(){plTx(it).forEach(plKill);it.txs=[]});setUndo("Đã bỏ khoản chi khỏi Chi tiêu",sn3)}}
   else if(a==="edit"&&it){plAsk=d.pid+"/"+j;renderPlan()}
@@ -1461,7 +1484,7 @@ document.addEventListener("change",function(e){
   else if(c==="on")plSet(p,function(){p.m=t.checked})});
 document.addEventListener("keydown",function(e){
   var t=e.target,k=t.dataset&&t.dataset.plk;if(!k||e.key!=="Enter")return;
-  if(k==="new")plNew();else if(k==="new2")plNew("pl-new2");else if(k==="ask")plConf(t.dataset.pid,+t.dataset.pj,t.value);else if(k==="item")plItem(t.dataset.pid,t.value);else if(k==="act")plAct(t.dataset.pid,t.value)});
+  if(k==="new")plNew();else if(k==="new2")plSubmit();else if(k==="ask")plConf(t.dataset.pid,+t.dataset.pj,t.value);else if(k==="item")plItem(t.dataset.pid,t.value);else if(k==="act")plAct(t.dataset.pid,t.value)});
 setTab(tab);render();
 if(code)sync();
 
@@ -1522,6 +1545,12 @@ if(code)sync();
 })();
 
 syncSortUI();
+document.addEventListener("focusin",function(e){
+  var t=e.target,k=t.dataset&&t.dataset.plk;
+  if((k!=="item"&&k!=="act")||!MQM.matches||document.body.classList.contains("psheet"))return;
+  t.blur();
+  openPSheet({k:k,pid:t.dataset.pid});
+});
 /* Đóng dropdown đồng bộ khi chạm ra ngoài */
 document.addEventListener("click",function(e){var m=document.getElementById("syncmenu");if(m&&m.open&&!m.contains(e.target))m.open=false});
 </script>
