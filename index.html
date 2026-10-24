@@ -300,9 +300,9 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .tgap{height:14px}
 .swrap{position:relative;border-radius:var(--r);margin-bottom:6px;overflow:hidden;background:var(--bg)}
 .swrap .swcard{position:relative;z-index:1;margin-bottom:0;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .3s cubic-bezier(.2,.8,.2,1)}
-.swrap.swiped .swcard{transform:translateX(-144px)}
+.swrap.swiped .swcard{transform:translateX(-104px)}
 .swcard:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
-.swact{position:absolute;top:0;right:0;bottom:0;width:144px;display:flex;visibility:hidden;transition:visibility 0s .3s}
+.swact{position:absolute;top:0;right:0;bottom:0;width:104px;display:flex;visibility:hidden;transition:visibility 0s .3s}
 .swrap.swiped .swact{visibility:visible;transition-delay:0s}
 .swact button{flex:1;border:0;border-radius:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:500;padding:0}
 .swact svg{width:20px;height:20px;display:block}
@@ -440,12 +440,13 @@ function addTag(name){
   var f=document.getElementById("filters");f.scrollLeft=f.scrollWidth;
 }
 function delTag(k){
-  var st=tagStore();if(!st||!confirm("Xóa tag "+(CATS[k]?CATS[k].n:"")+"? Các ghi chú trong tag sẽ chuyển sang Khác."))return;
+  var st=tagStore();if(!st)return;
+  var tn=CATS[k]?CATS[k].n:"",sn=snapOf([st].concat(notes.filter(function(x){return !x.fin&&x.cat===k})));
   var now=Date.now();
   st.list=(st.list||[]).filter(function(t){return t.k!==k});st.upd=now;
   notes.forEach(function(x){if(!x.fin&&x.cat===k){x.cat="other";x.upd=now}});
   if(filter===k)filter="all";
-  save();render();sync();
+  save();render();sync();setUndo("Đã xóa tag "+tn,sn);
 }
 var TAGS={"#quanan":"food","#an":"food","#nho":"mem","#ytuong":"idea","#idea":"idea","#viec":"todo","#todo":"todo"};
 var RULES={
@@ -700,14 +701,21 @@ function setSwipe(id){
     w.classList.toggle("swiped",on);c.setAttribute("aria-expanded",on);if(t)t.classList.toggle("open",on);
   });
 }
+var lastUndo=null;
+function snapOf(l){return l.filter(Boolean).map(function(o){return JSON.parse(JSON.stringify(o))})}
+function setUndo(msg,snaps){
+  lastUndo=function(){snaps.forEach(function(sn){var o=notes.find(function(x){return x.id==sn.id});if(o){Object.keys(o).forEach(function(k){delete o[k]});Object.assign(o,sn);o.upd=Date.now()}});save();render();sync()};
+  toast(msg,true)}
 function toast(msg,undo){
+  if(!undo)lastUndo=null;
   var t=document.getElementById("toast");
   t.innerHTML='<span>'+esc(msg)+'</span>'+(undo?'<button type="button" data-undo="1">Hoàn tác</button>':'');
   t.hidden=false;t.style.animation="none";void t.offsetWidth;t.style.animation="";
   clearTimeout(toastT);toastT=setTimeout(hideToast,6000);
 }
-function hideToast(){clearTimeout(toastT);document.getElementById("toast").hidden=true;lastDel=null}
+function hideToast(){clearTimeout(toastT);document.getElementById("toast").hidden=true;lastDel=null;lastUndo=null}
 function undoDel(){
+  if(lastUndo){var uf=lastUndo;lastUndo=null;uf();hideToast();return}
   var d=lastDel&&notes.find(function(x){return x.id==lastDel.id});
   if(d){d.text=lastDel.text;d.area=lastDel.area;d.link=lastDel.link;d.del=false;d.upd=Date.now();save();render();sync()}
   hideToast();
@@ -1239,7 +1247,7 @@ document.addEventListener("click",function(e){
   if(d.fcat){fcat=fcat===d.fcat?"":d.fcat;renderFin();return}
   if(d.ftx){openTx=openTx==d.ftx?null:d.ftx;renderFin();return}
   if(d.fset){x=findFin(d.id);if(x){x.cat=d.fset;x.upd=Date.now();openTx=null;touch()}return}
-  if(d.fdel){x=findFin(d.fdel);if(x){x.del=true;x.desc="";x.amt=0;x.upd=Date.now();touch()}return}
+  if(d.fdel){x=findFin(d.fdel);if(x){var sn1=snapOf([x]);x.del=true;x.desc="";x.amt=0;x.upd=Date.now();touch();setUndo("Đã xóa khoản này",sn1)}return}
   if(d.open){
     var cur=findFin(1),v=prompt("Số dư ban đầu của ví (ví dụ 5tr, 2tr300). Nhập 0 để bỏ.",cur&&!cur.del&&cur.amt?String(cur.amt):"");
     if(v===null)return;
@@ -1252,7 +1260,7 @@ document.addEventListener("click",function(e){
   if(d.dpay){x=findFin(d.dpay);if(x){var v2=prompt("Số tiền "+(x.dir==="owe"?"đã trả":"đã thu")+" (ví dụ 200k):");if(v2){var r=parseLine(v2);if(r){x.paid=Math.min(x.amt,(x.paid||0)+r.amt);x.upd=Date.now();touch()}else alert("Chưa đọc được số tiền.")}}return}
   if(d.ddone){x=findFin(d.ddone);if(x){x.paid=x.amt;x.upd=Date.now();touch()}return}
   if(d.dreopen){x=findFin(d.dreopen);if(x){x.paid=0;x.upd=Date.now();touch()}return}
-  if(d.ddel){x=findFin(d.ddel);if(x){x.del=true;x.desc="";x.amt=0;x.paid=0;x.upd=Date.now();touch()}return}
+  if(d.ddel){x=findFin(d.ddel);if(x){var sn2=snapOf([x]);x.del=true;x.desc="";x.amt=0;x.paid=0;x.upd=Date.now();touch();setUndo("Đã xóa khoản nợ",sn2)}return}
 });
 document.addEventListener("click",function(e){
   var t=e.target.closest("button");if(!t)return;var d=t.dataset;
@@ -1419,7 +1427,7 @@ document.addEventListener("click",function(e){
   if(a==="new")plNew();
   else if(a==="new2")plNew("pl-new2");
   else if(a==="pclose")closePSheet()
-  else if(a==="tick"&&it){if(b.checked){plAsk=d.pid+"/"+j;renderPlan()}else{plAsk=null;plSet(p,function(){plTx(it).forEach(plKill);it.txs=[]});toast("Đã bỏ khoản chi khỏi Chi tiêu")}}
+  else if(a==="tick"&&it){if(b.checked){plAsk=d.pid+"/"+j;renderPlan()}else{plAsk=null;var sn3=snapOf([p].concat(plTx(it)));plSet(p,function(){plTx(it).forEach(plKill);it.txs=[]});setUndo("Đã bỏ khoản chi khỏi Chi tiêu",sn3)}}
   else if(a==="edit"&&it){plAsk=d.pid+"/"+j;renderPlan()}
   else if(a==="ok"){var f=document.querySelector('[data-plk="ask"]');if(f)plConf(f.dataset.pid,+f.dataset.pj,f.value)}
   else if(a==="no"){plAsk=null;renderPlan()}
@@ -1429,10 +1437,10 @@ document.addEventListener("click",function(e){
   else if(a==="pday"&&p){plDay[d.pid]=+d.d;renderPlan()}
   else if(a==="addday"&&p){plSet(p,function(){p.nd=plNd(p)+1;plDay[d.pid]=p.nd})}
   else if(a==="atick"&&p){var ac=(p.acts||[]).find(function(x){return x.id==d.aid});if(ac)plSet(p,function(){ac.done=b.checked})}
-  else if(a==="adel"&&p){var ac2=(p.acts||[]).find(function(x){return x.id==d.aid});if(ac2)plSet(p,function(){var k=p.items.findIndex(function(it){return it.aid===ac2.id});if(k>-1){if(plTx(p.items[k]).length)delete p.items[k].aid;else p.items.splice(k,1)}p.acts.splice(p.acts.indexOf(ac2),1)})}
+  else if(a==="adel"&&p){var ac2=(p.acts||[]).find(function(x){return x.id==d.aid});if(ac2){var sn4=snapOf([p]);plSet(p,function(){var k=p.items.findIndex(function(it){return it.aid===ac2.id});if(k>-1){if(plTx(p.items[k]).length)delete p.items[k].aid;else p.items.splice(k,1)}p.acts.splice(p.acts.indexOf(ac2),1)});setUndo("Đã xóa hoạt động",sn4)}}
   else if(a=="fold"){plFold[d.pid]=!plFold[d.pid];try{localStorage.setItem("ghichu_planfold",JSON.stringify(plFold))}catch(e){}renderPlan()}
-  else if(a==="idel"&&it){plSet(p,function(){p.items.splice(j,1)})}
-  else if(a==="delp"&&p){if(confirm("Xóa dự án này? Các khoản chi đã ghi vẫn giữ trong Chi tiêu.")){p.del=true;p.name="";p.items=[];p.acts=[];p.budget=0;p.upd=Date.now();save();render();sync()}}
+  else if(a==="idel"&&it){var sn5=snapOf([p]);plSet(p,function(){p.items.splice(j,1)});setUndo("Đã xóa khoản",sn5)}
+  else if(a==="delp"&&p){var sn6=snapOf([p]);p.del=true;p.name="";p.items=[];p.acts=[];p.budget=0;p.upd=Date.now();save();render();sync();setUndo("Đã xóa dự án",sn6)}
   else if(a==="att"&&p&&plPend){plSet(p,function(){plLk(p,j,plPend.tx,d.rep)});$i("in-msg").innerHTML="";toast("Đã tính vào “"+p.items[j].t+"”")}
   else if(a==="skip"){$i("in-msg").innerHTML=""}
 });
