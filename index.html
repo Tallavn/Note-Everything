@@ -1450,7 +1450,10 @@ function expandShort(){
   expTried[n.id]=1;
   var su=shortOf(n);
   fetch(W+(W.indexOf("?")>-1?"&":"?")+"u="+encodeURIComponent(su)).then(function(r){return r.json()}).then(function(j){
-    var u=j&&j.url;if(!u||!/google\.[a-z.]+\/maps/i.test(u))return;
+    var u=j&&j.url;
+    /* Google đôi khi chặn bằng trang "sorry"; link thật nằm trong tham số continue */
+    if(u&&/google\.[a-z.]+\/sorry\//i.test(u)){try{u=new URL(u).searchParams.get("continue")||""}catch(e){u=""}}
+    if(!u||!/google\.[a-z.]+\/maps/i.test(u))return;
     if(!/!3d-?\d|@-?\d+\.\d+,-?\d+\.\d+/.test(u))return;
     if(n.link===u)return;
     n.link=u;geoClear(n);delete geoTried2[n.id+":c"];n.upd=Date.now();save();sync();renderNotes();
