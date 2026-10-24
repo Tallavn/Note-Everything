@@ -338,6 +338,7 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .swcard.cat-other{--bar:var(--c-other)}
 .swcard.done{--bar:var(--muted)}
 /* Dự án + Ngân sách */
+@media (max-width:700px),(pointer:coarse){.plbar{display:none!important}}
 .pc{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
 .pc.off{opacity:.6}
 .pbar{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:10px}.pbar i{display:block;height:100%;background:var(--accent);border-radius:99px}.pbar.w i{background:var(--k0)}.pbar.o i{background:var(--bad)}
@@ -400,6 +401,8 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 </div>
 
 <div id="planView" hidden></div>
+<div id="plSheet" class="sheet" hidden><div class="box"><div class="shead"><b>Tạo dự án mới</b><button class="x" data-pl="pclose" aria-label="Đóng">×</button></div><input id="pl-new2" data-plk="new2" class="fin-in" type="text" autocomplete="off" enterkeyhint="done" placeholder="đà lạt 3 ngày 5tr, hoặc chỉ gõ tên">
+<div class="row"><span class="hint">Có số tiền ở cuối thì thành ngân sách dự án.</span><button class="add" data-pl="new2">Tạo</button></div></div></div>
 
 <footer class="foot">
 <details class="syncmenu" id="syncmenu"><summary>Đồng bộ</summary>
@@ -1116,6 +1119,7 @@ if(MQM.addEventListener)MQM.addEventListener("change",function(){closeComposer()
   vv.addEventListener("resize",kb);vv.addEventListener("scroll",kb);kb()})();
 document.getElementById("fab").addEventListener("click",function(){
   if(tab!=="plan"){openComposer();return}
+  if(MQM.matches){var sh=$i("plSheet");sh.hidden=false;$i("pl-new2").focus();return}
   var el=$i("pl-new");if(!el)return;
   if(el.value.trim())plNew();else{window.scrollTo({top:0,behavior:"smooth"});el.focus()}});
 document.getElementById("cbd").addEventListener("click",function(){if(document.body.classList.contains("editing")){endEditAnim(function(){editing=null;editErr="";render()})}else closeComposer()});
@@ -1259,6 +1263,8 @@ document.addEventListener("change",function(e){
   }
   renderFin();
 });
+$i("plSheet").addEventListener("mousedown",function(e){if(e.target===this)this.hidden=true});
+document.addEventListener("keydown",function(e){if(e.key==="Escape")$i("plSheet").hidden=true});
 document.getElementById("finSheet").addEventListener("mousedown",function(e){if(e.target===this)closeSheet()});
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!document.getElementById("finSheet").hidden)closeSheet()});
 document.getElementById("fin-in").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();addFin()}});
@@ -1298,10 +1304,11 @@ function plConf(pid,j,val){
   plAsk=null;
   plSet(p,function(){var a=plTx(it);if(a.length){a.slice(1).forEach(plKill);a[0].amt=v;a[0].upd=Date.now()}else it.txs=[plMk(v,it.t).id]});
   toast("Đã ghi -"+money(v)+" vào Chi tiêu")}
-function plNew(){
-  var el=$i("pl-new"),raw=el?el.value.trim():"",r=raw&&plSplit(raw),w=0;
+function plNew(id){
+  var el=$i(id||"pl-new"),raw=el?el.value.trim():"",r=raw&&plSplit(raw),w=0;
   if(!raw){toast("Gõ tên dự án, ví dụ: đà lạt 3 ngày 5tr");return}
   if(!r||!r.name){w=Math.max(0,balance().b);r={name:raw,v:0}}
+  if(id){el.value="";$i("plSheet").hidden=true}
   var now=Date.now();notes.unshift({id:now,fin:1,k:"plan",name:plCap(r.name),date:"",budget:r.v,items:[],ts:now,upd:now});save();render();sync();
   if(w){var bn=budNote(1);if(!bn.inc){bn.inc=w;bn.upd=Date.now();save();render();sync();toast("Đã điền Thu dự kiến ở mục Ngân sách = tổng ví ("+money(w)+"). Bấm vào số ngân sách dự án để nhập.")}else toast("Bấm vào số ngân sách dự án để nhập.")}else if(!r.v)toast("Bấm vào số ngân sách dự án để nhập.")}
 function plItem(pid,val){
@@ -1340,7 +1347,7 @@ function plActsHtml(p){
   return h}
 function renderPlan(){
   var el=$i("planView"),ps=plList().sort(function(a,b){var d=planOn(b)-planOn(a);if(d)return d;return(a.date||"9")<(b.date||"9")?-1:1});
-  var h='<div style="display:flex;gap:8px;margin-bottom:14px"><input class="pin" id="pl-new" data-plk="new" placeholder="Tạo dự án: đà lạt 3 ngày 5tr, hoặc chỉ gõ tên" aria-label="Tạo dự án" autocomplete="off" enterkeyhint="done"></div>';
+  var h='<div class="plbar" style="display:flex;gap:8px;margin-bottom:14px"><input class="pin" id="pl-new" data-plk="new" placeholder="Tạo dự án: đà lạt 3 ngày 5tr, hoặc chỉ gõ tên" aria-label="Tạo dự án" autocomplete="off" enterkeyhint="done"></div>';
   if(!ps.length)h+='<div class="empty">Chưa có dự án. Gõ tên và ngân sách ở trên, ví dụ: đà lạt 3 ngày 5tr.</div>';
   ps.forEach(function(p){
     var sp=0,pl=0;p.items.forEach(function(it){if(plTx(it).length){var r=plR(it);sp+=r;pl+=r}else pl+=it.a});
@@ -1385,6 +1392,8 @@ function renderBud(top,body){
 document.addEventListener("click",function(e){
   var b=e.target.closest("[data-pl]");if(!b)return;var a=b.dataset.pl,d=b.dataset,p=d.pid?findFin(d.pid):null,j=+d.pj,it=p&&p.items&&p.items[j];
   if(a==="new")plNew();
+  else if(a==="new2")plNew("pl-new2");
+  else if(a==="pclose")$i("plSheet").hidden=true
   else if(a==="tick"&&it){if(b.checked){plAsk=d.pid+"/"+j;renderPlan()}else{plAsk=null;plSet(p,function(){plTx(it).forEach(plKill);it.txs=[]});toast("Đã bỏ khoản chi khỏi Chi tiêu")}}
   else if(a==="edit"&&it){plAsk=d.pid+"/"+j;renderPlan()}
   else if(a==="ok"){var f=document.querySelector('[data-plk="ask"]');if(f)plConf(f.dataset.pid,+f.dataset.pj,f.value)}
@@ -1410,7 +1419,7 @@ document.addEventListener("change",function(e){
   else if(c==="on")plSet(p,function(){p.m=t.checked})});
 document.addEventListener("keydown",function(e){
   var t=e.target,k=t.dataset&&t.dataset.plk;if(!k||e.key!=="Enter")return;
-  if(k==="new")plNew();else if(k==="ask")plConf(t.dataset.pid,+t.dataset.pj,t.value);else if(k==="item")plItem(t.dataset.pid,t.value);else if(k==="act")plAct(t.dataset.pid,t.value)});
+  if(k==="new")plNew();else if(k==="new2")plNew("pl-new2");else if(k==="ask")plConf(t.dataset.pid,+t.dataset.pj,t.value);else if(k==="item")plItem(t.dataset.pid,t.value);else if(k==="act")plAct(t.dataset.pid,t.value)});
 setTab(tab);render();
 if(code)sync();
 
