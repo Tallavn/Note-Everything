@@ -117,7 +117,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .psh .shead{position:relative;top:-4px}
 #pl-note{margin-top:2px!important;font-size:13.5px!important}
 #pl-hint,.box .hint.nh{font-size:10.8px;opacity:.7}
-.box .inrow .hint.nh{flex:1;min-width:0;margin:0 0 0 6px;align-self:center}
+.box .inrow .hint.nh{flex:1;min-width:0;margin:0 6px 0 6px;align-self:center}
 #notesView .inrow .intags{flex:none}
 #notesView .inrow:has(.pick,.indue) .intags{flex:1}
 #notesView .inrow:has(.pick,.indue) .hint.nh{display:none}
@@ -548,6 +548,13 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 .cam.cam-chip{width:auto;height:auto;padding:3px 9px;border-radius:99px}
 .cam.cam-chip svg{width:14px;height:14px}
 .inrow .cam{margin:0 8px 0 4px}
+.cam{touch-action:manipulation;-webkit-tap-highlight-color:transparent;position:relative;z-index:1}
+.inrow:is(:has(.pick),:has(.indue),:not(:has(.meta))){align-items:center}
+/* Mở Tag: danh sách loại trải full chiều ngang ở hàng trên; Tag + camera + Lưu nằm hàng dưới */
+#notesView .inrow:has(.pick,.indue){flex-wrap:wrap}
+#notesView .inrow:has(.pick,.indue) .intags{display:contents}
+#notesView .inrow:has(.pick,.indue) .intags>.pick,#notesView .inrow:has(.pick,.indue) .intags>.indue,#notesView .inrow:has(.pick,.indue) .intags>.meta{order:-1;flex:0 0 100%;min-width:0;margin-top:0;box-sizing:border-box}
+#notesView .inrow:has(.pick,.indue) .intags>[data-inopen]{margin-left:auto}
 .thumbs{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .thumbs:empty{display:none}
 .thumb{width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--line);display:block;cursor:zoom-in}
@@ -571,7 +578,7 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 <button type="button" class="cclose" id="cclose" aria-label="Xóa văn bản">×</button>
 <textarea id="in" placeholder="Gõ gì cũng được, ví dụ: bún chả Hương Liên Hai Bà Trưng, ngon, nhớ quay lại"></textarea>
 <input id="in-note" class="fin-in" type="text" autocomplete="off" enterkeyhint="done" maxlength="200" aria-label="Ghi chú thêm" placeholder="Ghi chú thêm (không bắt buộc)" style="font-size:13.5px;border-top:1px dashed var(--line);margin-top:2px;padding:8px 2px">
-<div class="thumbs" id="ph-in"></div><div class="insug" id="inSug"></div><div class="row inrow"><div class="intags" id="inTags"></div><div class="hint nh">Có số tiền → Chi tiêu  ·  Chọn Tag → Ghi chú</div><button type="button" class="cam" data-cam="in" aria-label="Thêm ảnh" title="Thêm ảnh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13.5" r="3.4"/></svg></button><button class="add" id="add">Lưu</button></div>
+<div class="thumbs" id="ph-in"></div><div class="insug" id="inSug"></div><div class="row inrow"><div class="hint nh">Có số tiền → Chi tiêu  ·  Chọn Tag → Ghi chú</div><div class="intags" id="inTags"></div><button type="button" class="cam" data-cam="in" aria-label="Thêm ảnh" title="Thêm ảnh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13.5" r="3.4"/></svg></button><button class="add" id="add">Lưu</button></div>
 </div>
 <div class="hint" id="in-msg" style="margin-top:6px" role="status"></div>
 <div class="frow"><div class="filters" id="filters"></div>
@@ -614,7 +621,7 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 <div class="toast" id="toast" role="status" hidden></div>
 <button type="button" class="fab" id="fab" aria-label="Tạo ghi chú mới" title="Tạo ghi chú mới"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
 <div class="fablock" id="fablock"><button type="button" id="fl-reset">Đặt lại</button><button type="button" class="fl-ok" id="fl-ok">Khoá vị trí</button></div>
-<input type="file" id="camIn" accept="image/*" multiple hidden>
+<input type="file" id="camIn" accept="image/*" multiple tabindex="-1" aria-hidden="true" style="position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none">
 <script>
 /* ===================== GHI CHÚ CHO LẦN SỬA SAU (đọc trước khi sửa) =====================
  1) VUỐT ĐỔI TAB (tìm "Vuốt trái/phải để đổi tab"): chỉ chặn khi thật sự xung đột
