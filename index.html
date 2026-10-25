@@ -221,6 +221,12 @@ main{padding:24px 16px 96px}
 #phv .phmsg{color:#fff;font-size:13px;text-align:center;max-width:320px;line-height:1.5}
 #phv .phbar{display:flex;gap:10px}
 #phv .phbar button{border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:#fff;border-radius:99px;padding:8px 16px;font-size:13px}
+#phm{position:fixed;inset:0;z-index:75;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center}
+#phm[hidden]{display:none}
+#phm .phmb{width:100%;max-width:460px;background:var(--surface);border-radius:16px 16px 0 0;padding:10px 14px calc(14px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px}
+#phm button{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;padding:13px 14px;font-size:14.4px;text-align:left}
+#phm button.sm{font-size:12.6px;color:var(--muted);text-align:center;border:0;background:transparent;padding:6px}
+#phm button.cc{text-align:center;color:var(--muted)}
 #list{order:5}
 .note{border-radius:var(--r);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow)}
 .note .meta{margin-top:10px}
@@ -1068,7 +1074,7 @@ function noteCard(x,grouped){
   if(ml&&!has&&pending==x.id)h+='<button class="tag" data-paste="'+x.id+'" style="background:var(--c-other-bg);color:var(--c-other)">Dán link</button>';
   var di=dueInfo(x);if(di)h+='<span class="due '+di.cl+'" title="Hạn chót"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'+di.lb+'</span>';
   h+=priceTag(x);
-  if(x.cat==="food"&&!(x.ph&&x.ph.length))h+='<button type="button" class="tag phadd" data-addph="'+x.id+'" style="background:var(--c-other-bg);color:var(--c-other)">＋ Ảnh</button>';
+  if(x.cat==="food"&&!(x.ph&&x.ph.length))h+='<button type="button" class="tag phadd" data-addph="'+x.id+'" style="background:var(--c-other-bg);color:var(--c-other)">📷 Ảnh</button>';
   if(x.text.indexOf("\n")>-1)h+='<span class="more">+'+(x.text.split("\n").length-1)+' dòng</span>';
   h+='</div>'+brList(x)+phRow(x)+'</div>';
   if(mem)h+='<button type="button" class="ck" role="checkbox" aria-checked="'+done+'" data-done="'+x.id+'" aria-label="Đánh dấu đã xong"><span class="bx"></span><svg class="tk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12.5l5 5L19.5 7"/></svg></button>';
@@ -1183,37 +1189,81 @@ function phParse(t){
   if(/^https?:\/\/\S+$/i.test(t))return t;
   return null;
 }
-function phSrc(p,w){return p.indexOf("d:")===0?"https://drive.google.com/thumbnail?id="+p.slice(2)+"&sz=w"+w:p}
+function phSrc(p,w){
+  if(p.indexOf("d:")===0)return "https://drive.google.com/thumbnail?id="+p.slice(2)+"&sz=w"+w;
+  if(p.indexOf("res.cloudinary.com")>-1&&p.indexOf("/image/upload/")>-1)return p.replace("/image/upload/","/image/upload/c_limit,w_"+w+",q_auto,f_auto/");
+  return p}
 function phRow(x){
   if(!x.ph||!x.ph.length)return "";
   var h='<div class="phrow">';
   x.ph.forEach(function(p,i){h+='<button type="button" class="phb" data-phopen="'+x.id+':'+i+'" aria-label="Xem ảnh"><img loading="lazy" referrerpolicy="no-referrer" alt="" src="'+esc(phSrc(p,200))+'"></button>'});
-  if(x.ph.length<6)h+='<button type="button" class="phb add" data-addph="'+x.id+'" aria-label="Thêm ảnh">＋</button>';
+  if(x.ph.length<6)h+='<button type="button" class="phb add" data-addph="'+x.id+'" aria-label="Thêm ảnh">📷</button>';
   return h+'</div>';
 }
 (function(){
   var cur=null,v=document.createElement("div");
   v.id="phv";v.hidden=true;
-  v.innerHTML='<img alt="" referrerpolicy="no-referrer"><div class="phmsg" hidden>Không tải được ảnh. Trong Drive, hãy để chia sẻ ở chế độ “Bất kỳ ai có đường liên kết”.</div><div class="phbar"><button type="button" data-phdel="1">Xóa ảnh</button><button type="button" data-phclose="1">Đóng</button></div>';
+  v.innerHTML='<img alt="" referrerpolicy="no-referrer"><div class="phmsg" hidden>Không tải được ảnh. Kiểm tra mạng, hoặc nếu là link Drive thì để chia sẻ ở chế độ “Bất kỳ ai có đường liên kết”.</div><div class="phbar"><button type="button" data-phdel="1">Xóa ảnh</button><button type="button" data-phclose="1">Đóng</button></div>';
   document.body.appendChild(v);
   var im=v.querySelector("img"),msg=v.querySelector(".phmsg");
   im.addEventListener("error",function(){im.hidden=true;msg.hidden=false});
   v.addEventListener("touchstart",function(e){e.stopPropagation()},{passive:true});
   function close(){v.hidden=true;im.removeAttribute("src");cur=null}
   function note(id){return notes.find(function(n){return n.id==id})}
+  var menuId=null,m=document.createElement("div");
+  m.id="phm";m.hidden=true;
+  m.innerHTML='<div class="phmb"><button type="button" data-phm="cam">📷 Chụp ảnh</button><button type="button" data-phm="lib">🖼 Chọn ảnh từ máy</button><button type="button" class="sm" data-phm="cfg">Đổi nơi lưu ảnh</button><button type="button" class="cc" data-phm="x">Hủy</button></div>';
+  document.body.appendChild(m);
+  m.addEventListener("click",function(e){if(e.target===m)m.hidden=true});
+  m.addEventListener("touchstart",function(e){e.stopPropagation()},{passive:true});
+  function mk(cap,multi){var i=document.createElement("input");i.type="file";i.accept="image/*";if(cap)i.setAttribute("capture","environment");if(multi)i.multiple=true;i.style.display="none";document.body.appendChild(i);
+    i.addEventListener("change",function(){var f=i.files;if(f&&f.length)uploadFiles(menuId,f);i.value=""});return i}
+  var inCam=mk(true,false),inLib=mk(false,true);
+  function cfg(){try{return JSON.parse(localStorage.getItem("ghichu_cld")||"null")}catch(e){return null}}
+  function askCfg(){
+    var cur=cfg()||{},c=prompt("Cloud name của Cloudinary (xem ở Dashboard)",cur.c||"");if(c===null)return null;
+    var p=prompt("Tên Upload preset (chế độ Unsigned)",cur.p||"");if(p===null)return null;
+    c=c.trim();p=p.trim();if(!c||!p)return null;
+    var o={c:c,p:p};try{localStorage.setItem("ghichu_cld",JSON.stringify(o))}catch(e){}toast("Đã lưu cài đặt nơi lưu ảnh");return o}
+  function shrink(f,cb){
+    var u=URL.createObjectURL(f),im=new Image();
+    im.onload=function(){var w=im.naturalWidth,h=im.naturalHeight,k=Math.min(1,1600/Math.max(w,h)),cv=document.createElement("canvas");
+      cv.width=Math.max(1,Math.round(w*k));cv.height=Math.max(1,Math.round(h*k));cv.getContext("2d").drawImage(im,0,0,cv.width,cv.height);URL.revokeObjectURL(u);
+      cv.toBlob(function(b){cb(b||f)},"image/jpeg",.82)};
+    im.onerror=function(){URL.revokeObjectURL(u);cb(f)};im.src=u}
+  function uploadFiles(id,files){
+    var n=note(id);if(!n)return;
+    var c=cfg()||askCfg();if(!c){toast("Chưa cài nơi lưu ảnh nên chưa tải lên được");return}
+    var list=[].slice.call(files).slice(0,6-(n.ph?n.ph.length:0));
+    if(!list.length){toast("Tối đa 6 ảnh cho mỗi ghi chú");return}
+    var total=list.length,done=0,fail=0,urls=[],msg="";
+    function finish(){
+      var t=note(id);
+      if(t&&urls.length){t.ph=(t.ph||[]).concat(urls).slice(0,6);t.upd=Date.now();save();render();sync()}
+      if(fail)toast(urls.length?"Đã tải "+urls.length+" ảnh, "+fail+" ảnh lỗi":"Tải ảnh lỗi"+(msg?": "+msg:". Kiểm tra mạng và cài đặt nơi lưu ảnh"));
+      else toast("Đã thêm "+urls.length+" ảnh")}
+    (function next(){
+      if(!list.length){finish();return}
+      var f=list.shift();toast("Đang tải ảnh lên… ("+(done+fail+1)+"/"+total+")");
+      shrink(f,function(blob){
+        var fd=new FormData();fd.append("file",blob,"photo.jpg");fd.append("upload_preset",c.p);
+        fetch("https://api.cloudinary.com/v1_1/"+encodeURIComponent(c.c)+"/image/upload",{method:"POST",body:fd})
+          .then(function(r){return r.json()})
+          .then(function(j){if(j&&j.secure_url){urls.push(j.secure_url);done++}else{fail++;msg=(j&&j.error&&j.error.message)||""}})
+          .catch(function(){fail++})
+          .then(next)})
+    })()}
   document.addEventListener("click",function(e){
     if(e.target===v){close();return}
     var b=e.target.closest&&e.target.closest("button");if(!b)return;
     var d=b.dataset;
-    if(d.addph){
-      var n=note(d.addph);if(!n)return;
-      var cap=6-(n.ph?n.ph.length:0);if(cap<=0){toast("Tối đa 6 ảnh cho mỗi ghi chú");return}
-      var r=prompt("Dán link ảnh Google Drive (mỗi dòng một link, tối đa "+cap+")");if(r===null)return;
-      var add=[],bad=0;r.split(/\s+/).forEach(function(t){if(!t)return;var p=phParse(t);if(p&&(n.ph||[]).indexOf(p)<0&&add.indexOf(p)<0)add.push(p);else if(!p)bad++});
-      add=add.slice(0,cap);
-      if(!add.length){toast(bad?"Link này không đọc được":"Không có link mới");return}
-      n.ph=(n.ph||[]).concat(add);n.upd=Date.now();save();render();sync();
-      toast(bad?"Đã thêm "+add.length+" ảnh, "+bad+" link không đọc được":"Đã thêm "+add.length+" ảnh");return}
+    if(d.addph){var nn=note(d.addph);if(!nn)return;if(nn.ph&&nn.ph.length>=6){toast("Tối đa 6 ảnh cho mỗi ghi chú");return}menuId=d.addph;m.hidden=false;return}
+    if(d.phm){
+      var act=d.phm;m.hidden=true;
+      if(act==="cam")inCam.click();
+      else if(act==="lib")inLib.click();
+      else if(act==="cfg")askCfg();
+      return}
     if(d.phopen){
       var q=d.phopen.split(":"),n2=note(q[0]);if(!n2||!n2.ph||!n2.ph[q[1]])return;
       cur={id:q[0],i:+q[1]};im.hidden=false;msg.hidden=true;
@@ -1221,10 +1271,10 @@ function phRow(x){
     if(d.phclose){close();return}
     if(d.phdel&&cur){
       var n3=note(cur.id);if(!n3||!n3.ph)return;
-      if(!confirm("Xóa ảnh này khỏi ghi chú? (ảnh trên Drive vẫn còn)"))return;
+      if(!confirm("Xóa ảnh này khỏi ghi chú? (ảnh đã tải lên vẫn còn ở nơi lưu)"))return;
       n3.ph.splice(cur.i,1);if(!n3.ph.length)delete n3.ph;n3.upd=Date.now();save();close();render();sync()}
   });
-  document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!v.hidden)close()});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"){if(!m.hidden)m.hidden=true;else if(!v.hidden)close()}});
 })();
 /* Nhấn giữ một tag ở hàng dưới cùng để sửa tên */
 (function(){
