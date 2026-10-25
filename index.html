@@ -582,6 +582,25 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 <button type="button" class="fab" id="fab" aria-label="Tạo ghi chú mới" title="Tạo ghi chú mới"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
 <div class="fablock" id="fablock"><button type="button" id="fl-reset">Đặt lại</button><button type="button" class="fl-ok" id="fl-ok">Khoá vị trí</button></div>
 <script>
+/* ===================== GHI CHÚ CHO LẦN SỬA SAU (đọc trước khi sửa) =====================
+ 1) VUỐT ĐỔI TAB (tìm "Vuốt trái/phải để đổi tab"): chỉ chặn khi thật sự xung đột
+    (ô nhập đang focus, input range, .sheet/popup). KHÔNG chặn input date, nút, thẻ.
+    Vùng cuộn ngang (overflow-x) chỉ chặn khi còn cuộn được theo hướng vuốt (eL/eR = đang ở mép).
+    Thêm phần tử mới có thao tác kéo ngang -> kiểm tra không làm kẹt vuốt tab (lỗi cũ: ô chọn ngày chặn vuốt).
+ 2) THỨ TỰ NHÓM TAG ở màn "Tất cả": lưu ở st.order (mảng key) trong note ctags (fin:1, k:"ctags"),
+    áp dụng trong applyCustom() -> KEYS (chip lọc và nhóm cùng theo thứ tự này).
+    Đổi thứ tự = setGroupOrder(); phải đặt st.upd=Date.now() vì sync gộp CẢ object theo upd (last-write-wins).
+    Firebase bỏ mảng rỗng -> luôn đọc kiểu (st.order||[]), (st.list||[]).
+    Kéo thả: nhấn giữ ~400ms vào tiêu đề .cgrp (cần thuộc tính data-gk). Khi kéo, #list.reorder ẩn mọi con
+    trực tiếp của #list không phải .cgrp => giữ cấu trúc: tiêu đề nhóm và thẻ là con TRỰC TIẾP của #list.
+    Animation: FLIP (transition transform 180ms); dùng offsetTop (layout) để so vị trí, không dùng rect khi đang animate.
+ 3) GỢI Ý NHẬP THEO THÓI QUEN (habitSug / showSug / clearSug, gọi trong openComposer, đóng ở closeComposer):
+    chỉ khoản CHI (k:"tx", t:"out"); gom theo (mô tả + số tiền), khung giờ ±90 phút, 90 ngày gần nhất,
+    nửa đời 21 ngày, cần >=2 lần và điểm >=0.7. Mỗi gợi ý được kiểm lại bằng autoFin() (phải ra đúng số tiền,
+    kind "tx", "out") -> nếu sửa autoFin/parseTok/amtTxt phải kiểm tra lại vòng này.
+    Gợi ý được điền sẵn + bôi chọn (Enter để lưu); dataset.sug đánh dấu để xoá khi đóng mà không lưu.
+ 4) Sau mỗi lần sửa: tách <script> chạy `node --check` để bắt lỗi cú pháp (file 1 khối, rất dễ vỡ).
+========================================================================================== */
 var CATS={food:{n:"Quán ăn",c:"food"},mem:{n:"Cần nhớ",c:"mem"},idea:{n:"Ý tưởng",c:"idea"},todo:{n:"Việc cần làm",c:"todo"},other:{n:"Khác",c:"other"}};
 var KEYS=Object.keys(CATS),BASE=Object.assign({},CATS),PAL=["food","mem","idea","todo"];
 function tagStore(){return notes.find(function(x){return x.k==="ctags"&&x.fin})}
@@ -2018,17 +2037,19 @@ setTab(tab);render();
 if(code)sync();
 
 /* Vuốt trái/phải để đổi tab Ghi chú <-> Chi tiêu (nhận ngay trong lúc kéo, không chờ nhấc tay) */
-(function(){var sx=0,sy=0,st=0,ok=false;
-  function blocked(el){
+(function(){var sx=0,sy=0,st=0,ok=false,eL=true,eR=true;
+  /* Chỉ chặn vuốt khi thật sự xung đột: đang gõ trong ô nhập, thanh trượt, popup.
+     Ô chọn ngày, nút, thẻ... KHÔNG chặn nữa. Vùng cuộn ngang (thanh chip) chỉ chặn khi còn cuộn được theo hướng vuốt. */
+  function scan(el){var sc=null;
     while(el&&el!==document.body&&el.nodeType===1){
       var t=el.tagName;
-      if((t==="INPUT"||t==="TEXTAREA"||t==="SELECT"||el.isContentEditable)&&(el===document.activeElement||t==="SELECT"||(t==="INPUT"&&/^(date|datetime-local|range)$/.test(el.type))))return true;
-      if(el.classList&&el.classList.contains("sheet"))return true;
-      var ox=getComputedStyle(el).overflowX;
-      if((ox==="auto"||ox==="scroll")&&el.scrollWidth>el.clientWidth+2)return true;
+      if((t==="INPUT"||t==="TEXTAREA"||t==="SELECT"||el.isContentEditable)&&(el===document.activeElement||(t==="INPUT"&&el.type==="range")))return{hard:true};
+      if(el.classList&&el.classList.contains("sheet"))return{hard:true};
+      if(!sc){var ox=getComputedStyle(el).overflowX;if((ox==="auto"||ox==="scroll")&&el.scrollWidth>el.clientWidth+2)sc=el}
       el=el.parentNode}
-    return false}
+    return{hard:false,sc:sc}}
   function go(dx){
+    if(dx>0&&!eL)return;if(dx<0&&!eR)return;
     if(dx<0&&tab==="notes")setTab("fin");
     else if(dx<0&&tab==="fin")setTab("plan");
     else if(dx>0&&tab==="plan")setTab("fin");
@@ -2036,7 +2057,9 @@ if(code)sync();
   document.addEventListener("touchstart",function(e){
     if(e.touches.length!==1){ok=false;return}
     var t=e.touches[0];sx=t.clientX;sy=t.clientY;st=Date.now();
-    ok=!blocked(e.target)&&!document.querySelector(".sheet:not([hidden])")&&!document.body.classList.contains("psheet")},{passive:true});
+    var r=scan(e.target);
+    ok=!r.hard&&!document.querySelector(".sheet:not([hidden])")&&!document.body.classList.contains("psheet");
+    if(r.sc){eL=r.sc.scrollLeft<=2;eR=r.sc.scrollLeft>=r.sc.scrollWidth-r.sc.clientWidth-2}else{eL=eR=true}},{passive:true});
   document.addEventListener("touchmove",function(e){
     if(!ok)return;
     var t=e.touches[0],dx=t.clientX-sx,dy=t.clientY-sy;
