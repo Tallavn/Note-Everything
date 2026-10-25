@@ -147,6 +147,7 @@ textarea.ed{min-height:64px;resize:vertical}
 .ed:focus-visible{outline:none;border-color:var(--accent)}
 .add.sm{padding:5px 14px;font-size:12.6px}
 .edit .meta{margin-top:8px}
+.edit .meta.eact{display:flex;justify-content:flex-end;align-items:center;gap:8px}
 svg text{font-family:inherit}
 .fab{display:none;position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;border:0;padding:0;background:var(--accent);color:var(--accent-ink);box-shadow:0 4px 14px rgba(0,0,0,.28);align-items:center;justify-content:center;z-index:20;-webkit-tap-highlight-color:transparent}
 .fab svg{width:26px;height:26px;display:block}
@@ -1820,7 +1821,7 @@ function editForm(x){
   if(editErr)h+='<div class="meta bad">'+esc(editErr)+'</div>';
   var hint=!x.fin?"":(debt?"Ví dụ: 500k Nam tiền ăn.":"Ví dụ: 45k phở bò hoặc +15tr lương.");
   if(hint)h+='<div class="hint nh" style="margin-top:6px">'+esc(hint)+'</div>';
-  return h+'<div class="meta"><button class="add sm" data-esave="'+x.id+'">Lưu</button><button class="add alt sm" data-ecancel="1">Hủy</button></div></div>';
+  return h+'<div class="meta eact"><button class="add alt sm" data-ecancel="1">Hủy</button><button class="add sm" data-esave="'+x.id+'">Lưu</button></div></div>';
 }
 function centerPick(){var b=document.querySelector(".edit .pick [aria-pressed=true]"),p=b&&b.parentNode;if(p)p.scrollLeft=Math.max(0,b.offsetLeft-(p.clientWidth-b.offsetWidth)/2)}
 function focusEdit(){applyKb();setTimeout(function(){centerPick();var f=document.querySelector("[data-ef]");if(f){f.focus();try{f.setSelectionRange(f.value.length,f.value.length)}catch(e){}}},0)}
