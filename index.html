@@ -1240,17 +1240,18 @@ function phRow(x){
     function finish(){
       var t=note(id);
       if(t&&urls.length){t.ph=(t.ph||[]).concat(urls).slice(0,6);t.upd=Date.now();save();render();sync()}
-      if(fail)toast(urls.length?"Đã tải "+urls.length+" ảnh, "+fail+" ảnh lỗi":"Tải ảnh lỗi"+(msg?": "+msg:". Kiểm tra mạng và cài đặt nơi lưu ảnh"));
+      if(fail){if(urls.length)toast("Đã tải "+urls.length+" ảnh, "+fail+" ảnh lỗi");alert("Tải ảnh lỗi: "+(msg||"không rõ nguyên nhân")+"\n\nCloud name đang dùng: "+c.c+"\nUpload preset đang dùng: "+c.p)}
       else toast("Đã thêm "+urls.length+" ảnh")}
     (function next(){
       if(!list.length){finish();return}
       var f=list.shift();toast("Đang tải ảnh lên… ("+(done+fail+1)+"/"+total+")");
       shrink(f,function(blob){
-        var fd=new FormData();fd.append("file",blob,"photo.jpg");fd.append("upload_preset",c.p);
+        var fd=new FormData(),st=0;fd.append("file",blob,"photo.jpg");fd.append("upload_preset",c.p);
         fetch("https://api.cloudinary.com/v1_1/"+encodeURIComponent(c.c)+"/image/upload",{method:"POST",body:fd})
-          .then(function(r){return r.json()})
-          .then(function(j){if(j&&j.secure_url){urls.push(j.secure_url);done++}else{fail++;msg=(j&&j.error&&j.error.message)||""}})
-          .catch(function(){fail++})
+          .then(function(r){st=r.status;return r.text()})
+          .then(function(t){var j=null;try{j=JSON.parse(t)}catch(e){}
+            if(j&&j.secure_url){urls.push(j.secure_url);done++}else{fail++;msg=(j&&j.error&&j.error.message)||("máy chủ trả về lỗi HTTP "+st)}})
+          .catch(function(){fail++;msg="không kết nối được tới Cloudinary (kiểm tra mạng, tắt VPN hoặc trình chặn quảng cáo)"})
           .then(next)})
     })()}
   document.addEventListener("click",function(e){
