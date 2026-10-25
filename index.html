@@ -386,6 +386,17 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .pin svg{width:14px;height:14px;flex:none;display:block}
 .pin span{max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pin:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.brchip{font-size:11.7px;white-space:nowrap}
+.brlist{display:flex;flex-direction:column;gap:4px;margin-top:8px}
+.brlist a{display:flex;align-items:center;gap:6px;min-width:0;padding:6px 8px;border:1px solid var(--line);border-radius:8px;font-size:12.5px;color:var(--ink);text-decoration:none}
+.brlist a svg{width:14px;height:14px;flex:none}
+.brlist a b{flex:none;max-width:40%;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.brlist a span{flex:1;min-width:0;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.brlist a i{flex:none;font-style:normal;font-size:11.5px;color:var(--muted)}
+.brrow{display:flex;align-items:center;gap:6px;margin-top:8px}
+.brrow .ed{flex:1;min-width:0;margin-top:0}
+.brrow .ed.brl{flex:0 0 34%}
+.brx{flex:none;width:34px;height:34px;padding:0;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:8px;font-size:18px;line-height:1}
 
 /* Thông báo Hoàn tác */
 .toast{position:fixed;z-index:70;left:12px;right:84px;bottom:calc(84px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:8px 8px 8px 14px;box-shadow:0 8px 28px rgba(0,0,0,.22);font-size:12.6px;animation:toastIn .25s cubic-bezier(.2,.8,.2,1)}
@@ -599,7 +610,13 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
     nửa đời 21 ngày, cần >=2 lần và điểm >=0.7. Mỗi gợi ý được kiểm lại bằng autoFin() (phải ra đúng số tiền,
     kind "tx", "out") -> nếu sửa autoFin/parseTok/amtTxt phải kiểm tra lại vòng này.
     Gợi ý được điền sẵn + bôi chọn (Enter để lưu); dataset.sug đánh dấu để xoá khi đóng mà không lưu.
- 4) Sau mỗi lần sửa: tách <script> chạy `node --check` để bắt lỗi cú pháp (file 1 khối, rất dễ vỡ).
+ 4) CHI NHÁNH + VỊ TRÍ GPS (tag Quán ăn): thẻ giữ vị trí chính ở x.link/x.addr; chi nhánh thêm nằm ở x.br = [{id,l,link,addr}].
+    Thẻ chỉ hiện chip "+N chi nhánh", bấm mới mở danh sách (mỗi chi nhánh 1 dòng, cắt bớt bằng ellipsis) để thẻ không bị dài.
+    Nút 📍 có ở ô nhập (khi chọn tag Quán ăn, biến inLoc) và form Sửa (brEditor/brGps). GPS lưu thành link
+    https://www.google.com/maps?q=lat,lon (coords() đọc được) -> geoFill/brFill tự tra tên đường + quận (OSM).
+    Địa chỉ hiển thị luôn qua compactAddr(). noteDist() lấy chi nhánh GẦN NHẤT khi sắp xếp "gần tôi".
+    Mảng br rỗng thì delete x.br (Firebase bỏ mảng rỗng). GPS cần https + quyền vị trí.
+ 5) Sau mỗi lần sửa: tách <script> chạy `node --check` để bắt lỗi cú pháp (file 1 khối, rất dễ vỡ).
 ========================================================================================== */
 var CATS={food:{n:"Quán ăn",c:"food"},mem:{n:"Cần nhớ",c:"mem"},idea:{n:"Ý tưởng",c:"idea"},todo:{n:"Việc cần làm",c:"todo"},other:{n:"Khác",c:"other"}};
 var KEYS=Object.keys(CATS),BASE=Object.assign({},CATS),PAL=["food","mem","idea","todo"];
@@ -829,6 +846,7 @@ function renderInTags(){
     h+='<div class="pick">'+KEYS.map(function(k){var d=CATS[k];return '<button type="button" class="tag" data-incat="'+k+'" aria-pressed="'+(inCat===k)+'" style="background:var(--c-'+d.c+'-bg);color:var(--c-'+d.c+')">'+d.n+'</button>'}).join("")+'<button type="button" class="tag ghost" data-incat="" style="background:transparent;color:var(--muted);border:1px solid var(--line)">Tự động</button></div>';
   }
   if(inCat==="todo")h+='<div class="meta indue"><span>Hạn chót</span><input type="datetime-local" class="date" id="inDue" data-indue="1" value="'+esc(inDue||"")+'" aria-label="Hạn chót (không bắt buộc)"></div>';
+  if(inCat==="food")h+='<div class="meta" style="margin-top:8px"><button type="button" class="chip" data-ingps="1" aria-pressed="'+(!!inLoc)+'">📍 '+(inLoc?'Đã lấy vị trí (±'+Math.round(inLoc.acc)+' m) · bấm để bỏ':'Lưu vị trí hiện tại')+'</button></div>';
   el.innerHTML=h;
 }
 function addNote(forceRaw,forceNote){
@@ -847,8 +865,8 @@ function addNote(forceRaw,forceNote){
       return;
     }
   }
-  var nn0={id:Date.now(),text:clean(raw),cat:(forceRaw===undefined&&inCat&&CATS[inCat])?inCat:classify(raw),area:area(raw),due:(forceRaw===undefined&&inCat==="todo")?inDue:"",ts:Date.now(),upd:Date.now()};if(nt)nn0.note=nt;notes.unshift(nn0);
-  if(forceRaw===undefined){el.value="";ne.value="";inMsg(MQM.matches?"Đã lưu ghi chú":"");inCat="";inDue="";inOpen=false;renderInTags()}
+  var nn0={id:Date.now(),text:clean(raw),cat:(forceRaw===undefined&&inCat&&CATS[inCat])?inCat:classify(raw),area:area(raw),due:(forceRaw===undefined&&inCat==="todo")?inDue:"",ts:Date.now(),upd:Date.now()};if(nt)nn0.note=nt;if(forceRaw===undefined&&inCat==="food"&&inLoc)nn0.link=gpsUrl(inLoc.ll);notes.unshift(nn0);
+  if(forceRaw===undefined){el.value="";ne.value="";inMsg(MQM.matches?"Đã lưu ghi chú":"");inCat="";inDue="";inOpen=false;inLoc=null;renderInTags()}
   save();render();sync();refocus(el);
 }
 var sortBy="new",sortMap={};
@@ -871,7 +889,7 @@ function coords(x){
   return m?[parseFloat(m[1]),parseFloat(m[2])]:null;
 }
 function distKm(a,b){var r=Math.PI/180,dl=(b[0]-a[0])*r,dg=(b[1]-a[1])*r,h=Math.sin(dl/2)*Math.sin(dl/2)+Math.cos(a[0]*r)*Math.cos(b[0]*r)*Math.sin(dg/2)*Math.sin(dg/2);return 12742*Math.asin(Math.sqrt(h))}
-function noteDist(x){var c=userPos&&coords(x);return c?distKm(userPos,c):null}
+function noteDist(x){if(!userPos)return null;var best=null;[coords(x)].concat((x.br||[]).map(function(b){return b.link?coords({link:b.link,text:""}):null})).forEach(function(c){if(c){var d=distKm(userPos,c);if(best==null||d<best)best=d}});return best}
 function fmtKm(d){return d<1?Math.round(d*10)*100+" m":(d<10?d.toFixed(1):Math.round(d))+" km"}
 function areaLabel(x){return x.area||prov(x)||"Chưa rõ khu vực"}
 function sortNotes(list){
@@ -955,17 +973,82 @@ function stripAddr(x){
   if(!cut||!w.length)return t;
   return w.join(" ")+rest;
 }
+/* ===== Chi nhánh (x.br) + lưu vị trí hiện tại (GPS) ===== */
+var brOpen=null,brMsg="",editBr=[],inLoc=null;
+function gpsUrl(ll){return"https://www.google.com/maps?q="+ll[0]+","+ll[1]}
+function getGps(cb){
+  if(!navigator.geolocation){cb(null,"Thiết bị không hỗ trợ định vị");return}
+  navigator.geolocation.getCurrentPosition(function(p){cb([+p.coords.latitude.toFixed(6),+p.coords.longitude.toFixed(6)],p.coords.accuracy||0)},
+    function(er){cb(null,er&&er.code===1?"Chưa cho phép vị trí. Hãy bật quyền vị trí cho trình duyệt":"Không lấy được vị trí, thử lại chỗ thoáng hơn")},
+    {enableHighAccuracy:true,timeout:15000,maximumAge:10000});
+}
+/* rút gọn địa chỉ để thẻ không bị dài: bỏ "- HN", bỏ chữ Đường/Phố đứng đầu */
+function compactAddr(a){return(a||"").replace(/\s*-\s*HN\s*$/,"").replace(/(^|,\s*|\d+[A-Za-z]?\s+)(Đường|Phố)\s+/gi,"$1").trim()}
+function brCoords(b){return b&&b.link?coords({link:b.link,text:""}):null}
+function brUrl(x,b){
+  if(b.link)return b.link;
+  var nm=(x.text||"").split("\n")[0].replace(/https?:\/\/\S+/g,"").trim().slice(0,80);
+  return"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(nm+" "+(b.l||"")+" "+(b.addr||""))}
+function brList(x){
+  if(!x.br||!x.br.length||brOpen==null||brOpen!=x.id)return"";
+  var rows=x.br.map(function(b,i){var c=brCoords(b);return{b:b,i:i,c:c,d:(userPos&&c)?distKm(userPos,c):null}});
+  if(userPos)rows.sort(function(a,b){if(a.d==null&&b.d==null)return a.i-b.i;if(a.d==null)return 1;if(b.d==null)return -1;return a.d-b.d});
+  return'<div class="brlist">'+rows.map(function(r){
+    var b=r.b,ad=compactAddr(b.addr||"")||(r.c?r.c[0].toFixed(4)+", "+r.c[1].toFixed(4):""),lb=b.l||("Chi nhánh "+(r.i+1));
+    return'<a href="'+esc(brUrl(x,b))+'" target="_blank" rel="noopener noreferrer" aria-label="Mở bản đồ: '+esc(lb+" "+ad)+'">'+IC_PIN+'<b>'+esc(lb)+'</b><span>'+esc(ad)+'</span>'+(r.d!=null?'<i>'+fmtKm(r.d)+'</i>':'')+'</a>'}).join("")+'</div>';
+}
+function brEditor(){
+  var h='<div class="hint nh" style="margin-top:10px">Chi nhánh khác của quán này</div>';
+  editBr.forEach(function(b,i){
+    var cl=brCoords(b),val=b.addr||(cl?"":(b.link||""));
+    h+='<div class="brrow"><input class="ed brl" data-brl="'+i+'" type="text" autocomplete="off" enterkeyhint="done" maxlength="40" aria-label="Tên chi nhánh" placeholder="Tên chi nhánh" value="'+esc(b.l||"")+'">'+
+       '<input class="ed" data-brk="'+i+'" type="text" autocomplete="off" autocapitalize="off" enterkeyhint="done" aria-label="Link hoặc địa chỉ chi nhánh" placeholder="'+(cl?"📍 Đã lưu vị trí (tự điền địa chỉ)":"Link hoặc địa chỉ")+'" value="'+esc(val)+'">'+
+       '<button type="button" class="brx" data-brdel="'+i+'" aria-label="Xóa chi nhánh">×</button></div>'});
+  var has=!!((editLink||"").trim()||(editAddr||"").trim());
+  h+='<div class="meta" style="margin-top:8px"><button type="button" class="chip" data-brgps="1">📍 '+(has?"Thêm chi nhánh tại đây":"Lưu vị trí hiện tại")+'</button><button type="button" class="chip" data-bradd="1">＋ Thêm chi nhánh</button></div>';
+  if(brMsg)h+='<div class="hint nh" style="margin-top:6px">'+esc(brMsg)+'</div>';
+  return h;
+}
+function brGps(){
+  getGps(function(ll,acc){
+    if(!ll){brMsg=acc;render();return}
+    var url=gpsUrl(ll),m=" (sai số khoảng "+Math.round(acc)+" m)";
+    if(!(editLink||"").trim()&&!(editAddr||"").trim()){editLink=url;brMsg="Đã lấy vị trí hiện tại"+m+". Bấm Lưu để chốt."}
+    else{editBr.push({id:Date.now(),l:"",link:url,addr:""});brMsg="Đã thêm chi nhánh tại đây"+m+". Đặt tên rồi bấm Lưu."}
+    render();
+  });
+}
+var brBusy=false;
+function brNeed(){
+  var r=null;
+  vis().some(function(x){return(x.br||[]).some(function(b){if(!b.addr&&b.link&&!geoTried2["b"+b.id]&&brCoords(b)){r={x:x,b:b};return true}return false})});
+  return r;
+}
+/* tự tra tên đường + quận cho chi nhánh lưu bằng GPS (cùng nguồn OSM với geoFill) */
+function brFill(){
+  if(brBusy||geoBusy||!navigator.onLine)return;
+  var n=brNeed();if(!n)return;
+  var c=brCoords(n.b);
+  brBusy=true;geoTried2["b"+n.b.id]=1;try{localStorage.setItem("geotried2",JSON.stringify(geoTried2))}catch(e){}
+  fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&accept-language=vi&zoom=18&lat="+c[0]+"&lon="+c[1]).then(function(r){return r.json()}).then(function(j){
+    var a=j&&j.address;if(!a)return;
+    var d=(a.city_district||a.district||a.county||a.suburb||a.quarter||"").replace(/^(Quận|Huyện|Thị xã|Phường|Xã)\s+/i,""),t=[streetOf(a),d].filter(Boolean).join(", ");
+    var cur=notes.find(function(z){return z.id==n.x.id}),bb=cur&&(cur.br||[]).find(function(z){return z.id==n.b.id});
+    if(t&&bb&&!bb.addr){bb.addr=t;cur.upd=Date.now();save();sync();renderNotes()}
+  }).catch(function(){}).then(function(){setTimeout(function(){brBusy=false;brFill()},1200)});
+}
 function noteCard(x,grouped){
   var c=CATS[x.cat]||CATS.other,open=swipedId==x.id,mem=x.cat==="mem",done=mem&&!!x.done,ml=mapLink(x),has=x.link||MAPRE.test(x.text),ts=x.ts||0,h;
   h='<div class="swrap'+(open?' swiped':'')+'" data-id="'+x.id+'"><div class="swact"><button type="button" class="sw-edit" data-edit="'+x.id+'" aria-label="Sửa ghi chú">'+IC_EDIT+'<span>Sửa</span></button><button type="button" class="sw-del" data-del="'+x.id+'" aria-label="Xóa ghi chú">'+IC_DEL+'<span>Xóa</span></button></div>';
   h+='<div class="note swcard acts-row cat-'+c.c+(done?' done':'')+'" data-id="'+x.id+'" role="button" tabindex="0" aria-expanded="'+open+'">';
   h+='<div class="nmain"><div class="txt'+(open?' open':'')+'">'+linkify(ml?stripAddr(x):x.text)+'</div>'+(x.note?'<div class="hint" style="margin:4px 0 0;white-space:pre-wrap;word-break:break-word">'+esc(x.note)+'</div>':'')+'<div class="meta"><button class="tag cattag" data-pick="'+x.id+'" title="Bấm để chọn loại" style="background:var(--c-'+c.c+'-bg);color:var(--c-'+c.c+')">'+c.n+'</button>';
-  if(ml){var ad=shortAddr(x),lb=(has?'Mở bản đồ':'Tìm trên bản đồ')+(ad?': '+ad:'');h+='<a class="pin'+(has?'':' ghost')+'" data-pend="'+(has?'':x.id)+'" href="'+esc(ml.u)+'" target="_blank" rel="noopener noreferrer" aria-label="'+esc(lb)+'" title="'+esc(lb)+'">'+IC_PIN+(ad?'<span>'+esc(ad)+'</span>':'')+'</a>'}
+  if(ml){var ad=compactAddr(shortAddr(x)),lb=(has?'Mở bản đồ':'Tìm trên bản đồ')+(ad?': '+ad:'');h+='<a class="pin'+(has?'':' ghost')+'" data-pend="'+(has?'':x.id)+'" href="'+esc(ml.u)+'" target="_blank" rel="noopener noreferrer" aria-label="'+esc(lb)+'" title="'+esc(lb)+'">'+IC_PIN+(ad?'<span>'+esc(ad)+'</span>':'')+'</a>'}
+  if(x.br&&x.br.length)h+='<button type="button" class="tag brchip" data-brt="'+x.id+'" aria-expanded="'+(brOpen!=null&&brOpen==x.id)+'" style="background:var(--c-other-bg);color:var(--c-other)">+'+x.br.length+' chi nhánh '+((brOpen!=null&&brOpen==x.id)?'▴':'▾')+'</button>';
   if(ml&&!has&&pending==x.id)h+='<button class="tag" data-paste="'+x.id+'" style="background:var(--c-other-bg);color:var(--c-other)">Dán link</button>';
   var di=dueInfo(x);if(di)h+='<span class="due '+di.cl+'" title="Hạn chót"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'+di.lb+'</span>';
   h+=priceTag(x);
   if(x.text.indexOf("\n")>-1)h+='<span class="more">+'+(x.text.split("\n").length-1)+' dòng</span>';
-  h+='</div></div>';
+  h+='</div>'+brList(x)+'</div>';
   if(mem)h+='<button type="button" class="ck" role="checkbox" aria-checked="'+done+'" data-done="'+x.id+'" aria-label="Đánh dấu đã xong"><span class="bx"></span><svg class="tk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12.5l5 5L19.5 7"/></svg></button>';
   h+=(openId==x.id?picker(x):'')+'</div></div>';
   return h;
@@ -1005,7 +1088,7 @@ function renderNotes(){
   if(filter!=="all"&&!BASE[filter]&&CATS[filter])h+='<button class="chip" data-deltag="'+filter+'" aria-label="Xóa tag đang chọn">Xóa tag</button>';
   h+='<button class="chip" data-addtag="1" aria-label="Thêm tag mới" title="Thêm tag mới">+</button>';
   var sl=f.scrollLeft;f.innerHTML=h;f.scrollLeft=sl;
-  var q=norm(query).trim(),list=sortNotes(vis().filter(function(x){return(filter==="all"?!isDone(x):x.cat===filter)&&(!q||norm(x.text+" "+x.area+" "+(x.note||"")).indexOf(q)>-1)}));
+  var q=norm(query).trim(),list=sortNotes(vis().filter(function(x){return(filter==="all"?!isDone(x):x.cat===filter)&&(!q||norm(x.text+" "+x.area+" "+(x.note||"")+" "+(x.br||[]).map(function(b){return(b.l||"")+" "+(b.addr||"")}).join(" ")).indexOf(q)>-1)}));
   if(filter==="todo"&&(sortBy==="new"||sortBy==="old")){list=list.map(function(x,i){return{x:x,i:i}}).sort(function(a,b){var da=dueInfo(a.x),db=dueInfo(b.x);if(da&&db)return da.t-db.t||a.i-b.i;if(da)return -1;if(db)return 1;return a.i-b.i}).map(function(o){return o.x})}
   if(filter!=="all"){list=list.map(function(x,i){return{x:x,i:i}}).sort(function(a,b){return(isDone(a.x)-isDone(b.x))||(a.i-b.i)}).map(function(o){return o.x})}
   var L=document.getElementById("list");
@@ -1038,6 +1121,14 @@ document.addEventListener("click",function(e){
   if(t.dataset.done){var dn=notes.find(function(x){return x.id==t.dataset.done});if(dn){dn.done=!dn.done;dn.upd=Date.now();save();sync();t.setAttribute("aria-checked",!!dn.done);var cd=t.closest(".swcard");if(cd)cd.classList.toggle("done",!!dn.done);if(dn.done&&navigator.vibrate)try{navigator.vibrate(12)}catch(_){}clearTimeout(doneTimer);doneTimer=setTimeout(function(){if(!editing)render()},450)}return}
   if(t.dataset.unfin&&lastFin){var u=notes.find(function(x){return x.id==lastFin.id});if(u){u.del=true;u.desc="";u.amt=0;u.paid=0;u.upd=Date.now()}var rw=lastFin.raw,rn=lastFin.note;lastFin=null;inMsg("");addNote(rw,rn);return}
   if(t.dataset.sug){var se=document.getElementById("in");se.value=t.dataset.sug;se.dataset.sug=t.dataset.sug;se.dispatchEvent(new Event("input",{bubbles:true}));try{se.focus();se.setSelectionRange(0,se.value.length)}catch(x){}return}
+  if(t.dataset.ingps){
+    if(inLoc){inLoc=null;renderInTags();return}
+    t.disabled=true;t.textContent="📍 Đang lấy vị trí…";
+    getGps(function(ll,acc){
+      if(!ll){inMsg(esc(acc));renderInTags();return}
+      inLoc={ll:ll,acc:acc};renderInTags();inMsg("Đã lấy vị trí hiện tại. Gõ tên quán rồi bấm Lưu.");
+      var ie=document.getElementById("in");try{ie.focus()}catch(x){}});
+    return}
   if(t.dataset.inopen){inOpen=!inOpen;renderInTags();return}
   if(t.dataset.incat!==undefined){inCat=t.dataset.incat;inOpen=false;renderInTags();document.getElementById("in").focus();return}
   if(t.dataset.addtag){addTag(prompt("Tên tag mới (tối đa 20 ký tự)"));return}
@@ -1638,7 +1729,7 @@ function editForm(x){
   var tx=x.fin&&x.k==="tx",debt=x.fin&&x.k==="debt",h='<div class="edit">';
   var ec=x.fin?x.cat:(editCat||x.cat),food=!x.fin&&(ec==="food"||x.area||x.link||MAPRE.test(x.text||""));
   if(!x.fin)h+='<textarea class="ed" data-ef="1" rows="3" aria-label="Sửa ghi chú">'+esc(editVal)+'</textarea>';
-  if(food)h+='<input class="ed" data-elink="1" type="text" inputmode="url" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" style="margin-top:8px" aria-label="Link vị trí" placeholder="Link vị trí (Google Maps), có thể để trống" value="'+esc(editLink)+'">'+'<input class="ed" data-eaddr="1" type="text" autocomplete="off" enterkeyhint="done" style="margin-top:8px" aria-label="Địa chỉ" placeholder="Địa chỉ (số nhà, đường, quận). Để trống thì app tự đoán" value="'+esc(editAddr)+'">';
+  if(food)h+='<input class="ed" data-elink="1" type="text" inputmode="url" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" style="margin-top:8px" aria-label="Link vị trí" placeholder="Link vị trí (Google Maps), có thể để trống" value="'+esc(editLink)+'">'+'<input class="ed" data-eaddr="1" type="text" autocomplete="off" enterkeyhint="done" style="margin-top:8px" aria-label="Địa chỉ" placeholder="Địa chỉ (số nhà, đường, quận). Để trống thì app tự đoán" value="'+esc(editAddr)+'">'+brEditor();
   else if(x.fin)h+='<input class="ed" data-ef="1" type="text" autocomplete="off" enterkeyhint="done" aria-label="Sửa" value="'+esc(editVal)+'">';
   h+='<input class="ed" data-enote="1" type="text" autocomplete="off" enterkeyhint="done" style="margin-top:8px" aria-label="Ghi chú thêm" placeholder="Ghi chú thêm (không bắt buộc)" value="'+esc(editNote)+'">';
   if(debt)h+='<div class="meta"><button class="chip" data-edir="owe" aria-pressed="'+(editDir==="owe")+'">Mình nợ</button><button class="chip" data-edir="lent" aria-pressed="'+(editDir==="lent")+'">Họ nợ mình</button></div>';
@@ -1654,7 +1745,7 @@ function editForm(x){
 function focusEdit(){applyKb();setTimeout(function(){var f=document.querySelector("[data-ef]");if(f){f.focus();try{f.setSelectionRange(f.value.length,f.value.length)}catch(e){}}},0)}
 function startEdit(id){
   var x=findFin(id);if(!x||x.del)return;
-  editing=x.id;swipedId=null;editErr="";openId=null;openTx=null;editDay=x.day||today();editDue=x.due||"";editDir=x.dir||"";editLink=x.link||"";editAddr=x.addr||"";editNote=x.note||"";editCat=x.fin?"":x.cat;editFcat=x.fin?x.cat:"";prepEdit();
+  editing=x.id;swipedId=null;editErr="";openId=null;openTx=null;editDay=x.day||today();editDue=x.due||"";editDir=x.dir||"";editLink=x.link||"";editAddr=x.addr||"";editBr=JSON.parse(JSON.stringify(x.br||[]));brMsg="";editNote=x.note||"";editCat=x.fin?"":x.cat;editFcat=x.fin?x.cat:"";prepEdit();
   if(!x.fin)editVal=x.text;
   else if(x.k==="tx")editVal=(x.t==="in"?"+":"")+amtStr(x.amt)+(x.desc?" "+x.desc:"");
   else editVal=amtStr(x.amt)+(x.desc&&x.desc!=="(không ghi chú)"?" "+x.desc:"");
@@ -1670,6 +1761,8 @@ function saveEdit(id){
     var lkIn=(editLink||"").trim(),lkM=lkIn.match(/https?:\/\/\S+/i);
     if(lkIn&&!lkM){editErr="Link vị trí chưa đúng. Hãy dán link bắt đầu bằng https://";render();focusEdit();return}
     x.link=lkM?lkM[0]:"";x.addr=(editAddr||"").trim().slice(0,120);
+    x.br=editBr.map(function(b){var lk=(b.link||"").match(/https?:\/\/\S+/i);return{id:b.id||Date.now(),l:(b.l||"").trim().slice(0,40),link:lk?lk[0]:"",addr:(b.addr||"").trim().slice(0,120)}}).filter(function(b){return b.link||b.addr||b.l});
+    if(!x.br.length)delete x.br;
     x.text=clean(raw);geoClear(x);x.area=area(raw);delete geoTried2[x.id+":n"];delete geoTried2[x.id+":c"];if(editCat&&CATS[editCat]&&editCat!==x.cat)x.cat=editCat;else if(x.cat==="other")x.cat=classify(raw);x.due=x.cat==="todo"?(editDue||""):"";
   }else{
     r=parseLine(editVal);
@@ -1709,7 +1802,7 @@ function geoFill(){
   if(fx){save();sync();renderNotes()}
   if(geoBusy||!navigator.onLine)return;
   var n=vis().find(function(x){return geoNeed(x)});
-  if(!n)return;
+  if(!n){brFill();return}
   var src=geoNeed(n);
   geoBusy=true;geoTried2[n.id+":"+src]=1;try{localStorage.setItem("geotried2",JSON.stringify(geoTried2))}catch(e){}
   var c=src==="c"?coords(n):null,q=(n.text||"").split("\n")[0].replace(/https?:\/\/\S+/g,"").trim(),pv=prov(n),city=pv==="HCM"?"Hồ Chí Minh":"Hà Nội",
@@ -1770,8 +1863,12 @@ document.addEventListener("click",function(e){
   if(d.edir){editDir=d.edir;render();return}
   if(d.ecat){editCat=d.ecat;render();focusEdit();return}
   if(d.efcat){editFcat=d.efcat;render();focusEdit();return}
+  if(d.brgps){t.disabled=true;t.textContent="Đang lấy vị trí…";brGps();return}
+  if(d.bradd){editBr.push({id:Date.now(),l:"",link:"",addr:""});brMsg="";render();setTimeout(function(){var f=document.querySelectorAll("[data-brl]");if(f.length)f[f.length-1].focus()},0);return}
+  if(d.brdel!==undefined){editBr.splice(+d.brdel,1);render();return}
+  if(d.brt){brOpen=(brOpen!=null&&brOpen==d.brt)?null:d.brt;renderNotes();return}
 });
-document.addEventListener("input",function(e){var t=e.target;if(!t.dataset)return;if(t.dataset.ef)editVal=t.value;else if(t.dataset.elink)editLink=t.value;else if(t.dataset.eaddr)editAddr=t.value;else if(t.dataset.enote)editNote=t.value;else if(t.dataset.ed)editDay=t.value;else if(t.dataset.edue)editDue=t.value;else if(t.dataset.indue)inDue=t.value});
+document.addEventListener("input",function(e){var t=e.target;if(!t.dataset)return;if(t.dataset.ef)editVal=t.value;else if(t.dataset.elink)editLink=t.value;else if(t.dataset.eaddr)editAddr=t.value;else if(t.dataset.enote)editNote=t.value;else if(t.dataset.ed)editDay=t.value;else if(t.dataset.edue)editDue=t.value;else if(t.dataset.indue)inDue=t.value;else if(t.dataset.brl!==undefined){if(editBr[+t.dataset.brl])editBr[+t.dataset.brl].l=t.value}else if(t.dataset.brk!==undefined){var bb=editBr[+t.dataset.brk],bv=t.value.trim();if(bb){if(/^https?:\/\//i.test(bv)){bb.link=(bv.match(/https?:\/\/\S+/i)||[bv])[0];bb.addr=""}else bb.addr=bv}}});
 document.addEventListener("keydown",function(e){var t=e.target;if(!t.dataset||!(t.dataset.ef||t.dataset.elink||t.dataset.eaddr||t.dataset.enote))return;if(e.key==="Escape"){endEditAnim(function(){editing=null;editErr="";render()})}else if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();saveEdit(editing)}});
 document.getElementById("fin-add").onclick=function(){addFin()};
 document.addEventListener("click",function(e){
