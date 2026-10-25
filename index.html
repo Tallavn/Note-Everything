@@ -396,6 +396,12 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .brrow{display:flex;align-items:center;gap:6px;margin-top:8px}
 .brrow .ed{flex:1;min-width:0;margin-top:0}
 .brrow .ed.brl{flex:0 0 34%}
+.intags{min-width:0}
+.edit .pick,.intags .pick,.acts-row .pick{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:relative;padding-left:2px;padding-right:2px;padding-bottom:3px}
+.edit .pick::-webkit-scrollbar,.intags .pick::-webkit-scrollbar,.acts-row .pick::-webkit-scrollbar{display:none}
+.edit .pick .tag,.intags .pick .tag,.acts-row .pick .tag{flex:none;white-space:nowrap}
+.brbtns{flex-wrap:nowrap;gap:8px}
+.brbtns .chip{white-space:nowrap;min-width:0;padding-left:12px;padding-right:12px}
 .brx{flex:none;width:34px;height:34px;padding:0;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:8px;font-size:18px;line-height:1}
 
 /* Thông báo Hoàn tác */
@@ -978,8 +984,12 @@ var brOpen=null,brMsg="",editBr=[],inLoc=null;
 function gpsUrl(ll){return"https://www.google.com/maps?q="+ll[0]+","+ll[1]}
 function getGps(cb){
   if(!navigator.geolocation){cb(null,"Thiết bị không hỗ trợ định vị");return}
-  navigator.geolocation.getCurrentPosition(function(p){cb([+p.coords.latitude.toFixed(6),+p.coords.longitude.toFixed(6)],p.coords.accuracy||0)},
-    function(er){cb(null,er&&er.code===1?"Chưa cho phép vị trí. Hãy bật quyền vị trí cho trình duyệt":"Không lấy được vị trí, thử lại chỗ thoáng hơn")},
+  var fin=false;
+  function done(ll,x){if(fin)return;fin=true;clearTimeout(wd);cb(ll,x)}
+  /* hộp xin quyền bị lớp phủ (bong bóng Messenger...) che thì có thể không bao giờ phản hồi -> tự thoát sau 25s */
+  var wd=setTimeout(function(){done(null,"Chưa nhận được phản hồi vị trí. Hãy đóng bong bóng nổi (Messenger...) rồi thử lại")},25000);
+  navigator.geolocation.getCurrentPosition(function(p){done([+p.coords.latitude.toFixed(6),+p.coords.longitude.toFixed(6)],p.coords.accuracy||0)},
+    function(er){done(null,er&&er.code===1?"Chưa cho phép vị trí. Hãy bật quyền vị trí cho trình duyệt (và đóng bong bóng nổi nếu hộp xin quyền bị che)":"Không lấy được vị trí, thử lại chỗ thoáng hơn")},
     {enableHighAccuracy:true,timeout:15000,maximumAge:10000});
 }
 /* rút gọn địa chỉ để thẻ không bị dài: bỏ "- HN", bỏ chữ Đường/Phố đứng đầu */
@@ -998,14 +1008,14 @@ function brList(x){
     return'<a href="'+esc(brUrl(x,b))+'" target="_blank" rel="noopener noreferrer" aria-label="Mở bản đồ: '+esc(lb+" "+ad)+'">'+IC_PIN+'<b>'+esc(lb)+'</b><span>'+esc(ad)+'</span>'+(r.d!=null?'<i>'+fmtKm(r.d)+'</i>':'')+'</a>'}).join("")+'</div>';
 }
 function brEditor(){
-  var h='<div class="hint nh" style="margin-top:10px">Chi nhánh khác của quán này</div>';
+  var h="";
   editBr.forEach(function(b,i){
     var cl=brCoords(b),val=b.addr||(cl?"":(b.link||""));
     h+='<div class="brrow"><input class="ed brl" data-brl="'+i+'" type="text" autocomplete="off" enterkeyhint="done" maxlength="40" aria-label="Tên chi nhánh" placeholder="Tên chi nhánh" value="'+esc(b.l||"")+'">'+
        '<input class="ed" data-brk="'+i+'" type="text" autocomplete="off" autocapitalize="off" enterkeyhint="done" aria-label="Link hoặc địa chỉ chi nhánh" placeholder="'+(cl?"📍 Đã lưu vị trí (tự điền địa chỉ)":"Link hoặc địa chỉ")+'" value="'+esc(val)+'">'+
        '<button type="button" class="brx" data-brdel="'+i+'" aria-label="Xóa chi nhánh">×</button></div>'});
   var has=!!((editLink||"").trim()||(editAddr||"").trim());
-  h+='<div class="meta" style="margin-top:8px"><button type="button" class="chip" data-brgps="1">📍 '+(has?"Thêm chi nhánh tại đây":"Lưu vị trí hiện tại")+'</button><button type="button" class="chip" data-bradd="1">＋ Thêm chi nhánh</button></div>';
+  h+='<div class="meta brbtns" style="margin-top:8px"><button type="button" class="chip" data-brgps="1">📍 '+(has?"Chi nhánh ở đây":"Vị trí hiện tại")+'</button><button type="button" class="chip" data-bradd="1">＋ Chi nhánh</button></div>';
   if(brMsg)h+='<div class="hint nh" style="margin-top:6px">'+esc(brMsg)+'</div>';
   return h;
 }
@@ -1729,7 +1739,7 @@ function editForm(x){
   var tx=x.fin&&x.k==="tx",debt=x.fin&&x.k==="debt",h='<div class="edit">';
   var ec=x.fin?x.cat:(editCat||x.cat),food=!x.fin&&(ec==="food"||x.area||x.link||MAPRE.test(x.text||""));
   if(!x.fin)h+='<textarea class="ed" data-ef="1" rows="3" aria-label="Sửa ghi chú">'+esc(editVal)+'</textarea>';
-  if(food)h+='<input class="ed" data-elink="1" type="text" inputmode="url" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" style="margin-top:8px" aria-label="Link vị trí" placeholder="Link vị trí (Google Maps), có thể để trống" value="'+esc(editLink)+'">'+'<input class="ed" data-eaddr="1" type="text" autocomplete="off" enterkeyhint="done" style="margin-top:8px" aria-label="Địa chỉ" placeholder="Địa chỉ (số nhà, đường, quận). Để trống thì app tự đoán" value="'+esc(editAddr)+'">'+brEditor();
+  if(food)h+='<input class="ed" data-elink="1" type="text" inputmode="url" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" style="margin-top:8px" aria-label="Link vị trí" placeholder="Link vị trí (Google Maps), có thể để trống" value="'+esc(editLink)+'">'+brEditor();
   else if(x.fin)h+='<input class="ed" data-ef="1" type="text" autocomplete="off" enterkeyhint="done" aria-label="Sửa" value="'+esc(editVal)+'">';
   h+='<input class="ed" data-enote="1" type="text" autocomplete="off" enterkeyhint="done" style="margin-top:8px" aria-label="Ghi chú thêm" placeholder="Ghi chú thêm (không bắt buộc)" value="'+esc(editNote)+'">';
   if(debt)h+='<div class="meta"><button class="chip" data-edir="owe" aria-pressed="'+(editDir==="owe")+'">Mình nợ</button><button class="chip" data-edir="lent" aria-pressed="'+(editDir==="lent")+'">Họ nợ mình</button></div>';
@@ -1738,11 +1748,12 @@ function editForm(x){
   if(tx){var fl=x.t==="in"?INC:OUT,fc=editFcat||x.cat;h+='<div class="pick">'+fl.map(function(c,i){var col=x.t==="in"?"var(--good)":"var(--k"+i+")";return '<button type="button" class="tag ftag" data-efcat="'+c.k+'" aria-pressed="'+(fc===c.k)+'" style="color:'+col+';background:transparent;border:1px solid currentColor">'+c.n+'</button>'}).join('')+'</div>'}
   if(!x.fin&&ec==="todo")h+='<div class="meta"><span>Hạn chót</span><input type="datetime-local" class="date" data-edue="1" value="'+esc(editDue||"")+'" aria-label="Hạn chót">'+(editDue?'<button type="button" class="chip" data-edueclear="1">Xóa hạn</button>':'')+'</div>';
   if(editErr)h+='<div class="meta bad">'+esc(editErr)+'</div>';
-  var hint=!x.fin?(food?"Ô địa chỉ để trống thì app tự đoán theo link hoặc tên quán.":""):(debt?"Ví dụ: 500k Nam tiền ăn.":"Ví dụ: 45k phở bò hoặc +15tr lương.");
+  var hint=!x.fin?"":(debt?"Ví dụ: 500k Nam tiền ăn.":"Ví dụ: 45k phở bò hoặc +15tr lương.");
   if(hint)h+='<div class="hint nh" style="margin-top:6px">'+esc(hint)+'</div>';
   return h+'<div class="meta"><button class="add sm" data-esave="'+x.id+'">Lưu</button><button class="add alt sm" data-ecancel="1">Hủy</button></div></div>';
 }
-function focusEdit(){applyKb();setTimeout(function(){var f=document.querySelector("[data-ef]");if(f){f.focus();try{f.setSelectionRange(f.value.length,f.value.length)}catch(e){}}},0)}
+function centerPick(){var b=document.querySelector(".edit .pick [aria-pressed=true]"),p=b&&b.parentNode;if(p)p.scrollLeft=Math.max(0,b.offsetLeft-(p.clientWidth-b.offsetWidth)/2)}
+function focusEdit(){applyKb();setTimeout(function(){centerPick();var f=document.querySelector("[data-ef]");if(f){f.focus();try{f.setSelectionRange(f.value.length,f.value.length)}catch(e){}}},0)}
 function startEdit(id){
   var x=findFin(id);if(!x||x.del)return;
   editing=x.id;swipedId=null;editErr="";openId=null;openTx=null;editDay=x.day||today();editDue=x.due||"";editDir=x.dir||"";editLink=x.link||"";editAddr=x.addr||"";editBr=JSON.parse(JSON.stringify(x.br||[]));brMsg="";editNote=x.note||"";editCat=x.fin?"":x.cat;editFcat=x.fin?x.cat:"";prepEdit();
@@ -1863,7 +1874,7 @@ document.addEventListener("click",function(e){
   if(d.edir){editDir=d.edir;render();return}
   if(d.ecat){editCat=d.ecat;render();focusEdit();return}
   if(d.efcat){editFcat=d.efcat;render();focusEdit();return}
-  if(d.brgps){t.disabled=true;t.textContent="Đang lấy vị trí…";brGps();return}
+  if(d.brgps){t.disabled=true;t.textContent="📍 Đang lấy…";brGps();return}
   if(d.bradd){editBr.push({id:Date.now(),l:"",link:"",addr:""});brMsg="";render();setTimeout(function(){var f=document.querySelectorAll("[data-brl]");if(f.length)f[f.length-1].focus()},0);return}
   if(d.brdel!==undefined){editBr.splice(+d.brdel,1);render();return}
   if(d.brt){brOpen=(brOpen!=null&&brOpen==d.brt)?null:d.brt;renderNotes();return}
