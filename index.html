@@ -506,6 +506,29 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 #planView{padding-bottom:110px}
 #planView .plbar{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;width:min(608px,calc(100% - 32px));box-sizing:border-box;z-index:40;margin:0!important;padding:10px;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:0 -4px 24px rgba(0,0,0,.14)}
 #planView .plbar:focus-within{border-color:var(--accent)}
+/* ===== Lịch trình: dễ đọc hơn ===== */
+#planView .pdh{display:flex;align-items:baseline;gap:10px;margin:22px -4px 2px;padding:9px 12px;background:var(--bg);border-radius:10px}
+#planView .pdh:first-of-type{margin-top:10px}
+.pdn{font-size:14px;font-weight:700;color:var(--ink)}
+.pdd{font-size:12.6px;color:var(--muted)}
+.pds{margin-left:auto;font-size:13.5px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pit.pa{display:grid;grid-template-columns:22px 44px minmax(0,1fr) auto 30px;column-gap:8px;align-items:start;padding:12px 0}
+.pit.pa input[type=checkbox]{margin:1px 0 0}
+.pit.pa .ptm{font-style:normal;font-size:12.6px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap;line-height:1.55;padding-top:1px}
+.pit.pa .pbd{font-size:14.4px;font-weight:500;line-height:1.5;overflow-wrap:anywhere}
+.pit.pa .pbd i{font-style:normal;cursor:pointer}
+.pit.pa .pnt{display:block;width:100%;margin:5px 0 0;padding:1px 0 1px 10px;background:none;border:0;border-left:2px solid var(--line);font:inherit;font-size:12.6px;font-weight:400;line-height:1.55;color:var(--muted);text-align:left;white-space:pre-wrap;cursor:pointer}
+.pit.pa.dn .pbd{opacity:.65}
+.pit.pa .pam{grid-column:4;justify-self:end;min-height:28px;padding:3px 9px;border-radius:8px;background:var(--bg);font-size:12.6px;font-weight:600;font-variant-numeric:tabular-nums;text-decoration:none}
+.pit.pa .pam.est{color:var(--muted);font-weight:500}
+.pit.pa .pam.real{color:var(--good,var(--accent));font-weight:700}
+.pit.pa .px{grid-column:5;justify-self:end;width:30px;height:30px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;font-size:19px;line-height:1;color:var(--muted)}
+.pit.pa .px:hover,.pit.pa .px:active{background:var(--c-red-bg);color:var(--c-red)}
+@media (max-width:520px){
+.pit.pa{grid-template-columns:22px 40px minmax(0,1fr) 30px}
+.pit.pa .px{grid-column:4;grid-row:1}
+.pit.pa .pam{grid-column:3;grid-row:2;justify-self:start;margin-top:6px}
+}
 }
 
 /* Tiêu đề + ô tìm kiếm cùng hàng; nút lọc nằm cuối hàng tag */
@@ -2455,11 +2478,11 @@ function plActsHtml(p){
     var da=acts.filter(function(a){return a.day===d}).sort(function(a,b){return plTmv(a)-plTmv(b)});
     if(!da.length&&nd===1)continue;
     var sum=0;da.forEach(function(a){var it=plAItem(p,a);if(it)sum+=plTx(it).length?plR(it):it.a});
-    h+='<div class="prt pm" style="margin-top:12px;font-weight:600"><span>Ngày '+d+(plDate(p,d)?'<span style="font-weight:400;font-size:9.9px;color:var(--muted);opacity:.5;margin-left:14px"><span aria-hidden="true" style="margin-right:14px">•</span>'+plDate(p,d)+'</span>':'')+'</span><span>'+(sum?money(sum):'')+'</span></div>';
+    h+='<div class="pdh"><span class="pdn">Ngày '+d+'</span>'+(plDate(p,d)?'<span class="pdd">'+plDate(p,d)+'</span>':'')+'<span class="pds">'+(sum?money(sum):'')+'</span></div>';
     if(!da.length)h+='<div class="pm" style="padding:6px 0">Chưa có hoạt động</div>';
     da.forEach(function(a){
       var it=plAItem(p,a);
-      h+='<div class="pit'+(a.done?' dn':'')+'"><input type="checkbox" data-pl="atick" data-pid="'+pid+'" data-aid="'+a.id+'"'+(a.done?' checked':'')+' aria-label="Đã làm '+esc(a.t)+'">'+(a.tm?'<em>'+esc(a.tm)+'</em>':'')+'<span>'+(a.note?esc(a.t)+'<button type="button" class="pm" data-pl="anote" data-pid="'+pid+'" data-aid="'+a.id+'" style="display:block;background:none;border:0;padding:0;margin:0;font:inherit;text-align:left;white-space:pre-wrap;cursor:pointer">'+esc(a.note)+'</button>':'<i data-pl="anote" data-pid="'+pid+'" data-aid="'+a.id+'" style="font-style:normal;cursor:pointer">'+esc(a.t)+'</i>')+'</span>'+(it?'<button class="pam" data-pl="aamt" data-pid="'+pid+'" data-aid="'+a.id+'" aria-label="Sửa số tiền đã chi" style="text-decoration:underline dotted'+(plTx(it).length?'':';opacity:.65')+'">'+(plTx(it).length?money(plR(it)):'~'+money(it.a))+'</button>':'')+'<button class="px" data-pl="adel" data-pid="'+pid+'" data-aid="'+a.id+'" aria-label="Xóa hoạt động">×</button></div>'});
+      h+='<div class="pit pa'+(a.done?' dn':'')+'"><input type="checkbox" data-pl="atick" data-pid="'+pid+'" data-aid="'+a.id+'"'+(a.done?' checked':'')+' aria-label="Đã làm '+esc(a.t)+'"><em class="ptm">'+(a.tm?esc(a.tm):'')+'</em><span class="pbd">'+(a.note?esc(a.t)+'<button type="button" class="pnt" data-pl="anote" data-pid="'+pid+'" data-aid="'+a.id+'">'+esc(a.note)+'</button>':'<i data-pl="anote" data-pid="'+pid+'" data-aid="'+a.id+'">'+esc(a.t)+'</i>')+'</span>'+(it?'<button class="pam '+(plTx(it).length?'real':'est')+'" data-pl="aamt" data-pid="'+pid+'" data-aid="'+a.id+'" aria-label="Sửa số tiền đã chi">'+(plTx(it).length?money(plR(it)):'~'+money(it.a))+'</button>':'')+'<button class="px" data-pl="adel" data-pid="'+pid+'" data-aid="'+a.id+'" aria-label="Xóa hoạt động">×</button></div>'});
   }
   var unc=plUnc(p);
   if(plCfm==pid&&unc.length){
@@ -2492,6 +2515,7 @@ function renderPlan(){
     h+='<div class="pchips" style="margin-top:12px"><button type="button" data-pl="ptab" data-pid="'+pid+'" data-t="act"'+(tb==='act'?' style="background:var(--accent);color:var(--accent-ink);border-color:var(--accent)"':'')+'>Hoạt động</button><button type="button" data-pl="ptab" data-pid="'+pid+'" data-t="tc"'+(tb==='tc'?' style="background:var(--accent);color:var(--accent-ink);border-color:var(--accent)"':'')+'>Thu chi</button></div>';
     if(tb==='act'){h+=plActsHtml(p)+del+'</div>';return}
     p.items.forEach(function(it,j){
+      if(it.aid&&!plTx(it).length){var ac0=(p.acts||[]).find(function(x){return x.id===it.aid});if(ac0&&ac0.done)return}
       var id=pid+"/"+j,done=plTx(it).length>0,r=plR(it),at='data-pid="'+pid+'" data-pj="'+j+'"',am;
       if(done){var df=r-it.a;am='<button class="pam" data-pl="edit" '+at+' aria-label="Sửa số tiền thực tế">'+(df===0?money(r):'<s style="opacity:.6">'+money(it.a)+'</s> <b class="'+(df>0?'bad':'good')+'">'+money(r)+'</b>')+'</button>'}
       else am='<em>'+money(it.a)+'</em>';
