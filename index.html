@@ -2732,7 +2732,7 @@ function impNorm(d){
       var t=String(a.title||"").replace(/\s+/g," ").trim().slice(0,80);if(!t)return;
       var lo=impK(a.cost_min),hi=impK(a.cost_max),amt,nt=[],range=false;
       if(lo>hi){var sw=lo;lo=hi;hi=sw}
-      if(lo&&hi&&lo!==hi){amt=impK((lo+hi)/2);range=true;nt.push("Khoảng "+money(lo)+"–"+money(hi))}
+      if(lo&&hi&&lo!==hi){amt=impK((lo+hi)/2);range=true;nt.push("Khoảng "+money(lo)+"–"+money(hi)+", đã lấy mức giữa")}
       else amt=hi||lo;
       var en=impTm(a.end_time),cn=String(a.cost_note||"").trim(),an=String(a.note||"").trim();
       if(en)nt.push("Đến "+en);
@@ -2757,7 +2757,7 @@ function impOptT(im,i){return impK(im.opts[i].total*im.x/im.n)}
 function impSum(im){var s=0;im.rows.forEach(function(r){if(r.on)s+=r.a});return s}
 function impBud(im){var s=impSum(im);if(im.bi>=0&&im.opts[im.bi])return impOptT(im,im.bi);return Math.ceil(s/100000)*100000}
 function impDefBi(im){var s=impSum(im),best=-1,i;for(i=0;i<im.opts.length;i++)if(impOptT(im,i)>=s&&(best<0||impOptT(im,i)<impOptT(im,best)))best=i;if(best<0&&im.opts.length){best=0;for(i=1;i<im.opts.length;i++)if(impOptT(im,i)>impOptT(im,best))best=i}return best}
-function impFl(r){var f=[];if(!r.tm)f.push("Thiếu giờ, sẽ xếp cuối ngày");if(r.range)f.push("Giá là khoảng, đã lấy mức giữa");if(r.cond)f.push("Có khoản phụ không tính vào tiền");if(r.opt)f.push("Tùy chọn");if(r.a>=2e6)f.push("Số tiền lớn, kiểm tra lại");return f}
+function impFl(r){var f=[];if(!r.tm)f.push("Thiếu giờ, sẽ xếp cuối ngày");if(r.cond)f.push("Có khoản phụ không tính vào tiền");if(r.a>=2e6)f.push("Số tiền lớn, kiểm tra lại");return f}
 function impBuild(im,now){
   var rows=im.rows.filter(function(r){return r.on&&String(r.t||"").trim()});if(!rows.length)return null;
   var nd=rows.reduce(function(m,r){return Math.max(m,r.d)},1);
@@ -3079,5 +3079,4 @@ new MutationObserver(function(ms){ms.forEach(function(m){
 })();
 </script>
 </body>
-</html>
 </html>
