@@ -1713,7 +1713,7 @@ an:["pho","bun","banh","com","cafe","ca phe","coffee","tra sua","tra da","tra ch
 sam:["mua","ao","quan ao","giay","dep","tui","shopee","lazada","tiki","sieu thi","tap hoa","do dung","my pham","son"]};
 var MULT={tr:1e6,trieu:1e6,m:1e6,k:1e3,nghin:1e3,ngan:1e3,d:1,dong:1};
 var WD=["CN","T2","T3","T4","T5","T6","T7"];
-var tab="notes",sub="tx",fcat="",chartView="day",trendN=1,fday="",openTx=null,_n=new Date(),ym={y:_n.getFullYear(),m:_n.getMonth()+1};
+var tab="notes",sub="tx",fcat="",chartView="day",trendN=1,fday="",hday="",openTx=null,_n=new Date(),ym={y:_n.getFullYear(),m:_n.getMonth()+1};
 try{tab=localStorage.getItem("ghichu_tab")||"notes"}catch(e){}
 function p2(n){return("0"+n).slice(-2)}
 function today(){var d=new Date();return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate())}
@@ -1914,11 +1914,15 @@ function renderTx(top,body){
   all.forEach(function(x){if(x.t==="out"){by[+x.day.slice(8)]=(by[+x.day.slice(8)]||0)+x.amt;cs[x.cat]=(cs[x.cat]||0)+x.amt;tot+=x.amt}});
   var views={};
   if(tot){
-    views.day=dailyChart(by,days);
     var rows=OUT.map(function(c,i){return{k:c.k,n:c.n,i:i,v:cs[c.k]||0}}).filter(function(r){return r.v>0}).sort(function(a,b){return b.v-a.v});
     views.cat='<div class="hint" style="margin:0 0 6px">Bấm một mục để lọc danh sách bên dưới</div>'+rows.map(function(r){return'<button class="crow" data-fcat="'+r.k+'" aria-pressed="'+(fcat===r.k)+'"><span>'+r.n+'</span><span class="cbar"><i style="width:'+Math.max(2,Math.round(r.v/tot*100))+'%;background:var(--k'+r.i+')"></i></span><span class="cv">'+money(r.v)+' · '+Math.round(r.v/tot*100)+'%</span></button>'}).join("");
   }
-  if(fday)views.day=hourChart(all.filter(function(x){return x.day===fday}));
+  if(all.length){
+    var hd=fday;
+    if(!hd){hd=hday;if(!hd||hd.indexOf(key)!==0){hd=today();if(hd.indexOf(key)!==0){hd="";all.forEach(function(x){if(x.day>hd)hd=x.day})}}}
+    hday=hd;
+    views.day='<div class="mnav" style="margin:0 0 8px"><button data-hnav="-1" aria-label="Ngày trước">‹</button><b>'+dayLabel(hd)+(hd===today()?" · Hôm nay":"")+'</b><button data-hnav="1" aria-label="Ngày sau">›</button></div>'+hourChart(all.filter(function(x){return x.day===hd}));
+  }
   var tr=trendChart();
   if(tr)views.trend='<div class="hint" style="margin:0 0 6px"><span class="good">■ Thu</span> <span class="bad">■ Chi</span></div>'+tr;
   var avail=[["day",fday?dayLabel(fday):"Theo ngày"],["cat","Theo mục"],["trend",trendN+" tháng"]].filter(function(a){return views[a[0]]});
@@ -2392,6 +2396,7 @@ document.addEventListener("click",function(e){
   if(d.add){openSheet();return}
     if(d.chart){showChart=!showChart;if(!showChart)fcat="";try{localStorage.setItem("ghichu_chart",showChart?"1":"0")}catch(e){}renderFin();return}
   if(d.sheetclose){closeSheet();return}
+  if(d.hnav){var hp=(hday||today()).split("-"),hdt=new Date(+hp[0],+hp[1]-1,+hp[2]+Number(d.hnav)),hk=hdt.getFullYear()+"-"+p2(hdt.getMonth()+1)+"-"+p2(hdt.getDate());if(hk>today())return;hday=hk;ym={y:hdt.getFullYear(),m:hdt.getMonth()+1};fcat="";renderFin();return}
   if(d.fclear){fday="";fcat="";chartView="day";openTx=null;renderFin();return}
   if(d.cv){if(d.cv==="trend"&&chartView==="trend"){trendN=trendN===1?3:trendN===3?6:trendN===6?12:1}chartView=d.cv;renderFin();return}
   if(d.sub){scrollSave();sub=d.sub;fcat="";openTx=null;defMsg();renderFin();scrollRestore();return}
