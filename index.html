@@ -135,7 +135,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .tx{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:6px}
 .tx .tdesc{word-break:break-word}
 .tx .ftag{background:transparent;border:1px solid currentColor;margin-top:4px}
-.tamt{font-weight:700;white-space:nowrap}
+.tamt{font-weight:700;white-space:nowrap;font-size:.9em}.tgc .tgh b,.tgc .tgt b{font-size:.9em}
 .tx .pick{grid-column:1/-1}
 .dtn{background:transparent;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:3px 10px;font-size:11.7px}
 .done .tdesc{text-decoration:line-through;color:var(--muted)}
@@ -467,7 +467,7 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .tgc{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin:12px 0 10px;overflow:hidden}.tgh{display:flex;align-items:center;gap:7px;font-size:12.6px;font-weight:700;padding:11px 14px 7px}.tgh i{width:8px;height:8px;border-radius:50%;background:currentColor;flex:none}.tgh b{margin-left:auto;font-weight:500;color:var(--muted)}
 .tgc .txw{margin-bottom:0;border-radius:0;background:var(--surface)}
 .tgc .tx.swcard,.tgc>.tx{border:0;border-radius:0;background:var(--surface)}.tgc>.tx{margin:0;border-top:1px solid var(--line)}.tgc .swrap~.swrap{border-top:1px solid color-mix(in srgb,var(--line) 55%,transparent)}.tgc .tgg .tx.swcard{padding-left:11px}
-.tgc .tgh+.swrap .tx.swcard,.tgc .tgh+.tx{border-top:0}.tgc .tgh+.swrap{border-top:0}.tgc .tgh{font-size:12px;padding:2px 14px 6px 11px;background:none}.tgg{border-left:3px solid var(--line);margin:12px 0 6px 14px}.tgg>.tx{border:0;border-top:1px solid var(--line);border-radius:0;margin:0;background:var(--surface)}.tgc .tgt{display:flex;align-items:center;justify-content:space-between;padding:11px 14px 8px;font-size:14.4px;font-weight:700}.tgc .tgt b{font-weight:700}
+.tgc .tgh+.swrap .tx.swcard,.tgc .tgh+.tx{border-top:0}.tgc .tgh+.swrap{border-top:0}.tgc .tgh{font-size:12px;padding:2px 14px 6px 11px;background:none}.tgg{border-left:1px solid var(--line);margin:12px 0 6px 14px}.tgg>.tx{border:0;border-top:1px solid var(--line);border-radius:0;margin:0;background:var(--surface)}.tgc .tgt{display:flex;align-items:center;justify-content:space-between;padding:11px 14px 8px;font-size:14.4px;font-weight:700}.tgc .tgt b{font-weight:700}
 .tx.swcard{grid-template-columns:1fr auto;border-left:1px solid var(--line);padding-left:14px;margin-bottom:0}
 .cbtn{top:auto;bottom:12px;right:12px;width:38px;height:38px;background:var(--bg);color:var(--muted);border:1px solid var(--line)}
 .cbtn svg{width:20px;height:20px;display:block;margin:auto}
@@ -482,7 +482,7 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .wallet .lnk{padding:6px 0 0;font-size:10.8px}
 .wallet .plus{top:10px;right:10px;width:34px;height:34px;font-size:19.8px}
 .wallet .cbtn{top:auto;bottom:10px;right:10px;width:30px;height:30px}
-.wallet .cbtn svg{width:17px;height:17px}
+.wallet .cbtn svg{width:17px;height:17px}.wallet .tsbtn{right:48px;font-size:16px;font-weight:700;line-height:1}
 .mnav{margin-bottom:10px}
 .rggrid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
 .rgw{font-size:10.8px;color:var(--muted);padding:4px 0}
@@ -1001,6 +1001,7 @@ function strongAmt(tok){
   if(sg&&/^\d+$/.test(t)){p=parseTok(t);return p?p.v:0}
   return 0;
 }
+function givenInc(tk,i){var a=i>0?bare(tk[i-1]):"",b=i>1?bare(tk[i-2]):"";return a==="cho"||(b==="cho"&&(a==="minh"||a==="toi"||a==="em"))}
 function bare(w){return norm(w).trim().replace(/[^a-z0-9]/g,"")}
 function autoFin(raw){
   if(raw.indexOf("\n")>-1||raw.length>80||/https?:\/\//i.test(raw)||raw.indexOf("#")>-1||area(raw))return null;
@@ -1024,6 +1025,7 @@ function autoFin(raw){
     return{kind:"debt",obj:{id:now,fin:1,k:"debt",dir:dir,amt:v,paid:0,desc:desc||"(không ghi chú)",day:day,ts:now,upd:now}};
   }
   var inc=sign==="+";
+  if(!sign&&givenInc(tk,idx))inc=true;
   if(!sign&&words.some(function(w){return w==="luong"||w==="thuong"||w==="salary"||w==="bonus"}))inc=true;
   var d=rest.join(" "),o={id:now,fin:1,k:"tx",t:inc?"in":"out",amt:v,desc:d,day:day,ts:now,upd:now};
   o.cat=guessCat(d,inc);if(!o.desc)o.desc=catName(o);
@@ -1619,6 +1621,7 @@ function parseLine(raw){
   tok=tk[best];p=parseTok(tok.replace(/^[+\-=]/,""));
   if(!p||p.v<=0)return null;
   var inc=tok.charAt(0)==="+"||(best>0&&tk[best-1]==="+");
+  if(!inc&&tok.charAt(0)!=="-"&&!(best>0&&tk[best-1]==="-")&&givenInc(tk,best))inc=true;
   var rest=tk.filter(function(_,j){return j!==best&&!(j===best-1&&tk[j]==="+")});
   return{amt:p.v,inc:inc,desc:rest.join(" ")};
 }
@@ -1765,13 +1768,13 @@ function trendChart(){
   return s+'<line x1="0" x2="'+W+'" y1="'+(T+H)+'" y2="'+(T+H)+'" style="stroke:var(--line)"/></svg>';
 }
 function pickerFin(x){var l=x.t==="in"?INC:OUT;return'<div class="pick">'+l.map(function(c,i){var col=x.t==="in"?"var(--good)":"var(--k"+i+")";return'<button class="tag ftag" data-fset="'+c.k+'" data-id="'+x.id+'" aria-pressed="'+(x.cat===c.k)+'" style="color:'+col+';background:transparent;border:1px solid currentColor">'+c.n+'</button>'}).join("")+'</div>'}
-var showChart=false;try{showChart=localStorage.getItem("ghichu_chart")==="1"}catch(e){}
+var showChart=false,showSum=false;try{showChart=localStorage.getItem("ghichu_chart")==="1";showSum=localStorage.getItem("ghichu_tagsum")==="1"}catch(e){}
 function renderTx(top,body){
   var key=mkey(ym.y,ym.m),ms=monthSum(ym.y,ym.m),bl=balance(),days=new Date(ym.y,ym.m,0).getDate();
   var all=fins().filter(function(x){return x.k==="tx"&&x.day&&x.day.indexOf(key)===0});
   var dOwe=0,dLent=0;fins().forEach(function(x){if(x.k==="debt"){var r=Math.max(0,x.amt-(x.paid||0));if(x.dir==="owe")dOwe+=r;else dLent+=r}});
   top.innerHTML='<div class="mnav"><button data-mo="-1" aria-label="Tháng trước">‹</button><b>Tháng '+ym.m+'/'+ym.y+'</b><button data-mo="1" aria-label="Tháng sau">›</button></div>'+
-   '<div class="wallet"><button class="plus" data-add="1" aria-label="Thêm khoản thu chi">+</button><button type="button" class="plus cbtn" data-chart="1" aria-pressed="'+showChart+'" aria-label="Hiện hoặc ẩn biểu đồ" title="Biểu đồ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V11M12 20V4M19 20v-6"/></svg></button><div class="hint">Tổng ví</div><div class="big'+(bl.b<0?' neg':'')+'">'+(bl.b<0?"-":"")+money(bl.b)+'</div><div class="two"><div><span class="hint">Thu tháng này</span><b class="good">+'+money(ms["in"])+'</b></div><div><span class="hint">Chi tháng này</span><b class="bad">-'+money(ms["out"])+'</b></div></div><div class="two" style="margin-top:10px"><div><span class="hint">Mình đang nợ</span><b class="bad">'+money(dOwe)+'</b></div><div><span class="hint">Họ đang nợ mình</span><b class="good">'+money(dLent)+'</b></div></div><button class="lnk" data-open="1">'+(bl.o?"Sửa số dư ban đầu ("+money(bl.o)+")":"Đặt số dư ban đầu")+'</button></div>';
+   '<div class="wallet"><button class="plus" data-add="1" aria-label="Thêm khoản thu chi">+</button><button type="button" class="plus cbtn" data-chart="1" aria-pressed="'+showChart+'" aria-label="Hiện hoặc ẩn biểu đồ" title="Biểu đồ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V11M12 20V4M19 20v-6"/></svg></button><button type="button" class="plus cbtn tsbtn" data-tsum="1" aria-pressed="'+showSum+'" aria-label="Hiện hoặc ẩn tổng theo tag" title="Tổng theo tag">Σ</button><div class="hint">Tổng ví</div><div class="big'+(bl.b<0?' neg':'')+'">'+(bl.b<0?"-":"")+money(bl.b)+'</div><div class="two"><div><span class="hint">Thu tháng này</span><b class="good">+'+money(ms["in"])+'</b></div><div><span class="hint">Chi tháng này</span><b class="bad">-'+money(ms["out"])+'</b></div></div><div class="two" style="margin-top:10px"><div><span class="hint">Mình đang nợ</span><b class="bad">'+money(dOwe)+'</b></div><div><span class="hint">Họ đang nợ mình</span><b class="good">'+money(dLent)+'</b></div></div><button class="lnk" data-open="1">'+(bl.o?"Sửa số dư ban đầu ("+money(bl.o)+")":"Đặt số dư ban đầu")+'</button></div>';
   var h="",by={},cs={},tot=0;
   all.forEach(function(x){if(x.t==="out"){by[+x.day.slice(8)]=(by[+x.day.slice(8)]||0)+x.amt;cs[x.cat]=(cs[x.cat]||0)+x.amt;tot+=x.amt}});
   var views={};
@@ -1806,7 +1809,7 @@ function renderTx(top,body){
       arr.forEach(function(x){
         var xg=gOf[x.id];
         if(x.t!==lastT){if(lastT!=="")h+=(lastG!==""?'</div>':'')+'</div>';lastT=x.t;lastG="";h+='<div class="tgc">'+(both?'<div class="tgt '+(x.t==="in"?"good":"bad")+'"><span>'+(x.t==="in"?"Thu":"Chi")+'</span><b>'+(x.t==="in"?"+":"-")+money(tsum[x.t])+'</b></div>':'')}
-        if(xg!==lastG){if(lastG!=="")h+='</div>';lastG=xg;var gs=0,gn=0;gm[xg].forEach(function(y){gn++;gs+=y.amt});h+='<div class="tgg" style="border-left-color:'+catColor(x)+'"><div class="tgh" style="color:'+catColor(x)+'"><i></i><span>'+esc(catName(x))+'</span><b>'+(gn>1?gn+' khoản · ':'')+(x.t==="in"?"+":"-")+money(gs)+'</b></div>'}
+        if(xg!==lastG){if(lastG!=="")h+='</div>';lastG=xg;var gs=0,gn=0;gm[xg].forEach(function(y){gn++;gs+=y.amt});h+='<div class="tgg" style="border-left-color:'+catColor(x)+'"><div class="tgh" style="color:'+catColor(x)+'"><i></i><span>'+esc(catName(x))+'</span>'+(showSum?'<b>'+(gn>1?gn+' khoản · ':'')+(x.t==="in"?"+":"-")+money(gs)+'</b>':'')+'</div>'}
         if(editing==x.id){h+='<div class="tx" style="display:block">'+editForm(x)+'</div>';return}
         var sw=swipedId==x.id;
         h+='<div class="swrap txw'+(sw?' swiped':'')+'" data-id="'+x.id+'"><div class="swact"><button type="button" class="sw-edit" data-edit="'+x.id+'" aria-label="Sửa giao dịch">'+IC_EDIT+'<span>Sửa</span></button><button type="button" class="sw-del" data-fdel="'+x.id+'" aria-label="Xóa giao dịch">'+IC_DEL+'<span>Xóa</span></button></div><div class="tx swcard" data-id="'+x.id+'" role="button" tabindex="0" aria-expanded="'+sw+'"><div><div class="tdesc">'+esc(x.desc||"")+'</div>'+(x.note?'<div class="hint" style="margin:2px 0;white-space:pre-wrap;word-break:break-word">'+esc(x.note)+'</div>':'')+imgStrip(x)+'</div><div class="tamt '+(x.t==="in"?"good":"bad")+'">'+(x.t==="in"?"+":"-")+money(x.amt)+'</div>'+'</div></div>';
@@ -2250,6 +2253,7 @@ document.addEventListener("click",function(e){
   var t=e.target.closest("button");if(!t)return;var d=t.dataset,x;
   if(d.tab){setTab(d.tab);return}
   if(d.add){openSheet();return}
+  if(d.tsum){showSum=!showSum;try{localStorage.setItem("ghichu_tagsum",showSum?"1":"0")}catch(e){}renderFin();return}
   if(d.chart){showChart=!showChart;if(!showChart)fcat="";try{localStorage.setItem("ghichu_chart",showChart?"1":"0")}catch(e){}renderFin();return}
   if(d.sheetclose){closeSheet();return}
   if(d.fclear){fday="";fcat="";chartView="day";openTx=null;renderFin();return}
