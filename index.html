@@ -360,6 +360,8 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .swcard:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .swact{position:absolute;top:0;right:0;bottom:0;width:132px;display:flex;visibility:hidden;transition:visibility 0s .3s}
 .swrap.swiped .swact{visibility:visible;transition-delay:0s}
+/* Thẻ đang vuốt mở Sửa/Xóa: khóa mọi nút/link/ảnh trên thẻ (tag, ghim bản đồ, camera, tick...). Chạm vào đó rơi xuống thẻ => thẻ đóng lại. Nút Sửa/Xóa nằm ngoài .swcard nên vẫn bấm bình thường. */
+.swrap.swiped .swcard :is(button,a,img,input,textarea,label,select){pointer-events:none}
 .swact button{flex:1;border:0;border-radius:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10.8px;font-weight:500;padding:0}
 .swact svg{width:20px;height:20px;display:block}
 .swact .sw-edit{flex:0 0 80px;padding-left:28px;background:#d9f1e8;color:#0f6e56}
