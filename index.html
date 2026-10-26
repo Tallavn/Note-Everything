@@ -795,6 +795,17 @@ function editTag(k,name,f,col){f=f||"";
 }
 /* Hộp tạo / sửa tag: tên + tùy chọn tính năng. Dùng class "sheet" nên vuốt đổi tab tự bị chặn khi đang mở. */
 var TAGOPT=[["l","📍","Địa điểm","Nút bản đồ, lưu vị trí, chi nhánh"],["c","📷","Camera","Nút chụp ảnh ngay trên thẻ"],["t","✓","Tick","Ô tick đánh dấu đã xong"],["d","⏰","Hạn chót","Chọn ngày giờ hạn cho ghi chú"]],tagSh=null,tagCtx=null;
+function tagMvUpd(){
+  if(!tagSh||!tagCtx||!tagCtx.k)return;
+  var i=KEYS.indexOf(tagCtx.k),b=tagSh.querySelectorAll('[data-tg="mv"]');
+  if(b.length===2){b[0].disabled=i<=0;b[1].disabled=i<0||i>=KEYS.length-1}
+}
+function tagMove(k,d){
+  var i=KEYS.indexOf(k),j=i+d;if(i<0||j<0||j>=KEYS.length)return;
+  var o=KEYS.slice(),t=o[i];o[i]=o[j];o[j]=t;
+  setGroupOrder(o);tagMvUpd();
+  try{var fl=document.getElementById("filters"),c=fl&&fl.querySelector('[data-f="'+k+'"]');if(c&&c.scrollIntoView)c.scrollIntoView({block:"nearest",inline:"center"})}catch(e){}
+}
 function tagSheetClose(refocus){
   if(!tagSh||tagSh.hidden)return;
   tagSh.hidden=true;
@@ -829,7 +840,7 @@ function tagSheetOpen(k,from){
       '#tagSheet .tgopt[aria-pressed="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--surface));color:var(--ink)}'+
       '#tagSheet .tgopt[aria-pressed="true"] .tgck{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}'+
       '#tagSheet .tgopt b{display:block;font-size:14px}#tagSheet .tgopt small{display:block;color:var(--muted);font-size:12px;font-weight:400;margin-top:1px}'+
-      '#tagSheet .tgcols{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}#tagSheet .tgcol{flex:none;width:26px;height:26px;min-width:0;min-height:0;border-radius:50%;border:2px solid transparent;padding:0;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1;font-weight:700;cursor:pointer}#tagSheet .tgcol[aria-pressed="true"]{outline:2px solid var(--ink);outline-offset:1px}#tagSheet .tgcol:not([aria-pressed="true"]) i{display:none}#tagSheet .tgacts{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}#tagSheet .tgdel{display:block;border:1px solid var(--bad,#c0392b);border-radius:10px;padding:7px 14px;font:inherit;font-size:13px;font-weight:600;background:transparent;color:var(--bad,#c0392b)}'+
+      '#tagSheet .tgcols{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}#tagSheet .tgcol{flex:none;width:26px;height:26px;min-width:0;min-height:0;border-radius:50%;border:2px solid transparent;padding:0;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1;font-weight:700;cursor:pointer}#tagSheet .tgcol[aria-pressed="true"]{outline:2px solid var(--ink);outline-offset:1px}#tagSheet .tgcol:not([aria-pressed="true"]) i{display:none}#tagSheet .tgmv{display:flex;gap:8px;align-items:center;margin-top:12px}#tagSheet .tgmv .hint{margin:0 4px 0 0}#tagSheet .tgmv button{padding:5px 12px;font-size:12.5px}#tagSheet .tgmv button:disabled{opacity:.35}#tagSheet .tgacts{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}#tagSheet .tgdel{display:block;border:1px solid var(--bad,#c0392b);border-radius:10px;padding:7px 14px;font:inherit;font-size:13px;font-weight:600;background:transparent;color:var(--bad,#c0392b)}'+
       '#tagSheet .tgsave{display:block;border:0;border-radius:10px;padding:7px 18px;font:inherit;font-size:13px;font-weight:700;background:var(--accent);color:var(--accent-ink)}';
     document.head.appendChild(sty);
     tagSh=document.createElement("div");tagSh.id="tagSheet";tagSh.className="sheet";tagSh.style.zIndex="65";tagSh.hidden=true;
@@ -842,6 +853,7 @@ function tagSheetOpen(k,from){
       if(a==="close")tagSheetClose();
       else if(a==="opt")b.setAttribute("aria-pressed",b.getAttribute("aria-pressed")==="true"?"false":"true");
       else if(a==="save")tagSheetSave();
+      else if(a==="mv"){tagMove(tagCtx&&tagCtx.k,+b.dataset.d)}
       else if(a==="col"){tagSh.querySelectorAll("[data-col]").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false")})}
       else if(a==="del"){var dk=tagCtx&&tagCtx.k;if(!dk||!CATS[dk])return;var cnt=notes.filter(function(x){return !x.fin&&!x.del&&x.cat===dk}).length;if(confirm('Xóa tag "'+CATS[dk].n+'"?'+(cnt?'\n'+cnt+' ghi chú đang dùng tag này sẽ chuyển sang "Khác".':''))){tagSheetClose(false);delTag(dk)}}
     });
@@ -857,6 +869,7 @@ function tagSheetOpen(k,from){
   h+='<div class="tgcols" role="group" aria-label="Chọn màu">';
   COLS.forEach(function(cn){h+='<button type="button" class="tgcol" data-tg="col" data-col="'+cn+'" aria-pressed="'+(cn===curCol)+'" aria-label="Màu '+cn+'" style="background:var(--c-'+cn+'-bg);color:var(--c-'+cn+');border-color:var(--c-'+cn+')"><i>✓</i></button>'});
   h+='</div>';
+  if(k)h+='<div class="tgmv"><span class="hint nh">Vị trí trên thanh tag</span><button type="button" class="chip" data-tg="mv" data-d="-1">‹ Trước</button><button type="button" class="chip" data-tg="mv" data-d="1">Sau ›</button></div>';
   var isBase=false;
   if(!isBase)h+='<div class="hint nh" style="margin-top:12px">Tag này có những gì?</div>';
   if(!isBase)TAGOPT.forEach(function(o){
@@ -867,6 +880,7 @@ function tagSheetOpen(k,from){
   h+='<button type="button" class="tgsave" data-tg="save">'+(k?"Lưu tag":"Tạo tag")+'</button></div>';
   h+='</div>';
   tagSh.innerHTML=h;
+  tagMvUpd();
   tagSh.hidden=false;
   if(k){try{document.activeElement&&document.activeElement.blur()}catch(e){}}
   else setTimeout(function(){var n=document.getElementById("tgName");if(n&&!tagSh.hidden){n.focus();try{n.setSelectionRange(n.value.length,n.value.length)}catch(e){}}},30);
