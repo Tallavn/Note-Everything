@@ -2409,7 +2409,7 @@ if(code)sync();
     if(e.touches.length!==1){ok=false;return}
     var t=e.touches[0];sx=t.clientX;sy=t.clientY;st=Date.now();
     var r=scan(e.target);
-    ok=!r.hard&&!document.querySelector(".sheet:not([hidden])")&&!document.body.classList.contains("psheet");
+    ok=!r.hard&&!document.querySelector(".sheet:not([hidden])")&&!document.body.classList.contains("psheet")&&!document.querySelector(".edit");  /* form Sửa đang mở (ghi chú/chi tiêu/chi nhánh): tắt hẳn vuốt đổi tab, kể cả chạm vào chỗ trống hay nút trong form */
     if(r.sc){eL=r.sc.scrollLeft<=2;eR=r.sc.scrollLeft>=r.sc.scrollWidth-r.sc.clientWidth-2}else{eL=eR=true}},{passive:true});
   document.addEventListener("touchmove",function(e){
     if(!ok)return;
