@@ -546,6 +546,9 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 .cam{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:5px;width:34px;height:34px;border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:10px;padding:0;font:inherit;font-size:12px}
 .cam svg{width:18px;height:18px}
 .cam:active{background:var(--line)}
+.cam.busy{opacity:.45;pointer-events:none}
+.cam.ocr.busy svg{animation:ocrp .9s ease-in-out infinite alternate}
+@keyframes ocrp{to{opacity:.3}}
 .cam.cam-chip{width:auto;height:auto;padding:3px 9px;border-radius:99px}
 .cam.cam-chip svg{width:14px;height:14px}
 .inrow .cam{margin:0 8px 0 4px}
@@ -586,7 +589,7 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 <button type="button" class="cclose" id="cclose" aria-label="Xóa văn bản">×</button>
 <textarea id="in" placeholder="Gõ gì cũng được, ví dụ: bún chả Hương Liên Hai Bà Trưng, ngon, nhớ quay lại"></textarea>
 <input id="in-note" class="fin-in" type="text" autocomplete="off" enterkeyhint="done" maxlength="200" aria-label="Ghi chú thêm" placeholder="Ghi chú thêm (không bắt buộc)" style="font-size:13.5px;border-top:1px dashed var(--line);margin-top:2px;padding:6px 2px">
-<div class="thumbs" id="ph-in"></div><div class="insug" id="inSug"></div><div class="row inrow"><div class="hint nh">Có số tiền → Chi tiêu  ·  Chọn Tag → Ghi chú</div><div class="intags" id="inTags"></div><button type="button" class="cam" data-cam="in" aria-label="Thêm ảnh" title="Thêm ảnh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13.5" r="3.4"/></svg></button><button class="add" id="add">Lưu</button></div>
+<div class="thumbs" id="ph-in"></div><div class="insug" id="inSug"></div><div class="row inrow"><div class="hint nh">Có số tiền → Chi tiêu  ·  Chọn Tag → Ghi chú</div><div class="intags" id="inTags"></div><button type="button" class="cam" data-cam="in" aria-label="Thêm ảnh" title="Thêm ảnh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13.5" r="3.4"/></svg></button><button type="button" class="cam ocr" data-ocr="1" aria-label="Quét chữ từ ảnh" title="Quét chữ từ ảnh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M8 9h8M8 12h8M8 15h5"/></svg></button><button class="add" id="add">Lưu</button></div>
 </div>
 <div class="hint" id="in-msg" style="margin-top:6px" role="status"></div>
 <div class="frow"><div class="filters" id="filters"></div>
@@ -630,6 +633,7 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 <button type="button" class="fab" id="fab" aria-label="Tạo ghi chú mới" title="Tạo ghi chú mới"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
 <div class="fablock" id="fablock"><button type="button" id="fl-reset">Đặt lại</button><button type="button" class="fl-ok" id="fl-ok">Khoá vị trí</button></div>
 <input type="file" id="camIn" accept="image/*" multiple tabindex="-1" aria-hidden="true" style="position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none">
+<input type="file" id="ocrIn" accept="image/*" tabindex="-1" aria-hidden="true" style="position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none">
 <script>
 /* ===================== GHI CHÚ CHO LẦN SỬA SAU (đọc trước khi sửa) =====================
  1) VUỐT ĐỔI TAB (tìm "Vuốt trái/phải để đổi tab"): chỉ chặn khi thật sự xung đột
@@ -906,13 +910,13 @@ function addNote(forceRaw,forceNote){
       if(f.kind==="debt")txt="Đã ghi vào Nợ: "+(o.dir==="owe"?"Mình nợ ":"Họ nợ mình ")+money(o.amt)+" · "+esc(o.desc);
       else txt="Đã ghi vào Chi tiêu: "+(o.t==="in"?"+":"-")+money(o.amt)+" · "+esc(catName(o))+(o.desc&&o.desc!==catName(o)?" · "+esc(o.desc):"");
       lastFin={id:o.id,raw:raw,note:nt};var pm=(f.kind==="tx"&&o.t==="out")?planHook(o):"";
-      el.value="";ne.value="";save();render();sync();refocus(el);
+      el.value="";ne.value="";growIn();save();render();sync();refocus(el);
       inMsg(txt+pm+' <button class="lnk" data-unfin="1" style="padding:0 0 0 6px">Không phải, lưu làm ghi chú</button>');if(pm.indexOf("data-pl=")>-1)clearTimeout(inTimer);
       return;
     }
   }
   var nn0={id:Date.now(),text:clean(raw),cat:(forceRaw===undefined&&inCat&&CATS[inCat])?inCat:classify(raw),area:area(raw),due:(forceRaw===undefined&&inCat==="todo")?inDue:"",ts:Date.now(),upd:Date.now()};if(nt)nn0.note=nt;if(forceRaw===undefined&&inCat==="food"&&inLoc)nn0.link=gpsUrl(inLoc.ll);var im1=forceRaw===undefined?takeImgs():(carryImg||[]);carryImg=null;if(im1.length)nn0.img=im1;notes.unshift(nn0);
-  if(forceRaw===undefined){el.value="";ne.value="";inMsg(MQM.matches?"Đã lưu ghi chú":"");inCat="";inDue="";inOpen=false;inLoc=null;renderInTags()}
+  if(forceRaw===undefined){el.value="";ne.value="";growIn();inMsg(MQM.matches?"Đã lưu ghi chú":"");inCat="";inDue="";inOpen=false;inLoc=null;renderInTags()}
   save();render();sync();refocus(el);
 }
 var sortBy="new",sortMap={};
@@ -1127,6 +1131,48 @@ document.getElementById("camIn").addEventListener("change",function(){
     else{var a=pendArr(kind);r.forEach(function(u){if(a.length<MAXIMG)a.push(u)});renderPend(kind)}
   });
 });
+/* ===================== QUÉT CHỮ TỪ ẢNH (Worker + Gemini) ===================== */
+var ocrBusy=false;
+function ocrPrep(f){return new Promise(function(res){
+  var u=URL.createObjectURL(f),im=new Image();
+  im.onload=function(){try{
+    var M=1600,w=im.naturalWidth,h=im.naturalHeight,k=Math.min(1,M/Math.max(w,h)),c=document.createElement("canvas");
+    c.width=Math.max(1,Math.round(w*k));c.height=Math.max(1,Math.round(h*k));
+    var g=c.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,c.width,c.height);g.drawImage(im,0,0,c.width,c.height);
+    URL.revokeObjectURL(u);res(c.toDataURL("image/jpeg",.85).split(",")[1])}catch(e){res(null)}};
+  im.onerror=function(){URL.revokeObjectURL(u);res(null)};
+  im.src=u})}
+document.addEventListener("click",function(e){
+  var b=e.target.closest&&e.target.closest("[data-ocr]");if(!b)return;
+  e.preventDefault();e.stopPropagation();
+  if(ocrBusy)return;
+  if(!code){toast("Cần đặt mã đồng bộ trước khi quét chữ");return}
+  if(/TEN-WORKER/.test(RESOLVE_URL)){toast("Chưa điền địa chỉ Worker trong file");return}
+  var inp=document.getElementById("ocrIn");inp.value="";inp.click()},true);
+document.getElementById("ocrIn").addEventListener("change",function(){
+  var f=this.files&&this.files[0];if(!f||ocrBusy)return;
+  var btn=document.querySelector("[data-ocr]");
+  ocrBusy=true;if(btn)btn.classList.add("busy");
+  function done(){ocrBusy=false;if(btn)btn.classList.remove("busy")}
+  ocrPrep(f).then(function(b64){
+    if(!b64)throw new Error("Không đọc được ảnh");
+    return fetch(RESOLVE_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code:code,image:b64,mime:"image/jpeg"})})
+  }).then(function(r){
+    return r.json().catch(function(){return{error:"Máy chủ trả về dữ liệu lạ"}}).then(function(j){return{ok:r.ok,j:j}})
+  }).then(function(o){
+    if(!o.ok||o.j.error)throw new Error(o.j.error||"Quét không được");
+    var t=String(o.j.text||"").trim();
+    if(!t){toast("Không thấy chữ trong ảnh");return}
+    var el=document.getElementById("in");
+    el.value=el.value.trim()?el.value.replace(/\s+$/,"")+"\n"+t:t;
+    el.dispatchEvent(new Event("input",{bubbles:true}));
+    if(!document.body.classList.contains("composing"))openComposer();
+    try{el.focus()}catch(x){}
+    toast("Đã quét xong, kiểm tra lại rồi bấm Lưu");
+  }).catch(function(e){
+    var m=e&&e.message||"";
+    toast(m&&!/Failed to fetch|NetworkError|Load failed/i.test(m)?m:"Không kết nối được máy chủ quét chữ")
+  }).then(done)});
 function noteCard(x,grouped){
   var c=CATS[x.cat]||CATS.other,open=swipedId==x.id,mem=x.cat==="mem",done=mem&&!!x.done,ml=mapLink(x),has=x.link||MAPRE.test(x.text),ts=x.ts||0,h;
   h='<div class="swrap'+(open?' swiped':'')+'" data-id="'+x.id+'"><div class="swact"><button type="button" class="sw-edit" data-edit="'+x.id+'" aria-label="Sửa ghi chú">'+IC_EDIT+'<span>Sửa</span></button><button type="button" class="sw-del" data-del="'+x.id+'" aria-label="Xóa ghi chú">'+IC_DEL+'<span>Xóa</span></button></div>';
@@ -1682,12 +1728,24 @@ function showSug(){
   bx.addEventListener("mousedown",function(e){e.preventDefault()});
   el.addEventListener("input",function(){if(el.value!==el.dataset.sug)bx.innerHTML=""});
 })();
+/* Ô nhập tự cao lên theo nội dung, tới ngưỡng thì dừng và cuộn bên trong */
+function growIn(){
+  var el=document.getElementById("in");if(!el)return;
+  var vh=(window.visualViewport&&window.visualViewport.height)||window.innerHeight,mx=Math.max(96,Math.min(320,Math.round(vh*.45)));
+  el.style.height="auto";
+  var cs=getComputedStyle(el),extra=cs.boxSizing==="border-box"?0:(parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom)),
+      need=el.scrollHeight-extra,h=Math.min(need,mx);
+  el.style.height=h+"px";el.style.overflowY=need>mx?"auto":"hidden";
+}
+document.addEventListener("input",function(e){if(e.target&&e.target.id==="in")growIn()});
+window.addEventListener("resize",growIn);
+if(window.visualViewport)window.visualViewport.addEventListener("resize",growIn);
 function openComposer(){
   var el=document.getElementById("in");clearTimeout(cT);document.body.classList.remove("cout");
   kbPrep();
   document.body.classList.add("composing");updateFab();
   try{el.focus({preventScroll:true})}catch(e){el.focus()}
-  showSug();
+  showSug();growIn();
 }
 function closeComposer(){
   var b=document.body,el=document.getElementById("in"),was=b.classList.contains("composing");
@@ -1874,8 +1932,8 @@ function saveEdit(id){
   x.note=(editNote||"").trim().slice(0,200);if(!x.note)delete x.note;if(editImgs.length)x.img=editImgs.slice();else delete x.img;
   x.upd=Date.now();editing=null;save();sync();endEditAnim(render);
 }
-/* ĐỔI LINK RÚT GỌN: điền địa chỉ Worker Cloudflare của bạn (bản có chức năng GET ?u=) */
-var RESOLVE_URL="https://TEN-WORKER.TEN-BAN.workers.dev";
+/* ĐỊA CHỈ WORKER CLOUDFLARE: dùng chung cho đổi link rút gọn (GET ?u=) và quét chữ trong ảnh (POST). Nếu sai địa chỉ thì sửa ở đây. */
+var RESOLVE_URL="https://maplink.locbh1223.workers.dev";
 var SHORTRE=/https?:\/\/(?:maps\.app\.goo\.gl|goo\.gl\/maps)\/[^\s]+/i,expBusy=false,expTried={};
 function shortOf(x){var m=((x.link||"")+" "+(x.text||"")).match(SHORTRE);return m?m[0].replace(/^http:/,"https:"):""}
 function expandFill(){
