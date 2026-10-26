@@ -1236,7 +1236,7 @@ document.getElementById("ocrIn").addEventListener("change",function(){
     return r.json().catch(function(){return{error:"Máy chủ trả về dữ liệu lạ"}}).then(function(j){return{ok:r.ok,j:j}})
   }).then(function(o){
     if(!o.ok||o.j.error)throw new Error(o.j.error||"Quét không được");
-    var t=(o.j.data?ocrFmt(o.j.data):"")||String(o.j.text||"").trim();
+    var dd=o.j.data,rich=dd&&((Array.isArray(dd.items)&&dd.items.length)||(Array.isArray(dd.sections)&&dd.sections.length)),t=(rich?ocrFmt(dd):"")||String(o.j.text||"").trim();  /* data thiếu món/nhóm = Gemini điền lười -> dùng chữ chép lại thay vì ghi chú cụt */
     if(!t){toast("Không thấy chữ trong ảnh");return}
     var el=document.getElementById("in");
     el.value=el.value.trim()?el.value.replace(/\s+$/,"")+"\n"+t:t;
