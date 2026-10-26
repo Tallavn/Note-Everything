@@ -1379,7 +1379,6 @@ function noteCard(x,grouped){
   h+='<div class="nmain"><div class="txt'+(open?' open':'')+'">'+linkify(ml?stripAddr(x):x.text)+'</div>'+(x.note?'<div class="hint" style="margin:4px 0 0;white-space:pre-wrap;word-break:break-word">'+esc(x.note)+'</div>':'')+imgStrip(x)+'<div class="meta"><button class="tag cattag" data-pick="'+x.id+'" title="Bấm để chọn loại" style="background:var(--c-'+c.c+'-bg);color:var(--c-'+c.c+')">'+c.n+'</button>';
   if(ml){var ad=compactAddr(shortAddr(x)),lb=(has?'Mở bản đồ':'Tìm trên bản đồ')+(ad?': '+ad:'');h+='<a class="pin'+(has?'':' ghost')+'" data-pend="'+(has?'':x.id)+'" href="'+esc(ml.u)+'" target="_blank" rel="noopener noreferrer" aria-label="'+esc(lb)+'" title="'+esc(lb)+'">'+IC_PIN+(ad?'<span>'+esc(ad)+'</span>':'')+'</a>'}
   if(x.br&&x.br.length)h+='<button type="button" class="tag brchip" data-brt="'+x.id+'" aria-expanded="'+(brOpen!=null&&brOpen==x.id)+'" style="background:var(--c-other-bg);color:var(--c-other)">+'+x.br.length+' chi nhánh '+((brOpen!=null&&brOpen==x.id)?'▴':'▾')+'</button>';
-  if(tagHas(x.cat,"c"))h+=camBtn("card:"+x.id,"cam-chip");
   if(ml&&!has&&pending==x.id)h+='<button class="tag" data-paste="'+x.id+'" style="background:var(--c-other-bg);color:var(--c-other)">Dán link</button>';
   var di=dueInfo(x);if(di)h+='<span class="due '+di.cl+'" title="Hạn chót"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'+di.lb+'</span>';
   h+=priceTag(x);
