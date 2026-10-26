@@ -829,8 +829,8 @@ function tagSheetOpen(k,from){
       '#tagSheet .tgopt[aria-pressed="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--surface));color:var(--ink)}'+
       '#tagSheet .tgopt[aria-pressed="true"] .tgck{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}'+
       '#tagSheet .tgopt b{display:block;font-size:14px}#tagSheet .tgopt small{display:block;color:var(--muted);font-size:12px;font-weight:400;margin-top:1px}'+
-      '#tagSheet .tgcols{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}#tagSheet .tgcol{flex:none;width:26px;height:26px;min-width:0;min-height:0;border-radius:50%;border:2px solid transparent;padding:0;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1;font-weight:700;cursor:pointer}#tagSheet .tgcol[aria-pressed="true"]{outline:2px solid var(--ink);outline-offset:1px}#tagSheet .tgcol:not([aria-pressed="true"]) i{display:none}#tagSheet .tgdel{display:block;width:100%;margin-top:8px;border:1px solid var(--bad,#c0392b);border-radius:12px;padding:11px;font:inherit;font-weight:600;background:transparent;color:var(--bad,#c0392b)}'+
-      '#tagSheet .tgsave{display:block;width:100%;margin-top:14px;border:0;border-radius:12px;padding:12px;font:inherit;font-weight:700;background:var(--accent);color:var(--accent-ink)}';
+      '#tagSheet .tgcols{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}#tagSheet .tgcol{flex:none;width:26px;height:26px;min-width:0;min-height:0;border-radius:50%;border:2px solid transparent;padding:0;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1;font-weight:700;cursor:pointer}#tagSheet .tgcol[aria-pressed="true"]{outline:2px solid var(--ink);outline-offset:1px}#tagSheet .tgcol:not([aria-pressed="true"]) i{display:none}#tagSheet .tgacts{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}#tagSheet .tgdel{display:block;border:1px solid var(--bad,#c0392b);border-radius:10px;padding:7px 14px;font:inherit;font-size:13px;font-weight:600;background:transparent;color:var(--bad,#c0392b)}'+
+      '#tagSheet .tgsave{display:block;border:0;border-radius:10px;padding:7px 18px;font:inherit;font-size:13px;font-weight:700;background:var(--accent);color:var(--accent-ink)}';
     document.head.appendChild(sty);
     tagSh=document.createElement("div");tagSh.id="tagSheet";tagSh.className="sheet";tagSh.style.zIndex="65";tagSh.hidden=true;
     document.body.appendChild(tagSh);
@@ -862,12 +862,14 @@ function tagSheetOpen(k,from){
   if(!isBase)TAGOPT.forEach(function(o){
     h+='<button type="button" class="chip tgopt" data-tg="opt" data-o="'+o[0]+'" aria-pressed="'+(f.indexOf(o[0])>-1)+'"><span class="tgck">✓</span><span><b>'+o[1]+' '+o[2]+'</b><small>'+o[3]+'</small></span></button>';
   });
-  h+='<button type="button" class="tgsave" data-tg="save">'+(k?"Lưu tag":"Tạo tag")+'</button>';
+  h+='<div class="tgacts">';
   if(k&&k!=="other")h+='<button type="button" class="tgdel" data-tg="del">Xóa tag</button>';
+  h+='<button type="button" class="tgsave" data-tg="save">'+(k?"Lưu tag":"Tạo tag")+'</button></div>';
   h+='</div>';
   tagSh.innerHTML=h;
   tagSh.hidden=false;
-  setTimeout(function(){var n=document.getElementById("tgName");if(n&&!tagSh.hidden){n.focus();try{n.setSelectionRange(n.value.length,n.value.length)}catch(e){}}},30);
+  if(k){try{document.activeElement&&document.activeElement.blur()}catch(e){}}
+  else setTimeout(function(){var n=document.getElementById("tgName");if(n&&!tagSh.hidden){n.focus();try{n.setSelectionRange(n.value.length,n.value.length)}catch(e){}}},30);
 }
 function delTag(k){
   var st=tagStore();if(!st)return;
