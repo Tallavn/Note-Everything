@@ -554,7 +554,8 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 .camsheet{position:fixed;inset:0;z-index:300;display:flex;align-items:flex-end;justify-content:center}
 .camsheet .cs-bd{position:absolute;inset:0;background:rgba(0,0,0,.42)}
 .camsheet .cs-box{position:relative;width:min(420px,100%);box-sizing:border-box;padding:12px 12px calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;background:var(--surface);border-radius:16px 16px 0 0;box-shadow:0 -6px 30px rgba(0,0,0,.3)}
-.camsheet .cs-box button{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;padding:14px;font:inherit;font-size:15px;font-weight:600;text-align:left}
+.camsheet .cs-box button{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;padding:14px;font:inherit;font-size:15px;font-weight:400;text-align:left;display:flex;align-items:center;gap:10px}
+.camsheet .cs-i{display:inline-flex;flex:none;color:currentColor}.camsheet .cs-i svg{width:18px;height:18px;display:block}
 .camsheet .cs-box .cs-x{text-align:center;font-weight:500;color:var(--muted);background:transparent;border:0}
 .camlive{position:fixed;inset:0;z-index:310;background:#000;display:flex;flex-direction:column}
 .camlive video{flex:1;min-height:0;width:100%;object-fit:contain;background:#000}
@@ -1275,7 +1276,7 @@ function procPics(files){
   })}
 ["camIn","camCap"].forEach(function(id){document.getElementById(id).addEventListener("change",function(){procPics(Array.prototype.slice.call(this.files||[]))})});
 /* Menu chọn nguồn ảnh: chụp (camera ngay trong app, KHÔNG lưu ảnh vào thư viện máy) hoặc chọn ảnh có sẵn */
-function camMenu(){
+function camMenu(mode){
   if(document.querySelector(".camsheet"))return;
   var d=document.createElement("div");d.className="camsheet";
   d.innerHTML='<div class="cs-bd"></div><div class="cs-box" role="dialog" aria-label="Thêm ảnh"><button type="button" data-cs="shoot">📷 Chụp ảnh</button><button type="button" data-cs="pick">🖼️ Chọn ảnh trong máy</button><button type="button" class="cs-x" data-cs="cancel">Hủy</button></div>';
@@ -1283,13 +1284,20 @@ function camMenu(){
     var b=e.target.closest("[data-cs]");if(!b&&!(e.target.classList&&e.target.classList.contains("cs-bd")))return;
     e.stopPropagation();
     var a=b?b.dataset.cs:"cancel";d.remove();
-    if(a==="pick"){var i=document.getElementById("camIn");i.value="";i.click()}
-    else if(a==="shoot")camLive()});
+    var om=d.dataset.mode;
+    if(a==="pick"){var i=document.getElementById(om==="ocr"?"ocrIn":"camIn");if(om==="ocr")i.removeAttribute("capture");i.value="";i.click()}
+    else if(a==="shoot")camLive(om)});
+  var oc=mode==="ocr",IMG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M21 16l-5-5-8 9"/></svg>';
+  d.querySelector('[data-cs="shoot"]').innerHTML='<span class="cs-i">'+IC_CAM+'</span>'+(oc?"Chụp để quét chữ":"Chụp ảnh");
+  d.querySelector('[data-cs="pick"]').innerHTML='<span class="cs-i">'+IMG+'</span>'+(oc?"Chọn ảnh để quét chữ":"Chọn ảnh trong máy");
+  if(oc)d.querySelector(".cs-box").setAttribute("aria-label","Quét chữ từ ảnh");
+  d.dataset.mode=mode||"";
   document.body.appendChild(d)}
 var camStream=null,camFace="environment";
-function camLive(){
+function camLive(mode){
   if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)){
     /* không có camera trong trình duyệt (ví dụ trang không dùng https): dùng camera của máy, ảnh có thể được máy tự lưu */
+    if(mode==="ocr"){var oi=document.getElementById("ocrIn");oi.setAttribute("capture","environment");oi.value="";oi.click();return}
     var f=document.getElementById("camCap");f.value="";f.click();return}
   var d=document.createElement("div");d.className="camlive";
   d.innerHTML='<video playsinline muted autoplay></video><div class="cl-bar"><button type="button" data-cl="close">Hủy</button><button type="button" class="cl-shot" data-cl="shot" aria-label="Chụp"></button><button type="button" data-cl="flip" aria-label="Đổi camera">Đổi</button></div>';
@@ -1308,7 +1316,7 @@ function camLive(){
       if(!v.videoWidth)return;
       var c=document.createElement("canvas");c.width=v.videoWidth;c.height=v.videoHeight;
       c.getContext("2d").drawImage(v,0,0);
-      c.toBlob(function(bl){close();if(bl)procPics([bl]);else toast("Không chụp được ảnh")},"image/jpeg",.92)}});
+      c.toBlob(function(bl){close();if(bl){if(mode==="ocr")ocrRun(bl);else procPics([bl])}else toast("Không chụp được ảnh")},"image/jpeg",.92)}});
   open().catch(function(){close();toast("Không mở được camera. Hãy cho phép quyền camera hoặc chọn ảnh trong máy")})}
 /* ===================== QUÉT CHỮ TỪ ẢNH (Worker + Gemini) ===================== */
 var ocrBusy=false;
@@ -1327,7 +1335,7 @@ document.addEventListener("click",function(e){
   if(ocrBusy)return;
   if(!code){toast("Cần đặt mã đồng bộ trước khi quét chữ");return}
   if(/TEN-WORKER/.test(RESOLVE_URL)){toast("Chưa điền địa chỉ Worker trong file");return}
-  var inp=document.getElementById("ocrIn");inp.value="";inp.click()},true);
+  camMenu("ocr")},true);
 /* Worker trả về data có cấu trúc (khi hỗ trợ) -> xếp thành ghi chú có tầng: tên quán / địa chỉ / ngày giờ / món / tổng.
    Worker cũ chỉ trả text -> giữ nguyên như trước. Schema: {kind:"receipt"|"other", title, address, date, time, table,
    items:[{name,qty,amount}], total, sections:[{heading,lines[]}], lines[]} */
@@ -1348,8 +1356,9 @@ function ocrFmt(d){
   A(d.lines).map(S).filter(Boolean).forEach(function(l){o.push(l)});
   var tm=ocrMoney(d.total);if(tm)o.push("Tổng: "+tm+"đ");
   return o.join("\n")}
-document.getElementById("ocrIn").addEventListener("change",function(){
-  var f=this.files&&this.files[0];if(!f||ocrBusy)return;
+document.getElementById("ocrIn").addEventListener("change",function(){ocrRun(this.files&&this.files[0])});
+function ocrRun(f){
+  if(!f||ocrBusy)return;
   var btn=document.querySelector("[data-ocr]");
   ocrBusy=true;if(btn)btn.classList.add("busy");
   function done(){ocrBusy=false;if(btn)btn.classList.remove("busy")}
@@ -1371,7 +1380,7 @@ document.getElementById("ocrIn").addEventListener("change",function(){
   }).catch(function(e){
     var m=e&&e.message||"";
     toast(m&&!/Failed to fetch|NetworkError|Load failed/i.test(m)?m:"Không kết nối được máy chủ quét chữ")
-  }).then(done)});
+  }).then(done)}
 function noteCard(x,grouped){
   var c=CATS[x.cat]||CATS.other,open=swipedId==x.id,mem=tagHas(x.cat,"t"),done=mem&&!!x.done,ml=mapLink(x),has=x.link||MAPRE.test(x.text),ts=x.ts||0,h;
   h='<div class="swrap'+(open?' swiped':'')+'" data-id="'+x.id+'"><div class="swact"><button type="button" class="sw-edit" data-edit="'+x.id+'" aria-label="Sửa ghi chú">'+IC_EDIT+'<span>Sửa</span></button><button type="button" class="sw-del" data-del="'+x.id+'" aria-label="Xóa ghi chú">'+IC_DEL+'<span>Xóa</span></button></div>';
