@@ -466,8 +466,8 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .txw{margin-bottom:8px;border-radius:12px}
 .tgc{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin:12px 0 10px;overflow:hidden}.tgh{display:flex;align-items:center;gap:7px;font-size:12.6px;font-weight:700;padding:11px 14px 7px}.tgh i{width:8px;height:8px;border-radius:50%;background:currentColor;flex:none}.tgh b{margin-left:auto;font-weight:500;color:var(--muted)}
 .tgc .txw{margin-bottom:0;border-radius:0;background:var(--surface)}
-.tgc .tx.swcard,.tgc>.tx{border:0;border-radius:0;background:var(--surface)}.tgc>.tx{margin:0;border-top:1px solid var(--line)}.tgc .swrap~.swrap{border-top:1px solid color-mix(in srgb,var(--line) 55%,transparent)}
-.tgc .tgh+.swrap .tx.swcard,.tgc .tgh+.tx{border-top:0}.tgc .tgh+.swrap{border-top:0}.tgc .tgh{font-size:12px;padding:10px 14px 6px;background:none}.tgc .swrap+.tgh,.tgc .tx+.tgh{position:relative;margin-top:12px;padding-top:12px}.tgc .swrap+.tgh::before,.tgc .tx+.tgh::before{content:"";position:absolute;left:0;right:0;top:-12px;height:12px;background:var(--bg);border-top:1px solid var(--line);border-bottom:1px solid var(--line);box-sizing:border-box}.tgc .tgt{display:flex;align-items:center;justify-content:space-between;padding:11px 14px 8px;font-size:14.4px;font-weight:700}.tgc .tgt b{font-weight:700}
+.tgc .tx.swcard,.tgc>.tx{border:0;border-radius:0;background:var(--surface)}.tgc>.tx{margin:0;border-top:1px solid var(--line)}.tgc .swrap~.swrap{border-top:1px solid color-mix(in srgb,var(--line) 55%,transparent)}.tgc .tgg .tx.swcard{padding-left:11px}
+.tgc .tgh+.swrap .tx.swcard,.tgc .tgh+.tx{border-top:0}.tgc .tgh+.swrap{border-top:0}.tgc .tgh{font-size:12px;padding:2px 14px 6px 11px;background:none}.tgg{border-left:3px solid var(--line);margin:12px 0 6px 14px}.tgg>.tx{border:0;border-top:1px solid var(--line);border-radius:0;margin:0;background:var(--surface)}.tgc .tgt{display:flex;align-items:center;justify-content:space-between;padding:11px 14px 8px;font-size:14.4px;font-weight:700}.tgc .tgt b{font-weight:700}
 .tx.swcard{grid-template-columns:1fr auto;border-left:1px solid var(--line);padding-left:14px;margin-bottom:0}
 .cbtn{top:auto;bottom:12px;right:12px;width:38px;height:38px;background:var(--bg);color:var(--muted);border:1px solid var(--line)}
 .cbtn svg{width:20px;height:20px;display:block;margin:auto}
@@ -1805,13 +1805,13 @@ function renderTx(top,body){
       go.forEach(function(gk){gm[gk].forEach(function(x){gOf[x.id]=gk;tsum[x.t]+=x.amt;arr.push(x)})});
       arr.forEach(function(x){
         var xg=gOf[x.id];
-        if(x.t!==lastT){if(lastT!=="")h+='</div>';lastT=x.t;lastG="";h+='<div class="tgc">'+(both?'<div class="tgt '+(x.t==="in"?"good":"bad")+'"><span>'+(x.t==="in"?"Thu":"Chi")+'</span><b>'+(x.t==="in"?"+":"-")+money(tsum[x.t])+'</b></div>':'')}
-        if(xg!==lastG){lastG=xg;var gs=0,gn=0;gm[xg].forEach(function(y){gn++;gs+=y.amt});h+='<div class="tgh" style="color:'+catColor(x)+'"><i></i><span>'+esc(catName(x))+'</span><b>'+(gn>1?gn+' khoản · ':'')+(x.t==="in"?"+":"-")+money(gs)+'</b></div>'}
+        if(x.t!==lastT){if(lastT!=="")h+=(lastG!==""?'</div>':'')+'</div>';lastT=x.t;lastG="";h+='<div class="tgc">'+(both?'<div class="tgt '+(x.t==="in"?"good":"bad")+'"><span>'+(x.t==="in"?"Thu":"Chi")+'</span><b>'+(x.t==="in"?"+":"-")+money(tsum[x.t])+'</b></div>':'')}
+        if(xg!==lastG){if(lastG!=="")h+='</div>';lastG=xg;var gs=0,gn=0;gm[xg].forEach(function(y){gn++;gs+=y.amt});h+='<div class="tgg" style="border-left-color:'+catColor(x)+'"><div class="tgh" style="color:'+catColor(x)+'"><i></i><span>'+esc(catName(x))+'</span><b>'+(gn>1?gn+' khoản · ':'')+(x.t==="in"?"+":"-")+money(gs)+'</b></div>'}
         if(editing==x.id){h+='<div class="tx" style="display:block">'+editForm(x)+'</div>';return}
         var sw=swipedId==x.id;
         h+='<div class="swrap txw'+(sw?' swiped':'')+'" data-id="'+x.id+'"><div class="swact"><button type="button" class="sw-edit" data-edit="'+x.id+'" aria-label="Sửa giao dịch">'+IC_EDIT+'<span>Sửa</span></button><button type="button" class="sw-del" data-fdel="'+x.id+'" aria-label="Xóa giao dịch">'+IC_DEL+'<span>Xóa</span></button></div><div class="tx swcard" data-id="'+x.id+'" role="button" tabindex="0" aria-expanded="'+sw+'"><div><div class="tdesc">'+esc(x.desc||"")+'</div>'+(x.note?'<div class="hint" style="margin:2px 0;white-space:pre-wrap;word-break:break-word">'+esc(x.note)+'</div>':'')+imgStrip(x)+'</div><div class="tamt '+(x.t==="in"?"good":"bad")+'">'+(x.t==="in"?"+":"-")+money(x.amt)+'</div>'+'</div></div>';
       });
-      if(lastT!=="")h+='</div>';
+      if(lastT!=="")h+=(lastG!==""?'</div>':'')+'</div>';
     });
   }
   body.innerHTML=h;
