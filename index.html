@@ -1997,16 +1997,35 @@ function saveEdit(id){
 var RESOLVE_URL="https://maplink.locbh1223.workers.dev";
 var SHORTRE=/https?:\/\/(?:maps\.app\.goo\.gl|goo\.gl\/maps)\/[^\s]+/i,expBusy=false,expTried={};
 function shortOf(x){var m=((x.link||"")+" "+(x.text||"")).match(SHORTRE);return m?m[0].replace(/^http:/,"https:"):""}
+/* Gỡ link bọc kiểu consent.google.com/...?continue=<link thật> (Worker ở một số vùng bị Google đẩy qua trang đồng ý cookie) */
+function unwrapMaps(u){var s=u||"";for(var i=0;i<3;i++){var m=s.match(/[?&](?:continue|url|q)=(https?(?:%3A|:)[^&]+)/i);if(m&&/consent\.|[?&]continue=/i.test(s)){try{s=decodeURIComponent(m[1])}catch(e){break}}else break}return s}
+function coordsIn(u){var c=coords({link:u,text:""});if(c)return c;try{return coords({link:decodeURIComponent(u),text:""})}catch(e){return null}}
+var expMsgShown={};
+function expWarn(msg){if(expMsgShown[msg])return;expMsgShown[msg]=1;toast(msg)}
 function expandFill(){
   if(expBusy||!RESOLVE_URL||/TEN-WORKER/.test(RESOLVE_URL)||!navigator.onLine)return;
-  var n=vis().find(function(x){return !x.del&&!coords(x)&&shortOf(x)&&!expTried[x.id+"|"+shortOf(x)]});
+  var n=vis().find(function(x){return !x.del&&!coords(x)&&shortOf(x)&&(expTried[x.id+"|"+shortOf(x)]||0)<3});
   if(!n)return;
-  var sl=shortOf(n);expBusy=true;expTried[n.id+"|"+sl]=1;
-  fetch(RESOLVE_URL+"?u="+encodeURIComponent(sl)).then(function(r){return r.json()}).then(function(j){
-    if(!j||!j.url||n.del)return;
-    if(!coords({link:j.url,text:""}))return;
-    n.link=j.url;geoClear(n);delete geoTried2[n.id+":c"];n.upd=Date.now();save();sync();render();
-  }).catch(function(){}).then(function(){expBusy=false;setTimeout(expandFill,300)});
+  var sl=shortOf(n),key=n.id+"|"+sl,wait=300;expBusy=true;expTried[key]=(expTried[key]||0)+1;
+  fetch(RESOLVE_URL+"?u="+encodeURIComponent(sl),{cache:"no-store"}).then(function(r){
+    if(!r.ok){expTried[key]=3;throw new Error("Worker trả lỗi HTTP "+r.status+(r.status===404||r.status===1101?" (kiểm tra code Worker)":""))}
+    return r.text()}).then(function(t){
+    var j=null,u="";try{j=JSON.parse(t)}catch(e){}
+    if(j&&typeof j==="object")u=j.url||j.location||j.final||j.resolved||j.link||j.href||"";
+    else if(/^https?:\/\//i.test((t||"").trim()))u=t.trim();
+    if(!u){expTried[key]=3;throw new Error("Worker không trả về trường url"+(j&&j.error?": "+j.error:""))}
+    if(n.del)return;
+    u=unwrapMaps(u);
+    if(SHORTRE.test(u)&&!coordsIn(u)){throw new Error("Worker trả lại đúng link rút gọn (chưa theo redirect)")}
+    if(!coordsIn(u)){expTried[key]=3;throw new Error("Link bung ra không có toạ độ: "+u.replace(/^https?:\/\//,"").slice(0,60))}
+    n.link=u;geoClear(n);delete geoTried2[n.id+":c"];n.upd=Date.now();save();sync();render();
+  }).catch(function(e){
+    wait=2500;
+    var m=(e&&e.message)||"";
+    if(/Failed to fetch|NetworkError|Load failed/i.test(m))m="Không gọi được Worker (sai địa chỉ hoặc thiếu CORS: Access-Control-Allow-Origin)";
+    else if(/JSON/i.test(m))m="Worker trả về dữ liệu không đọc được";
+    if((expTried[key]||0)>=3||m.indexOf("Worker")===0||m.indexOf("Link bung")===0)expWarn("Không bung được link rút gọn. "+m);
+  }).then(function(){expBusy=false;setTimeout(expandFill,wait)});
 }
 var geoBusy=false,geoTried2={};
 try{geoTried2=JSON.parse(localStorage.getItem("geotried2")||"{}")}catch(e){}
