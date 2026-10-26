@@ -1051,8 +1051,8 @@ function getGps(cb){
     function(er){done(null,er&&er.code===1?"Chưa cho phép vị trí. Hãy bật quyền vị trí cho trình duyệt (và đóng bong bóng nổi nếu hộp xin quyền bị che)":"Không lấy được vị trí, thử lại chỗ thoáng hơn")},
     {enableHighAccuracy:true,timeout:15000,maximumAge:10000});
 }
-/* rút gọn địa chỉ để thẻ không bị dài: bỏ "- HN", bỏ chữ Đường/Phố đứng đầu */
-function compactAddr(a){return(a||"").replace(/\s*-\s*HN\s*$/,"").replace(/(^|,\s*|\d+[A-Za-z]?\s+)(Đường|Phố)\s+/gi,"$1").trim()}
+/* rút gọn địa chỉ: đổi đuôi " - HN" thành ", HN" (kết thúc bằng thành phố), bỏ chữ Đường/Phố đứng đầu */
+function compactAddr(a){return(a||"").replace(/\s+-\s+([^-,]+)\s*$/,", $1").replace(/(^|,\s*|\d+[A-Za-z]?\s+)(Đường|Phố)\s+/gi,"$1").trim()}
 function brCoords(b){return b&&b.link?coords({link:b.link,text:""}):null}
 function brUrl(x,b){
   if(b.link)return b.link;
