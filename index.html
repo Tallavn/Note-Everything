@@ -1204,6 +1204,26 @@ document.addEventListener("click",function(e){
   if(!code){toast("Cần đặt mã đồng bộ trước khi quét chữ");return}
   if(/TEN-WORKER/.test(RESOLVE_URL)){toast("Chưa điền địa chỉ Worker trong file");return}
   var inp=document.getElementById("ocrIn");inp.value="";inp.click()},true);
+/* Worker trả về data có cấu trúc (khi hỗ trợ) -> xếp thành ghi chú có tầng: tên quán / địa chỉ / ngày giờ / món / tổng.
+   Worker cũ chỉ trả text -> giữ nguyên như trước. Schema: {kind:"receipt"|"other", title, address, date, time, table,
+   items:[{name,qty,amount}], total, sections:[{heading,lines[]}], lines[]} */
+function ocrMoney(v){var n=typeof v==="number"?v:parseInt(String(v==null?"":v).replace(/\D/g,""),10);return isFinite(n)&&n>0?String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,"."):""}
+function ocrFmt(d){
+  if(!d||typeof d!=="object")return"";
+  function S(v){return v==null?"":String(v).replace(/\s+/g," ").trim()}
+  function A(v){return Array.isArray(v)?v:[]}
+  var o=[],t=S(d.title),ad=S(d.address),meta=[S(d.date),S(d.time),S(d.table)].filter(Boolean).join(" · ");
+  if(t)o.push(t);if(ad)o.push(ad);if(meta)o.push(meta);
+  A(d.items).forEach(function(it){if(!it||typeof it!=="object")return;
+    var nm=S(it.name);if(!nm)return;
+    var q=+it.qty>1?(+it.qty)+"× ":"",m=ocrMoney(it.amount);
+    o.push("• "+q+nm+(m?" — "+m:""))});
+  A(d.sections).forEach(function(sc){if(!sc||typeof sc!=="object")return;
+    var h=S(sc.heading),ls=A(sc.lines).map(S).filter(Boolean);
+    if(h)o.push(h);ls.forEach(function(l){o.push("• "+l)})});
+  A(d.lines).map(S).filter(Boolean).forEach(function(l){o.push(l)});
+  var tm=ocrMoney(d.total);if(tm)o.push("Tổng: "+tm+"đ");
+  return o.join("\n")}
 document.getElementById("ocrIn").addEventListener("change",function(){
   var f=this.files&&this.files[0];if(!f||ocrBusy)return;
   var btn=document.querySelector("[data-ocr]");
@@ -1211,12 +1231,12 @@ document.getElementById("ocrIn").addEventListener("change",function(){
   function done(){ocrBusy=false;if(btn)btn.classList.remove("busy")}
   ocrPrep(f).then(function(b64){
     if(!b64)throw new Error("Không đọc được ảnh");
-    return fetch(RESOLVE_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code:code,image:b64,mime:"image/jpeg"})})
+    return fetch(RESOLVE_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code:code,image:b64,mime:"image/jpeg",structured:true})})
   }).then(function(r){
     return r.json().catch(function(){return{error:"Máy chủ trả về dữ liệu lạ"}}).then(function(j){return{ok:r.ok,j:j}})
   }).then(function(o){
     if(!o.ok||o.j.error)throw new Error(o.j.error||"Quét không được");
-    var t=String(o.j.text||"").trim();
+    var t=(o.j.data?ocrFmt(o.j.data):"")||String(o.j.text||"").trim();
     if(!t){toast("Không thấy chữ trong ảnh");return}
     var el=document.getElementById("in");
     el.value=el.value.trim()?el.value.replace(/\s+$/,"")+"\n"+t:t;
