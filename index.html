@@ -469,6 +469,13 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .tgc .tx.swcard,.tgc>.tx{border:0;border-radius:0;background:var(--surface)}.tgc>.tx{margin:0;border-top:1px solid var(--line)}.tgc .swrap~.swrap{border-top:1px solid color-mix(in srgb,var(--line) 55%,transparent)}.tgc .tgg .tx.swcard{padding-left:11px}
 .tgc .tgh+.swrap .tx.swcard,.tgc .tgh+.tx{border-top:0}.tgc .tgh+.swrap{border-top:0}.tgc .tgh{font-size:12px;padding:2px 14px 6px 11px;background:none}.tgg{position:relative;border-left:0;margin:12px 0 6px 14px}.tgg::before{content:"";position:absolute;left:0;top:11px;height:calc((100% - 20px)*.8);z-index:2;pointer-events:none;width:2px;border-radius:2px;background:var(--gc,var(--line))}.tgg>.tx{border:0;border-top:1px solid var(--line);border-radius:0;margin:0;background:var(--surface)}.tgc .tgt{display:flex;align-items:center;justify-content:space-between;padding:11px 14px 8px;font-size:14.4px;font-weight:700}.tgc .tgt b{font-weight:700}
 .tx.swcard{grid-template-columns:1fr auto;border-left:1px solid var(--line);padding-left:14px;margin-bottom:0}
+.dh.dhx{margin:22px 2px 8px}.dh.dhx span:first-child,.dh.dhx span:last-child{font-size:16px;font-weight:500;color:var(--ink)}
+.dstrip{display:flex;gap:2px;height:3px;margin:0 2px 10px;border-radius:2px;overflow:hidden}.dstrip i{display:block;min-width:4px}.dstrip+.tgc{margin-top:0}
+.tgc .tgg{margin:0}.tgc .tgg::before{display:none}.tgc .tgg{position:relative;padding-left:96px}.tgc .tgg+.tgg{border-top:1px solid var(--line)}
+.tgc .tgh{position:absolute;left:0;top:0;width:96px;box-sizing:border-box;display:flex;align-items:flex-start;gap:6px;padding:13px 6px 0 14px;font-size:12px;font-weight:500;line-height:1.3;color:var(--gc);background:none}.tgc .tgh .ci{margin:0}.tgc .tgh i{background:var(--gc);margin-right:7px}.tgc .tgh b{font-size:12px;font-weight:400;color:var(--muted)}
+.tgc .tgg .tx.swcard{border-left:0;padding:11px 14px}.tgc .tgg:not(.one) .swrap~.swrap{border-top:0}.tgc .tgg:not(.one) .swrap~.swrap::before{content:"";position:absolute;left:0;right:0;top:0;height:1px;z-index:2;pointer-events:none;background:color-mix(in srgb,var(--line) 60%,transparent)}
+.tgc .tdesc{font-size:15px;font-weight:500;color:var(--ink)}.tgc .tamt{font-size:15px;font-weight:500}.tgc .tamt.bad{color:var(--ink)}
+.tsl{display:flex;align-items:flex-start}.ci{width:16px;height:16px;flex:none;color:var(--gc);margin-right:6px}.tsl .ci{margin-top:3px}.tcat{font-size:12px;color:var(--muted)}
 .cbtn{top:auto;bottom:12px;right:12px;width:38px;height:38px;background:var(--bg);color:var(--muted);border:1px solid var(--line)}
 .cbtn svg{width:20px;height:20px;display:block;margin:auto}
 .cbtn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
@@ -1635,6 +1642,17 @@ function guessCat(desc,inc){
 function catIdx(x){var l=x.t==="in"?INC:OUT,i;for(i=0;i<l.length;i++)if(l[i].k===x.cat)return i;return l.length-1}
 function catName(x){return(x.t==="in"?INC:OUT)[catIdx(x)].n}
 function catColor(x){return x.t==="in"?"var(--good)":"var(--k"+catIdx(x)+")"}
+var ICO={an:'<path d="M7 3v8M4 3v5a3 3 0 0 0 6 0V3M7 11v10"/><path d="M17 21V3c-2.5 1.5-4 4.5-4 8h4"/>',
+di:'<path d="M3 17v-4l2-6h14l2 6v4z"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/>',
+sam:'<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M3 4h2l2.5 11h11L21 7H6"/>',
+hd:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',
+gt:'<rect x="3" y="7" width="18" height="11" rx="4"/><path d="M8 10v5M5.5 12.5h5M15.5 11.5h.01M17.5 13.5h.01"/>',
+sk:'<path d="M12 20s-8-5-8-11a4.5 4.5 0 0 1 8-2.5A4.5 4.5 0 0 1 20 9c0 6-8 11-8 11z"/>',
+khac:'<path d="M5 12h.01M12 12h.01M19 12h.01"/>',
+luong:'<path d="M4 7h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M4 7l12-3v3M16 13.5h.01"/>',
+thuong:'<rect x="3" y="8" width="18" height="4"/><path d="M12 8v13M5 12v9h14v-9M12 8c-2-4-6-3-5 0zM12 8c2-4 6-3 5 0z"/>',
+thukhac:'<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>'};
+function catIco(x){var l=x.t==="in"?INC:OUT,k=l[catIdx(x)].k;return '<svg class="ci" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(ICO[k]||ICO.khac)+'</svg>'}
 function monthSum(y,m){var key=mkey(y,m),r={"in":0,"out":0};fins().forEach(function(x){if(x.k==="tx"&&x.day&&x.day.indexOf(key)===0)r[x.t]+=x.amt});return r}
 function balance(){var b=0,o=0;fins().forEach(function(x){if(x.k==="open"){o=x.amt;b+=x.amt}else if(x.k==="tx")b+=x.t==="in"?x.amt:-x.amt;else if(x.k==="debt"){var rm=Math.max(0,x.amt-(x.paid||0));b+=x.dir==="owe"?rm:-rm}});return{b:b,o:o}}
 function touch(){save();renderFin();sync()}
@@ -1799,20 +1817,21 @@ function renderTx(top,body){
     Object.keys(g).sort().reverse().forEach(function(day){
       var arr=g[day].sort(function(a,b){return b.ts-a.ts}),ds=0;
       arr.forEach(function(x){if(x.t==="out")ds+=x.amt});
-      h+='<div class="dh"><span>'+dayLabel(day)+'</span><span>'+(ds?"Chi "+money(ds):"")+'</span></div>';
+      h+='<div class="dh dhx"><span>'+dayLabel(day)+'</span><span>'+(ds?money(ds):"")+'</span></div>';
       var gm={},go=[];
       arr.forEach(function(x){var gk=x.t+":"+x.cat;if(!gm[gk]){gm[gk]=[];go.push(gk)}gm[gk].push(x)});
       go.sort(function(a,b){return(a.charAt(0)==="o"?0:1)-(b.charAt(0)==="o"?0:1)});
+      if(ds){var sg=go.filter(function(k){return k.charAt(0)==="o"});if(sg.length>1)h+='<div class="dstrip">'+sg.map(function(k){var sv=0;gm[k].forEach(function(y){sv+=y.amt});return '<i style="flex:'+sv+';background:'+catColor(gm[k][0])+'"></i>'}).join("")+'</div>'}
       var both=go.some(function(k){return k.charAt(0)==="i"})&&go.some(function(k){return k.charAt(0)==="o"}),tsum={out:0,"in":0};
       arr=[];var lastG="",lastT="",gOf={};
       go.forEach(function(gk){gm[gk].forEach(function(x){gOf[x.id]=gk;tsum[x.t]+=x.amt;arr.push(x)})});
       arr.forEach(function(x){
         var xg=gOf[x.id];
         if(x.t!==lastT){if(lastT!=="")h+=(lastG!==""?'</div>':'')+'</div>';lastT=x.t;lastG="";h+='<div class="tgc">'+(both?'<div class="tgt '+(x.t==="in"?"good":"bad")+'"><span>'+(x.t==="in"?"Thu":"Chi")+'</span><b>'+(x.t==="in"?"+":"-")+money(tsum[x.t])+'</b></div>':'')}
-        if(xg!==lastG){if(lastG!=="")h+='</div>';lastG=xg;var gs=0,gn=0;gm[xg].forEach(function(y){gn++;gs+=y.amt});h+='<div class="tgg" style="--gc:'+catColor(x)+'"><div class="tgh" style="color:'+catColor(x)+'"><i></i><span>'+esc(catName(x))+'</span>'+(showSum?'<b>'+(gn>1?gn+' khoản · ':'')+(x.t==="in"?"+":"-")+money(gs)+'</b>':'')+'</div>'}
+        if(xg!==lastG){if(lastG!=="")h+='</div>';lastG=xg;var gs=0,gn=0;gm[xg].forEach(function(y){gn++;gs+=y.amt});h+='<div class="tgg" style="--gc:'+catColor(x)+'"><div class="tgh">'+catIco(x)+'<span>'+esc(catName(x))+'</span></div>'}
         if(editing==x.id){h+='<div class="tx" style="display:block">'+editForm(x)+'</div>';return}
-        var sw=swipedId==x.id;
-        h+='<div class="swrap txw'+(sw?' swiped':'')+'" data-id="'+x.id+'"><div class="swact"><button type="button" class="sw-edit" data-edit="'+x.id+'" aria-label="Sửa giao dịch">'+IC_EDIT+'<span>Sửa</span></button><button type="button" class="sw-del" data-fdel="'+x.id+'" aria-label="Xóa giao dịch">'+IC_DEL+'<span>Xóa</span></button></div><div class="tx swcard" data-id="'+x.id+'" role="button" tabindex="0" aria-expanded="'+sw+'"><div><div class="tdesc">'+esc(x.desc||"")+'</div>'+(x.note?'<div class="hint" style="margin:2px 0;white-space:pre-wrap;word-break:break-word">'+esc(x.note)+'</div>':'')+imgStrip(x)+'</div><div class="tamt '+(x.t==="in"?"good":"bad")+'">'+(x.t==="in"?"+":"-")+money(x.amt)+'</div>'+'</div></div>';
+        var sw=swipedId==x.id,one=false;
+        h+='<div class="swrap txw'+(sw?' swiped':'')+'" data-id="'+x.id+'"><div class="swact"><button type="button" class="sw-edit" data-edit="'+x.id+'" aria-label="Sửa giao dịch">'+IC_EDIT+'<span>Sửa</span></button><button type="button" class="sw-del" data-fdel="'+x.id+'" aria-label="Xóa giao dịch">'+IC_DEL+'<span>Xóa</span></button></div><div class="tx swcard" data-id="'+x.id+'" role="button" tabindex="0" aria-expanded="'+sw+'"><div>'+(one?'<div class="tsl">'+catIco(x)+'<div><div class="tdesc">'+esc(x.desc||"")+'</div><div class="tcat">'+esc(catName(x))+'</div></div></div>':'<div class="tdesc">'+esc(x.desc||"")+'</div>')+(x.note?'<div class="hint" style="margin:2px 0;white-space:pre-wrap;word-break:break-word">'+esc(x.note)+'</div>':'')+imgStrip(x)+'</div><div class="tamt '+(x.t==="in"?"good":"bad")+'">'+(x.t==="in"?"+":"")+money(x.amt)+'</div>'+'</div></div>';
       });
       if(lastT!=="")h+=(lastG!==""?'</div>':'')+'</div>';
     });
