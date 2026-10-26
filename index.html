@@ -675,12 +675,18 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
     Nút 📷 (data-cam) có ở: ô nhập ghi chú (ctx "in"), form thêm Chi tiêu/Nợ ("fin"), form Sửa mọi loại ("edit").
     Riêng thẻ tag Quán ăn (cat===\"food\") còn có nút 📷 ngay trên thẻ (ctx "card:ID"). Tag khác chỉ hiện nút ở ô nhập/Sửa.
     Ảnh đã gắn hiện ở mọi thẻ qua imgStrip(x); bấm ảnh mở lightbox (handler capture ở khối "ẢNH").
+ 4c) TÍNH NĂNG THEO TAG: tagHas(cat,"l"|"c"|"t"|"d") = Địa điểm / Camera / Tick / Hạn chót. Tag gốc cố định trong BASEF (food=lc, mem=t, todo=d);
+    tag tự tạo lưu st.list[i].f (chuỗi chữ cái, tạo/sửa trong tagSheetOpen). KHÔNG so sánh cat==="food"/"mem"/"todo" để bật tính năng nữa, dùng tagHas.
  5) Sau mỗi lần sửa: tách <script> chạy `node --check` để bắt lỗi cú pháp (file 1 khối, rất dễ vỡ).
 ========================================================================================== */
 var CATS={food:{n:"Quán ăn",c:"food"},mem:{n:"Cần nhớ",c:"mem"},idea:{n:"Ý tưởng",c:"idea"},todo:{n:"Việc cần làm",c:"todo"},other:{n:"Khác",c:"other"}};
 var KEYS=Object.keys(CATS),BASE=Object.assign({},CATS),PAL=["food","mem","idea","todo"];
+/* Tính năng theo tag: l=Địa điểm (bản đồ, vị trí, chi nhánh), c=Camera (nút chụp trên thẻ), t=Tick (đã xong), d=Hạn chót.
+   Tag gốc cố định (BASEF); tag tự tạo lưu ở st.list[i].f (chuỗi chữ cái). Mọi chỗ cần biết tag có tính năng gì: tagHas(cat,"l"|"c"|"t"|"d"). */
+var BASEF={food:"lc",mem:"t",todo:"d"},FEAT=Object.assign({},BASEF);
+function tagHas(k,f){return(FEAT[k]||"").indexOf(f)>-1}
 function tagStore(){return notes.find(function(x){return x.k==="ctags"&&x.fin})}
-function applyCustom(){CATS=Object.assign({},BASE);var st=tagStore();((st&&!st.del&&st.list)||[]).forEach(function(t,i){CATS[t.k]={n:t.n,c:PAL[i%PAL.length]}});var rn=(st&&!st.del&&st.ren)||{};Object.keys(rn).forEach(function(k){if(CATS[k]&&BASE[k])CATS[k]={n:rn[k],c:CATS[k].c}});KEYS=Object.keys(CATS);var od=(st&&!st.del&&st.order)||[];if(od.length){var seen={},nk=[];od.forEach(function(k){if(CATS[k]&&!seen[k]){seen[k]=1;nk.push(k)}});KEYS.forEach(function(k){if(!seen[k])nk.push(k)});KEYS=nk}}
+function applyCustom(){CATS=Object.assign({},BASE);FEAT=Object.assign({},BASEF);var st=tagStore();((st&&!st.del&&st.list)||[]).forEach(function(t,i){CATS[t.k]={n:t.n,c:PAL[i%PAL.length]};FEAT[t.k]=t.f||""});var rn=(st&&!st.del&&st.ren)||{};Object.keys(rn).forEach(function(k){if(CATS[k]&&BASE[k])CATS[k]={n:rn[k],c:CATS[k].c}});KEYS=Object.keys(CATS);var od=(st&&!st.del&&st.order)||[];if(od.length){var seen={},nk=[];od.forEach(function(k){if(CATS[k]&&!seen[k]){seen[k]=1;nk.push(k)}});KEYS.forEach(function(k){if(!seen[k])nk.push(k)});KEYS=nk}}
 function setGroupOrder(vk){
   var o=KEYS.slice(),slots=[];
   o.forEach(function(k,i){if(vk.indexOf(k)>-1)slots.push(i)});
@@ -754,15 +760,89 @@ function setGroupOrder(vk){
   document.addEventListener("pointercancel",function(){if(drag)stop();else{clearTimeout(tm);tm=null}});
   L.addEventListener("contextmenu",function(e){if(e.target.closest&&e.target.closest(".cgrp"))e.preventDefault()});
 })();
-function addTag(name){
-  name=(name||"").trim().slice(0,20);if(!name)return;
+function addTag(name,f){
+  name=(name||"").trim().slice(0,20);if(!name)return"";
   var low=name.toLowerCase(),dup=Object.keys(CATS).some(function(k){return CATS[k].n.toLowerCase()===low});
-  if(dup){alert("Tag này đã có rồi.");return}
-  var st=tagStore(),now=Date.now();
+  if(dup){alert("Tag này đã có rồi.");return""}
+  var st=tagStore(),now=Date.now(),nk="c"+now;
   if(!st){st={id:2,fin:1,k:"ctags",list:[],ts:now,upd:now};notes.push(st)}
-  st.list=(st.list||[]).concat([{k:"c"+now,n:name}]);st.upd=now;
+  st.list=(st.list||[]).concat([{k:nk,n:name,f:f||""}]);st.upd=now;
   save();render();sync();
-  var f=document.getElementById("filters");f.scrollLeft=f.scrollWidth;
+  var fl=document.getElementById("filters");fl.scrollLeft=fl.scrollWidth;
+  return nk;
+}
+function editTag(k,name,f){
+  var st=tagStore();if(!st)return"";
+  var it=(st.list||[]).find(function(t){return t.k===k});if(!it)return"";
+  name=(name||"").trim().slice(0,20);if(!name)return"";
+  var low=name.toLowerCase(),dup=Object.keys(CATS).some(function(o){return o!==k&&CATS[o].n.toLowerCase()===low});
+  if(dup){alert("Tag này đã có rồi.");return""}
+  var sn=snapOf([st]),now=Date.now();
+  it.n=name;it.f=f||"";st.upd=now;save();render();sync();setUndo("Đã sửa tag",sn);return k;
+}
+/* Hộp tạo / sửa tag: tên + tùy chọn tính năng. Dùng class "sheet" nên vuốt đổi tab tự bị chặn khi đang mở. */
+var TAGOPT=[["l","📍","Địa điểm","Nút bản đồ, lưu vị trí, chi nhánh"],["c","📷","Camera","Nút chụp ảnh ngay trên thẻ"],["t","✓","Tick","Ô tick đánh dấu đã xong"],["d","⏰","Hạn chót","Chọn ngày giờ hạn cho ghi chú"]],tagSh=null,tagCtx=null;
+function tagSheetClose(refocus){
+  if(!tagSh||tagSh.hidden)return;
+  tagSh.hidden=true;
+  try{document.activeElement&&document.activeElement.blur()}catch(e){}
+  var c=tagCtx;tagCtx=null;
+  if(refocus!==false&&c){
+    if(c.from==="in"){var ie=document.getElementById("in");if(ie)try{ie.focus()}catch(e){}}
+    else if(c.from==="edit")focusEdit();
+  }
+}
+function tagSheetSave(){
+  var nm=document.getElementById("tgName"),v=nm.value.trim();if(!v){nm.focus();return}
+  var f=TAGOPT.filter(function(o){var b=tagSh.querySelector('[data-o="'+o[0]+'"]');return b&&b.getAttribute("aria-pressed")==="true"}).map(function(o){return o[0]}).join("");
+  var c=tagCtx,k=c.k?editTag(c.k,v,f):addTag(v,f);
+  if(!k)return;
+  tagSheetClose(false);
+  if(c.k)return;
+  if(c.from==="in"){inCat=k;inOpen=false;renderInTags();var ie=document.getElementById("in");if(ie)try{ie.focus()}catch(e){}}
+  else if(c.from==="edit"){editCat=k;render();focusEdit()}
+  else if(c.from.indexOf("card:")===0){var n=notes.find(function(x){return x.id==c.from.slice(5)});if(n){n.cat=k;n.upd=Date.now();openId=null;save();render();sync()}}
+}
+function tagSheetOpen(k,from){
+  if(k&&!CATS[k])return;
+  if(from==="edit"){var ef=document.querySelector("[data-ef]");if(ef)editVal=ef.value}   /* giữ chữ đang gõ dở khi form Sửa vẽ lại */
+  tagCtx={k:k||"",from:from||""};
+  var f=k?(FEAT[k]||""):"";
+  if(!tagSh){
+    var sty=document.createElement("style");
+    sty.textContent='#tagSheet .fin-in{margin-inline:0;width:100%;box-sizing:border-box}#tagSheet .tgopt{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border-radius:12px;padding:10px 12px;margin-top:8px}'+
+      '#tagSheet .tgck{flex:none;width:22px;height:22px;border:2px solid var(--line);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;color:transparent}'+
+      '#tagSheet .tgopt[aria-pressed="true"]{border-color:var(--accent)}'+
+      '#tagSheet .tgopt[aria-pressed="true"] .tgck{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}'+
+      '#tagSheet .tgopt b{display:block;font-size:14px}#tagSheet .tgopt small{display:block;color:var(--muted);font-size:12px;font-weight:400;margin-top:1px}'+
+      '#tagSheet .tgsave{display:block;width:100%;margin-top:14px;border:0;border-radius:12px;padding:12px;font:inherit;font-weight:700;background:var(--accent);color:var(--accent-ink)}';
+    document.head.appendChild(sty);
+    tagSh=document.createElement("div");tagSh.id="tagSheet";tagSh.className="sheet";tagSh.style.zIndex="65";tagSh.hidden=true;
+    document.body.appendChild(tagSh);
+    tagSh.addEventListener("mousedown",function(e){if(e.target===tagSh)tagSheetClose()});
+    tagSh.addEventListener("click",function(e){
+      var b=e.target.closest("button");if(!b||!b.dataset.tg)return;
+      e.stopPropagation();
+      var a=b.dataset.tg;
+      if(a==="close")tagSheetClose();
+      else if(a==="opt")b.setAttribute("aria-pressed",b.getAttribute("aria-pressed")==="true"?"false":"true");
+      else if(a==="save")tagSheetSave();
+    });
+    tagSh.addEventListener("keydown",function(e){
+      if(e.key==="Enter"&&e.target.id==="tgName"){e.preventDefault();tagSheetSave()}
+      else if(e.key==="Escape"){e.preventDefault();tagSheetClose()}
+    });
+  }
+  var h='<div class="box"><div class="shead"><b>'+(k?"Sửa tag":"Tạo tag mới")+'</b><button type="button" class="x" data-tg="close" aria-label="Đóng">×</button></div>'+
+    '<input id="tgName" class="fin-in" type="text" maxlength="20" autocomplete="off" enterkeyhint="done" aria-label="Tên tag" placeholder="Tên tag (tối đa 20 ký tự)" value="'+esc(k?CATS[k].n:"")+'">'+
+    '<div class="hint nh" style="margin-top:8px">Tag này có những gì?</div>';
+  TAGOPT.forEach(function(o){
+    h+='<button type="button" class="chip tgopt" data-tg="opt" data-o="'+o[0]+'" aria-pressed="'+(f.indexOf(o[0])>-1)+'"><span class="tgck">✓</span><span><b>'+o[1]+' '+o[2]+'</b><small>'+o[3]+'</small></span></button>';
+  });
+  h+='<button type="button" class="tgsave" data-tg="save">'+(k?"Lưu tag":"Tạo tag")+'</button></div>';
+  tagSh.innerHTML=h;
+  tagSh.hidden=false;
+  setTimeout(function(){var n=document.getElementById("tgName");if(n&&!tagSh.hidden){n.focus();try{n.setSelectionRange(n.value.length,n.value.length)}catch(e){}}},30);
 }
 function delTag(k){
   var st=tagStore();if(!st)return;
@@ -797,9 +877,9 @@ todo:["mua ","goi ","nhan ","gui ","dong ","nop ","dat ","hen ","hop ","deadline
 var AREAS={"hai ba trung":"Hai Bà Trưng","hoan kiem":"Hoàn Kiếm","dong da":"Đống Đa","ba dinh":"Ba Đình","cau giay":"Cầu Giấy","thanh xuan":"Thanh Xuân","hoang mai":"Hoàng Mai","tay ho":"Tây Hồ","long bien":"Long Biên","ha dong":"Hà Đông","nam tu liem":"Nam Từ Liêm","bac tu liem":"Bắc Từ Liêm","pho co":"Phố Cổ","trung kinh":"Trung Kính","trung hoa":"Trung Hòa","dich vong":"Dịch Vọng","yen hoa":"Yên Hòa","nghia tan":"Nghĩa Tân","mai dich":"Mai Dịch","quan hoa":"Quan Hoa","nhan chinh":"Nhân Chính","khuong dinh":"Khương Đình","khuong trung":"Khương Trung","me tri":"Mễ Trì","lang thuong":"Láng Thượng","cat linh":"Cát Linh","nga tu so":"Ngã Tư Sở","kim lien":"Kim Liên","thuong dinh":"Thượng Đình","tu liem":"Từ Liêm","hoang quoc viet":"Hoàng Quốc Việt","linh dam":"Linh Đàm","times city":"Times City","royal city":"Royal City","van phuc":"Vạn Phúc","nguyen trai":"Nguyễn Trãi","kim ma":"Kim Mã","giang vo":"Giảng Võ","tay son":"Tây Sơn","xuan thuy":"Xuân Thủy","son tay":"Sơn Tây","ba vi":"Ba Vì","phuc tho":"Phúc Thọ","dan phuong":"Đan Phượng","hoai duc":"Hoài Đức","quoc oai":"Quốc Oai","thach that":"Thạch Thất","chuong my":"Chương Mỹ","thanh oai":"Thanh Oai","thuong tin":"Thường Tín","phu xuyen":"Phú Xuyên","ung hoa":"Ứng Hòa","my duc":"Mỹ Đức","me linh":"Mê Linh","soc son":"Sóc Sơn","dong anh":"Đông Anh","gia lam":"Gia Lâm","thanh tri":"Thanh Trì","trung ha":"Trung Hà","my dinh":"Mỹ Đình","nghia do":"Nghĩa Đô","lang ha":"Láng Hạ","binh thanh":"Bình Thạnh","phu nhuan":"Phú Nhuận","tan binh":"Tân Bình","go vap":"Gò Vấp","thu duc":"Thủ Đức","tan phu":"Tân Phú","binh tan":"Bình Tân","quan 1":"Quận 1","quan 2":"Quận 2","quan 3":"Quận 3","quan 4":"Quận 4","quan 5":"Quận 5","quan 6":"Quận 6","quan 7":"Quận 7","quan 8":"Quận 8","quan 10":"Quận 10","quan 11":"Quận 11","quan 12":"Quận 12"};
 var notes=[],filter="all",query="",DB="https://note-everything-65971-default-rtdb.asia-southeast1.firebasedatabase.app",code="",busy=false,again=false;
 function vis(){return notes.filter(function(x){return !x.del&&!x.fin})}
-function isDone(x){return x.cat==="mem"&&!!x.done}
+function isDone(x){return tagHas(x.cat,"t")&&!!x.done}
 function dueInfo(x){
-  if(x.cat!=="todo"||!x.due)return null;
+  if(!tagHas(x.cat,"d")||!x.due)return null;
   var d=new Date(x.due);if(isNaN(d.getTime()))return null;
   var now=Date.now(),dd=Math.round((dayStart(d.getTime())-dayStart(now))/86400000),tm=p2(d.getHours())+":"+p2(d.getMinutes()),lb,cl="";
   if(d.getTime()<now){cl="late";lb=dd===0?"Quá hạn "+tm:"Quá hạn "+(-dd)+" ngày"}
@@ -828,12 +908,12 @@ function mapLink(x){
   var m=x.text.match(/https?:\/\/(www\.)?(google\.[a-z.]+\/maps|maps\.app\.goo\.gl|goo\.gl\/maps)[^\s]*/i);
   if(x.link)return{u:x.link,l:"Mở bản đồ"};
   if(m)return{u:m[0],l:"Mở bản đồ"};
-  if(x.cat==="food"||x.area)return{u:"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(x.text.slice(0,120)+" "+(x.area||"")+" Hà Nội"),l:"Tìm trên bản đồ"};
+  if(tagHas(x.cat,"l")||x.area)return{u:"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(x.text.slice(0,120)+" "+(x.area||"")+" Hà Nội"),l:"Tìm trên bản đồ"};
   return null;
 }
 function clean(t){return t.replace(/#(quanan|an|nho|ytuong|idea|viec|todo)\b/gi,"").replace(/[ \t]+/g," ").replace(/ *\n */g,"\n").replace(/\n{3,}/g,"\n\n").trim()||t}
 var openId=null,expanded={},swipedId=null,lastDel=null,toastT=null;
-function picker(x){return '<div class="pick">'+KEYS.map(function(k){var c=CATS[k];return '<button class="tag" data-set="'+k+'" data-id="'+x.id+'" aria-pressed="'+(x.cat===k)+'" style="background:var(--c-'+c.c+'-bg);color:var(--c-'+c.c+')">'+c.n+'</button>'}).join('')+'</div>'}
+function picker(x){return '<div class="pick">'+KEYS.map(function(k){var c=CATS[k];return '<button class="tag" data-set="'+k+'" data-id="'+x.id+'" aria-pressed="'+(x.cat===k)+'" style="background:var(--c-'+c.c+'-bg);color:var(--c-'+c.c+')">'+c.n+'</button>'}).join('')+'<button class="tag ghost" data-addtag="1" data-addfrom="card:'+x.id+'" aria-label="Tạo tag mới" style="background:transparent;color:var(--muted);border:1px solid var(--line)">＋ Tag</button></div>'}
 var pending=null;try{var pj=JSON.parse(localStorage.getItem("pendmap")||"null");if(pj&&Date.now()-pj.ts<36e5)pending=pj.id}catch(e){}
 function setPending(id){pending=id;try{if(id==null)localStorage.removeItem("pendmap");else localStorage.setItem("pendmap",JSON.stringify({id:id,ts:Date.now()}))}catch(e){}}
 var MAPRE=/https?:\/\/(www\.)?(google\.[a-z.]+\/maps|maps\.app\.goo\.gl|goo\.gl\/maps)[^\s]*/i;
@@ -906,10 +986,10 @@ function renderInTags(){
   var c=inCat?CATS[inCat]:null;
   var h='<button type="button" class="tag'+(c?'':' ghost')+'" data-inopen="1" aria-expanded="'+inOpen+'" title="Bấm để chọn loại. Có số tiền → Chi tiêu · Chọn Tag → Ghi chú" '+(c?'style="background:var(--c-'+c.c+'-bg);color:var(--c-'+c.c+')"':'')+'>'+(c?c.n:'Tag')+' ▾</button>';
   if(inOpen){
-    h+='<div class="pick">'+KEYS.map(function(k){var d=CATS[k];return '<button type="button" class="tag" data-incat="'+k+'" aria-pressed="'+(inCat===k)+'" style="background:var(--c-'+d.c+'-bg);color:var(--c-'+d.c+')">'+d.n+'</button>'}).join("")+'<button type="button" class="tag ghost" data-incat="" style="background:transparent;color:var(--muted);border:1px solid var(--line)">Tự động</button></div>';
+    h+='<div class="pick">'+KEYS.map(function(k){var d=CATS[k];return '<button type="button" class="tag" data-incat="'+k+'" aria-pressed="'+(inCat===k)+'" style="background:var(--c-'+d.c+'-bg);color:var(--c-'+d.c+')">'+d.n+'</button>'}).join("")+'<button type="button" class="tag ghost" data-incat="" style="background:transparent;color:var(--muted);border:1px solid var(--line)">Tự động</button><button type="button" class="tag ghost" data-addtag="1" data-addfrom="in" aria-label="Tạo tag mới" style="background:transparent;color:var(--muted);border:1px solid var(--line)">＋ Tag</button></div>';
   }
-  if(inCat==="todo")h+='<label class="meta indue duechip" title="Hạn chót (không bắt buộc)"><span class="duetxt">⏰ '+esc(dueShort(inDue))+'</span><input type="datetime-local" class="date" id="inDue" data-indue="1" value="'+esc(inDue||"")+'" aria-label="Hạn chót (không bắt buộc)"></label>';
-  if(inCat==="food"){h+='<div class="meta"><button type="button" class="chip" data-ingps="1" aria-pressed="'+(!!inLink)+'" title="'+(inLink?'Đã có link vị trí, bấm để bỏ':'Mở Google Maps để lấy link vị trí')+'">📍 '+(inLink?'Đã có link ✕':'Vị trí')+'</button>';
+  if(tagHas(inCat,"d"))h+='<label class="meta indue duechip" title="Hạn chót (không bắt buộc)"><span class="duetxt">⏰ '+esc(dueShort(inDue))+'</span><input type="datetime-local" class="date" id="inDue" data-indue="1" value="'+esc(inDue||"")+'" aria-label="Hạn chót (không bắt buộc)"></label>';
+  if(tagHas(inCat,"l")){h+='<div class="meta"><button type="button" class="chip" data-ingps="1" aria-pressed="'+(!!inLink)+'" title="'+(inLink?'Đã có link vị trí, bấm để bỏ':'Mở Google Maps để lấy link vị trí')+'">📍 '+(inLink?'Đã có link ✕':'Vị trí')+'</button>';
     if(inWait&&!inLink)h+='<button type="button" class="chip" data-inpaste="1" title="Dán link Google Maps vừa sao chép">📋 Dán link</button>';
     h+='</div>'}
   el.innerHTML=h;
@@ -930,7 +1010,7 @@ function addNote(forceRaw,forceNote){
       return;
     }
   }
-  var nn0={id:Date.now(),text:clean(raw),cat:(forceRaw===undefined&&inCat&&CATS[inCat])?inCat:classify(raw),area:area(raw),due:(forceRaw===undefined&&inCat==="todo")?inDue:"",ts:Date.now(),upd:Date.now()};if(nt)nn0.note=nt;if(forceRaw===undefined&&inCat==="food"&&inLink)nn0.link=inLink;var im1=forceRaw===undefined?takeImgs():(carryImg||[]);carryImg=null;if(im1.length)nn0.img=im1;notes.unshift(nn0);
+  var nn0={id:Date.now(),text:clean(raw),cat:(forceRaw===undefined&&inCat&&CATS[inCat])?inCat:classify(raw),area:area(raw),due:(forceRaw===undefined&&tagHas(inCat,"d"))?inDue:"",ts:Date.now(),upd:Date.now()};if(nt)nn0.note=nt;if(forceRaw===undefined&&tagHas(inCat,"l")&&inLink)nn0.link=inLink;var im1=forceRaw===undefined?takeImgs():(carryImg||[]);carryImg=null;if(im1.length)nn0.img=im1;notes.unshift(nn0);
   if(forceRaw===undefined){el.value="";ne.value="";growIn();inMsg(MQM.matches?"Đã lưu ghi chú":"");inCat="";inDue="";inOpen=false;inLoc=null;inLink="";inWait=false;renderInTags()}
   save();render();sync();refocus(el);
 }
@@ -1249,13 +1329,13 @@ document.getElementById("ocrIn").addEventListener("change",function(){
     toast(m&&!/Failed to fetch|NetworkError|Load failed/i.test(m)?m:"Không kết nối được máy chủ quét chữ")
   }).then(done)});
 function noteCard(x,grouped){
-  var c=CATS[x.cat]||CATS.other,open=swipedId==x.id,mem=x.cat==="mem",done=mem&&!!x.done,ml=mapLink(x),has=x.link||MAPRE.test(x.text),ts=x.ts||0,h;
+  var c=CATS[x.cat]||CATS.other,open=swipedId==x.id,mem=tagHas(x.cat,"t"),done=mem&&!!x.done,ml=mapLink(x),has=x.link||MAPRE.test(x.text),ts=x.ts||0,h;
   h='<div class="swrap'+(open?' swiped':'')+'" data-id="'+x.id+'"><div class="swact"><button type="button" class="sw-edit" data-edit="'+x.id+'" aria-label="Sửa ghi chú">'+IC_EDIT+'<span>Sửa</span></button><button type="button" class="sw-del" data-del="'+x.id+'" aria-label="Xóa ghi chú">'+IC_DEL+'<span>Xóa</span></button></div>';
   h+='<div class="note swcard acts-row cat-'+c.c+(done?' done':'')+'" data-id="'+x.id+'" role="button" tabindex="0" aria-expanded="'+open+'">';
   h+='<div class="nmain"><div class="txt'+(open?' open':'')+'">'+linkify(ml?stripAddr(x):x.text)+'</div>'+(x.note?'<div class="hint" style="margin:4px 0 0;white-space:pre-wrap;word-break:break-word">'+esc(x.note)+'</div>':'')+imgStrip(x)+'<div class="meta"><button class="tag cattag" data-pick="'+x.id+'" title="Bấm để chọn loại" style="background:var(--c-'+c.c+'-bg);color:var(--c-'+c.c+')">'+c.n+'</button>';
   if(ml){var ad=compactAddr(shortAddr(x)),lb=(has?'Mở bản đồ':'Tìm trên bản đồ')+(ad?': '+ad:'');h+='<a class="pin'+(has?'':' ghost')+'" data-pend="'+(has?'':x.id)+'" href="'+esc(ml.u)+'" target="_blank" rel="noopener noreferrer" aria-label="'+esc(lb)+'" title="'+esc(lb)+'">'+IC_PIN+(ad?'<span>'+esc(ad)+'</span>':'')+'</a>'}
   if(x.br&&x.br.length)h+='<button type="button" class="tag brchip" data-brt="'+x.id+'" aria-expanded="'+(brOpen!=null&&brOpen==x.id)+'" style="background:var(--c-other-bg);color:var(--c-other)">+'+x.br.length+' chi nhánh '+((brOpen!=null&&brOpen==x.id)?'▴':'▾')+'</button>';
-  if(x.cat==="food")h+=camBtn("card:"+x.id,"cam-chip");
+  if(tagHas(x.cat,"c"))h+=camBtn("card:"+x.id,"cam-chip");
   if(ml&&!has&&pending==x.id)h+='<button class="tag" data-paste="'+x.id+'" style="background:var(--c-other-bg);color:var(--c-other)">Dán link</button>';
   var di=dueInfo(x);if(di)h+='<span class="due '+di.cl+'" title="Hạn chót"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'+di.lb+'</span>';
   h+=priceTag(x);
@@ -1301,7 +1381,7 @@ function renderNotes(){
   h+='<button class="chip" data-addtag="1" aria-label="Thêm tag mới" title="Thêm tag mới">+</button>';
   var sl=f.scrollLeft;f.innerHTML=h;f.scrollLeft=sl;
   var q=norm(query).trim(),list=sortNotes(vis().filter(function(x){return(filter==="all"?!isDone(x):x.cat===filter)&&(!q||norm(x.text+" "+x.area+" "+(x.note||"")+" "+(x.br||[]).map(function(b){return(b.l||"")+" "+(b.addr||"")}).join(" ")).indexOf(q)>-1)}));
-  if(filter==="todo"&&(sortBy==="new"||sortBy==="old")){list=list.map(function(x,i){return{x:x,i:i}}).sort(function(a,b){var da=dueInfo(a.x),db=dueInfo(b.x);if(da&&db)return da.t-db.t||a.i-b.i;if(da)return -1;if(db)return 1;return a.i-b.i}).map(function(o){return o.x})}
+  if(tagHas(filter,"d")&&(sortBy==="new"||sortBy==="old")){list=list.map(function(x,i){return{x:x,i:i}}).sort(function(a,b){var da=dueInfo(a.x),db=dueInfo(b.x);if(da&&db)return da.t-db.t||a.i-b.i;if(da)return -1;if(db)return 1;return a.i-b.i}).map(function(o){return o.x})}
   if(filter!=="all"){list=list.map(function(x,i){return{x:x,i:i}}).sort(function(a,b){return(isDone(a.x)-isDone(b.x))||(a.i-b.i)}).map(function(o){return o.x})}
   var L=document.getElementById("list");
   if(!list.length){L.innerHTML='<div class="empty">'+(vis().length?(filter==="all"&&!q?"Đã xong hết rồi 🎉":"Không có ghi chú nào khớp."):"Chưa có ghi chú. Gõ vào ô phía trên để bắt đầu.")+'</div>';return}
@@ -1344,12 +1424,12 @@ document.addEventListener("click",function(e){
   if(t.dataset.inpaste){inPaste(true);return}
   if(t.dataset.inopen){inOpen=!inOpen;renderInTags();return}
   if(t.dataset.incat!==undefined){inCat=t.dataset.incat;inOpen=false;renderInTags();document.getElementById("in").focus();return}
-  if(t.dataset.addtag){addTag(prompt("Tên tag mới (tối đa 20 ký tự)"));return}
-  if(t.dataset.rentag){renTag(t.dataset.rentag);return}
+  if(t.dataset.addtag){tagSheetOpen("",t.dataset.addfrom||"");return}
+  if(t.dataset.rentag){var rk=t.dataset.rentag;if(BASE[rk])renTag(rk);else tagSheetOpen(rk,"");return}
   if(t.dataset.deltag){delTag(t.dataset.deltag);return}
   if(t.dataset.f){filter=t.dataset.f;render()}
   if(t.dataset.pick){openId=openId==t.dataset.pick?null:t.dataset.pick;render()}
-  if(t.dataset.set){var n=notes.find(function(x){return x.id==t.dataset.id});if(n){var was=n.cat;n.cat=t.dataset.set;n.upd=Date.now();openId=null;save();render();sync();if(n.cat==="todo"&&was!=="todo"&&!n.due)startEdit(n.id)}}
+  if(t.dataset.set){var n=notes.find(function(x){return x.id==t.dataset.id});if(n){var was=n.cat;n.cat=t.dataset.set;n.upd=Date.now();openId=null;save();render();sync();if(tagHas(n.cat,"d")&&!tagHas(was,"d")&&!n.due)startEdit(n.id)}}
   if(t.dataset.paste)pasteInto(t.dataset.paste,true);
   if(t.dataset.del){var d=notes.find(function(x){return x.id==t.dataset.del});if(d){lastDel={id:d.id,text:d.text,area:d.area,link:d.link,note:d.note};d.del=true;d.text="";d.area="";d.link="";delete d.note;d.upd=Date.now();swipedId=null;save();render();sync();toast("Đã xóa ghi chú",true)}}
 });
@@ -1962,7 +2042,7 @@ var editing=null,editVal="",editAddr="",editCat="",editFcat="",editNote="",editL
 function amtStr(n){if(n<1000)return n+"d";if(n%1e6===0)return n/1e6+"tr";if(n%1000===0)return n/1000+"k";return String(n)}
 function editForm(x){
   var tx=x.fin&&x.k==="tx",debt=x.fin&&x.k==="debt",h='<div class="edit">';
-  var ec=x.fin?x.cat:(editCat||x.cat),food=!x.fin&&(ec==="food"||x.area||x.link||MAPRE.test(x.text||""));
+  var ec=x.fin?x.cat:(editCat||x.cat),food=!x.fin&&(tagHas(ec,"l")||x.area||x.link||MAPRE.test(x.text||""));
   if(!x.fin)h+='<textarea class="ed" data-ef="1" rows="3" aria-label="Sửa ghi chú">'+esc(editVal)+'</textarea>';
   if(food)h+='<input class="ed" data-elink="1" type="text" inputmode="url" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" style="margin-top:8px" aria-label="Link vị trí" placeholder="Link vị trí (Google Maps), có thể để trống" value="'+esc(editLink)+'">'+brEditor();
   else if(x.fin)h+='<input class="ed" data-ef="1" type="text" autocomplete="off" enterkeyhint="done" aria-label="Sửa" value="'+esc(editVal)+'">';
@@ -1970,9 +2050,9 @@ function editForm(x){
   h+='<div class="meta camrow">'+camBtn("edit")+'<div class="thumbs" id="ph-ed">'+pendStrip(editImgs,"edit")+'</div></div>';
   if(debt)h+='<div class="meta"><button class="chip" data-edir="owe" aria-pressed="'+(editDir==="owe")+'">Mình nợ</button><button class="chip" data-edir="lent" aria-pressed="'+(editDir==="lent")+'">Họ nợ mình</button></div>';
   if(x.fin)h+='<div class="meta"><input type="date" class="date" data-ed="1" value="'+esc(editDay||"")+'" aria-label="Ngày">'+(tx?'<span>Thêm + đầu số nếu là khoản thu</span>':'')+'</div>';
-  if(!x.fin)h+='<div class="pick" style="margin-top:8px">'+KEYS.map(function(k){var c=CATS[k];return '<button type="button" class="tag" data-ecat="'+k+'" aria-pressed="'+(ec===k)+'" style="background:var(--c-'+c.c+'-bg);color:var(--c-'+c.c+')">'+esc(c.n)+'</button>'}).join('')+'</div>';
+  if(!x.fin)h+='<div class="pick" style="margin-top:8px">'+KEYS.map(function(k){var c=CATS[k];return '<button type="button" class="tag" data-ecat="'+k+'" aria-pressed="'+(ec===k)+'" style="background:var(--c-'+c.c+'-bg);color:var(--c-'+c.c+')">'+esc(c.n)+'</button>'}).join('')+'<button type="button" class="tag ghost" data-addtag="1" data-addfrom="edit" aria-label="Tạo tag mới" style="background:transparent;color:var(--muted);border:1px solid var(--line)">＋ Tag</button></div>';
   if(tx){var fl=x.t==="in"?INC:OUT,fc=editFcat||x.cat;h+='<div class="pick">'+fl.map(function(c,i){var col=x.t==="in"?"var(--good)":"var(--k"+i+")";return '<button type="button" class="tag ftag" data-efcat="'+c.k+'" aria-pressed="'+(fc===c.k)+'" style="color:'+col+';background:transparent;border:1px solid currentColor">'+c.n+'</button>'}).join('')+'</div>'}
-  if(!x.fin&&ec==="todo")h+='<div class="meta"><span>Hạn chót</span><input type="datetime-local" class="date" data-edue="1" value="'+esc(editDue||"")+'" aria-label="Hạn chót">'+(editDue?'<button type="button" class="chip" data-edueclear="1">Xóa hạn</button>':'')+'</div>';
+  if(!x.fin&&tagHas(ec,"d"))h+='<div class="meta"><span>Hạn chót</span><input type="datetime-local" class="date" data-edue="1" value="'+esc(editDue||"")+'" aria-label="Hạn chót">'+(editDue?'<button type="button" class="chip" data-edueclear="1">Xóa hạn</button>':'')+'</div>';
   if(editErr)h+='<div class="meta bad">'+esc(editErr)+'</div>';
   var hint=!x.fin?"":(debt?"Ví dụ: 500k Nam tiền ăn.":"Ví dụ: 45k phở bò hoặc +15tr lương.");
   if(hint)h+='<div class="hint nh" style="margin-top:6px">'+esc(hint)+'</div>';
@@ -2000,7 +2080,7 @@ function saveEdit(id){
     x.link=lkM?lkM[0]:"";x.addr=(editAddr||"").trim().slice(0,120);
     x.br=editBr.map(function(b){var lk=(b.link||"").match(/https?:\/\/\S+/i);return{id:b.id||Date.now(),l:(b.l||"").trim().slice(0,40),link:lk?lk[0]:"",addr:(b.addr||"").trim().slice(0,120)}}).filter(function(b){return b.link||b.addr||b.l});
     if(!x.br.length)delete x.br;
-    x.text=clean(raw);geoClear(x);x.area=area(raw);delete geoTried2[x.id+":n"];delete geoTried2[x.id+":c"];if(editCat&&CATS[editCat]&&editCat!==x.cat)x.cat=editCat;else if(x.cat==="other")x.cat=classify(raw);x.due=x.cat==="todo"?(editDue||""):"";
+    x.text=clean(raw);geoClear(x);x.area=area(raw);delete geoTried2[x.id+":n"];delete geoTried2[x.id+":c"];if(editCat&&CATS[editCat]&&editCat!==x.cat)x.cat=editCat;else if(x.cat==="other")x.cat=classify(raw);x.due=tagHas(x.cat,"d")?(editDue||""):"";
   }else{
     r=parseLine(editVal);
     if(!r){editErr="Chưa thấy số tiền. Ví dụ: 45k phở bò";render();focusEdit();return}
@@ -2061,7 +2141,7 @@ function geoClear(x){delete x.street;delete x.streetSrc;if(x.areaGeo){x.area="";
 /* Cần tra không? "c" = có toạ độ (chính xác, tra ngược), "n" = chỉ có tên quán (đoán theo tên), 0 = không */
 function geoNeed(x){
   if(x.addr)return 0;
-  if(x.del||!(x.cat==="food"||x.link||MAPRE.test(x.text||""))||!(x.text||"").trim())return 0;
+  if(x.del||!(tagHas(x.cat,"l")||x.link||MAPRE.test(x.text||""))||!(x.text||"").trim())return 0;
   if(coords(x))return(x.streetSrc==="c"||geoTried2[x.id+":c"])?0:"c";
   if(x.link||MAPRE.test(x.text||""))return 0;   /* có link nhưng không có toạ độ (link rút gọn): không đoán theo tên nữa vì dễ sai */
   return(x.street||geoTried2[x.id+":n"])?0:"n";
