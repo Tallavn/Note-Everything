@@ -1011,7 +1011,7 @@ mem:["nho","mat khau","password","pass","wifi","so dien thoai","sdt","ma ","sinh
 idea:["y tuong","idea","nen thu","du an","lam app","viet ","ke hoach","thu lam","sang kien","hay la"],
 todo:["mua ","goi ","nhan ","gui ","dong ","nop ","dat ","hen ","hop ","deadline","thanh toan","sua ","tra tien","di kham","can lam","phai "]};
 var AREAS={"hai ba trung":"Hai Bà Trưng","hoan kiem":"Hoàn Kiếm","dong da":"Đống Đa","ba dinh":"Ba Đình","cau giay":"Cầu Giấy","thanh xuan":"Thanh Xuân","hoang mai":"Hoàng Mai","tay ho":"Tây Hồ","long bien":"Long Biên","ha dong":"Hà Đông","nam tu liem":"Nam Từ Liêm","bac tu liem":"Bắc Từ Liêm","pho co":"Phố Cổ","trung kinh":"Trung Kính","trung hoa":"Trung Hòa","dich vong":"Dịch Vọng","yen hoa":"Yên Hòa","nghia tan":"Nghĩa Tân","mai dich":"Mai Dịch","quan hoa":"Quan Hoa","nhan chinh":"Nhân Chính","khuong dinh":"Khương Đình","khuong trung":"Khương Trung","me tri":"Mễ Trì","lang thuong":"Láng Thượng","cat linh":"Cát Linh","nga tu so":"Ngã Tư Sở","kim lien":"Kim Liên","thuong dinh":"Thượng Đình","tu liem":"Từ Liêm","hoang quoc viet":"Hoàng Quốc Việt","linh dam":"Linh Đàm","times city":"Times City","royal city":"Royal City","van phuc":"Vạn Phúc","nguyen trai":"Nguyễn Trãi","kim ma":"Kim Mã","giang vo":"Giảng Võ","tay son":"Tây Sơn","xuan thuy":"Xuân Thủy","son tay":"Sơn Tây","ba vi":"Ba Vì","phuc tho":"Phúc Thọ","dan phuong":"Đan Phượng","hoai duc":"Hoài Đức","quoc oai":"Quốc Oai","thach that":"Thạch Thất","chuong my":"Chương Mỹ","thanh oai":"Thanh Oai","thuong tin":"Thường Tín","phu xuyen":"Phú Xuyên","ung hoa":"Ứng Hòa","my duc":"Mỹ Đức","me linh":"Mê Linh","soc son":"Sóc Sơn","dong anh":"Đông Anh","gia lam":"Gia Lâm","thanh tri":"Thanh Trì","trung ha":"Trung Hà","my dinh":"Mỹ Đình","nghia do":"Nghĩa Đô","lang ha":"Láng Hạ","binh thanh":"Bình Thạnh","phu nhuan":"Phú Nhuận","tan binh":"Tân Bình","go vap":"Gò Vấp","thu duc":"Thủ Đức","tan phu":"Tân Phú","binh tan":"Bình Tân","quan 1":"Quận 1","quan 2":"Quận 2","quan 3":"Quận 3","quan 4":"Quận 4","quan 5":"Quận 5","quan 6":"Quận 6","quan 7":"Quận 7","quan 8":"Quận 8","quan 10":"Quận 10","quan 11":"Quận 11","quan 12":"Quận 12"};
-var notes=[],filter="all",query="",DB="https://demo.invalid",code="",busy=false,again=false;
+var notes=[],filter="all",query="",DB="https://note-everything-65971-default-rtdb.asia-southeast1.firebasedatabase.app",code="",busy=false,again=false;
 function vis(){return notes.filter(function(x){return !x.del&&!x.fin})}
 function isDone(x){return tagHas(x.cat,"t")&&!!x.done}
 function dueInfo(x){
@@ -2425,46 +2425,6 @@ if("serviceWorker" in navigator)window.addEventListener("load",function(){
   navigator.serviceWorker.register("sw.js").then(function(r){try{r.update()}catch(e){}}).catch(function(){});
   navigator.serviceWorker.addEventListener("controllerchange",function(){if(!had||rl)return;rl=true;location.reload()})});
 load();
-/* ===== DỮ LIỆU GIẢ (bản demo: chỉ nằm trong bộ nhớ, không ghi localStorage, không đồng bộ) ===== */
-(function(){
-  function dstr(n){var d=new Date();d.setDate(d.getDate()-n);return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate())}
-  function at(n,h,m){var d=new Date();d.setDate(d.getDate()-n);d.setHours(h,m,0,0);return d.getTime()}
-  var out=[],seq=0;
-  function note(n,h,m,cat,text,o){var t=at(n,h,m)+(seq++);var x={id:t,text:text,cat:cat,area:"",ts:t,upd:t};for(var k in (o||{}))x[k]=o[k];out.push(x)}
-  function tx(n,h,m,t,cat,amt,desc,o){var ts=at(n,h,m)+(seq++);var x={id:ts,fin:1,k:"tx",t:t,cat:cat,amt:amt,desc:desc,day:dstr(n),ts:ts,upd:ts};for(var k in (o||{}))x[k]=o[k];out.push(x)}
-  /* Hôm nay */
-  note(0,8,15,"food","Bún chả Hương Liên, thử lần đầu",{area:"HN"});
-  note(0,9,40,"todo","Gửi báo cáo tuần cho sếp",{due:dstr(-1)});
-  note(0,11,5,"idea","Làm app ghi chú có thể vuốt để sửa nhanh, thẻ đứng yên và nút trượt vào đè lên mép phải");
-  note(0,14,20,"mem","Mua kẹo ngọt",{done:false});
-  note(0,19,30,"other","Sdasdasdsádasdasdsádasdasdsádasdasdsádasdasdsádasdasdsádasdasd");
-  tx(0,7,50,"out","an",35000,"Phở bò");
-  tx(0,12,10,"out","an",60000,"Cơm trưa");
-  tx(0,18,0,"out","di",80000,"Bơm xăng");
-  tx(0,20,15,"out","gt",120000,"Xem phim");
-  /* Hôm qua */
-  note(1,8,30,"food","Cà phê muối Hàng Gai, ngồi làm việc ổn",{area:"HN"});
-  note(1,10,0,"mem","Mang sạc dự phòng khi đi công tác",{done:true});
-  note(1,15,45,"todo","Đặt lịch khám răng\nNhớ mang thẻ bảo hiểm",{due:dstr(-3)});
-  note(1,21,10,"idea","Thêm thống kê chi tiêu theo tuần");
-  tx(1,8,40,"out","an",45000,"Cà phê + bánh mì");
-  tx(1,13,0,"out","an",100000,"Bún");
-  tx(1,17,30,"out","sam",350000,"Áo thun");
-  tx(1,19,0,"out","hd",420000,"Tiền điện");
-  tx(1,22,0,"in","thuong",500000,"Thưởng dự án");
-  /* Hôm kia */
-  note(2,9,0,"food","Quán nướng phố Tạ Hiện, hợp đi nhóm đông",{area:"HN"});
-  note(2,13,30,"other","Mật khẩu wifi nhà bạn: để hỏi lại");
-  note(2,16,0,"mem","Trả sách thư viện",{done:false});
-  note(2,20,0,"todo","Dọn bàn làm việc");
-  tx(2,9,10,"out","di",30000,"Grab đi làm");
-  tx(2,12,20,"out","an",75000,"Bún đậu");
-  tx(2,15,0,"out","sk",180000,"Thuốc cảm");
-  tx(2,18,45,"out","gt",90000,"Cà phê với bạn");
-  tx(2,21,0,"in","thukhac",2120000,"Bố mẹ cho");
-  notes=out;
-  save=function(){};sync=function(){};
-})();
 try{code=localStorage.getItem("ghichu_code")||""}catch(e){}
 document.getElementById("code").value=code;
 setSt(code?"":"Chưa bật đồng bộ");
