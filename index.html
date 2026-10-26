@@ -666,8 +666,8 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 .tgc .tgh{width:112px}
 .tgc .tgh span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 /* Chi tiêu: vuốt hiện Sửa/Xóa = dòng trượt sang trái (không thu hẹp), bị cắt ở mép cột nhãn nên không đè lên tên tag */
-.tgc .swrap .swcard{transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s}
-.tgc .swrap.swiped .swcard{margin-right:0;transform:translateX(-104px)}
+.tgc .swrap .swcard{transition:margin-right .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s,border-radius .3s}
+.tgc .swrap.swiped .swcard{margin-right:104px;border-radius:0 12px 12px 0;box-shadow:2px 0 5px -3px rgba(0,0,0,.08)}
 @media (prefers-reduced-motion:reduce){.tgc .swrap .swcard{transition:none}}
 </style>
 </head>
