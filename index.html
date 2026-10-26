@@ -233,7 +233,7 @@ main{padding:24px 16px 96px}
 .mnav{margin-bottom:14px}
 .mnav button{border-radius:12px;box-shadow:var(--shadow)}
 .card h3{margin-bottom:12px}
-.dh{margin:20px 4px 8px}
+.dh{margin:22px 4px 8px;align-items:baseline;font-size:12.6px}.dh span:first-child{font-size:14.4px;font-weight:700;color:var(--ink);letter-spacing:.01em}.dh span:last-child{font-weight:600}
 .tx{border-radius:12px;padding:12px 14px;margin-bottom:8px}
 .dsum{border-radius:12px;padding:12px 14px}
 #finBody{margin-top:16px!important}
@@ -1587,11 +1587,11 @@ an:["pho","bun","banh","com","cafe","ca phe","coffee","tra sua","tra da","tra ch
 sam:["mua","ao","quan ao","giay","dep","tui","shopee","lazada","tiki","sieu thi","tap hoa","do dung","my pham","son"]};
 var MULT={tr:1e6,trieu:1e6,m:1e6,k:1e3,nghin:1e3,ngan:1e3,d:1,dong:1};
 var WD=["CN","T2","T3","T4","T5","T6","T7"];
-var tab="notes",sub="tx",fcat="",chartView="day",trendN=6,fday="",openTx=null,_n=new Date(),ym={y:_n.getFullYear(),m:_n.getMonth()+1};
+var tab="notes",sub="tx",fcat="",chartView="day",trendN=1,fday="",openTx=null,_n=new Date(),ym={y:_n.getFullYear(),m:_n.getMonth()+1};
 try{tab=localStorage.getItem("ghichu_tab")||"notes"}catch(e){}
 function p2(n){return("0"+n).slice(-2)}
 function today(){var d=new Date();return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate())}
-fday=today();
+fday="";
 function money(n){return String(Math.round(Math.abs(n))).replace(/\B(?=(\d{3})+(?!\d))/g,".")+"đ"}
 function cmp(n){if(n>=1e6)return(n/1e6).toFixed(1).replace(".0","").replace(".",",")+"tr";if(n>=1e3)return Math.round(n/1e3)+"k";return String(n)}
 function mkey(y,m){return y+"-"+p2(m)}
@@ -1684,7 +1684,7 @@ function dailyChart(by,days){
   s='<svg viewBox="0 0 '+W+' '+(T+H+26)+'" width="100%" role="img" aria-label="Chi theo ngày">';
   for(i=1;i<=days;i++){
     var v=by[i]||0,h=v?Math.max(3,v/mx*H):0,ds=mkey(ym.y,ym.m)+"-"+p2(i),sel=fday===ds;
-    s+='<g data-fday="'+ds+'" style="cursor:pointer"><rect x="'+((i-1)*bw).toFixed(1)+'" y="0" width="'+bw.toFixed(1)+'" height="'+(T+H+26)+'" rx="3" style="fill:'+(sel?'var(--bg)':'transparent')+(sel?';stroke:var(--accent)':'')+'"/>';
+    s+='<g data-fday="'+ds+'" style="cursor:default"><rect x="'+((i-1)*bw).toFixed(1)+'" y="0" width="'+bw.toFixed(1)+'" height="'+(T+H+26)+'" rx="3" style="fill:'+(sel?'var(--bg)':'transparent')+(sel?';stroke:var(--accent)':'')+'"/>';
     s+='<rect x="'+((i-1)*bw+bw*.15).toFixed(1)+'" y="'+(T+H-h).toFixed(1)+'" width="'+(bw*.7).toFixed(1)+'" height="'+h.toFixed(1)+'" rx="2" style="fill:var(--bad)"><title>Ngày '+i+': '+money(v)+'</title></rect>';
     if(i===1||i%5===0||sel)s+='<text x="'+((i-.5)*bw).toFixed(1)+'" y="'+(T+H+19)+'" text-anchor="middle" font-size="16" style="fill:var(--muted)">'+i+'</text>';
     s+='</g>';
@@ -1728,7 +1728,7 @@ function weekChart(){
       var cx=x+(d-w[0])*sw+(sw-2*bw-1)/2;
       ti+=di[d];to+=dout[d];
       var ds=mkey(ym.y,ym.m)+"-"+p2(d),sel=fday===ds;
-      s+='<g data-fday="'+ds+'" style="cursor:pointer"><rect x="'+(x+(d-w[0])*sw).toFixed(1)+'" y="0" width="'+sw.toFixed(1)+'" height="'+(T+H+20)+'" rx="3" style="fill:'+(sel?'var(--bg)':'transparent')+(sel?';stroke:var(--accent)':'')+'"/>';
+      s+='<g data-fday="'+ds+'" style="cursor:default"><rect x="'+(x+(d-w[0])*sw).toFixed(1)+'" y="0" width="'+sw.toFixed(1)+'" height="'+(T+H+20)+'" rx="3" style="fill:'+(sel?'var(--bg)':'transparent')+(sel?';stroke:var(--accent)':'')+'"/>';
       s+='<text x="'+(cx+bw+.5).toFixed(1)+'" y="'+(T+H+14)+'" text-anchor="middle" font-size="11" style="fill:var(--muted)">'+d+'</text>';
       [[di[d],"var(--good)","Thu"],[dout[d],"var(--bad)","Chi"]].forEach(function(p,q){
         var h=p[0]?Math.max(3,p[0]/mx*H):0;
@@ -1789,11 +1789,6 @@ function renderTx(top,body){
     h+='<div class="card"><div class="cvt">'+avail.map(function(a){return'<button class="chip" data-cv="'+a[0]+'" aria-pressed="'+(chartView===a[0])+'">'+a[1]+'</button>'}).join("")+'</div>'+views[chartView]+'</div>';
   }
   var items=all.filter(function(x){return(!fcat||(x.t==="out"&&x.cat===fcat))&&(!fday||x.day===fday)});
-  h+='<div class="fdrow"><label class="hint" for="fd-pick">Xem chi tiết ngày</label><input type="date" id="fd-pick" class="date" data-fdpick="1" value="'+esc(fday)+'"></div>';
-  if(fday){
-    var di=0,dout=0;all.forEach(function(x){if(x.day===fday){if(x.t==="in")di+=x.amt;else dout+=x.amt}});
-    h+='<div class="dsum"><b>'+dayLabel(fday)+'</b><span class="bad">Chi '+money(dout)+'</span><span class="good">Thu '+money(di)+'</span><button class="lnk" data-fclear="1">Xem cả tháng</button></div>';
-  }
   if(fcat)h+='<div class="hint" style="margin:0 2px 4px">Đang lọc mục '+esc((OUT.filter(function(c){return c.k===fcat})[0]||{n:""}).n)+'. Bấm lại mục đó để bỏ lọc.</div>';
   if(!items.length){h+='<div class="empty">'+(all.length?"Không có giao dịch nào khớp.":"Tháng này chưa có giao dịch. Bấm nút + để thêm.")+'</div>'}
   else{
@@ -2255,7 +2250,7 @@ document.addEventListener("click",function(e){
   if(d.sheetclose){closeSheet();return}
   if(d.fclear){fday="";fcat="";chartView="day";openTx=null;renderFin();return}
   if(d.cv){if(d.cv==="trend"&&chartView==="trend"){trendN=trendN===1?3:trendN===3?6:trendN===6?12:1}chartView=d.cv;renderFin();return}
-  if(d.sub){scrollSave();sub=d.sub;fcat="";if(sub==="tx"&&!fday)fday=today();openTx=null;defMsg();renderFin();scrollRestore();return}
+  if(d.sub){scrollSave();sub=d.sub;fcat="";openTx=null;defMsg();renderFin();scrollRestore();return}
   if(d.mo){var mm=ym.m+Number(d.mo),yy=ym.y;if(mm<1){mm=12;yy--}if(mm>12){mm=1;yy++}ym={y:yy,m:mm};fcat="";fday="";openTx=null;renderFin();return}
   if(d.fcat){fcat=fcat===d.fcat?"":d.fcat;renderFin();return}
   if(d.ftx){openTx=openTx==d.ftx?null:d.ftx;renderFin();return}
@@ -2294,6 +2289,7 @@ document.getElementById("fin-add").onclick=function(){addFin()};
 document.addEventListener("click",function(e){
   var g=e.target.closest&&e.target.closest("[data-fday]");
   if(!g||g.tagName==="BUTTON")return;
+  return;
   var selected=g.getAttribute("data-fday");
   fday=selected;
   var p=selected.split("-");
