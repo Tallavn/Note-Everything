@@ -688,7 +688,7 @@ var KEYS=Object.keys(CATS),BASE=Object.assign({},CATS),PAL=["food","mem","idea",
 var BASEF={food:"lc",mem:"t",todo:"d"},FEAT=Object.assign({},BASEF);
 function tagHas(k,f){return(FEAT[k]||"").indexOf(f)>-1}
 function tagStore(){return notes.find(function(x){return x.k==="ctags"&&x.fin})}
-function applyCustom(){CATS=Object.assign({},BASE);FEAT=Object.assign({},BASEF);var st=tagStore();((st&&!st.del&&st.list)||[]).forEach(function(t,i){CATS[t.k]={n:t.n,c:(t.c&&COLS.indexOf(t.c)>-1)?t.c:PAL[i%PAL.length]};FEAT[t.k]=t.f||""});var rn=(st&&!st.del&&st.ren)||{};Object.keys(rn).forEach(function(k){if(CATS[k]&&BASE[k])CATS[k]={n:rn[k],c:CATS[k].c}});var cl=(st&&!st.del&&st.col)||{};Object.keys(cl).forEach(function(k){if(CATS[k]&&BASE[k]&&COLS.indexOf(cl[k])>-1)CATS[k]={n:CATS[k].n,c:cl[k]}});KEYS=Object.keys(CATS);var od=(st&&!st.del&&st.order)||[];if(od.length){var seen={},nk=[];od.forEach(function(k){if(CATS[k]&&!seen[k]){seen[k]=1;nk.push(k)}});KEYS.forEach(function(k){if(!seen[k])nk.push(k)});KEYS=nk}}
+function applyCustom(){CATS=Object.assign({},BASE);FEAT=Object.assign({},BASEF);var st=tagStore();((st&&!st.del&&st.hid)||[]).forEach(function(k){if(k!=="other")delete CATS[k]});var ft=(st&&!st.del&&st.feat)||{};Object.keys(ft).forEach(function(k){if(BASE[k])FEAT[k]=ft[k]});((st&&!st.del&&st.list)||[]).forEach(function(t,i){CATS[t.k]={n:t.n,c:(t.c&&COLS.indexOf(t.c)>-1)?t.c:PAL[i%PAL.length]};FEAT[t.k]=t.f||""});var rn=(st&&!st.del&&st.ren)||{};Object.keys(rn).forEach(function(k){if(CATS[k]&&BASE[k])CATS[k]={n:rn[k],c:CATS[k].c}});var cl=(st&&!st.del&&st.col)||{};Object.keys(cl).forEach(function(k){if(CATS[k]&&BASE[k]&&COLS.indexOf(cl[k])>-1)CATS[k]={n:CATS[k].n,c:cl[k]}});KEYS=Object.keys(CATS);var od=(st&&!st.del&&st.order)||[];if(od.length){var seen={},nk=[];od.forEach(function(k){if(CATS[k]&&!seen[k]){seen[k]=1;nk.push(k)}});KEYS.forEach(function(k){if(!seen[k])nk.push(k)});KEYS=nk}}
 function setGroupOrder(vk){
   var o=KEYS.slice(),slots=[];
   o.forEach(function(k,i){if(vk.indexOf(k)>-1)slots.push(i)});
@@ -773,7 +773,7 @@ function addTag(name,f,col){
   var fl=document.getElementById("filters");fl.scrollLeft=fl.scrollWidth;
   return nk;
 }
-function editTag(k,name,f,col){
+function editTag(k,name,f,col){f=f||"";
   var st=tagStore();if(!st)return"";
   var it=(st.list||[]).find(function(t){return t.k===k});
   if(!it){   /* tag gốc: chỉ đổi tên + màu */
@@ -783,6 +783,7 @@ function editTag(k,name,f,col){
     if(Object.keys(CATS).some(function(o){return o!==k&&CATS[o].n.toLowerCase()===lw})){alert("Tag này đã có rồi.");return""}
     var sn0=snapOf([st]),n0=Date.now();
     st.ren=st.ren||{};if(name===BASE[k].n)delete st.ren[k];else st.ren[k]=name;
+    st.feat=st.feat||{};if(f===(BASEF[k]||""))delete st.feat[k];else st.feat[k]=f;
     st.col=st.col||{};if(col&&col!==BASE[k].c)st.col[k]=col;else delete st.col[k];
     st.upd=n0;save();render();sync();setUndo("Đã sửa tag",sn0);return k;
   }
@@ -825,7 +826,7 @@ function tagSheetOpen(k,from){
     var sty=document.createElement("style");
     sty.textContent='#tagSheet .fin-in{margin-inline:0;width:100%;box-sizing:border-box}#tagSheet .tgopt{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border-radius:12px;padding:10px 12px;margin-top:8px}'+
       '#tagSheet .tgck{flex:none;width:22px;height:22px;border:2px solid var(--line);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;color:transparent}'+
-      '#tagSheet .tgopt[aria-pressed="true"]{border-color:var(--accent)}'+
+      '#tagSheet .tgopt[aria-pressed="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--surface));color:var(--ink)}'+
       '#tagSheet .tgopt[aria-pressed="true"] .tgck{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}'+
       '#tagSheet .tgopt b{display:block;font-size:14px}#tagSheet .tgopt small{display:block;color:var(--muted);font-size:12px;font-weight:400;margin-top:1px}'+
       '#tagSheet .tgcols{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}#tagSheet .tgcol{flex:none;width:26px;height:26px;min-width:0;min-height:0;border-radius:50%;border:2px solid transparent;padding:0;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1;font-weight:700;cursor:pointer}#tagSheet .tgcol[aria-pressed="true"]{outline:2px solid var(--ink);outline-offset:1px}#tagSheet .tgcol:not([aria-pressed="true"]) i{display:none}#tagSheet .tgdel{display:block;width:100%;margin-top:8px;border:1px solid var(--bad,#c0392b);border-radius:12px;padding:11px;font:inherit;font-weight:600;background:transparent;color:var(--bad,#c0392b)}'+
@@ -856,13 +857,13 @@ function tagSheetOpen(k,from){
   h+='<div class="tgcols" role="group" aria-label="Chọn màu">';
   COLS.forEach(function(cn){h+='<button type="button" class="tgcol" data-tg="col" data-col="'+cn+'" aria-pressed="'+(cn===curCol)+'" aria-label="Màu '+cn+'" style="background:var(--c-'+cn+'-bg);color:var(--c-'+cn+');border-color:var(--c-'+cn+')"><i>✓</i></button>'});
   h+='</div>';
-  var isBase=!!(k&&BASE[k]);
+  var isBase=false;
   if(!isBase)h+='<div class="hint nh" style="margin-top:12px">Tag này có những gì?</div>';
   if(!isBase)TAGOPT.forEach(function(o){
     h+='<button type="button" class="chip tgopt" data-tg="opt" data-o="'+o[0]+'" aria-pressed="'+(f.indexOf(o[0])>-1)+'"><span class="tgck">✓</span><span><b>'+o[1]+' '+o[2]+'</b><small>'+o[3]+'</small></span></button>';
   });
   h+='<button type="button" class="tgsave" data-tg="save">'+(k?"Lưu tag":"Tạo tag")+'</button>';
-  if(k&&!isBase)h+='<button type="button" class="tgdel" data-tg="del">Xóa tag</button>';
+  if(k&&k!=="other")h+='<button type="button" class="tgdel" data-tg="del">Xóa tag</button>';
   h+='</div>';
   tagSh.innerHTML=h;
   tagSh.hidden=false;
@@ -872,7 +873,9 @@ function delTag(k){
   var st=tagStore();if(!st)return;
   var tn=CATS[k]?CATS[k].n:"",sn=snapOf([st].concat(notes.filter(function(x){return !x.fin&&x.cat===k})));
   var now=Date.now();
-  st.list=(st.list||[]).filter(function(t){return t.k!==k});st.upd=now;
+  st.list=(st.list||[]).filter(function(t){return t.k!==k});
+  if(BASE[k]&&k!=="other"){st.hid=(st.hid||[]).filter(function(h){return h!==k}).concat([k]);if(st.ren)delete st.ren[k];if(st.col)delete st.col[k];if(st.feat)delete st.feat[k]}
+  st.upd=now;
   notes.forEach(function(x){if(!x.fin&&x.cat===k){x.cat="other";x.upd=now}});
   if(filter===k)filter="all";
   save();render();sync();setUndo("Đã xóa tag "+tn,sn);
@@ -917,7 +920,8 @@ function norm(s){return " "+s.toLowerCase().normalize("NFD").replace(/[\u0300-\u
 var STRICT={food:["quán","tiệm"]};
 var DISH=["pho","bun","banh","com","lau","nuong","che","xoi","mien","mi","ga","bo","hai san","oc","kem","tra","bia","ngon"];
 RULES.food=["nha hang","buffet","cafe","coffee","ca phe","quan an"];
-function classify(t){
+function classify(t){var r=classify0(t);return CATS[r]?r:"other"}
+function classify0(t){
   var low=t.toLowerCase(),m=low.match(/#[a-z]+/g)||[];
   for(var i=0;i<m.length;i++)if(TAGS[m[i]])return TAGS[m[i]];
   var s=" "+norm(t).replace(/[^a-z0-9]+/g," ")+" ",d=" "+t.toLowerCase().replace(/[^\p{L}\p{N}]+/gu," ")+" ",best="other",top=0;
@@ -2635,6 +2639,32 @@ new MutationObserver(function(ms){ms.forEach(function(m){
   else if(m.type==="characterData")fixText(m.target);
   else if(m.type==="attributes")fixAttrs(m.target);
 })}).observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:AT});
+})();
+
+/* Giữ lâu (~0,5s) vào một tag bất kỳ -> mở hộp Sửa tag. Nhấc tay / cuộn ngang thì hủy; click ngay sau khi giữ bị chặn để không chọn nhầm tag. */
+(function(){
+  var SEL="button[data-set],button[data-incat],button[data-ecat],button[data-f]",tm=null,sx=0,sy=0,fired=0;
+  function keyOf(b){var k=b.dataset.set!==undefined?b.dataset.set:b.dataset.incat!==undefined?b.dataset.incat:b.dataset.ecat!==undefined?b.dataset.ecat:b.dataset.f;return k&&k!=="all"&&CATS[k]?k:""}
+  function stop(){clearTimeout(tm);tm=null}
+  document.addEventListener("pointerdown",function(e){
+    if(e.pointerType==="mouse"&&e.button!==0)return;
+    var b=e.target.closest&&e.target.closest(SEL);if(!b)return;
+    var k=keyOf(b);if(!k)return;
+    sx=e.clientX;sy=e.clientY;stop();
+    tm=setTimeout(function(){
+      tm=null;fired=Date.now();
+      try{if(navigator.vibrate)navigator.vibrate(15)}catch(x){}
+      tagSheetOpen(k,b.dataset.ecat!==undefined?"edit":"");
+    },500);
+  },true);
+  document.addEventListener("pointermove",function(e){if(tm&&(Math.abs(e.clientX-sx)>8||Math.abs(e.clientY-sy)>8))stop()},true);
+  document.addEventListener("pointerup",stop,true);
+  document.addEventListener("pointercancel",stop,true);
+  document.addEventListener("click",function(e){
+    if(fired&&Date.now()-fired<800&&e.target.closest&&e.target.closest(SEL)){e.stopPropagation();e.preventDefault();fired=0}
+  },true);
+  document.addEventListener("contextmenu",function(e){if(e.target.closest&&e.target.closest(SEL))e.preventDefault()});
+  var st=document.createElement("style");st.textContent="button[data-set],button[data-incat],button[data-ecat],button[data-f]{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}";document.head.appendChild(st);
 })();
 </script>
 </body>
