@@ -630,6 +630,7 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 #impSheet .imppp{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px;font-size:12.6px}
 #impSheet .imppp .ed{width:56px;padding:6px 8px;text-align:center}
 #impSheet .impfx{border:0;background:none;padding:0;font-size:16px;line-height:1;cursor:pointer}
+@media (max-width:700px),(pointer:coarse){.plimp{display:none!important}}
 </style>
 </head>
 <body>
@@ -675,6 +676,7 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 
 <div id="planView" hidden></div>
 <div id="plSheet" class="psh"><div class="box"><div class="shead"><b id="pl-title">Tạo dự án mới</b><button class="x" data-pl="pclose" aria-label="Đóng">×</button></div><input id="pl-new2" data-plk="new2" class="fin-in" type="text" autocomplete="off" enterkeyhint="done" placeholder="đà lạt 3 ngày 5tr, hoặc chỉ gõ tên"><input class="fin-in" id="pl-note" data-plk="note" type="text" autocomplete="off" enterkeyhint="done" placeholder="Ghi chú dự án (không bắt buộc)" style="font-size:13px;border-top:1px dashed var(--line)">
+<button type="button" class="lnk" id="pl-imp" data-imp="open" style="padding:2px 0 8px;margin-left:6px;font-size:12.6px">Nhập lịch trình</button>
 <div class="row inrow" style="align-items:center"><div class="hint nh" id="pl-hint">Có số tiền ở cuối thì thành ngân sách dự án.</div><button class="add" id="pl-go" data-pl="new2" style="flex:none">Tạo</button></div></div></div>
 
 <div id="rgSheet" class="sheet" hidden><div class="box"><div class="shead"><b>Chọn ngày dự án</b><button class="x" data-rgclose="1" aria-label="Đóng">×</button></div>
@@ -1951,6 +1953,7 @@ function openPSheet(ctx){
     :{t:"Thêm hạng mục",p:"thuê xe máy 300k",h:"Gõ tên và số tiền ở cuối, ví dụ: vé xe 600k.",b:"Thêm"};
   $i("pl-title").textContent=cfg.t;$i("pl-hint").textContent=cfg.h;$i("pl-go").textContent=cfg.b;
   var el0=$i("pl-new2");el0.placeholder=cfg.p;el0.value="";var nt0=$i("pl-note");nt0.value="";nt0.placeholder=!ctx?"Ghi chú dự án (không bắt buộc)":ctx.k==="act"?"Ghi chú hoạt động (không bắt buộc)":"Ghi chú khoản chi (không bắt buộc)";
+  $i("pl-imp").hidden=!!ctx;
   kbPrep();
   b.classList.add("psheet");updateFab();
   var el=document.getElementById("pl-new2");try{el.focus({preventScroll:true})}catch(e){el.focus()}
@@ -2470,7 +2473,7 @@ function plActsHtml(p){
 function renderPlan(){
   var el=$i("planView"),ps=plList().sort(function(a,b){var d=planOn(b)-planOn(a);if(d)return d;return(a.date||"9")<(b.date||"9")?-1:1});
   var h='<div class="plbar" style="display:flex;gap:8px;margin-bottom:14px"><input class="pin" id="pl-new" data-plk="new" placeholder="Tạo dự án: đà lạt 3 ngày 5tr, hoặc chỉ gõ tên" aria-label="Tạo dự án" autocomplete="off" enterkeyhint="done"></div>';
-  h+='<div style="display:flex;justify-content:flex-end;margin:-4px 0 10px"><button type="button" class="lnk" data-imp="open" style="padding:4px 0">Nhập lịch trình</button></div>';
+  h+='<div class="plimp" style="display:flex;justify-content:flex-end;margin:-4px 0 10px"><button type="button" class="lnk" data-imp="open" style="padding:4px 0">Nhập lịch trình</button></div>';
   if(!ps.length)h+='<div class="empty">Chưa có dự án. Gõ tên và ngân sách ở trên, ví dụ: đà lạt 3 ngày 5tr.</div>';
   ps.forEach(function(p){
     var sp=0,pl=0;p.items.forEach(function(it){if(plTx(it).length){var r=plR(it);sp+=r;pl+=r}else pl+=it.a});
@@ -2675,6 +2678,7 @@ var imp=null,impBusy=false,impText="";
 function impMsg(t){var m=$i("impMsg");if(m)m.textContent=t||""}
 function impStage(pv){$i("impIn").hidden=pv;$i("impPv").hidden=!pv;$i("impTitle").textContent=pv?"Xem trước lịch trình":"Nhập lịch trình"}
 function impOpen(){
+  if(document.body.classList.contains("psheet"))closePSheet();
   $i("impTx").value=impText;impMsg("");
   if(imp){impStage(true)}else impStage(false);
   $i("impSheet").hidden=false;
@@ -2982,4 +2986,5 @@ new MutationObserver(function(ms){ms.forEach(function(m){
 })();
 </script>
 </body>
+</html>
 </html>
