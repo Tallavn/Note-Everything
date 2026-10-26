@@ -681,7 +681,7 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 <div class="cbd" id="cbd"></div>
 <main>
 <div class="hdr"><h1 class="logo" aria-label="Note Everything"><b class="lg-n">Note.</b><i class="lg-l" aria-hidden="true"></i><span class="lg-e">EVERYTHING</span></h1><div class="hr"><div class="hsearch sbar" id="hsearch"><input class="search" id="q" type="search" placeholder="Tìm trong ghi chú"></div><div class="setw"><button type="button" class="fbtn sbtn" id="setBtn" aria-label="Cài đặt" aria-haspopup="true" aria-expanded="false" title="Cài đặt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button><div class="smenu" id="setMenu" hidden><div class="sm-row"><span>Cỡ giao diện</span><span class="zc"><button type="button" id="zDn" aria-label="Giảm cỡ giao diện">−</button><button type="button" id="zVal" title="Về 100%">100%</button><button type="button" id="zUp" aria-label="Tăng cỡ giao diện">+</button></span></div><div class="sm-row"><span>Ngôn ngữ</span><span class="zc nolang"><button type="button" id="lgVi">Tiếng Việt</button><button type="button" id="lgEn">English</button></span></div><button type="button" class="sm-btn" id="theme">Đổi giao diện</button><button type="button" class="sm-btn" id="copy">Sao chép tất cả</button><div class="sm-row" style="font-size:10.8px;color:var(--muted)"><span>Build</span><span>24.10-h</span></div><details class="syncmenu" id="syncmenu"><summary>Đồng bộ</summary>
-<div class="sync"><input id="code" placeholder="Mã đồng bộ" autocomplete="off" spellcheck="false"><button id="conn">Kết nối</button><button id="gen">Tạo mã mới</button><button id="off">Ngắt</button><span id="st" class="hint"></span></div>
+<div class="sync"><input id="code" placeholder="Mã đồng bộ" autocomplete="off" spellcheck="false"><button id="conn">Kết nối</button><button id="gen">Tạo mã mới</button><button id="off">Ngắt</button><button id="bkp">Sao lưu</button><button id="imp">Khôi phục</button><input type="file" id="impf" accept=".json,application/json" hidden><span id="st" class="hint"></span></div>
 </details></div></div></div></div>
 <div class="tabs"><button class="chip" data-tab="notes" aria-pressed="true"><span class="tl">Ghi chú</span></button><button class="chip" data-tab="fin" aria-pressed="false"><span class="tl">Chi tiêu</span></button><button class="chip" data-tab="plan" aria-pressed="false"><span class="tl">Dự án</span></button></div>
 <div id="notesView">
@@ -1653,6 +1653,49 @@ document.getElementById("gen").onclick=function(){
   setCode(s);
 };
 document.getElementById("off").onclick=function(){setCode("")};
+/* Sao lưu: tải toàn bộ dữ liệu ra file .json. Khôi phục: nạp lại từ file, chỉ thêm/cập nhật (mục mới hơn thắng), không xóa dữ liệu đang có. */
+document.getElementById("bkp").onclick=function(){
+  try{
+    var n=notes.filter(function(x){return x&&!x.del}).length,t=new Date(),
+      b=new Blob([JSON.stringify({app:"ghichu",v:1,at:Date.now(),notes:notes})],{type:"application/json"}),
+      a=document.createElement("a");
+    a.href=URL.createObjectURL(b);
+    a.download="ghichu-saoluu-"+t.getFullYear()+"-"+p2(t.getMonth()+1)+"-"+p2(t.getDate())+".json";
+    document.body.appendChild(a);a.click();
+    setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1500);
+    toast("Đã sao lưu "+n+" mục");
+  }catch(e){toast("Không sao lưu được")}
+};
+document.getElementById("imp").onclick=function(){document.getElementById("impf").click()};
+document.getElementById("impf").onchange=function(){
+  var inp=this,f=inp.files&&inp.files[0];
+  if(!f)return;
+  var r=new FileReader();
+  r.onload=function(){
+    try{
+      var j=JSON.parse(r.result),arr=[],add=0,upd=0;
+      if(Array.isArray(j))arr=j;
+      else if(j&&Array.isArray(j.notes))arr=j.notes;
+      else if(j&&typeof j==="object"&&j.notes&&typeof j.notes==="object")arr=Object.keys(j.notes).map(function(k){var v=j.notes[k];if(v&&typeof v==="object"&&v.id==null)v.id=Number(k);return v});
+      else if(j&&typeof j==="object")arr=Object.keys(j).map(function(k){var v=j[k];if(v&&typeof v==="object"&&v.id==null)v.id=Number(k);return v});
+      var have={};notes.forEach(function(l){have[l.id]=l});
+      arr.forEach(function(v){
+        if(!v||typeof v!=="object"||v.id==null||isNaN(Number(v.id)))return;
+        v.id=Number(v.id);fixFin(v);
+        var l=have[v.id];
+        if(!l){notes.push(v);have[v.id]=v;add++}
+        else if(tsOf(v)>tsOf(l)){notes[notes.indexOf(l)]=v;have[v.id]=v;upd++}
+      });
+      if(!add&&!upd){toast(arr.length?"Không có gì mới để khôi phục":"File không đúng định dạng");return}
+      notes.sort(function(a,b){return(b.ts||0)-(a.ts||0)});
+      save();render();sync();
+      toast("Đã khôi phục: thêm "+add+", cập nhật "+upd);
+    }catch(e){toast("File không đọc được")}
+    inp.value="";
+  };
+  r.onerror=function(){toast("Không mở được file");inp.value=""};
+  r.readAsText(f);
+};
 document.addEventListener("visibilitychange",function(){if(!document.hidden)sync()});
 window.addEventListener("focus",sync);
 window.addEventListener("online",sync);
