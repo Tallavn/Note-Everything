@@ -667,7 +667,7 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
     Gợi ý được điền sẵn + bôi chọn (Enter để lưu); dataset.sug đánh dấu để xoá khi đóng mà không lưu.
  4) CHI NHÁNH + VỊ TRÍ GPS (tag Quán ăn): thẻ giữ vị trí chính ở x.link/x.addr; chi nhánh thêm nằm ở x.br = [{id,l,link,addr}].
     Thẻ chỉ hiện chip "+N chi nhánh", bấm mới mở danh sách (mỗi chi nhánh 1 dòng, cắt bớt bằng ellipsis) để thẻ không bị dài.
-    Nút 📍 có ở ô nhập (khi chọn tag Quán ăn, biến inLoc) và form Sửa (brEditor/brGps). GPS lưu thành link
+    Nút 📍 ở ô nhập (tag Quán ăn): mở Google Maps lấy link -> quay lại hiện nút Dán link (inWait/inLink). Form Sửa (brEditor/brGps) vẫn dùng GPS, lưu thành link
     https://www.google.com/maps?q=lat,lon (coords() đọc được) -> geoFill/brFill tự tra tên đường + quận (OSM).
     Địa chỉ hiển thị luôn qua compactAddr(). noteDist() lấy chi nhánh GẦN NHẤT khi sắp xếp "gần tôi".
     Mảng br rỗng thì delete x.br (Firebase bỏ mảng rỗng). GPS cần https + quyền vị trí.
@@ -909,7 +909,9 @@ function renderInTags(){
     h+='<div class="pick">'+KEYS.map(function(k){var d=CATS[k];return '<button type="button" class="tag" data-incat="'+k+'" aria-pressed="'+(inCat===k)+'" style="background:var(--c-'+d.c+'-bg);color:var(--c-'+d.c+')">'+d.n+'</button>'}).join("")+'<button type="button" class="tag ghost" data-incat="" style="background:transparent;color:var(--muted);border:1px solid var(--line)">Tự động</button></div>';
   }
   if(inCat==="todo")h+='<label class="meta indue duechip" title="Hạn chót (không bắt buộc)"><span class="duetxt">⏰ '+esc(dueShort(inDue))+'</span><input type="datetime-local" class="date" id="inDue" data-indue="1" value="'+esc(inDue||"")+'" aria-label="Hạn chót (không bắt buộc)"></label>';
-  if(inCat==="food")h+='<div class="meta"><button type="button" class="chip" data-ingps="1" aria-pressed="'+(!!inLoc)+'" title="'+(inLoc?'Đã lấy vị trí, bấm để bỏ':'Lưu vị trí hiện tại')+'">📍 '+(inLoc?'±'+Math.round(inLoc.acc)+' m':'Vị trí')+'</button></div>';
+  if(inCat==="food"){h+='<div class="meta"><button type="button" class="chip" data-ingps="1" aria-pressed="'+(!!inLink)+'" title="'+(inLink?'Đã có link vị trí, bấm để bỏ':'Mở Google Maps để lấy link vị trí')+'">📍 '+(inLink?'Đã có link ✕':'Vị trí')+'</button>';
+    if(inWait&&!inLink)h+='<button type="button" class="chip" data-inpaste="1" title="Dán link Google Maps vừa sao chép">📋 Dán link</button>';
+    h+='</div>'}
   el.innerHTML=h;
 }
 function addNote(forceRaw,forceNote){
@@ -928,8 +930,8 @@ function addNote(forceRaw,forceNote){
       return;
     }
   }
-  var nn0={id:Date.now(),text:clean(raw),cat:(forceRaw===undefined&&inCat&&CATS[inCat])?inCat:classify(raw),area:area(raw),due:(forceRaw===undefined&&inCat==="todo")?inDue:"",ts:Date.now(),upd:Date.now()};if(nt)nn0.note=nt;if(forceRaw===undefined&&inCat==="food"&&inLoc)nn0.link=gpsUrl(inLoc.ll);var im1=forceRaw===undefined?takeImgs():(carryImg||[]);carryImg=null;if(im1.length)nn0.img=im1;notes.unshift(nn0);
-  if(forceRaw===undefined){el.value="";ne.value="";growIn();inMsg(MQM.matches?"Đã lưu ghi chú":"");inCat="";inDue="";inOpen=false;inLoc=null;renderInTags()}
+  var nn0={id:Date.now(),text:clean(raw),cat:(forceRaw===undefined&&inCat&&CATS[inCat])?inCat:classify(raw),area:area(raw),due:(forceRaw===undefined&&inCat==="todo")?inDue:"",ts:Date.now(),upd:Date.now()};if(nt)nn0.note=nt;if(forceRaw===undefined&&inCat==="food"&&inLink)nn0.link=inLink;var im1=forceRaw===undefined?takeImgs():(carryImg||[]);carryImg=null;if(im1.length)nn0.img=im1;notes.unshift(nn0);
+  if(forceRaw===undefined){el.value="";ne.value="";growIn();inMsg(MQM.matches?"Đã lưu ghi chú":"");inCat="";inDue="";inOpen=false;inLoc=null;inLink="";inWait=false;renderInTags()}
   save();render();sync();refocus(el);
 }
 var sortBy="new",sortMap={};
@@ -1037,7 +1039,7 @@ function stripAddr(x){
   return w.join(" ")+rest;
 }
 /* ===== Chi nhánh (x.br) + lưu vị trí hiện tại (GPS) ===== */
-var brOpen=null,brMsg="",editBr=[],inLoc=null;
+var brOpen=null,brMsg="",editBr=[],inLoc=null,inLink="",inWait=false;
 function gpsUrl(ll){return"https://www.google.com/maps?q="+ll[0]+","+ll[1]}
 function getGps(cb){
   if(!navigator.geolocation){cb(null,"Thiết bị không hỗ trợ định vị");return}
@@ -1312,13 +1314,14 @@ document.addEventListener("click",function(e){
   if(t.dataset.unfin&&lastFin){var u=notes.find(function(x){return x.id==lastFin.id});if(u){u.del=true;u.desc="";u.amt=0;u.paid=0;u.upd=Date.now()}var rw=lastFin.raw,rn=lastFin.note;lastFin=null;carryImg=(u&&u.img)?u.img.slice():null;inMsg("");addNote(rw,rn);return}
   if(t.dataset.sug){var se=document.getElementById("in");se.value=t.dataset.sug;se.dataset.sug=t.dataset.sug;se.dispatchEvent(new Event("input",{bubbles:true}));try{se.focus();se.setSelectionRange(0,se.value.length)}catch(x){}return}
   if(t.dataset.ingps){
-    if(inLoc){inLoc=null;renderInTags();return}
-    t.disabled=true;t.textContent="📍 Đang lấy…";
-    getGps(function(ll,acc){
-      if(!ll){inMsg(esc(acc));renderInTags();return}
-      inLoc={ll:ll,acc:acc};renderInTags();inMsg("Đã lấy vị trí hiện tại. Gõ tên quán rồi bấm Lưu.");
-      var ie=document.getElementById("in");try{ie.focus()}catch(x){}});
+    if(inLink||inWait){inLink="";inWait=false;renderInTags();return}
+    var q=(document.getElementById("in").value||"").replace(/#\S+/g,"").trim();
+    var mu="https://www.google.com/maps/search/?api=1&query="+encodeURIComponent((q?q+" ":"quán ăn ")+"Hà Nội");
+    inWait=true;renderInTags();
+    inMsg("Chọn quán trên Google Maps, bấm Chia sẻ → Sao chép link, rồi quay lại đây bấm Dán link.");clearTimeout(inTimer);
+    try{window.open(mu,"_blank","noopener")}catch(x){}
     return}
+  if(t.dataset.inpaste){inPaste(true);return}
   if(t.dataset.inopen){inOpen=!inOpen;renderInTags();return}
   if(t.dataset.incat!==undefined){inCat=t.dataset.incat;inOpen=false;renderInTags();document.getElementById("in").focus();return}
   if(t.dataset.addtag){addTag(prompt("Tên tag mới (tối đa 20 ký tự)"));return}
@@ -1343,7 +1346,12 @@ document.addEventListener("keydown",function(e){
 setInterval(function(){Array.prototype.forEach.call(document.querySelectorAll(".rt[data-ts]"),function(el){el.textContent=relTime(+el.dataset.ts,el.dataset.g==="1")})},30000);
 document.addEventListener("visibilitychange",function(){if(!document.hidden&&!editing)render()});
 document.addEventListener("click",function(e){var a=e.target.closest("a[data-pend]");if(a&&a.dataset.pend){setPending(a.dataset.pend);setTimeout(render,150)}});
-function back(){if(pending&&!document.hidden)pasteInto(pending,false)}
+function inPaste(manual){
+  function ok(txt){var m=(txt||"").match(MAPRE);if(!m)return false;inLink=m[0];inWait=false;renderInTags();inMsg("Đã lấy link vị trí. Gõ tên quán rồi bấm Lưu.");var ie=document.getElementById("in");try{ie.focus()}catch(x){}return true}
+  function ask(){var v=prompt("Dán link Google Maps vào đây");if(v&&!ok(v))alert("Đây không phải link Google Maps.")}
+  try{navigator.clipboard.readText().then(function(t){if(!ok(t)&&manual){if(t&&t.trim())alert("Link vừa sao chép không phải link Google Maps.");else ask()}},function(){if(manual)ask()})}catch(e){if(manual)ask()}
+}
+function back(){if(pending&&!document.hidden)pasteInto(pending,false);if(inWait&&!inLink&&!document.hidden){renderInTags();inPaste(false)}}
 document.addEventListener("visibilitychange",back);
 window.addEventListener("focus",back);
 document.getElementById("add").onclick=function(){if(!document.getElementById("in").value.trim()){closeComposer();return}addNote()};
