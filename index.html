@@ -1789,6 +1789,11 @@ function showSug(){
   bx.addEventListener("mousedown",function(e){e.preventDefault()});
   el.addEventListener("input",function(){if(el.value!==el.dataset.sug)bx.innerHTML=""});
 })();
+/* Bấm nút Tag (ô nhập, form Sửa) không cướp focus của ô gõ -> bàn phím không bị hạ xuống. Chỉ chặn với <button>, ô ngày giờ vẫn nhận focus bình thường */
+document.addEventListener("mousedown",function(e){
+  var b=e.target.closest&&e.target.closest("#inTags button,[data-ecat]");
+  if(b)e.preventDefault();
+});
 /* Ô nhập tự cao lên theo nội dung, tới ngưỡng thì dừng và cuộn bên trong */
 function growIn(){
   var el=document.getElementById("in");if(!el)return;
@@ -2388,6 +2393,8 @@ if(code)sync();
     while(el&&el!==document.body&&el.nodeType===1){
       var t=el.tagName;
       if((t==="INPUT"||t==="TEXTAREA"||t==="SELECT"||el.isContentEditable)&&(el===document.activeElement||(t==="INPUT"&&el.type==="range")))return{hard:true};
+      /* Ô chữ chưa focus mà kéo ngang để xem phần chữ bị che (link dài), hoặc nằm trong form Sửa: cũng là kéo chữ, không phải vuốt đổi tab */
+      if((t==="TEXTAREA"||(t==="INPUT"&&/^(text|search|tel|number|email|url|password|)$/i.test(el.getAttribute("type")||"")))&&(el.scrollWidth>el.clientWidth+1||el.closest(".edit")))return{hard:true};
       if(el.classList&&(el.classList.contains("sheet")||el.classList.contains("camsheet")||el.classList.contains("camlive")))return{hard:true};
       if(!sc){var ox=getComputedStyle(el).overflowX;if((ox==="auto"||ox==="scroll")&&el.scrollWidth>el.clientWidth+2)sc=el}
       el=el.parentNode}
