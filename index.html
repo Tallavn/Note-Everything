@@ -300,7 +300,9 @@ body.ein .edit{animation:sheetPop .12s ease-out both}
 @media (prefers-reduced-motion:reduce){body.composing #notesView>.box,body.ein .edit,.fab.show,body.composing .cbd,body.editing .cbd{animation:none}body.cout #notesView>.box,body.cout .cbd{display:none}.edit.out{animation:none;opacity:0}#notesView>.box,.edit{transition:none}}
 #notesView>.box textarea{margin:0 -4px 4px;width:calc(100% + 8px);padding:8px 38px 8px 10px;border-radius:10px;resize:none}
 #notesView>.box textarea:focus-visible{outline:1px solid var(--accent);outline-offset:0}
-.cclose{display:block;position:absolute;top:20px;right:18px;z-index:1;background:none;border:0;color:var(--muted);font-size:21.6px;line-height:1;padding:2px 6px}
+.cclose{display:block;position:absolute;top:20px;right:18px;z-index:1;background:none;border:0;color:var(--muted);font-size:21.6px;line-height:1;padding:2px 6px;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation;outline:none;border-radius:8px}
+.cclose:active{background:color-mix(in srgb,var(--muted) 18%,transparent)}
+.cclose:focus:not(:focus-visible){outline:none}
 #notesView>.box:has(#in:placeholder-shown) .cclose{visibility:hidden}
 /* thông báo sau khi lưu: nổi phía trên thanh tag */
 #in-msg:empty{display:none}
@@ -547,6 +549,16 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 .cam svg{width:18px;height:18px}
 .cam:active{background:var(--line)}
 .cam.busy{opacity:.45;pointer-events:none}
+.camsheet{position:fixed;inset:0;z-index:300;display:flex;align-items:flex-end;justify-content:center}
+.camsheet .cs-bd{position:absolute;inset:0;background:rgba(0,0,0,.42)}
+.camsheet .cs-box{position:relative;width:min(420px,100%);box-sizing:border-box;padding:12px 12px calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;background:var(--surface);border-radius:16px 16px 0 0;box-shadow:0 -6px 30px rgba(0,0,0,.3)}
+.camsheet .cs-box button{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;padding:14px;font:inherit;font-size:15px;font-weight:600;text-align:left}
+.camsheet .cs-box .cs-x{text-align:center;font-weight:500;color:var(--muted);background:transparent;border:0}
+.camlive{position:fixed;inset:0;z-index:310;background:#000;display:flex;flex-direction:column}
+.camlive video{flex:1;min-height:0;width:100%;object-fit:contain;background:#000}
+.camlive .cl-bar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px calc(18px + env(safe-area-inset-bottom,0px));background:#000}
+.camlive .cl-bar button{border:0;background:transparent;color:#fff;font:inherit;font-size:15px;min-width:56px;padding:8px 0}
+.camlive .cl-bar .cl-shot{width:68px;height:68px;min-width:0;padding:0;border-radius:50%;background:#fff;border:4px solid #000;box-shadow:0 0 0 3px #fff}
 .cam.ocr.busy svg{animation:ocrp .9s ease-in-out infinite alternate}
 @keyframes ocrp{to{opacity:.3}}
 .cam.cam-chip{width:auto;height:auto;padding:3px 9px;border-radius:99px}
@@ -633,6 +645,7 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 <button type="button" class="fab" id="fab" aria-label="Tạo ghi chú mới" title="Tạo ghi chú mới"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
 <div class="fablock" id="fablock"><button type="button" id="fl-reset">Đặt lại</button><button type="button" class="fl-ok" id="fl-ok">Khoá vị trí</button></div>
 <input type="file" id="camIn" accept="image/*" multiple tabindex="-1" aria-hidden="true" style="position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none">
+<input type="file" id="camCap" accept="image/*" capture="environment" tabindex="-1" aria-hidden="true" style="position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none">
 <input type="file" id="ocrIn" accept="image/*" tabindex="-1" aria-hidden="true" style="position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none">
 <script>
 /* ===================== GHI CHÚ CHO LẦN SỬA SAU (đọc trước khi sửa) =====================
@@ -1114,23 +1127,63 @@ document.addEventListener("click",function(e){
   var t=e.target.closest&&e.target.closest("[data-cam],[data-imgv],[data-imgp],[data-imgrm]");if(!t)return;
   e.preventDefault();e.stopPropagation();
   var d=t.dataset,p;
-  if(d.cam){camCtx=d.cam;var inp=document.getElementById("camIn");inp.value="";inp.click();return}
+  if(d.cam){camCtx=d.cam;if(camRoom(camCtx)<=0){toast("Tối đa "+MAXIMG+" ảnh cho mỗi mục");return}camMenu();return}
   if(d.imgrm){p=d.imgrm.split(":");pendArr(p[0]).splice(+p[1],1);renderPend(p[0]);return}
   if(d.imgp){p=d.imgp.split(":");var u=pendArr(p[0])[+p[1]];if(u)openLB(u);return}
   if(d.imgv){p=d.imgv.split(":");var x=notes.find(function(n){return n.id==p[0]});if(x&&x.img&&x.img[+p[1]])openLB(x.img[+p[1]])}
 },true);
-document.getElementById("camIn").addEventListener("change",function(){
-  var files=Array.prototype.slice.call(this.files||[]),ctx=camCtx;if(!files.length)return;
+function camRoom(ctx){
+  var kind=ctx.indexOf("card:")===0?"card":ctx,card=kind==="card"?notes.find(function(n){return n.id==ctx.slice(5)}):null;
+  if(kind==="card"&&!card)return 0;
+  return MAXIMG-(card?(card.img||[]):pendArr(kind)).length}
+function procPics(files){
+  var ctx=camCtx;if(!files.length)return;
   var kind=ctx.indexOf("card:")===0?"card":ctx,card=kind==="card"?notes.find(function(n){return n.id==ctx.slice(5)}):null;
   if(kind==="card"&&!card)return;
-  var cur=card?(card.img||[]):pendArr(kind),room=MAXIMG-cur.length;
+  var room=camRoom(ctx);
   if(room<=0){toast("Tối đa "+MAXIMG+" ảnh cho mỗi mục");return}
   Promise.all(files.slice(0,room).map(shrinkImg)).then(function(r){
     r=r.filter(Boolean);if(!r.length){toast("Không đọc được ảnh");return}
     if(card){card.img=(card.img||[]).concat(r).slice(0,MAXIMG);card.upd=Date.now();save();render();sync()}
     else{var a=pendArr(kind);r.forEach(function(u){if(a.length<MAXIMG)a.push(u)});renderPend(kind)}
-  });
-});
+  })}
+["camIn","camCap"].forEach(function(id){document.getElementById(id).addEventListener("change",function(){procPics(Array.prototype.slice.call(this.files||[]))})});
+/* Menu chọn nguồn ảnh: chụp (camera ngay trong app, KHÔNG lưu ảnh vào thư viện máy) hoặc chọn ảnh có sẵn */
+function camMenu(){
+  if(document.querySelector(".camsheet"))return;
+  var d=document.createElement("div");d.className="camsheet";
+  d.innerHTML='<div class="cs-bd"></div><div class="cs-box" role="dialog" aria-label="Thêm ảnh"><button type="button" data-cs="shoot">📷 Chụp ảnh</button><button type="button" data-cs="pick">🖼️ Chọn ảnh trong máy</button><button type="button" class="cs-x" data-cs="cancel">Hủy</button></div>';
+  d.addEventListener("click",function(e){
+    var b=e.target.closest("[data-cs]");if(!b&&!(e.target.classList&&e.target.classList.contains("cs-bd")))return;
+    e.stopPropagation();
+    var a=b?b.dataset.cs:"cancel";d.remove();
+    if(a==="pick"){var i=document.getElementById("camIn");i.value="";i.click()}
+    else if(a==="shoot")camLive()});
+  document.body.appendChild(d)}
+var camStream=null,camFace="environment";
+function camLive(){
+  if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)){
+    /* không có camera trong trình duyệt (ví dụ trang không dùng https): dùng camera của máy, ảnh có thể được máy tự lưu */
+    var f=document.getElementById("camCap");f.value="";f.click();return}
+  var d=document.createElement("div");d.className="camlive";
+  d.innerHTML='<video playsinline muted autoplay></video><div class="cl-bar"><button type="button" data-cl="close">Hủy</button><button type="button" class="cl-shot" data-cl="shot" aria-label="Chụp"></button><button type="button" data-cl="flip" aria-label="Đổi camera">Đổi</button></div>';
+  document.body.appendChild(d);
+  var v=d.querySelector("video");
+  function stop(){if(camStream){camStream.getTracks().forEach(function(t){t.stop()});camStream=null}}
+  function close(){stop();d.remove()}
+  function open(){stop();
+    return navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:camFace},width:{ideal:1600},height:{ideal:1600}},audio:false})
+      .then(function(st){camStream=st;v.srcObject=st;return v.play().catch(function(){})})}
+  d.addEventListener("click",function(e){
+    var b=e.target.closest("[data-cl]");if(!b)return;e.stopPropagation();var a=b.dataset.cl;
+    if(a==="close")close();
+    else if(a==="flip"){camFace=camFace==="environment"?"user":"environment";open().catch(function(){})}
+    else if(a==="shot"){
+      if(!v.videoWidth)return;
+      var c=document.createElement("canvas");c.width=v.videoWidth;c.height=v.videoHeight;
+      c.getContext("2d").drawImage(v,0,0);
+      c.toBlob(function(bl){close();if(bl)procPics([bl]);else toast("Không chụp được ảnh")},"image/jpeg",.92)}});
+  open().catch(function(){close();toast("Không mở được camera. Hãy cho phép quyền camera hoặc chọn ảnh trong máy")})}
 /* ===================== QUÉT CHỮ TỪ ẢNH (Worker + Gemini) ===================== */
 var ocrBusy=false;
 function ocrPrep(f){return new Promise(function(res){
@@ -2308,7 +2361,7 @@ if(code)sync();
     while(el&&el!==document.body&&el.nodeType===1){
       var t=el.tagName;
       if((t==="INPUT"||t==="TEXTAREA"||t==="SELECT"||el.isContentEditable)&&(el===document.activeElement||(t==="INPUT"&&el.type==="range")))return{hard:true};
-      if(el.classList&&el.classList.contains("sheet"))return{hard:true};
+      if(el.classList&&(el.classList.contains("sheet")||el.classList.contains("camsheet")||el.classList.contains("camlive")))return{hard:true};
       if(!sc){var ox=getComputedStyle(el).overflowX;if((ox==="auto"||ox==="scroll")&&el.scrollWidth>el.clientWidth+2)sc=el}
       el=el.parentNode}
     return{hard:false,sc:sc}}
@@ -2343,7 +2396,7 @@ if(code)sync();
     kb=false;if(e.touches.length!==1)return;
     var a=document.activeElement,t=e.target;
     if(!isField(a)||!t||t.nodeType!==1)return;
-    if(t===a||t.closest("#fab,#cbd,.sbar,.fwrap,.setw"))return;                    /* chạm đúng ô đang gõ / nút bút: để bình thường */
+    if(t===a||t.closest("#fab,#cbd,.sbar,.fwrap,.setw,.camsheet,.camlive"))return;                    /* chạm đúng ô đang gõ / nút bút: để bình thường */
     var c=a.closest(".box,.edit,.sync");
     if(c&&c.contains(t))return;                            /* chạm trong vùng nhập (Lưu, Tag, ô khác cùng khung): để bình thường */
     kb=true;var p=e.touches[0];tx=p.clientX;ty=p.clientY;tt=Date.now()},{passive:true,capture:true});
