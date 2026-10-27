@@ -1438,11 +1438,13 @@ function strongAmt(tok){
 }
 function givenInc(tk,i){var a=i>0?bare(tk[i-1]):"",b=i>1?bare(tk[i-2]):"";return a==="cho"||(b==="cho"&&(a==="minh"||a==="toi"||a==="em"))}
 function bare(w){return norm(w).trim().replace(/[^a-z0-9]/g,"")}
+/* Chỉ coi là nợ khi gõ đúng "vay", "nợ", "mượn" (có dấu). Gõ không dấu "no"/"muon" thì chỉ tính khi đứng đầu câu, để "ăn no", "muốn" không bị nhầm */
+function debtWord(w,first){var t=String(w).normalize("NFC").toLowerCase().replace(/[;:!?.,]+$/,"");return t==="vay"||t==="nợ"||t==="mượn"||(!!first&&(t==="no"||t==="muon"))}
 function autoFin(raw){
   if(raw.indexOf("\n")>-1||raw.length>80||/https?:\/\//i.test(raw)||raw.indexOf("#")>-1||area(raw))return null;
   var tk=raw.trim().split(/\s+/),idx=-1,v=0,i;
   for(i=0;i<tk.length;i++){v=strongAmt(tk[i]);if(v){idx=i;break}}
-  if(idx<0&&tk.some(function(w){var b=bare(w);return b==="no"||b==="vay"||b==="muon"})){
+  if(idx<0&&tk.some(function(w,j){return debtWord(w,j===0)})){
     for(i=0;i<tk.length;i++){var tn=tk[i].replace(/[;:!?]+$/,"");if(/^\d+([.,]\d{3})*$/.test(tn)){var nv=Number(tn.replace(/[.,]/g,""));if(nv>=1000){v=nv;idx=i;break}}}
   }
   if(idx<0)return null;
@@ -1450,13 +1452,13 @@ function autoFin(raw){
   var sign=(c0==="+"||prev==="+")?"+":((c0==="-"||prev==="-")?"-":"");
   var rest=tk.filter(function(_,j){return j!==idx&&!(j===idx-1&&(prev==="+"||prev==="-"))});
   var words=rest.map(bare).filter(Boolean),now=Date.now(),day=today();
-  var isDebt=words.some(function(w){return w==="no"||w==="vay"||w==="muon"});
+  var isDebt=rest.some(function(w,j){return debtWord(w,j===0)});
   if(isDebt){
     var s=" "+words.join(" ")+" ",dir;
     if(/ no minh | cho .+ (vay|muon) | (vay|muon) minh /.test(s))dir="lent";
     else if(/^ (no|vay|muon) | minh (no|vay|muon) /.test(s))dir="owe";
     else dir="lent";
-    var desc=rest.filter(function(w){return["no","vay","muon","minh","cho"].indexOf(bare(w))<0}).join(" ");
+    var desc=rest.filter(function(w,j){return !debtWord(w,j===0)&&["minh","cho"].indexOf(bare(w))<0}).join(" ");
     return{kind:"debt",obj:{id:now,fin:1,k:"debt",dir:dir,amt:v,paid:0,desc:desc||"",day:day,ts:now,upd:now}};
   }
   var inc=sign==="+";
@@ -2303,15 +2305,27 @@ function addFin(dir){
   if(!el.value.trim())return;
   r=parseLine(el.value);
   if(!r){setMsg("Chưa thấy số tiền. Ví dụ: 45k phở bò");return}
-  var day=document.getElementById("fin-date").value||today(),now=Date.now(),o;
-  if(sub==="debt"){
+  var day=document.getElementById("fin-date").value||today(),now=Date.now(),o,asDebt=false;
+  if(sub!=="debt"){
+    /* gõ "vay ..."/"nợ ..."/"mượn ..." ở tab Thu chi thì tự chuyển sang Nợ, giống ô ghi nhanh */
+    var dw=String(r.desc||"").trim().split(/\s+/).filter(Boolean),bw=dw.map(bare);
+    if(dw.some(function(w,j){return debtWord(w,j===0)})){
+      var s2=" "+bw.join(" ")+" ";
+      dir=/ no minh | cho .+ (vay|muon) | (vay|muon) minh /.test(s2)?"lent":(/^ (no|vay|muon) | minh (no|vay|muon) /.test(s2)?"owe":"lent");
+      r.desc=dw.filter(function(w,j){return !debtWord(w,j===0)&&["minh","cho"].indexOf(bare(w))<0}).join(" ");
+      asDebt=true;
+    }
+  }
+  if(sub==="debt"||asDebt){
     if(!dir){setMsg("Bấm Mình nợ hoặc Họ nợ mình để lưu.");return}
     var pr=payByText(r.desc,r.amt);
     if(pr){el.value="";defMsg();closeSheet();touch();toast(pr);return}
     o={id:now,fin:1,k:"debt",dir:dir,amt:r.amt,paid:0,desc:r.desc||"",day:day,ts:now,upd:now};
+    if(!asDebt){
     var rv=parseFloat(String(document.getElementById("fin-rate").value||"").replace(",","."));
     if(rv>0&&rv<=1000){o.rate=rv;o.per=document.getElementById("fin-per").value==="y"?"y":"m"}
     var dv=document.getElementById("fin-due").value;if(dv)o.dueDay=dv;
+    }
   }else{
     o={id:now,fin:1,k:"tx",t:r.inc?"in":"out",amt:r.amt,desc:r.desc,day:day,ts:now,upd:now};
     o.cat=guessCat(r.desc,r.inc);
@@ -2320,6 +2334,7 @@ function addFin(dir){
   }
   var fnt=(document.getElementById("fin-note").value||"").trim().slice(0,200);if(fnt)o.note=fnt;if(finImgs.length){o.img=finImgs.slice();finImgs=[];renderPend("fin")}
   notes.unshift(o);if(o.k==="tx"&&o.t==="out"){var pm2=planHook(o);if(pm2&&pm2.indexOf("data-pl=")<0)toast("Đã ghi"+pm2)}el.value="";defMsg();closeSheet();touch();
+  if(asDebt)toast("Đã ghi vào Nợ: "+(o.dir==="owe"?"Mình nợ ":"Họ nợ mình ")+money(o.amt)+(o.desc?" · "+o.desc:""));
 }
 function dailyChart(by,days){
   var W=600,H=110,T=8,bw=W/days,mx=0,i,s;
