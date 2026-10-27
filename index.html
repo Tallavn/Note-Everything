@@ -713,6 +713,9 @@ mark.hl{background:color-mix(in srgb,var(--accent) 30%,transparent);color:inheri
 .memrow .hint{margin:0}
 .memrow .hint.od{color:var(--bad)}
 #setBtn.dot::after{content:"";position:absolute;top:5px;right:5px;width:9px;height:9px;border-radius:50%;background:var(--bad);border:2px solid var(--surface)}
+/* Cố định header, hàng tab và thanh lọc đáy: không cho trang bị kéo/đàn hồi, và bù lại khi khung nhìn bị lệch */
+html,body{overscroll-behavior-y:none}
+.hdr,.tabs,#filters,.fwrap,.seg{translate:0 var(--vvy,0px)}
 </style>
 </head>
 <body>
@@ -3613,6 +3616,13 @@ new MutationObserver(function(ms){ms.forEach(function(m){
   hook("toast",function(){hideToast()});
   hook("in-msg",function(){var m=document.getElementById("in-msg");clearTimeout(inTimer);m.innerHTML=""});
 })();
+</script>
+<script>
+/* Giữ thanh trên/dưới đứng yên khi visual viewport bị lệch so với layout viewport lúc kéo */
+(function(){var vv=window.visualViewport;if(!vv)return;var r=document.documentElement,raf=0;
+function u(){raf=0;var z=parseFloat(document.body.style.zoom)||1,y=vv.scale>1.01?0:vv.offsetTop;if(Math.abs(y)<1)y=0;r.style.setProperty("--vvy",(y/z)+"px")}
+function q(){if(!raf)raf=requestAnimationFrame(u)}
+vv.addEventListener("scroll",q);vv.addEventListener("resize",q);window.addEventListener("scroll",q,{passive:true});u()})();
 </script>
 </body>
 </html>
