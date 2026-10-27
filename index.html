@@ -834,6 +834,7 @@ html,body{overscroll-behavior-y:contain}
     if(!src){document.addEventListener("DOMContentLoaded",function(){run(late)});return}
     started=true;clearTimeout(timer);
     if(late)window.__IDBFAIL=true;
+    else{try{sessionStorage.removeItem("idbRl")}catch(e){}}
     var s=document.createElement("script");
     s.textContent=src.textContent;
     (document.body||document.documentElement).appendChild(s);
@@ -848,7 +849,9 @@ html,body{overscroll-behavior-y:contain}
       var db=r.result;
       try{
         var t=db.transaction("kv","readonly"),st=t.objectStore("kv"),g=st.get("notes"),pg=st.get("primary");
-        t.oncomplete=function(){window.__IDBNOTES=typeof g.result==="string"?g.result:null;window.__IDBPRIMARY=!!pg.result;window.__IDBPRIMARYAT=+pg.result||0;window.__IDBREADY=true;try{db.close()}catch(e){}run()};
+        t.oncomplete=function(){window.__IDBNOTES=typeof g.result==="string"?g.result:null;window.__IDBPRIMARY=!!pg.result;window.__IDBPRIMARYAT=+pg.result||0;window.__IDBREADY=true;try{db.close()}catch(e){}
+          if(started&&window.__IDBFAIL){try{if(!sessionStorage.getItem("idbRl")){sessionStorage.setItem("idbRl","1");location.reload();return}}catch(e){}}
+          run()};
         t.onerror=t.onabort=function(){try{db.close()}catch(e){}run()};
       }catch(e){run()}
     };
@@ -1373,6 +1376,7 @@ var IDBX=(function(){
 var idbS=null,idbBusy=false,idbOK=null,idbLen=0,idbPrimary=!!window.__IDBPRIMARY,idbLast=null,idbTry=0,persisted=null,memQuota=0,memUse=0,memEstT=null;
 /* idbPrimary = true: IndexedDB là nơi lưu chính, localStorage không còn được ghi (và không còn được đọc khi mở app). */
 function idbMirror(str){
+  if(window.__IDBFAIL&&!window.__IDBREADY)return;
   idbS=str;idbLast=str;if(idbBusy)return;idbBusy=true;
   (function go(){
     var x=idbS;idbS=null;
