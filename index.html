@@ -675,12 +675,42 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 .tgc .tgh span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 /* Chi tiêu: vuốt hiện Sửa/Xóa = dòng trượt sang trái (không thu hẹp), bị cắt ở mép cột nhãn nên không đè lên tên tag */
 @media (prefers-reduced-motion:reduce){.tgc .swrap .swcard{transition:none}}
+/* ===== Hộp thoại trong app, tìm kiếm đa tab, bộ nhớ máy ===== */
+#dlgSheet{z-index:80}
+#dlgSheet .box{max-width:420px}
+#dlgSheet .fin-in{margin:8px 0 0;width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--bg)}
+#dlgSheet .dlgta{display:block;width:100%;min-height:130px;margin-top:8px;resize:none;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--bg);color:var(--ink);font:inherit;font-size:12.6px;outline:none}
+#dlgSheet .fin-in:focus-visible,#dlgSheet .dlgta:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+#dlgMsg{margin:0 2px;white-space:pre-wrap;word-break:break-word;font-size:12.6px}
+#dlgMsg.err{color:var(--bad)}
+.dlgbtns{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+.add.danger{background:var(--bad);color:#fff}
+mark.hl{background:color-mix(in srgb,var(--accent) 30%,transparent);color:inherit;border-radius:3px;padding:0 1px}
+#xres{margin-top:18px}
+#xres:empty{display:none}
+.xgrp{display:flex;align-items:center;gap:6px;font-size:12.6px;font-weight:700;color:var(--muted);margin:14px 2px 6px}
+.xgrp b{font-weight:500}
+.xrow{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:9px 12px;margin-bottom:6px}
+.xrow .xd{min-width:0;word-break:break-word}
+.xrow .xd small{display:block;color:var(--muted);font-size:11.7px}
+.xrow .xm{flex:none;white-space:nowrap;font-weight:700}
+.xrow:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.xmore{color:var(--muted);font-size:11.7px;margin:2px 2px 0}
+.memrow{display:flex;flex-direction:column;gap:5px;font-size:12.6px;padding:4px 6px}
+.memrow>div:first-child{display:flex;justify-content:space-between;gap:8px}
+.mbar{height:6px;background:var(--bg);border-radius:99px;overflow:hidden}
+.mbar i{display:block;height:100%;width:0;background:var(--accent);border-radius:99px}
+.mbar i.w{background:var(--k0)}
+.mbar i.o{background:var(--bad)}
+.memrow .hint{margin:0}
+.memrow .hint.od{color:var(--bad)}
+#setBtn.dot::after{content:"";position:absolute;top:5px;right:5px;width:9px;height:9px;border-radius:50%;background:var(--bad);border:2px solid var(--surface)}
 </style>
 </head>
 <body>
 <div class="cbd" id="cbd"></div>
 <main>
-<div class="hdr"><h1 class="logo" aria-label="Note Everything"><b class="lg-n">Note.</b><i class="lg-l" aria-hidden="true"></i><span class="lg-e">EVERYTHING</span></h1><div class="hr"><div class="hsearch sbar" id="hsearch"><input class="search" id="q" type="search" placeholder="Tìm trong ghi chú"></div><div class="setw"><button type="button" class="fbtn sbtn" id="setBtn" aria-label="Cài đặt" aria-haspopup="true" aria-expanded="false" title="Cài đặt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button><div class="smenu" id="setMenu" hidden><div class="sm-row"><span>Cỡ giao diện</span><span class="zc"><button type="button" id="zDn" aria-label="Giảm cỡ giao diện">−</button><button type="button" id="zVal" title="Về 100%">100%</button><button type="button" id="zUp" aria-label="Tăng cỡ giao diện">+</button></span></div><div class="sm-row"><span>Ngôn ngữ</span><span class="zc nolang"><button type="button" id="lgVi">Tiếng Việt</button><button type="button" id="lgEn">English</button></span></div><button type="button" class="sm-btn" id="theme">Đổi giao diện</button><button type="button" class="sm-btn" id="copy">Sao chép tất cả</button><div class="sm-row" style="font-size:10.8px;color:var(--muted)"><span>Build</span><span>24.10-h</span></div><details class="syncmenu" id="syncmenu"><summary>Đồng bộ</summary>
+<div class="hdr"><h1 class="logo" aria-label="Note Everything"><b class="lg-n">Note.</b><i class="lg-l" aria-hidden="true"></i><span class="lg-e">EVERYTHING</span></h1><div class="hr"><div class="hsearch sbar" id="hsearch"><input class="search" id="q" type="search" placeholder="Tìm ghi chú, chi tiêu, dự án"></div><div class="setw"><button type="button" class="fbtn sbtn" id="setBtn" aria-label="Cài đặt" aria-haspopup="true" aria-expanded="false" title="Cài đặt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button><div class="smenu" id="setMenu" hidden><div class="sm-row"><span>Cỡ giao diện</span><span class="zc"><button type="button" id="zDn" aria-label="Giảm cỡ giao diện">−</button><button type="button" id="zVal" title="Về 100%">100%</button><button type="button" id="zUp" aria-label="Tăng cỡ giao diện">+</button></span></div><div class="sm-row"><span>Ngôn ngữ</span><span class="zc nolang"><button type="button" id="lgVi">Tiếng Việt</button><button type="button" id="lgEn">English</button></span></div><button type="button" class="sm-btn" id="theme">Đổi giao diện</button><button type="button" class="sm-btn" id="copy">Sao chép tất cả</button><div class="memrow" id="memRow"><div><span>Bộ nhớ máy</span><span id="memVal">–</span></div><div class="mbar"><i id="memBar"></i></div><div class="hint" id="memBk"></div><div class="hint" id="memIdb"></div></div><div class="sm-row" style="font-size:10.8px;color:var(--muted)"><span>Build</span><span>27.10-idb4</span></div><details class="syncmenu" id="syncmenu"><summary>Đồng bộ</summary>
 <div class="sync"><input id="code" placeholder="Mã đồng bộ" autocomplete="off" spellcheck="false"><button id="conn">Kết nối</button><button id="gen">Tạo mã mới</button><button id="off">Ngắt</button><button id="bkp">Sao lưu</button><button id="imp">Khôi phục</button><input type="file" id="impf" accept=".json,application/json" hidden><span id="st" class="hint"></span></div>
 </details></div></div></div></div>
 <div class="tabs"><button class="chip" data-tab="notes" aria-pressed="true"><span class="tl">Ghi chú</span></button><button class="chip" data-tab="fin" aria-pressed="false"><span class="tl">Chi tiêu</span></button><button class="chip" data-tab="plan" aria-pressed="false"><span class="tl">Dự án</span></button></div>
@@ -708,6 +738,7 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 </div>
 </div></div>
 <div id="list"></div>
+<div id="xres"></div>
 </div>
 <div id="finView" hidden>
 <div class="seg"><button class="chip" data-sub="tx" aria-pressed="true">Thu chi</button><button class="chip" data-sub="debt" aria-pressed="false">Nợ</button><button class="chip" data-sub="bud" aria-pressed="false">Ngân sách</button></div>
@@ -736,6 +767,7 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 <div class="hint" id="impMsg" role="status"></div></div>
 <div id="impPv" hidden></div></div></div>
 </main>
+<div id="dlgSheet" class="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="dlgTitle"><div class="box"><div class="shead"><b id="dlgTitle"></b><button type="button" class="x" data-dlg="no" aria-label="Đóng">×</button></div><div class="hint" id="dlgMsg" hidden></div><input id="dlgIn" class="fin-in" type="text" autocomplete="off" enterkeyhint="done" hidden><textarea id="dlgTa" class="dlgta" hidden></textarea><div class="dlgbtns"><button type="button" class="add alt" data-dlg="no">Hủy</button><button type="button" class="add" id="dlgOk" data-dlg="ok">Lưu</button></div></div></div>
 <div class="toast" id="toast" role="status" hidden></div>
 <button type="button" class="fab" id="fab" aria-label="Tạo ghi chú mới" title="Tạo ghi chú mới"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
 <div class="fablock" id="fablock"><button type="button" id="fl-reset">Đặt lại</button><button type="button" class="fl-ok" id="fl-ok">Khoá vị trí</button></div>
@@ -743,6 +775,41 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 <input type="file" id="camCap" accept="image/*" capture="environment" tabindex="-1" aria-hidden="true" style="position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none">
 <input type="file" id="ocrIn" accept="image/*" tabindex="-1" aria-hidden="true" style="position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none">
 <script>
+/* Khởi động: đọc IndexedDB TRƯỚC, rồi mới chạy mã chính (id="mainjs") để load() có sẵn dữ liệu, không phải đổi thứ tự khởi động.
+   Quá 2,5 giây chưa đọc xong (IndexedDB treo/không có) thì chạy luôn với localStorage như cũ. */
+(function(){
+  var started=false,timer;
+  function run(late){
+    if(started)return;
+    var src=document.getElementById("mainjs");
+    /* Có thể bị gọi ngay khi trang còn đang đọc (IndexedDB báo lỗi tức thì): chờ trang đọc xong rồi mới chạy. */
+    if(!src){document.addEventListener("DOMContentLoaded",function(){run(late)});return}
+    started=true;clearTimeout(timer);
+    if(late)window.__IDBFAIL=true;
+    var s=document.createElement("script");
+    s.textContent=src.textContent;
+    (document.body||document.documentElement).appendChild(s);
+    if(document.readyState==="complete"){try{window.dispatchEvent(new Event("load"))}catch(e){}}
+  }
+  window.__IDBNOTES=null;
+  timer=setTimeout(function(){run(true)},2500);
+  try{
+    var r=indexedDB.open("ghichu_db",1);
+    r.onupgradeneeded=function(){if(!r.result.objectStoreNames.contains("kv"))r.result.createObjectStore("kv")};
+    r.onsuccess=function(){
+      var db=r.result;
+      try{
+        var t=db.transaction("kv","readonly"),st=t.objectStore("kv"),g=st.get("notes"),pg=st.get("primary");
+        t.oncomplete=function(){window.__IDBNOTES=typeof g.result==="string"?g.result:null;window.__IDBPRIMARY=!!pg.result;window.__IDBPRIMARYAT=+pg.result||0;window.__IDBREADY=true;try{db.close()}catch(e){}run()};
+        t.onerror=t.onabort=function(){try{db.close()}catch(e){}run()};
+      }catch(e){run()}
+    };
+    r.onerror=function(){run()};
+    r.onblocked=function(){run()};
+  }catch(e){run()}
+})();
+</script>
+<script type="text/plain" id="mainjs">
 /* ===================== GHI CHÚ CHO LẦN SỬA SAU (đọc trước khi sửa) =====================
  1) VUỐT ĐỔI TAB (tìm "Vuốt trái/phải để đổi tab"): chỉ chặn khi thật sự xung đột
     (ô nhập đang focus, input range, .sheet/popup). KHÔNG chặn input date, nút, thẻ.
@@ -967,7 +1034,7 @@ function setGroupOrder(vk){
 function addTag(name,f,col){
   name=(name||"").trim().slice(0,20);if(!name)return"";
   var low=name.toLowerCase(),dup=Object.keys(CATS).some(function(k){return CATS[k].n.toLowerCase()===low});
-  if(dup){alert("Tag này đã có rồi.");return""}
+  if(dup){toast("Tag này đã có rồi.");return""}
   var st=tagStore(),now=Date.now(),nk="c"+now;
   if(!st){st={id:2,fin:1,k:"ctags",list:[],ts:now,upd:now};notes.push(st)}
   st.list=(st.list||[]).concat([{k:nk,n:name,f:f||"",c:col||""}]);st.upd=now;
@@ -982,7 +1049,7 @@ function editTag(k,name,f,col){f=f||"";
     if(!BASE[k])return"";
     name=(name||"").trim().slice(0,20);if(!name)return"";
     var lw=name.toLowerCase();
-    if(Object.keys(CATS).some(function(o){return o!==k&&CATS[o].n.toLowerCase()===lw})){alert("Tag này đã có rồi.");return""}
+    if(Object.keys(CATS).some(function(o){return o!==k&&CATS[o].n.toLowerCase()===lw})){toast("Tag này đã có rồi.");return""}
     var sn0=snapOf([st]),n0=Date.now();
     st.ren=st.ren||{};if(name===BASE[k].n)delete st.ren[k];else st.ren[k]=name;
     st.feat=st.feat||{};if(f===(BASEF[k]||""))delete st.feat[k];else st.feat[k]=f;
@@ -991,7 +1058,7 @@ function editTag(k,name,f,col){f=f||"";
   }
   name=(name||"").trim().slice(0,20);if(!name)return"";
   var low=name.toLowerCase(),dup=Object.keys(CATS).some(function(o){return o!==k&&CATS[o].n.toLowerCase()===low});
-  if(dup){alert("Tag này đã có rồi.");return""}
+  if(dup){toast("Tag này đã có rồi.");return""}
   var sn=snapOf([st]),now=Date.now();
   it.n=name;it.f=f||"";if(col)it.c=col;st.upd=now;save();render();sync();setUndo("Đã sửa tag",sn);return k;
 }
@@ -1060,7 +1127,7 @@ function tagSheetOpen(k,from){
       else if(a==="pinchg"){pinAsk(function(){pinSetup()},true)}
       else if(a==="mv"){tagMove(tagCtx&&tagCtx.k,+b.dataset.d)}
       else if(a==="col"){tagSh.querySelectorAll("[data-col]").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false")})}
-      else if(a==="del"){var dk=tagCtx&&tagCtx.k;if(!dk||!CATS[dk])return;var cnt=notes.filter(function(x){return !x.fin&&!x.del&&x.cat===dk}).length;if(confirm('Xóa tag "'+CATS[dk].n+'"?'+(cnt?'\n'+cnt+' ghi chú đang dùng tag này sẽ chuyển sang "Khác".':''))){tagSheetClose(false);delTag(dk)}}
+      else if(a==="del"){var dk=tagCtx&&tagCtx.k;if(!dk||!CATS[dk])return;var cnt=notes.filter(function(x){return !x.fin&&!x.del&&x.cat===dk}).length;dlgYes({title:'Xóa tag "'+CATS[dk].n+'"?',msg:cnt?cnt+' ghi chú đang dùng tag này sẽ chuyển sang "Khác".':'',ok:"Xóa",danger:1},function(){tagSheetClose(false);delTag(dk)})}
     });
     tagSh.addEventListener("keydown",function(e){
       if(e.key==="Enter"&&e.target.id==="tgName"){e.preventDefault();tagSheetSave()}
@@ -1104,11 +1171,14 @@ function delTag(k){
 }
 function renTag(k){
   if(!CATS[k])return;
-  var cur=CATS[k].n,v=prompt("Tên mới của tag (tối đa 20 ký tự)",cur);
-  if(v===null)return;
+  dlgAsk({title:"Đổi tên tag",msg:"Tối đa 20 ký tự.",val:CATS[k].n,ok:"Đổi tên"},function(v){renTagDo(k,v)});
+}
+function renTagDo(k,v){
+  if(!CATS[k])return;
+  var cur=CATS[k].n;
   v=v.trim().slice(0,20);if(!v||v===cur)return;
   var low=v.toLowerCase(),dup=Object.keys(CATS).some(function(o){return o!==k&&CATS[o].n.toLowerCase()===low});
-  if(dup){alert("Tag này đã có rồi.");return}
+  if(dup){toast("Tag này đã có rồi.");return}
   var st=tagStore(),now=Date.now(),sn=st?snapOf([st]):null;
   if(!st){st={id:2,fin:1,k:"ctags",list:[],ts:now,upd:now};notes.push(st)}
   var it=(st.list||[]).find(function(t){return t.k===k});
@@ -1173,7 +1243,7 @@ function attach(id,txt){
   return false;
 }
 function pasteInto(id,manual){
-  function ask(){var v=prompt("Dán link Google Maps vào đây");if(v&&!attach(id,v))alert("Đây không phải link Google Maps.")}
+  function ask(){dlgAsk({title:"Dán link Google Maps",ph:"https://maps.app.goo.gl/...",ok:"Gắn link"},function(v){if(v&&!attach(id,v))return"Đây không phải link Google Maps."})}
   try{navigator.clipboard.readText().then(function(t){if(!attach(id,t)&&manual)ask()},function(){if(manual)ask()})}catch(e){if(manual)ask()}
 }
 function esc(s){return s.replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
@@ -1184,8 +1254,136 @@ function fixFin(x){if(!x||typeof x!=="object")return x;
   if(x.k==="plan"){x.items=toArr(x.items).filter(function(it){return it&&typeof it==="object"});x.items.forEach(function(it){it.txs=toArr(it.txs)})}
   else if(x.k==="bud"&&(!x.lim||typeof x.lim!=="object"))x.lim={};
   return x}
-function load(){try{var r=localStorage.getItem("ghichu");if(r)notes=JSON.parse(r)||[]}catch(e){notes=[]}notes.forEach(fixFin)}
-function save(){try{localStorage.setItem("ghichu",JSON.stringify(notes))}catch(e){}}
+function load(){
+  var ra=null,rb=window.__IDBNOTES||null,a=null,b=null,took=0;
+  try{ra=localStorage.getItem("ghichu");if(ra)a=JSON.parse(ra)}catch(e){a=null}
+  try{if(rb)b=JSON.parse(rb)}catch(e){b=null}
+  if(!Array.isArray(a))a=null;if(!Array.isArray(b))b=null;
+  if(window.__IDBPRIMARY){
+    if(b)notes=b;
+    else if(a){notes=a;window.__needSave=true;setTimeout(function(){toast("Không thấy dữ liệu IndexedDB, đã dùng bản cũ trên máy")},900)}
+    else notes=[];
+  }else if(a&&b&&ra!==rb){
+    var have={},rest=[];
+    a.forEach(function(x){if(x&&x.id!=null)have[x.id]=x;else if(x)rest.push(x)});
+    b.forEach(function(x){if(!x||x.id==null)return;var l=have[x.id];if(!l||tsOf(x)>tsOf(l)){have[x.id]=x;took++}});
+    notes=Object.keys(have).map(function(k){return have[k]}).concat(rest);
+    notes.sort(function(p,q){return(q.ts||0)-(p.ts||0)});
+  }else notes=a||b||[];
+  memLen=ra?ra.length:(rb?rb.length:0);
+  notes.forEach(fixFin);
+  if(took){window.__needSave=true;setTimeout(function(){toast("Đã khôi phục "+took+" mục từ bản lưu IndexedDB")},900)}
+}
+/* Dữ liệu chính nằm trong IndexedDB (không còn trần 5 MB). Chỉ khi máy/trình duyệt không có IndexedDB mới quay về localStorage (~5 MB/trang). Lưu lỗi thì báo ngay, không im lặng mất thay đổi.
+   memLen = số ký tự đang lưu, dùng cho thanh "Bộ nhớ máy" trong Cài đặt và chấm đỏ ở nút Cài đặt (đầy >=80%, lưu lỗi, hoặc lâu chưa sao lưu khi chưa đồng bộ). */
+var memLen=0,memWarned=false,saveBad=false,badAt=0,MEMCAP=5000000;
+function memUpd(){
+  var v=document.getElementById("memVal"),b=document.getElementById("memBar"),k=document.getElementById("memBk"),sb=document.getElementById("setBtn");
+  if(!v||!b||!k||!sb)return;
+  var ib=document.getElementById("memIdb");
+  if(ib)ib.textContent=idbPrimary?(idbOK===false?"IndexedDB đang lỗi, app sẽ thử lưu lại":"Lưu chính bằng IndexedDB"+(persisted===true?" · lưu bền: bật":persisted===false?" · lưu bền: chưa":"")):idbOK===true?"Bản sao IndexedDB: đã lưu ("+fmtSz(idbLen)+")":idbOK===false?"Bản sao IndexedDB: không dùng được trên máy này":"";
+  var big=idbPrimary&&memQuota>0,pct=big?Math.min(100,Math.round((memUse||memLen)/memQuota*100)):Math.min(100,Math.round(memLen/MEMCAP*100)),last=0,od=false,n;
+  try{last=+localStorage.getItem("ghichu_bkp")||0}catch(e){}
+  v.textContent=big?fmtSz(memLen)+" · còn trống ~"+fmtSz(Math.max(0,memQuota-memUse)):fmtSz(memLen)+" / ~5 MB";
+  b.style.width=Math.max(2,pct)+"%";b.className=pct>=90?"o":pct>=70?"w":"";
+  if(last){n=Math.floor((Date.now()-last)/864e5);k.textContent="Sao lưu gần nhất: "+(n<=0?"hôm nay":n+" ngày trước");od=n>=14}
+  else{k.textContent="Chưa sao lưu lần nào";od=true}
+  var warnBk=od&&!code&&notes.filter(function(x){return x&&!x.del}).length>=10;
+  k.classList.toggle("od",warnBk);
+  sb.classList.toggle("dot",pct>=80||saveBad||warnBk);
+}
+/* ===== IndexedDB =====
+   Toàn bộ mảng notes được lưu thành 1 chuỗi JSON ở khóa "notes". Khóa "primary" (thời điểm chuyển) báo IndexedDB đã là nơi lưu chính:
+   từ đó localStorage không còn được ghi/đọc, và bản "ghichu" cũ trong localStorage được dọn sau 7 ngày (xem cleanOldLS). */
+var IDBX=(function(){
+  var dbp=null;
+  function open(){
+    if(dbp)return dbp;
+    dbp=new Promise(function(res,rej){
+      if(!window.indexedDB){rej(new Error("no idb"));return}
+      var r;try{r=indexedDB.open("ghichu_db",1)}catch(e){rej(e);return}
+      r.onupgradeneeded=function(){if(!r.result.objectStoreNames.contains("kv"))r.result.createObjectStore("kv")};
+      r.onsuccess=function(){var db=r.result;db.onversionchange=function(){db.close();dbp=null};res(db)};
+      r.onerror=function(){rej(r.error)};
+      r.onblocked=function(){rej(new Error("blocked"))};
+    });
+    dbp.catch(function(){dbp=null});
+    return dbp;
+  }
+  function tx(mode,fn){return open().then(function(db){return new Promise(function(res,rej){
+    var t=db.transaction("kv",mode),out;
+    out=fn(t.objectStore("kv"));
+    t.oncomplete=function(){res(out&&out.result)};
+    t.onerror=function(){rej(t.error)};
+    t.onabort=function(){rej(t.error||new Error("abort"))};
+  })})}
+  return{
+    set:function(k,v){return tx("readwrite",function(st){return st.put(v,k)})},
+    get:function(k){return tx("readonly",function(st){return st.get(k)})}
+  };
+})();
+var idbS=null,idbBusy=false,idbOK=null,idbLen=0,idbPrimary=!!window.__IDBPRIMARY,idbLast=null,idbTry=0,persisted=null,memQuota=0,memUse=0,memEstT=null;
+/* idbPrimary = true: IndexedDB là nơi lưu chính, localStorage không còn được ghi (và không còn được đọc khi mở app). */
+function idbMirror(str){
+  idbS=str;idbLast=str;if(idbBusy)return;idbBusy=true;
+  (function go(){
+    var x=idbS;idbS=null;
+    IDBX.set("notes",x).then(function(){idbOK=true;idbLen=x.length;idbTry=0;idbGood()},function(){idbOK=false;idbBad()}).then(function(){
+      if(idbS!==null)go();else{idbBusy=false;memUpd()}
+    });
+  })();
+}
+function idbGood(){
+  if(!idbPrimary&&window.__IDBREADY&&!window.__IDBFAIL){
+    IDBX.set("primary",Date.now()).then(function(){idbPrimary=true;window.__IDBPRIMARY=true;memEst();memUpd()},function(){});
+  }
+  if(idbPrimary&&saveBad){saveBad=false;setTimeout(function(){toast("Đã lưu bình thường trở lại")},600)}
+  if(persisted===null){
+    persisted=false;
+    try{if(navigator.storage&&navigator.storage.persist){navigator.storage.persisted().then(function(p){if(p){persisted=true;memUpd()}else return navigator.storage.persist().then(function(r){persisted=!!r;memUpd()})}).catch(function(){})}}catch(e){}
+  }
+  memEstSoon();
+}
+function idbBad(){
+  if(!idbPrimary)return;
+  saveBad=true;
+  if(Date.now()-badAt>15000){badAt=Date.now();setTimeout(function(){toast("Không lưu được vào bộ nhớ máy, thay đổi vừa rồi có thể CHƯA được lưu. Hãy Sao lưu rồi xóa bớt ảnh.")},600)}
+  if(idbTry<3){idbTry++;setTimeout(function(){if(!idbBusy&&idbLast!==null)idbMirror(idbLast)},3000)}
+}
+/* Dọn bản "ghichu" cũ trong localStorage: chỉ khi IndexedDB đã là nơi lưu chính >= 7 ngày VÀ vừa đọc được dữ liệu từ IndexedDB khi mở app. */
+function cleanOldLS(){
+  try{
+    var at=window.__IDBPRIMARYAT||0;
+    if(!window.__IDBPRIMARY||!window.__IDBNOTES||!at||Date.now()-at<7*864e5)return;
+    if(localStorage.getItem("ghichu")!==null)localStorage.removeItem("ghichu");
+  }catch(e){}
+}
+function memEst(){
+  try{if(navigator.storage&&navigator.storage.estimate)navigator.storage.estimate().then(function(e){memQuota=e.quota||0;memUse=e.usage||0;memUpd()}).catch(function(){})}catch(e){}
+}
+function memEstSoon(){clearTimeout(memEstT);memEstT=setTimeout(memEst,4000)}
+function fmtSz(n){return n<1e5?Math.max(1,Math.round(n/1e3))+" KB":n<1e9?(n/1e6).toFixed(1).replace(".",",")+" MB":(n/1e9).toFixed(1).replace(".",",")+" GB"}
+function save(){
+  var s,p,ok=true;
+  try{s=JSON.stringify(notes)}catch(e){s=null}
+  if(s===null){memUpd();return}
+  memLen=s.length;
+  if(!idbPrimary){
+    /* Chưa chuyển hẳn sang IndexedDB (đang ở chế độ dự phòng): vẫn ghi localStorage như trước. */
+    try{localStorage.setItem("ghichu",s)}catch(e){ok=false}
+    if(ok){
+      if(saveBad){saveBad=false;setTimeout(function(){toast("Đã lưu bình thường trở lại")},600)}
+    }else{
+      saveBad=true;
+      if(Date.now()-badAt>15000){badAt=Date.now();setTimeout(function(){toast("Bộ nhớ máy đã đầy, thay đổi vừa rồi CHƯA được lưu. Hãy Sao lưu rồi xóa bớt ảnh.")},600)}
+    }
+  }
+  idbMirror(s);
+  p=idbPrimary&&memQuota?(memUse||memLen)/memQuota:memLen/MEMCAP;
+  if(p>=.8&&!memWarned){memWarned=true;setTimeout(function(){toast("Bộ nhớ máy đã dùng "+Math.round(p*100)+"%. Nên bấm Sao lưu (mục Đồng bộ trong Cài đặt) rồi xóa bớt ảnh cũ.")},600)}
+  else if(p<.7)memWarned=false;
+  memUpd();
+}
 function fmt(ts){var d=new Date(ts);return d.getDate()+"/"+(d.getMonth()+1)+" "+("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2)}
 function strongAmt(tok){
   var t=norm(tok).trim().replace(/^[+\-=]/,"").replace(/[;:!?]+$/,"").replace(/[.,]+$/,""),sg=/^[+\-=]/.test(tok.trim()),p,u;
@@ -1630,6 +1828,55 @@ function undoDel(){
   if(d){d.text=lastDel.text;d.area=lastDel.area;d.link=lastDel.link;if(lastDel.note)d.note=lastDel.note;d.del=false;d.upd=Date.now();save();render();sync()}
   hideToast();
 }
+/* ===== Hộp thoại trong app (thay prompt/alert/confirm của trình duyệt) =====
+   dlgAsk({title,msg,val,ph,ok,long,ro},cb): hỏi 1 ô chữ; cb(chuỗi) chạy khi bấm nút chính. cb trả về một chuỗi = báo lỗi ngay trong hộp, hộp giữ nguyên.
+   dlgYes({title,msg,ok,danger},cb): hỏi xác nhận. Thông báo nhẹ (trước là alert) dùng toast(). Hộp dùng .sheet nên vuốt đổi tab/bàn phím xử lý như các bảng khác. */
+var dlgCb=null,dlgKind="";
+function dlgAsk(o,cb){dlgOpen(o,cb,"ask")}
+function dlgYes(o,cb){dlgOpen(o,cb,"yes")}
+function dlgOpen(o,cb,kind){
+  var s=document.getElementById("dlgSheet"),inp=document.getElementById("dlgIn"),ta=document.getElementById("dlgTa"),ok=document.getElementById("dlgOk"),m=document.getElementById("dlgMsg"),f=o.long?ta:inp;
+  dlgCb=cb;dlgKind=kind;
+  document.getElementById("dlgTitle").textContent=o.title||"";
+  m.textContent=o.msg||"";m.hidden=!o.msg;m.classList.remove("err");
+  inp.hidden=kind==="yes"||!!o.long;ta.hidden=kind==="yes"||!o.long;
+  if(kind!=="yes"){f.value=o.val==null?"":String(o.val);f.placeholder=o.ph||"";f.readOnly=!!o.ro}
+  ok.textContent=o.ok||(kind==="yes"?"Đồng ý":"Lưu");ok.classList.toggle("danger",!!o.danger);
+  s.hidden=false;
+  try{applyKb()}catch(e){}
+  setTimeout(function(){try{if(kind==="yes")ok.focus();else{f.focus();f.setSelectionRange(0,f.value.length)}}catch(e){}},40);
+}
+function dlgShut(){
+  var s=document.getElementById("dlgSheet"),a=document.activeElement;
+  s.hidden=true;dlgCb=null;
+  try{if(a&&a.blur&&s.contains(a))a.blur()}catch(e){}
+}
+function dlgDone(good){
+  var cb=dlgCb,kind=dlgKind,ta=document.getElementById("dlgTa"),inp=document.getElementById("dlgIn"),m=document.getElementById("dlgMsg"),v,r;
+  if(!good||!cb){dlgShut();return}
+  v=kind==="yes"?"":(ta.hidden?inp.value:ta.value);
+  try{r=cb(v)}catch(e){r=null}
+  if(typeof r==="string"&&r){m.textContent=r;m.hidden=false;m.classList.add("err");try{(ta.hidden?inp:ta).focus()}catch(e){}return}
+  if(dlgCb===cb)dlgShut();
+}
+document.addEventListener("click",function(e){
+  var s=document.getElementById("dlgSheet");if(!s||s.hidden||!s.contains(e.target))return;
+  e.stopPropagation();
+  var b=e.target.closest("[data-dlg]");
+  if(b)dlgDone(b.dataset.dlg==="ok");else if(e.target===s)dlgDone(false);
+},true);
+document.addEventListener("keydown",function(e){
+  var s=document.getElementById("dlgSheet");if(!s||s.hidden)return;
+  if(e.key==="Escape"){e.preventDefault();e.stopPropagation();dlgDone(false)}
+  else if(e.key==="Enter"&&e.target.id==="dlgIn"){e.preventDefault();e.stopPropagation();dlgDone(true)}
+  else if(e.key==="Tab"){
+    var els=Array.prototype.filter.call(s.querySelectorAll("input,textarea,button"),function(x){return !x.hidden&&!x.disabled}),i=els.indexOf(document.activeElement);
+    if(!els.length)return;
+    if(e.shiftKey&&i<=0){e.preventDefault();els[els.length-1].focus()}
+    else if(!e.shiftKey&&i===els.length-1){e.preventDefault();els[0].focus()}
+  }
+},true);
+document.getElementById("setBtn").addEventListener("click",memUpd);
 function renderNotes(){
   if(filter!=="all"&&isLocked(filter))filter="all";
   sortBy=effSort(filter);syncSortUI();
@@ -1664,6 +1911,71 @@ function renderNotes(){
     return head+noteCard(x,grouped);
   }).join("");
 }
+/* ===== Tìm kiếm: tô sáng chữ khớp trong thẻ + gợi ý kết quả ở Chi tiêu/Nợ và Dự án (bấm để nhảy sang tab đó) =====
+   Khớp không phân biệt hoa thường và dấu (cùng cách với norm()). Chạy sau renderNotes nên không đụng cấu trúc con trực tiếp của #list. */
+function sfold(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d")}
+function hlRoot(root,q){
+  if(!root||!q)return;
+  var w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null),ns=[],n;
+  while((n=w.nextNode()))ns.push(n);
+  ns.forEach(function(t){
+    var s=t.nodeValue,fs="",map=[],i,j,f,at,from=0,rs=[],last,fr,pos;
+    for(i=0;i<s.length;i++){f=sfold(s.charAt(i));for(j=0;j<f.length;j++){fs+=f.charAt(j);map.push(i)}}
+    while((at=fs.indexOf(q,from))>-1){rs.push([map[at],map[at+q.length-1]+1]);from=at+q.length}
+    if(!rs.length)return;
+    fr=document.createDocumentFragment();pos=0;
+    rs.forEach(function(r){
+      if(r[0]<pos)return;
+      if(r[0]>pos)fr.appendChild(document.createTextNode(s.slice(pos,r[0])));
+      var mk=document.createElement("mark");mk.className="hl";mk.textContent=s.slice(r[0],r[1]);fr.appendChild(mk);pos=r[1];
+    });
+    if(pos<s.length)fr.appendChild(document.createTextNode(s.slice(pos)));
+    if(t.parentNode)t.parentNode.replaceChild(fr,t);
+  });
+}
+function searchExtras(){
+  var q=sfold(query).trim(),xr=document.getElementById("xres"),L=document.getElementById("list");
+  if(q&&L)Array.prototype.forEach.call(L.querySelectorAll(".nmain>.txt,.nmain>.hint"),function(el){hlRoot(el,q)});
+  if(!xr)return;
+  if(!q||filter!=="all"){xr.innerHTML="";return}
+  function has(s){return sfold(s).indexOf(q)>-1}
+  var txs=fins().filter(function(x){return(x.k==="tx"||x.k==="debt")&&has((x.desc||"")+" "+(x.note||"")+" "+(x.k==="tx"?catName(x):""))}).sort(function(a,b){return(b.ts||0)-(a.ts||0)});
+  var pls=plList().filter(function(p){return has((p.name||"")+" "+(p.note||"")+" "+(p.items||[]).map(function(it){return it.t+" "+(it.note||"")}).join(" ")+" "+(p.acts||[]).map(function(a){return a.t+" "+(a.note||"")}).join(" "))});
+  var h="";
+  if(txs.length){
+    h+='<div class="xgrp">Chi tiêu &amp; nợ <b>'+txs.length+'</b></div>';
+    txs.slice(0,6).forEach(function(x){
+      var debt=x.k==="debt",sub1=debt?(x.dir==="owe"?"Mình nợ":"Họ nợ mình"):catName(x),amt=debt?money(x.amt):((x.t==="in"?"+":"-")+money(x.amt));
+      h+='<button type="button" class="xrow" data-xs="'+(debt?"debt":"tx")+'" data-xid="'+x.id+'"><span class="xd">'+esc(x.desc||"")+'<small>'+esc(sub1)+(x.day?" · "+esc(dayLabel(x.day)):"")+'</small></span><span class="xm"'+(x.t==="in"&&!debt?' style="color:var(--good)"':'')+'>'+amt+'</span></button>';
+    });
+    if(txs.length>6)h+='<div class="xmore">và '+(txs.length-6)+' kết quả nữa trong Chi tiêu</div>';
+  }
+  if(pls.length){
+    h+='<div class="xgrp">Dự án <b>'+pls.length+'</b></div>';
+    pls.slice(0,6).forEach(function(p){
+      var rg=plRange(p),meta=[rg,(p.items||[]).length+" khoản",planOn(p)?"":"đã tắt"].filter(Boolean).join(" · ");
+      h+='<button type="button" class="xrow" data-xs="pl" data-xid="'+p.id+'"><span class="xd">'+esc(p.name||"")+'<small>'+esc(meta)+'</small></span>'+(p.budget?'<span class="xm">'+cmp(p.budget)+'</span>':'')+'</button>';
+    });
+    if(pls.length>6)h+='<div class="xmore">và '+(pls.length-6)+' dự án nữa</div>';
+  }
+  xr.innerHTML=h;
+}
+var renderNotes0=renderNotes;
+renderNotes=function(){renderNotes0();searchExtras()};
+document.addEventListener("click",function(e){
+  var b=e.target.closest("[data-xs]");if(!b)return;
+  var id=b.dataset.xid,k=b.dataset.xs,x,dd;
+  if(k==="pl"){
+    plFold[id]=false;setTab("plan");
+    setTimeout(function(){var el=document.querySelector('[data-pc="'+id+'"]');if(el)el.scrollIntoView({block:"start"})},80);
+  }else{
+    x=findFin(id);if(!x)return;
+    if(x.k==="debt")sub="debt";
+    else{sub="tx";dd=(x.day||today()).split("-");ym={y:+dd[0],m:+dd[1]};fday=""}
+    fcat="";openTx=null;setTab("fin");
+    setTimeout(function(){var be=document.querySelector('#finBody [data-edit="'+id+'"]'),r=be&&(be.closest(".tx,.note")||be);if(r)r.scrollIntoView({block:"center"})},80);
+  }
+});
 document.addEventListener("click",function(e){
   var t=e.target.closest("button");if(!t)return;
   if(t.dataset.undo){undoDel();return}
@@ -1705,8 +2017,8 @@ document.addEventListener("visibilitychange",function(){if(!document.hidden&&!ed
 document.addEventListener("click",function(e){var a=e.target.closest("a[data-pend]");if(a&&a.dataset.pend){setPending(a.dataset.pend);setTimeout(render,150)}});
 function inPaste(manual){
   function ok(txt){var m=(txt||"").match(MAPRE);if(!m)return false;inLink=m[0];inWait=false;renderInTags();inMsg("Đã lấy link vị trí. Gõ tên quán rồi bấm Lưu.");var ie=document.getElementById("in");try{ie.focus()}catch(x){}return true}
-  function ask(){var v=prompt("Dán link Google Maps vào đây");if(v&&!ok(v))alert("Đây không phải link Google Maps.")}
-  try{navigator.clipboard.readText().then(function(t){if(!ok(t)&&manual){if(t&&t.trim())alert("Link vừa sao chép không phải link Google Maps.");else ask()}},function(){if(manual)ask()})}catch(e){if(manual)ask()}
+  function ask(){dlgAsk({title:"Dán link Google Maps",ph:"https://maps.app.goo.gl/...",ok:"Gắn link"},function(v){if(v&&!ok(v))return"Đây không phải link Google Maps."})}
+  try{navigator.clipboard.readText().then(function(t){if(!ok(t)&&manual){if(t&&t.trim())toast("Link vừa sao chép không phải link Google Maps.");else ask()}},function(){if(manual)ask()})}catch(e){if(manual)ask()}
 }
 function back(){if(pending&&!document.hidden)pasteInto(pending,false);if(inWait&&!inLink&&!document.hidden){renderInTags();inPaste(false)}}
 document.addEventListener("visibilitychange",back);
@@ -1714,7 +2026,8 @@ window.addEventListener("focus",back);
 document.getElementById("add").onclick=function(){if(!document.getElementById("in").value.trim()){closeComposer();return}addNote()};
 document.getElementById("in").addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();addNote()}});
 document.getElementById("in-note").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();addNote()}});
-document.getElementById("q").addEventListener("input",function(e){query=e.target.value;render()});
+var qTimer=0;
+document.getElementById("q").addEventListener("input",function(e){query=e.target.value;clearTimeout(qTimer);if(!query){render();return}qTimer=setTimeout(render,160)});
 document.getElementById("copy").onclick=function(){
   var out=KEYS.map(function(k){var a=vis().filter(function(x){return x.cat===k&&!isLocked(k)});return a.length?CATS[k].n+":\n"+a.map(function(x){return "- "+x.text+(x.area?" ("+x.area+")":"")+(x.note?" — "+x.note:"")}).join("\n"):""}).filter(Boolean).join("\n\n");
   var b=document.getElementById("copy");
@@ -1775,7 +2088,7 @@ document.getElementById("bkp").onclick=function(){
     a.download="ghichu-saoluu-"+t.getFullYear()+"-"+p2(t.getMonth()+1)+"-"+p2(t.getDate())+".json";
     document.body.appendChild(a);a.click();
     setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1500);
-    toast("Đã sao lưu "+n+" mục");
+    try{localStorage.setItem("ghichu_bkp",String(Date.now()))}catch(e){}memUpd();toast("Đã sao lưu "+n+" mục");
   }catch(e){toast("Không sao lưu được")}
 };
 document.getElementById("imp").onclick=function(){document.getElementById("impf").click()};
@@ -2521,15 +2834,17 @@ document.addEventListener("click",function(e){
   if(d.fset){x=findFin(d.id);if(x){x.cat=d.fset;x.upd=Date.now();openTx=null;touch()}return}
   if(d.fdel){x=findFin(d.fdel);if(x){swipedId=null;var sn1=snapOf([x]);x.del=true;x.desc="";x.amt=0;x.upd=Date.now();touch();setUndo("Đã xóa khoản này",sn1)}return}
   if(d.open){
-    var cur=findFin(1),v=prompt("Số dư ban đầu của ví (ví dụ 5tr, 2tr300). Nhập 0 để bỏ.",cur&&!cur.del&&cur.amt?String(cur.amt):"");
-    if(v===null)return;
-    var amt=v.trim()==="0"?0:(parseLine(v)||{}).amt;
-    if(amt===undefined){setMsg("Số dư chưa đọc được.");return}
-    if(!cur){cur={id:1,fin:1,k:"open",ts:1};notes.push(cur)}
-    cur.amt=amt;cur.del=false;cur.upd=Date.now();touch();return;
+    var cur0=findFin(1);
+    dlgAsk({title:"Số dư ban đầu của ví",msg:"Ví dụ 5tr, 2tr300. Nhập 0 để bỏ.",val:cur0&&!cur0.del&&cur0.amt?String(cur0.amt):"",ok:"Lưu"},function(v){
+      var amt=v.trim()==="0"?0:(parseLine(v)||{}).amt;
+      if(amt===undefined)return"Chưa đọc được số dư.";
+      var cur=findFin(1);
+      if(!cur){cur={id:1,fin:1,k:"open",ts:1};notes.push(cur)}
+      cur.amt=amt;cur.del=false;cur.upd=Date.now();touch();
+    });return;
   }
   if(d.dir){addFin(d.dir);return}
-  if(d.dpay){x=findFin(d.dpay);if(x){var v2=prompt("Số tiền "+(x.dir==="owe"?"đã trả":"đã thu")+" (ví dụ 200k):");if(v2){var r=parseLine(v2);if(r){x.paid=Math.min(x.amt,(x.paid||0)+r.amt);x.upd=Date.now();touch()}else alert("Chưa đọc được số tiền.")}}return}
+  if(d.dpay){x=findFin(d.dpay);if(x){var dx=x;dlgAsk({title:"Số tiền "+(dx.dir==="owe"?"đã trả":"đã thu"),msg:"Ví dụ 200k.",ok:"Ghi"},function(v2){var r=parseLine(v2||"");if(!r)return"Chưa đọc được số tiền.";dx.paid=Math.min(dx.amt,(dx.paid||0)+r.amt);dx.upd=Date.now();touch()})}return}
   if(d.ddone){x=findFin(d.ddone);if(x){x.paid=x.amt;x.upd=Date.now();touch()}return}
   if(d.dreopen){x=findFin(d.dreopen);if(x){x.paid=0;x.upd=Date.now();touch()}return}
   if(d.ddel){x=findFin(d.ddel);if(x){var sn2=snapOf([x]);x.del=true;x.desc="";x.amt=0;x.paid=0;x.upd=Date.now();touch();setUndo("Đã xóa khoản nợ",sn2)}return}
@@ -2588,7 +2903,10 @@ if("serviceWorker" in navigator)window.addEventListener("load",function(){
   navigator.serviceWorker.register("sw.js").then(function(r){try{r.update()}catch(e){}}).catch(function(){});
   navigator.serviceWorker.addEventListener("controllerchange",function(){if(!had||rl)return;rl=true;location.reload()})});
 load();
+if(window.__needSave){window.__needSave=false;save()}
+else if(notes.length&&!window.__IDBFAIL){try{idbMirror(JSON.stringify(notes))}catch(e){}}
 try{code=localStorage.getItem("ghichu_code")||""}catch(e){}
+setTimeout(memUpd,0);setTimeout(memEst,300);setTimeout(cleanOldLS,3000);
 document.getElementById("code").value=code;
 setSt(code?"":"Chưa bật đồng bộ");
 /* ===== Dự án + Ngân sách tháng ===== */
@@ -2737,11 +3055,11 @@ document.addEventListener("click",function(e){
   else if(a==="edit"&&it){plAsk=d.pid+"/"+j;renderPlan()}
   else if(a==="ok"){var f=document.querySelector('[data-plk="ask"]');if(f)plConf(f.dataset.pid,+f.dataset.pj,f.value)}
   else if(a==="no"){plAsk=null;renderPlan()}
-  else if(a==="bud"&&p){var nv=prompt("Ngân sách dự án (ví dụ 5tr, 800k):",p.budget?cmp(p.budget):"");if(nv!==null){var bv=plAmt(nv);if(bv)plSet(p,function(){p.budget=bv});else toast("Chưa đọc được số tiền")}}
-  else if(a==="anote"&&p){var ac5=(p.acts||[]).find(function(x){return x.id==d.aid});if(ac5){var av=prompt("Ghi chú hoạt động (để trống để xóa):",ac5.note||"");if(av!==null)plSet(p,function(){ac5.note=av.trim().slice(0,200)})}}
-  else if(a==="inote"&&it){var iv=prompt("Ghi chú khoản chi (để trống để xóa):",it.note||"");if(iv!==null)plSet(p,function(){it.note=iv.trim().slice(0,200)})}
-  else if(a==="pnote"&&p){var pv=prompt("Ghi chú dự án (để trống để xóa):",p.note||"");if(pv!==null)plSet(p,function(){p.note=pv.trim().slice(0,200)})}
-  else if(a==="ren"&&p){var nn=prompt("Tên dự án:",p.name);if(nn!==null){nn=nn.trim();if(nn)plSet(p,function(){p.name=plCap(nn)});else toast("Tên không được để trống")}}
+  else if(a==="bud"&&p){dlgAsk({title:"Ngân sách dự án",msg:"Ví dụ 5tr, 800k.",val:p.budget?cmp(p.budget):"",ok:"Lưu"},function(nv){var bv=plAmt(nv);if(!bv)return"Chưa đọc được số tiền.";plSet(p,function(){p.budget=bv})})}
+  else if(a==="anote"&&p){var ac5=(p.acts||[]).find(function(x){return x.id==d.aid});if(ac5){dlgAsk({title:"Ghi chú hoạt động",msg:"Để trống để xóa.",val:ac5.note||"",ok:"Lưu"},function(av){plSet(p,function(){ac5.note=av.trim().slice(0,200)})})}}
+  else if(a==="inote"&&it){dlgAsk({title:"Ghi chú khoản chi",msg:"Để trống để xóa.",val:it.note||"",ok:"Lưu"},function(iv){plSet(p,function(){it.note=iv.trim().slice(0,200)})})}
+  else if(a==="pnote"&&p){dlgAsk({title:"Ghi chú dự án",msg:"Để trống để xóa.",val:p.note||"",ok:"Lưu"},function(pv){plSet(p,function(){p.note=pv.trim().slice(0,200)})})}
+  else if(a==="ren"&&p){dlgAsk({title:"Tên dự án",val:p.name,ok:"Lưu"},function(nn){nn=nn.trim();if(!nn)return"Tên không được để trống.";plSet(p,function(){p.name=plCap(nn)})})}
   else if(a==="range"&&p)rgOpen(p);
   else if(a==="reopen"&&p)plSet(p,function(){p.m=true;p.done=false});
   else if(a==="finish"&&p){var un=plUnc(p);if(un.length){plTab[d.pid]="act";plFold[d.pid]=false;plCfm=p.id;plFin=p.id;renderPlan();toast("Còn "+un.length+" khoản chưa sửa số. Xác nhận xong là dự án hoàn thành.")}else{var snf=snapOf([p]);plSet(p,function(){p.m=false;p.done=true});setUndo("Đã xong dự án",snf)}}
@@ -2750,7 +3068,7 @@ document.addEventListener("click",function(e){
   else if(a==="addday"&&p){plSet(p,function(){p.nd=plNd(p)+1;plDay[d.pid]=p.nd})}
   else if(a==="atick"&&p){var ac=(p.acts||[]).find(function(x){return x.id==d.aid});if(ac)plSet(p,function(){ac.done=b.checked;if(b.checked&&p.acts.every(function(x){return x.done})&&plUnc(p).length)plCfm=p.id})}
   else if(a==="adel"&&p){var ac2=(p.acts||[]).find(function(x){return x.id==d.aid});if(ac2){var sn4=snapOf([p]);plSet(p,function(){var k=p.items.findIndex(function(it){return it.aid===ac2.id});if(k>-1){if(plTx(p.items[k]).length)delete p.items[k].aid;else p.items.splice(k,1)}p.acts.splice(p.acts.indexOf(ac2),1)});setUndo("Đã xóa hoạt động",sn4)}}
-  else if(a==="aamt"&&p){var ac3=(p.acts||[]).find(function(x){return x.id==d.aid});if(ac3){var it3=plAItem(p,ac3),cur3=it3?(plTx(it3).length?plR(it3):it3.a):0,nv3=prompt("Số tiền đã chi thật cho “"+ac3.t+"” (ví dụ 75k):",cur3?cmp(cur3):"");if(nv3!==null){var v3=plAmt(nv3);if(!v3)toast("Chưa đọc được số tiền");else{plSet(p,function(){if(!it3){it3={t:ac3.t,a:v3,txs:[],aid:ac3.id};p.items.push(it3)}var tx3=plTx(it3);if(tx3.length){tx3.slice(1).forEach(plKill);tx3[0].amt=v3;tx3[0].upd=Date.now()}else it3.txs=[plMk(v3,it3.t).id]});toast("Đã ghi -"+money(v3)+" vào Chi tiêu")}}}}
+  else if(a==="aamt"&&p){var ac3=(p.acts||[]).find(function(x){return x.id==d.aid});if(ac3){var it3=plAItem(p,ac3),cur3=it3?(plTx(it3).length?plR(it3):it3.a):0;dlgAsk({title:"Số tiền đã chi thật",msg:"“"+ac3.t+"”. Ví dụ 75k.",val:cur3?cmp(cur3):"",ok:"Ghi chi"},function(nv3){var v3=plAmt(nv3);if(!v3)return"Chưa đọc được số tiền.";plSet(p,function(){if(!it3){it3={t:ac3.t,a:v3,txs:[],aid:ac3.id};p.items.push(it3)}var tx3=plTx(it3);if(tx3.length){tx3.slice(1).forEach(plKill);tx3[0].amt=v3;tx3[0].upd=Date.now()}else it3.txs=[plMk(v3,it3.t).id]});toast("Đã ghi -"+money(v3)+" vào Chi tiêu")})}}
   else if(a==="cfmok"&&p){var vals=[],bad=0,cn=0,ct=0,fin=plFin==p.id;Array.prototype.forEach.call(document.querySelectorAll('[data-plk="cfm"]'),function(i){var v=plAmt(i.value);if(!v)bad++;vals.push([+i.dataset.aid,v])});if(bad)toast("Có khoản chưa đọc được số tiền");else{plSet(p,function(){vals.forEach(function(q){var z=p.items.find(function(y){return y.aid===q[0]});if(z&&!plTx(z).length){z.txs=[plMk(q[1],z.t).id];cn++;ct+=q[1]}});plCfm=null;if(fin){p.m=false;p.done=true;plFin=null}});toast((fin?"Xong dự án. ":"")+"Đã ghi "+cn+" khoản, tổng -"+money(ct)+" vào Chi tiêu")}}
   else if(a==="cfmno"){plCfm=null;plFin=null;renderPlan()}
   else if(a==="cfmopen"&&p){plCfm=d.pid;renderPlan()}
@@ -2966,7 +3284,7 @@ function impCreate(){
 function impCopy(){
   var b=$i("impCp");
   function ok(){b.textContent="Đã sao chép";setTimeout(function(){b.textContent="Sao chép câu lệnh mẫu"},1500)}
-  try{navigator.clipboard.writeText(IMP_TMPL).then(ok,function(){prompt("Sao chép câu lệnh này:",IMP_TMPL)})}catch(e){prompt("Sao chép câu lệnh này:",IMP_TMPL)}
+  try{navigator.clipboard.writeText(IMP_TMPL).then(ok,function(){dlgAsk({title:"Sao chép câu lệnh này",val:IMP_TMPL,long:1,ro:1,ok:"Xong"},function(){})})}catch(e){dlgAsk({title:"Sao chép câu lệnh này",val:IMP_TMPL,long:1,ro:1,ok:"Xong"},function(){})}
 }
 document.addEventListener("click",function(e){
   var t=e.target.closest&&e.target.closest("[data-imp]");if(!t)return;
@@ -3090,7 +3408,7 @@ function setL(l){if(l===LANG)return;try{localStorage.setItem("ghichu_lang",l)}ca
 bV.addEventListener("click",function(){setL("vi")});bE.addEventListener("click",function(){setL("en")});
 if(LANG!=="en")return;
 document.documentElement.lang="en";
-var EX={"Ghi chú": "Notes", "Chi tiêu": "Spending", "Dự án": "Projects", "Thu chi": "Income & expenses", "Nợ": "Debts", "Thu": "Income", "Chi": "Expense", "Xong": "Done", "Ghi chi": "Record", "Ngày": "Date", "Tuần": "Week", "Lưu": "Save", "Hủy": "Cancel", "Sửa": "Edit", "Xóa": "Delete", "Thêm": "Add", "Tạo": "Create", "Đóng": "Close", "Hẹn hò": "Dating", "Khác": "Other", "Đồng bộ": "Sync", "Ngắt": "Disconnect"},PH=[["Nhập lịch trình","Import itinerary"],["Xem trước lịch trình","Itinerary preview"],["Sao chép câu lệnh mẫu","Copy sample prompt"],["Đọc lịch trình","Read itinerary"],["Đang đọc…","Reading…"],["Quay lại","Back"],["Lịch gốc cho","Original plan for"],["người · mình đi","people · I'm going with"],["Ghi chú thêm (không bắt buộc)","Extra note (optional)"],["Ghi chú dự án (không bắt buộc)","Project note (optional)"],["Ghi chú khoản chi (không bắt buộc)","Item note (optional)"],["Ghi chú hoạt động (không bắt buộc)","Activity note (optional)"],["Ghi chú dự án (để trống để xóa):","Project note (leave empty to clear):"],["Ghi chú hoạt động (để trống để xóa):","Activity note (leave empty to clear):"],["Ghi chú khoản chi (để trống để xóa):","Item note (leave empty to clear):"],["Sửa ghi chú","Edit note"],["Ghi chú thêm","Extra note"],["Có số tiền → Chi tiêu  ·  Chọn Tag → Ghi chú","Amount → Spending  ·  Tag → Note"],["Ô địa chỉ để trống thì app tự đoán theo link hoặc tên quán.","Leave the address empty and the app guesses it from the link or place name."],["Ví dụ: 500k Nam tiền ăn.","Example: 500k Nam lunch."],["Ví dụ: 45k phở bò hoặc +15tr lương.","Example: 45k pho or +15tr salary."],["Tên tag mới (tối đa 20 ký tự)","New tag name (max 20 characters)"],["Tên mới của tag (tối đa 20 ký tự)","New tag name (max 20 characters)"],["Sửa tên tag đang chọn","Rename selected tag"],["Đã đổi tên tag","Tag renamed"],["Địa chỉ (số nhà, đường, quận). Để trống thì app tự đoán","Address (number, street, district). Leave empty to auto-guess"],["Sửa tag","Edit tag"],["Chưa có hoạt động. Gõ bên dưới, ví dụ: 8h phở bà Hai 60k. Số tiền là dự kiến, bấm vào số để sửa thành số đã chi thật thì mới ghi vào Chi tiêu.", "No activities yet. Type below, e.g. 8am pho 60k. Amounts are estimates; tap an amount to change it to the actual spend, and only then is it recorded in Spending."], ["Cho vay thì trừ khỏi Tổng ví, đi vay thì cộng vào. Khi thu hoặc trả lại thì Tổng ví hoàn lại tương ứng.", "Lending is deducted from the Total wallet, borrowing is added. When it is collected or repaid, the Total wallet is restored accordingly."], ["Gõ 2tr hoặc 800k vào ô hạn mức. Số đã chi lấy tự động từ các khoản chi trong tháng.", "Enter 2tr or 800k in a limit box. Spent amounts come automatically from this month's expenses."], ["Có dấu + là khoản thu. k = nghìn, tr = triệu (1tr2 = 1,2 triệu).", "A leading + marks income. k = thousand, tr = million (1tr2 = 1.2 million)."], ["Gõ số tiền và tên, ví dụ: 500k Nam tiền ăn. Rồi bấm Mình nợ hoặc Họ nợ mình.", "Enter an amount and name, e.g. 500k Nam lunch. Then tap I owe or They owe me."], ["Gõ gì cũng được, ví dụ: bún chả Hương Liên Hai Bà Trưng, ngon, nhớ quay lại", "Type anything, e.g. bun cha Huong Lien Hai Ba Trung, tasty, go back"], ["Số tiền là dự kiến. Bấm vào số để sửa thành số đã chi thật. Thêm vào Ngày", "Amounts are estimates. Tap an amount to change it to the actual spend. Add to Day"], ["Chưa có dự án. Gõ tên và ngân sách ở trên, ví dụ: đà lạt 3 ngày 5tr.", "No projects yet. Type a name and budget above, e.g. Da Lat 3 days 5tr."], ["Các khoản chưa sửa số. Kiểm tra số đã chi rồi ghi vào Chi tiêu:", "Items not yet adjusted. Check the amounts spent, then record them in Spending:"], ["Số dư ban đầu của ví (ví dụ 5tr, 2tr300). Nhập 0 để bỏ.", "Wallet starting balance (e.g. 5tr, 2tr300). Enter 0 to clear."], ["khoản chưa sửa số. Xác nhận xong là dự án hoàn thành.", "items still have estimated amounts. Confirm and the project will be completed."], ["Không lấy được vị trí. Hãy cho phép truy cập vị trí.", "Couldn't get your location. Please allow location access."], [" · chạm ngày kết thúc, hoặc bấm Xong nếu chỉ 1 ngày", " · tap the end date, or tap Done for a single day"], ["Chưa có ghi chú. Gõ vào ô phía trên để bắt đầu.", "No notes yet. Type in the box to start."], ["Tháng này chưa có giao dịch. Bấm nút + để thêm.", "No transactions this month. Tap + to add."], ["Đã điền Thu dự kiến ở mục Ngân sách = tổng ví (", "Filled Expected income in Budget = total wallet ("], ["Tạo dự án: đà lạt 3 ngày 5tr, hoặc chỉ gõ tên", "Create a project: Da Lat 3 days 5tr, or just type a name"], ["Có số tiền ở cuối thì thành ngân sách dự án.", "An amount at the end becomes the project budget."], ["Gõ tên và số tiền ở cuối, ví dụ: vé xe 600k.", "Type a name with the amount at the end, e.g. bus ticket 600k."], ["Mã cần ít nhất 8 ký tự (chữ, số, - hoặc _)", "Code needs at least 8 characters (letters, digits, - or _)"], ["Gõ tên hoạt động, ví dụ: 8h phở bà Hai 60k", "Type an activity, e.g. 8am pho 60k"], ["45k phở bò · 1tr2 tiền điện · +15tr lương", "45k pho · 1tr2 electricity · +15tr salary"], ["). Bấm vào số ngân sách dự án để nhập.", "). Tap the project budget figure to enter it."], ["Gõ tên dự án, ví dụ: đà lạt 3 ngày 5tr", "Type a project name, e.g. Da Lat 3 days 5tr"], ["Gõ hoạt động, ví dụ: 8h phở bà Hai 60k", "Type an activity, e.g. 8am pho 60k"], ["Bấm một mục để lọc danh sách bên dưới", "Tap an item to filter the list below"], ["Chưa thấy số tiền. Ví dụ: 45k phở bò", "No amount found. Example: 45k pho"], ["Gõ tên và số tiền, ví dụ: vé xe 600k", "Type a name and amount, e.g. bus ticket 600k"], ["Bấm Mình nợ hoặc Họ nợ mình để lưu.", "Tap I owe or They owe me to save."], ["Bấm vào số ngân sách dự án để nhập.", "Tap the project budget figure to enter it."], ["Ngân sách dự án (ví dụ 5tr, 800k):", "Project budget (e.g. 5tr, 800k):"], ["đà lạt 3 ngày 5tr, hoặc chỉ gõ tên", "Da Lat 3 days 5tr, or just type a name"], ["Thu chi theo ngày, nhóm theo tuần", "Income & expenses by day, grouped by week"], ["Giờ kết thúc phải sau giờ bắt đầu", "End time must be after start time"], ["Đây không phải link Google Maps.", "That is not a Google Maps link."], ["Thêm hạng mục: thuê xe máy 300k", "Add item: scooter rental 300k"], ["Có khoản chưa đọc được số tiền", "Some amounts couldn't be read"], ["Thêm + đầu số nếu là khoản thu", "Add + before the amount for income"], ["Thiết bị không hỗ trợ định vị", "This device doesn't support location"], ["Chưa đồng bộ được, sẽ thử lại", "Couldn't sync, will retry"], ["Đã bỏ khoản chi khỏi Chi tiêu", "Expense removed from Spending"], ["Dán link Google Maps vào đây", "Paste Google Maps link here"], ["Ghi chú không được để trống.", "A note can't be empty."], ["Không có giao dịch nào khớp.", "No matching transactions."], [". Bấm lại mục đó để bỏ lọc.", ". Tap it again to clear the filter."], ["Không phải, lưu làm ghi chú", "No, save as a note"], ["Không có ghi chú nào khớp.", "No matching notes."], [" dự án đang bật, tính vào:", " active projects, count toward:"], ["Hạn chót (không bắt buộc)", "Deadline (optional)"], ["Số tiền đã chi thật cho “", "Actual amount spent on “"], ["Tên không được để trống", "Name can't be empty"], ["Gõ số tiền, ví dụ: 1tr7", "Enter an amount, e.g. 1tr7"], ["Chưa đọc được số tiền.", "Couldn't read the amount."], ["Chưa đọc được số tiền", "Couldn't read the amount"], ["Chưa có khoản nợ nào.", "No debts yet."], ["Đã ghi vào Chi tiêu: ", "Added to Spending: "], ["Không thuộc dự án nào", "Not in any project"], ["Số dư chưa đọc được.", "Couldn't read the balance."], ["Hiện hoặc ẩn biểu đồ", "Show or hide chart"], ["Sửa số tiền thực tế", "Edit actual amount"], [" không trừ vào đâu)", " not deducted from anything)"], ["Tag này đã có rồi.", "This tag already exists."], ["Thêm khoản thu chi", "Add transaction"], ["Thu chi theo tháng", "Income & expenses by month"], ["Đã chi / ngân sách", "Spent / budget"], ["đã chi / ngân sách", "spent / budget"], ["Sửa số tiền đã chi", "Edit amount spent"], ["Tìm trong ghi chú", "Search notes"], ["Xóa tag đang chọn", "Delete selected tag"], ["Đã xong hết rồi 🎉", "All done 🎉"], ["Nhóm theo khu vực", "Group by area"], ["Giảm cỡ giao diện", "Decrease interface size"], ["Tăng cỡ giao diện", "Increase interface size"], ["Xem chi tiết ngày", "View day details"], ["Đặt số dư ban đầu", "Set starting balance"], ["Sửa số dư ban đầu", "Edit starting balance"], ["Chưa có hoạt động", "No activities yet"], ["8h phở bà Hai 60k", "8am pho 60k"], ["trả Tuấn Anh 500k", "pay Tuan Anh 500k"], [" so với ngân sách", " vs budget"], ["khoản chưa sửa số", "items with estimated amounts"], ["Chọn ngày bắt đầu", "Choose start date"], ["Chạm ngày bắt đầu", "Tap the start date"], ["Bấm để chọn loại", "Tap to choose type"], ["Đánh dấu đã xong", "Mark as done"], ["Chưa bật đồng bộ", "Sync is off"], ["Đã xóa hoạt động", "Activity deleted"], ["Đã xóa khoản này", "Entry deleted"], ["Thu chi theo giờ", "Income & expenses by hour"], ["500k Nam tiền ăn", "500k Nam lunch"], ["Chỉ ghi chi tiêu", "Record as spending only"], ["Quá hạn · tự tắt", "Overdue · auto off"], ["thuê xe máy 300k", "scooter rental 300k"], ["Xóa giờ kết thúc", "Clear end time"], ["Tìm trên bản đồ", "Find on map"], ["(không ghi chú)", "(no note)"], ["Chưa rõ khu vực", "Unknown area"], ["Sao chép tất cả", "Copy all"], ["Đã đồng bộ lúc ", "Synced at "], ["Tạo ghi chú mới", "New note"], ["Đã xóa khoản nợ", "Debt deleted"], ["Họ đang nợ mình", "Owed to me"], ["Đã ghi vào Nợ: ", "Added to Debts: "], ["Dự kiến để dành", "Expected savings"], ["Số tiền thực tế", "Actual amount"], ["Chọn ngày dự án", "Choose project dates"], ["Xóa giờ bắt đầu", "Clear start time"], ["Bấm để đổi mục", "Tap to change category"], ["Lọc và sắp xếp", "Filter & sort"], ["Theo thời gian", "By time"], ["Mới nhất trước", "Newest first"], ["Đã lưu ghi chú", "Note saved"], ["Đã xóa ghi chú", "Note deleted"], ["Thêm khoản mới", "Add new entry"], ["Thêm hoạt động", "Add activity"], ["Ghi chi tất cả", "Record all"], [" khoản, tổng -", " items, total -"], ["” (ví dụ 75k):", "” (e.g. 75k):"], ["Cũ nhất trước", "Oldest first"], ["Đổi giao diện", "Switch theme"], ["Đang đồng bộ…", "Syncing…"], ["Đã xong dự án", "Project completed"], ["Thu tháng này", "Income this month"], ["Chi tháng này", "Spent this month"], ["Thêm khoản nợ", "Add debt"], ["Sửa giao dịch", "Edit transaction"], ["Xóa giao dịch", "Delete transaction"], ["Đang lọc mục ", "Filtering: "], ["Chi theo ngày", "Spending by day"], ["Đã tính vào “", "Counted toward “"], ["Tạo dự án mới", "New project"], ["Sửa ngân sách", "Edit budget"], ["Thêm hạng mục", "Add item"], [" hoạt động · ", " activities · "], [" vào Chi tiêu", " into Spending"], [" · tính vào “", " · counted toward “"], ["Xóa hoạt động", "Delete activity"], ["Việc cần làm", "To-do"], ["Thêm tag mới", "Add new tag"], ["Gần tôi nhất", "Nearest to me"], ["Theo mức giá", "By price"], ["Giá tăng dần", "Price: low to high"], ["Giá giảm dần", "Price: high to low"], ["Cỡ giao diện", "Interface size"], ["Đã xóa khoản", "Item deleted"], ["Đã xóa dự án", "Project deleted"], ["Mình đang nợ", "I owe"], ["Thêm thu chi", "Add transaction"], ["Sửa khoản nợ", "Edit debt"], ["Xóa khoản nợ", "Delete debt"], ["Xem cả tháng", "View whole month"], ["Tổng hạn mức", "Total limits"], ["Xong dự án. ", "Project finished. "], ["Dự báo tổng ", "Forecast total "], ["Giờ kết thúc", "End time"], ["Xóa hạng mục", "Delete item"], ["Tên tag mới", "New tag name"], ["Đã xóa tag ", "Deleted tag "], ["Sửa ghi chú", "Edit note"], ["Xóa ghi chú", "Delete note"], ["Theo vị trí", "By location"], ["Đã sao chép", "Copied"], ["Tháng trước", "Previous month"], ["Thu dự kiến", "Expected income"], ["đã chi thật", "actually spent"], ["Giờ bắt đầu", "Start time"], ["Mã đồng bộ", "Sync code"], ["Tạo mã mới", "New code"], ["Họ nợ mình", "They owe me"], ["Thay số cũ", "Replace old amount"], ["Đã xong · ", "Done · "], ["Xong dự án", "Finish project"], ["Tên dự án:", "Project name:"], ["Số đã chi ", "Amount spent "], ["Mở bản đồ", "Open map"], ["Tháng sau", "Next month"], ["Tháng này", "This month"], ["Theo ngày", "By day"], ["Cộng thêm", "Add on top"], ["Ngân sách", "Budget"], ["Tạo dự án", "Create project"], ["Xóa dự án", "Delete project"], ["Hoạt động", "Activities"], ["Thêm ngày", "Add day"], ["Xác nhận ", "Confirm "], ["Chọn ngày", "Choose date"], ["” đã chi ", "” spent "], ["Có trong ", "In "], ["Ngày mai ", "Tomorrow "], ["Dán link", "Paste link"], ["Hạn chót", "Deadline"], ["Hoàn tác", "Undo"], ["Ngôn ngữ", "Language"], ["Theo mục", "By category"], ["Giải trí", "Entertainment"], ["Sức khỏe", "Health"], ["Thu khác", "Other income"], ["Đã ghi -", "Recorded -"], ["Hạn mức ", "Limit "], ["Đang bật", "Active"], ["Quá hạn ", "Overdue "], ["Đến giờ ", "To "], ["Xóa ngày", "Clear dates"], ["Hôm nay ", "Today "], ["Chủ nhật", "Sunday"], ["Số tiền ", "Amount "], ["Quán ăn", "Food"], ["Cần nhớ", "To remember"], ["Ý tưởng", "Ideas"], ["Xóa tag", "Delete tag"], ["Xóa hạn", "Clear deadline"], ["Tự động", "Auto"], ["Cài đặt", "Settings"], ["Về 100%", "Reset to 100%"], ["Kết nối", "Connect"], ["Mình nợ", "I owe"], ["Biểu đồ", "Chart"], ["Ăn uống", "Food & drink"], ["Mua sắm", "Shopping"], ["Hóa đơn", "Bills"], ["Trả bớt", "Pay some back"], ["Thu bớt", "Collect some"], ["Đã thu ", "Collected "], ["Đã trả ", "Paid "], ["Tổng ví", "Total wallet"], ["Đã xong", "Done"], ["còn dư ", "spare "], ["Đã ghi ", "Recorded "], ["hạn mức", "limit"], ["Đã chi ", "Spent "], ["Sửa tên", "Rename"], ["Đã làm ", "Done: "], ["Từ giờ ", "From "], ["” của “", "” of “"], ["Hôm nay", "Today"], ["Hôm qua", "Yesterday"], ["Thứ hai", "Monday"], ["Thứ năm", "Thursday"], ["Thứ sáu", "Friday"], ["Thứ bảy", "Saturday"], ["(ví dụ ", "(e.g. "], ["Tất cả", "All"], ["Tháng ", "Month "], ["Đi lại", "Transport"], ["Thưởng", "Bonus"], ["đã thu", "collected"], ["đã trả", "paid"], ["Mở lại", "Reopen"], ["Đã ghi", "Recorded"], ["Đã tắt", "Off"], ["Để sau", "Later"], [" khoản", " items"], ["Thứ ba", "Tuesday"], ["Thứ tư", "Wednesday"], [" tháng", " months"], ["Đã chi", "Spent"], [" dòng", " lines"], ["Tuần ", "Week "], ["Lương", "Salary"], ["vượt ", "over "], ["Ngày ", "Day "], [" ngày", " days"], [" (dư ", " (surplus "], ["Còn ", "Left "], ["còn ", "left "]];
+var EX={"Ghi chú": "Notes", "Chi tiêu": "Spending", "Dự án": "Projects", "Thu chi": "Income & expenses", "Nợ": "Debts", "Thu": "Income", "Chi": "Expense", "Xong": "Done", "Ghi chi": "Record", "Ngày": "Date", "Tuần": "Week", "Lưu": "Save", "Hủy": "Cancel", "Sửa": "Edit", "Xóa": "Delete", "Thêm": "Add", "Tạo": "Create", "Đóng": "Close", "Hẹn hò": "Dating", "Khác": "Other", "Đồng bộ": "Sync", "Ngắt": "Disconnect"},PH=[["Tìm ghi chú, chi tiêu, dự án","Search notes, spending, projects"],["Bộ nhớ máy","Device storage"],["Sao lưu gần nhất: ","Last backup: "],["Chưa sao lưu lần nào","Never backed up"],["Nhập lịch trình","Import itinerary"],["Xem trước lịch trình","Itinerary preview"],["Sao chép câu lệnh mẫu","Copy sample prompt"],["Đọc lịch trình","Read itinerary"],["Đang đọc…","Reading…"],["Quay lại","Back"],["Lịch gốc cho","Original plan for"],["người · mình đi","people · I'm going with"],["Ghi chú thêm (không bắt buộc)","Extra note (optional)"],["Ghi chú dự án (không bắt buộc)","Project note (optional)"],["Ghi chú khoản chi (không bắt buộc)","Item note (optional)"],["Ghi chú hoạt động (không bắt buộc)","Activity note (optional)"],["Ghi chú dự án (để trống để xóa):","Project note (leave empty to clear):"],["Ghi chú hoạt động (để trống để xóa):","Activity note (leave empty to clear):"],["Ghi chú khoản chi (để trống để xóa):","Item note (leave empty to clear):"],["Sửa ghi chú","Edit note"],["Ghi chú thêm","Extra note"],["Có số tiền → Chi tiêu  ·  Chọn Tag → Ghi chú","Amount → Spending  ·  Tag → Note"],["Ô địa chỉ để trống thì app tự đoán theo link hoặc tên quán.","Leave the address empty and the app guesses it from the link or place name."],["Ví dụ: 500k Nam tiền ăn.","Example: 500k Nam lunch."],["Ví dụ: 45k phở bò hoặc +15tr lương.","Example: 45k pho or +15tr salary."],["Tên tag mới (tối đa 20 ký tự)","New tag name (max 20 characters)"],["Tên mới của tag (tối đa 20 ký tự)","New tag name (max 20 characters)"],["Sửa tên tag đang chọn","Rename selected tag"],["Đã đổi tên tag","Tag renamed"],["Địa chỉ (số nhà, đường, quận). Để trống thì app tự đoán","Address (number, street, district). Leave empty to auto-guess"],["Sửa tag","Edit tag"],["Chưa có hoạt động. Gõ bên dưới, ví dụ: 8h phở bà Hai 60k. Số tiền là dự kiến, bấm vào số để sửa thành số đã chi thật thì mới ghi vào Chi tiêu.", "No activities yet. Type below, e.g. 8am pho 60k. Amounts are estimates; tap an amount to change it to the actual spend, and only then is it recorded in Spending."], ["Cho vay thì trừ khỏi Tổng ví, đi vay thì cộng vào. Khi thu hoặc trả lại thì Tổng ví hoàn lại tương ứng.", "Lending is deducted from the Total wallet, borrowing is added. When it is collected or repaid, the Total wallet is restored accordingly."], ["Gõ 2tr hoặc 800k vào ô hạn mức. Số đã chi lấy tự động từ các khoản chi trong tháng.", "Enter 2tr or 800k in a limit box. Spent amounts come automatically from this month's expenses."], ["Có dấu + là khoản thu. k = nghìn, tr = triệu (1tr2 = 1,2 triệu).", "A leading + marks income. k = thousand, tr = million (1tr2 = 1.2 million)."], ["Gõ số tiền và tên, ví dụ: 500k Nam tiền ăn. Rồi bấm Mình nợ hoặc Họ nợ mình.", "Enter an amount and name, e.g. 500k Nam lunch. Then tap I owe or They owe me."], ["Gõ gì cũng được, ví dụ: bún chả Hương Liên Hai Bà Trưng, ngon, nhớ quay lại", "Type anything, e.g. bun cha Huong Lien Hai Ba Trung, tasty, go back"], ["Số tiền là dự kiến. Bấm vào số để sửa thành số đã chi thật. Thêm vào Ngày", "Amounts are estimates. Tap an amount to change it to the actual spend. Add to Day"], ["Chưa có dự án. Gõ tên và ngân sách ở trên, ví dụ: đà lạt 3 ngày 5tr.", "No projects yet. Type a name and budget above, e.g. Da Lat 3 days 5tr."], ["Các khoản chưa sửa số. Kiểm tra số đã chi rồi ghi vào Chi tiêu:", "Items not yet adjusted. Check the amounts spent, then record them in Spending:"], ["Số dư ban đầu của ví (ví dụ 5tr, 2tr300). Nhập 0 để bỏ.", "Wallet starting balance (e.g. 5tr, 2tr300). Enter 0 to clear."], ["khoản chưa sửa số. Xác nhận xong là dự án hoàn thành.", "items still have estimated amounts. Confirm and the project will be completed."], ["Không lấy được vị trí. Hãy cho phép truy cập vị trí.", "Couldn't get your location. Please allow location access."], [" · chạm ngày kết thúc, hoặc bấm Xong nếu chỉ 1 ngày", " · tap the end date, or tap Done for a single day"], ["Chưa có ghi chú. Gõ vào ô phía trên để bắt đầu.", "No notes yet. Type in the box to start."], ["Tháng này chưa có giao dịch. Bấm nút + để thêm.", "No transactions this month. Tap + to add."], ["Đã điền Thu dự kiến ở mục Ngân sách = tổng ví (", "Filled Expected income in Budget = total wallet ("], ["Tạo dự án: đà lạt 3 ngày 5tr, hoặc chỉ gõ tên", "Create a project: Da Lat 3 days 5tr, or just type a name"], ["Có số tiền ở cuối thì thành ngân sách dự án.", "An amount at the end becomes the project budget."], ["Gõ tên và số tiền ở cuối, ví dụ: vé xe 600k.", "Type a name with the amount at the end, e.g. bus ticket 600k."], ["Mã cần ít nhất 8 ký tự (chữ, số, - hoặc _)", "Code needs at least 8 characters (letters, digits, - or _)"], ["Gõ tên hoạt động, ví dụ: 8h phở bà Hai 60k", "Type an activity, e.g. 8am pho 60k"], ["45k phở bò · 1tr2 tiền điện · +15tr lương", "45k pho · 1tr2 electricity · +15tr salary"], ["). Bấm vào số ngân sách dự án để nhập.", "). Tap the project budget figure to enter it."], ["Gõ tên dự án, ví dụ: đà lạt 3 ngày 5tr", "Type a project name, e.g. Da Lat 3 days 5tr"], ["Gõ hoạt động, ví dụ: 8h phở bà Hai 60k", "Type an activity, e.g. 8am pho 60k"], ["Bấm một mục để lọc danh sách bên dưới", "Tap an item to filter the list below"], ["Chưa thấy số tiền. Ví dụ: 45k phở bò", "No amount found. Example: 45k pho"], ["Gõ tên và số tiền, ví dụ: vé xe 600k", "Type a name and amount, e.g. bus ticket 600k"], ["Bấm Mình nợ hoặc Họ nợ mình để lưu.", "Tap I owe or They owe me to save."], ["Bấm vào số ngân sách dự án để nhập.", "Tap the project budget figure to enter it."], ["Ngân sách dự án (ví dụ 5tr, 800k):", "Project budget (e.g. 5tr, 800k):"], ["đà lạt 3 ngày 5tr, hoặc chỉ gõ tên", "Da Lat 3 days 5tr, or just type a name"], ["Thu chi theo ngày, nhóm theo tuần", "Income & expenses by day, grouped by week"], ["Giờ kết thúc phải sau giờ bắt đầu", "End time must be after start time"], ["Đây không phải link Google Maps.", "That is not a Google Maps link."], ["Thêm hạng mục: thuê xe máy 300k", "Add item: scooter rental 300k"], ["Có khoản chưa đọc được số tiền", "Some amounts couldn't be read"], ["Thêm + đầu số nếu là khoản thu", "Add + before the amount for income"], ["Thiết bị không hỗ trợ định vị", "This device doesn't support location"], ["Chưa đồng bộ được, sẽ thử lại", "Couldn't sync, will retry"], ["Đã bỏ khoản chi khỏi Chi tiêu", "Expense removed from Spending"], ["Dán link Google Maps vào đây", "Paste Google Maps link here"], ["Ghi chú không được để trống.", "A note can't be empty."], ["Không có giao dịch nào khớp.", "No matching transactions."], [". Bấm lại mục đó để bỏ lọc.", ". Tap it again to clear the filter."], ["Không phải, lưu làm ghi chú", "No, save as a note"], ["Không có ghi chú nào khớp.", "No matching notes."], [" dự án đang bật, tính vào:", " active projects, count toward:"], ["Hạn chót (không bắt buộc)", "Deadline (optional)"], ["Số tiền đã chi thật cho “", "Actual amount spent on “"], ["Tên không được để trống", "Name can't be empty"], ["Gõ số tiền, ví dụ: 1tr7", "Enter an amount, e.g. 1tr7"], ["Chưa đọc được số tiền.", "Couldn't read the amount."], ["Chưa đọc được số tiền", "Couldn't read the amount"], ["Chưa có khoản nợ nào.", "No debts yet."], ["Đã ghi vào Chi tiêu: ", "Added to Spending: "], ["Không thuộc dự án nào", "Not in any project"], ["Số dư chưa đọc được.", "Couldn't read the balance."], ["Hiện hoặc ẩn biểu đồ", "Show or hide chart"], ["Sửa số tiền thực tế", "Edit actual amount"], [" không trừ vào đâu)", " not deducted from anything)"], ["Tag này đã có rồi.", "This tag already exists."], ["Thêm khoản thu chi", "Add transaction"], ["Thu chi theo tháng", "Income & expenses by month"], ["Đã chi / ngân sách", "Spent / budget"], ["đã chi / ngân sách", "spent / budget"], ["Sửa số tiền đã chi", "Edit amount spent"], ["Tìm trong ghi chú", "Search notes"], ["Xóa tag đang chọn", "Delete selected tag"], ["Đã xong hết rồi 🎉", "All done 🎉"], ["Nhóm theo khu vực", "Group by area"], ["Giảm cỡ giao diện", "Decrease interface size"], ["Tăng cỡ giao diện", "Increase interface size"], ["Xem chi tiết ngày", "View day details"], ["Đặt số dư ban đầu", "Set starting balance"], ["Sửa số dư ban đầu", "Edit starting balance"], ["Chưa có hoạt động", "No activities yet"], ["8h phở bà Hai 60k", "8am pho 60k"], ["trả Tuấn Anh 500k", "pay Tuan Anh 500k"], [" so với ngân sách", " vs budget"], ["khoản chưa sửa số", "items with estimated amounts"], ["Chọn ngày bắt đầu", "Choose start date"], ["Chạm ngày bắt đầu", "Tap the start date"], ["Bấm để chọn loại", "Tap to choose type"], ["Đánh dấu đã xong", "Mark as done"], ["Chưa bật đồng bộ", "Sync is off"], ["Đã xóa hoạt động", "Activity deleted"], ["Đã xóa khoản này", "Entry deleted"], ["Thu chi theo giờ", "Income & expenses by hour"], ["500k Nam tiền ăn", "500k Nam lunch"], ["Chỉ ghi chi tiêu", "Record as spending only"], ["Quá hạn · tự tắt", "Overdue · auto off"], ["thuê xe máy 300k", "scooter rental 300k"], ["Xóa giờ kết thúc", "Clear end time"], ["Tìm trên bản đồ", "Find on map"], ["(không ghi chú)", "(no note)"], ["Chưa rõ khu vực", "Unknown area"], ["Sao chép tất cả", "Copy all"], ["Đã đồng bộ lúc ", "Synced at "], ["Tạo ghi chú mới", "New note"], ["Đã xóa khoản nợ", "Debt deleted"], ["Họ đang nợ mình", "Owed to me"], ["Đã ghi vào Nợ: ", "Added to Debts: "], ["Dự kiến để dành", "Expected savings"], ["Số tiền thực tế", "Actual amount"], ["Chọn ngày dự án", "Choose project dates"], ["Xóa giờ bắt đầu", "Clear start time"], ["Bấm để đổi mục", "Tap to change category"], ["Lọc và sắp xếp", "Filter & sort"], ["Theo thời gian", "By time"], ["Mới nhất trước", "Newest first"], ["Đã lưu ghi chú", "Note saved"], ["Đã xóa ghi chú", "Note deleted"], ["Thêm khoản mới", "Add new entry"], ["Thêm hoạt động", "Add activity"], ["Ghi chi tất cả", "Record all"], [" khoản, tổng -", " items, total -"], ["” (ví dụ 75k):", "” (e.g. 75k):"], ["Cũ nhất trước", "Oldest first"], ["Đổi giao diện", "Switch theme"], ["Đang đồng bộ…", "Syncing…"], ["Đã xong dự án", "Project completed"], ["Thu tháng này", "Income this month"], ["Chi tháng này", "Spent this month"], ["Thêm khoản nợ", "Add debt"], ["Sửa giao dịch", "Edit transaction"], ["Xóa giao dịch", "Delete transaction"], ["Đang lọc mục ", "Filtering: "], ["Chi theo ngày", "Spending by day"], ["Đã tính vào “", "Counted toward “"], ["Tạo dự án mới", "New project"], ["Sửa ngân sách", "Edit budget"], ["Thêm hạng mục", "Add item"], [" hoạt động · ", " activities · "], [" vào Chi tiêu", " into Spending"], [" · tính vào “", " · counted toward “"], ["Xóa hoạt động", "Delete activity"], ["Việc cần làm", "To-do"], ["Thêm tag mới", "Add new tag"], ["Gần tôi nhất", "Nearest to me"], ["Theo mức giá", "By price"], ["Giá tăng dần", "Price: low to high"], ["Giá giảm dần", "Price: high to low"], ["Cỡ giao diện", "Interface size"], ["Đã xóa khoản", "Item deleted"], ["Đã xóa dự án", "Project deleted"], ["Mình đang nợ", "I owe"], ["Thêm thu chi", "Add transaction"], ["Sửa khoản nợ", "Edit debt"], ["Xóa khoản nợ", "Delete debt"], ["Xem cả tháng", "View whole month"], ["Tổng hạn mức", "Total limits"], ["Xong dự án. ", "Project finished. "], ["Dự báo tổng ", "Forecast total "], ["Giờ kết thúc", "End time"], ["Xóa hạng mục", "Delete item"], ["Tên tag mới", "New tag name"], ["Đã xóa tag ", "Deleted tag "], ["Sửa ghi chú", "Edit note"], ["Xóa ghi chú", "Delete note"], ["Theo vị trí", "By location"], ["Đã sao chép", "Copied"], ["Tháng trước", "Previous month"], ["Thu dự kiến", "Expected income"], ["đã chi thật", "actually spent"], ["Giờ bắt đầu", "Start time"], ["Mã đồng bộ", "Sync code"], ["Tạo mã mới", "New code"], ["Họ nợ mình", "They owe me"], ["Thay số cũ", "Replace old amount"], ["Đã xong · ", "Done · "], ["Xong dự án", "Finish project"], ["Tên dự án:", "Project name:"], ["Số đã chi ", "Amount spent "], ["Mở bản đồ", "Open map"], ["Tháng sau", "Next month"], ["Tháng này", "This month"], ["Theo ngày", "By day"], ["Cộng thêm", "Add on top"], ["Ngân sách", "Budget"], ["Tạo dự án", "Create project"], ["Xóa dự án", "Delete project"], ["Hoạt động", "Activities"], ["Thêm ngày", "Add day"], ["Xác nhận ", "Confirm "], ["Chọn ngày", "Choose date"], ["” đã chi ", "” spent "], ["Có trong ", "In "], ["Ngày mai ", "Tomorrow "], ["Dán link", "Paste link"], ["Hạn chót", "Deadline"], ["Hoàn tác", "Undo"], ["Ngôn ngữ", "Language"], ["Theo mục", "By category"], ["Giải trí", "Entertainment"], ["Sức khỏe", "Health"], ["Thu khác", "Other income"], ["Đã ghi -", "Recorded -"], ["Hạn mức ", "Limit "], ["Đang bật", "Active"], ["Quá hạn ", "Overdue "], ["Đến giờ ", "To "], ["Xóa ngày", "Clear dates"], ["Hôm nay ", "Today "], ["Chủ nhật", "Sunday"], ["Số tiền ", "Amount "], ["Quán ăn", "Food"], ["Cần nhớ", "To remember"], ["Ý tưởng", "Ideas"], ["Xóa tag", "Delete tag"], ["Xóa hạn", "Clear deadline"], ["Tự động", "Auto"], ["Cài đặt", "Settings"], ["Về 100%", "Reset to 100%"], ["Kết nối", "Connect"], ["Mình nợ", "I owe"], ["Biểu đồ", "Chart"], ["Ăn uống", "Food & drink"], ["Mua sắm", "Shopping"], ["Hóa đơn", "Bills"], ["Trả bớt", "Pay some back"], ["Thu bớt", "Collect some"], ["Đã thu ", "Collected "], ["Đã trả ", "Paid "], ["Tổng ví", "Total wallet"], ["Đã xong", "Done"], ["còn dư ", "spare "], ["Đã ghi ", "Recorded "], ["hạn mức", "limit"], ["Đã chi ", "Spent "], ["Sửa tên", "Rename"], ["Đã làm ", "Done: "], ["Từ giờ ", "From "], ["” của “", "” of “"], ["Hôm nay", "Today"], ["Hôm qua", "Yesterday"], ["Thứ hai", "Monday"], ["Thứ năm", "Thursday"], ["Thứ sáu", "Friday"], ["Thứ bảy", "Saturday"], ["(ví dụ ", "(e.g. "], ["Tất cả", "All"], ["Tháng ", "Month "], ["Đi lại", "Transport"], ["Thưởng", "Bonus"], ["đã thu", "collected"], ["đã trả", "paid"], ["Mở lại", "Reopen"], ["Đã ghi", "Recorded"], ["Đã tắt", "Off"], ["Để sau", "Later"], [" khoản", " items"], ["Thứ ba", "Tuesday"], ["Thứ tư", "Wednesday"], [" tháng", " months"], ["Đã chi", "Spent"], [" dòng", " lines"], ["Tuần ", "Week "], ["Lương", "Salary"], ["vượt ", "over "], ["Ngày ", "Day "], [" ngày", " days"], [" (dư ", " (surplus "], ["Còn ", "Left "], ["còn ", "left "]];
 var VIRE=/[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬÈÉẺẼẸÊỀẾỂỄỆÌÍỈĨỊÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÙÚỦŨỤƯỪỨỬỮỰỲÝỶỸỴĐ]/;
 var SKIP=".nolang,.txt,.tdesc,.pit span,.pfold,h3,textarea,input,script,style,.ed";
 function tr(s){
