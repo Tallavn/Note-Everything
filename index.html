@@ -3254,7 +3254,7 @@ function renderBud(top,body){
     var l=lim[c.k]||0,s=sp[c.k]||0,q2=l?s/l:0;
     h+='<div class="prow"><div class="prt"><span>'+c.n+'</span><input class="plim" data-plc="lim" data-k="'+c.k+'" value="'+(l?numStr(l):"")+'" placeholder="hạn mức" aria-label="Hạn mức '+c.n+'"></div><div class="prt pm" style="margin-top:2px"><span>Đã chi '+money(s)+'</span>'+
       (l?(q2>1?'<span class="po">vượt '+money(s-l)+'</span>':'<span class="'+(q2>=.85?'pw':'')+'">còn '+money(l-s)+'</span>'):'')+'</div>'+(l?'<div class="pbar '+plBc(q2)+'" style="margin-top:6px"><i style="width:'+Math.min(100,Math.round(q2*100))+'%"></i></div>':'')+'</div>'});
-  body.innerHTML=h+'</div>'+recSumHtml()+'<div class="hint">Gõ 2tr hoặc 800k vào ô hạn mức. Số đã chi lấy tự động từ các khoản chi trong tháng.</div>'}
+  body.innerHTML=h+'</div><div class="hint">Gõ 2tr hoặc 800k vào ô hạn mức. Số đã chi lấy tự động từ các khoản chi trong tháng.</div>'}
 document.addEventListener("click",function(e){
   var b=e.target.closest("[data-pl]");if(!b)return;var a=b.dataset.pl,d=b.dataset,p=d.pid?findFin(d.pid):null,j=+d.pj,it=p&&p.items&&p.items[j];
   if(a==="new")plNew();
