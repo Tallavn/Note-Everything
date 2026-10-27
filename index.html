@@ -70,6 +70,10 @@ button{font:inherit;cursor:pointer}
 .sync{margin-top:34px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;font-size:11.7px;color:var(--muted)}
 .sync input{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:6px 10px;font:inherit;font-size:12.6px;width:200px}
 .sync button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:6px 12px;font-size:11.7px}
+.sync button{display:inline-flex;align-items:center;gap:6px}
+.sync #code{flex:1 1 100%;width:100%;box-sizing:border-box;order:0}
+.sync button{flex:1 1 calc(50% - 4px);justify-content:center}
+.sync #conn{order:1}.sync #off{order:2}.sync #gen{order:3;flex-basis:100%}.sync #bkp{order:4}.sync #imp{order:5}.sync #csv{order:6;flex-basis:100%}.sync #st{order:7}.sync button svg{width:14px;height:14px;flex:none}
 .sync #st{flex-basis:100%;text-align:center}
 .sync input:focus-visible,.sync button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 :root{--good:#047857;--bad:#b91c1c;--k0:#c2410c;--k1:#1d4ed8;--k2:#7e22ce;--k3:#0f766e;--k4:#be185d;--k5:#15803d;--k6:#e11d48;--k7:#64748b}
@@ -579,6 +583,7 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .smenu .syncmenu .sync{margin-top:10px;justify-content:flex-start}
 .smenu .sync input{width:100%;box-sizing:border-box}
 .smenu .sync #st{text-align:left}
+.smenu .syncmenu{display:inline-block;vertical-align:top;margin-right:8px;padding:4px 0 0}.smenu .syncmenu[open]{display:block;margin-right:0;padding:4px 6px 0}
 main{min-height:calc(100dvh / var(--z,1))!important}
 
 /* Logo: Note. / đường kẻ / EVERYTHING */
@@ -710,8 +715,10 @@ mark.hl{background:color-mix(in srgb,var(--accent) 30%,transparent);color:inheri
 <body>
 <div class="cbd" id="cbd"></div>
 <main>
-<div class="hdr"><h1 class="logo" aria-label="Note Everything"><b class="lg-n">Note.</b><i class="lg-l" aria-hidden="true"></i><span class="lg-e">EVERYTHING</span></h1><div class="hr"><div class="hsearch sbar" id="hsearch"><input class="search" id="q" type="search" placeholder="Tìm ghi chú, chi tiêu, dự án"></div><div class="setw"><button type="button" class="fbtn sbtn" id="setBtn" aria-label="Cài đặt" aria-haspopup="true" aria-expanded="false" title="Cài đặt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button><div class="smenu" id="setMenu" hidden><div class="sm-row"><span>Cỡ giao diện</span><span class="zc"><button type="button" id="zDn" aria-label="Giảm cỡ giao diện">−</button><button type="button" id="zVal" title="Về 100%">100%</button><button type="button" id="zUp" aria-label="Tăng cỡ giao diện">+</button></span></div><div class="sm-row"><span>Ngôn ngữ</span><span class="zc nolang"><button type="button" id="lgVi">Tiếng Việt</button><button type="button" id="lgEn">English</button></span></div><button type="button" class="sm-btn" id="theme">Đổi giao diện</button><button type="button" class="sm-btn" id="copy">Sao chép tất cả</button><div class="memrow" id="memRow"><div><span>Bộ nhớ máy</span><span id="memVal">–</span></div><div class="mbar"><i id="memBar"></i></div><div class="hint" id="memBk"></div><div class="hint" id="memIdb"></div></div><div class="sm-row" style="font-size:10.8px;color:var(--muted)"><span>Build</span><span>27.10-idb4</span></div><details class="syncmenu" id="syncmenu"><summary>Đồng bộ</summary>
-<div class="sync"><input id="code" placeholder="Mã đồng bộ" autocomplete="off" spellcheck="false"><button id="conn">Kết nối</button><button id="gen">Tạo mã mới</button><button id="off">Ngắt</button><button id="bkp">Sao lưu</button><button id="imp">Khôi phục</button><input type="file" id="impf" accept=".json,application/json" hidden><span id="st" class="hint"></span></div>
+<div class="hdr"><h1 class="logo" aria-label="Note Everything"><b class="lg-n">Note.</b><i class="lg-l" aria-hidden="true"></i><span class="lg-e">EVERYTHING</span></h1><div class="hr"><div class="hsearch sbar" id="hsearch"><input class="search" id="q" type="search" placeholder="Tìm ghi chú, chi tiêu, dự án"></div><div class="setw"><button type="button" class="fbtn sbtn" id="setBtn" aria-label="Cài đặt" aria-haspopup="true" aria-expanded="false" title="Cài đặt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button><div class="smenu" id="setMenu" hidden><div class="sm-row"><span>Cỡ giao diện</span><span class="zc"><button type="button" id="zDn" aria-label="Giảm cỡ giao diện">−</button><button type="button" id="zVal" title="Về 100%">100%</button><button type="button" id="zUp" aria-label="Tăng cỡ giao diện">+</button></span></div><div class="sm-row"><span>Ngôn ngữ</span><span class="zc nolang"><button type="button" id="lgVi">Tiếng Việt</button><button type="button" id="lgEn">English</button></span></div><button type="button" class="sm-btn" id="theme">Đổi giao diện</button><button type="button" class="sm-btn" id="copy">Sao chép tất cả</button><div class="memrow" id="memRow"><div><span>Bộ nhớ máy</span><span id="memVal">–</span></div><div class="mbar"><i id="memBar"></i></div><div class="hint" id="memBk"></div><div class="hint" id="memIdb"></div></div><div class="sm-row" style="font-size:10.8px;color:var(--muted)"><span>Build</span><span>27.10-idb5</span></div><details class="syncmenu" id="syncmenu"><summary>Đồng bộ</summary>
+<div class="sync"><input id="code" placeholder="Mã đồng bộ" autocomplete="off" spellcheck="false"><button id="conn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg><span>Kết nối</span></button><button id="gen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Tạo mã mới</span></button><button id="off"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/><path d="M12 2v10"/></svg><span>Ngắt</span></button><span id="st" class="hint"></span></div>
+</details><details class="syncmenu" id="datamenu"><summary>Dữ liệu</summary>
+<div class="sync"><button id="bkp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span>Sao lưu</span></button><button id="imp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20V9M7 14l5-5 5 5M5 4h14"/></svg><span>Khôi phục</span></button><input type="file" id="impf" accept=".json,application/json" hidden><button id="csv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>Xuất CSV</span></button></div>
 </details></div></div></div></div>
 <div class="tabs"><button class="chip" data-tab="notes" aria-pressed="true"><span class="tl">Ghi chú</span></button><button class="chip" data-tab="fin" aria-pressed="false"><span class="tl">Chi tiêu</span></button><button class="chip" data-tab="plan" aria-pressed="false"><span class="tl">Dự án</span></button></div>
 <div id="notesView">
@@ -1276,7 +1283,7 @@ function load(){
 }
 /* Dữ liệu chính nằm trong IndexedDB (không còn trần 5 MB). Chỉ khi máy/trình duyệt không có IndexedDB mới quay về localStorage (~5 MB/trang). Lưu lỗi thì báo ngay, không im lặng mất thay đổi.
    memLen = số ký tự đang lưu, dùng cho thanh "Bộ nhớ máy" trong Cài đặt và chấm đỏ ở nút Cài đặt (đầy >=80%, lưu lỗi, hoặc lâu chưa sao lưu khi chưa đồng bộ). */
-var memLen=0,memWarned=false,saveBad=false,badAt=0,MEMCAP=5000000;
+var memLen=0,memWarned=false,saveBad=false,badAt=0,MEMCAP=5000000,syncBad=false,syncFail=0;
 function memUpd(){
   var v=document.getElementById("memVal"),b=document.getElementById("memBar"),k=document.getElementById("memBk"),sb=document.getElementById("setBtn");
   if(!v||!b||!k||!sb)return;
@@ -1290,7 +1297,7 @@ function memUpd(){
   else{k.textContent="Chưa sao lưu lần nào";od=true}
   var warnBk=od&&!code&&notes.filter(function(x){return x&&!x.del}).length>=10;
   k.classList.toggle("od",warnBk);
-  sb.classList.toggle("dot",pct>=80||saveBad||warnBk);
+  sb.classList.toggle("dot",pct>=80||saveBad||warnBk||syncBad);
 }
 /* ===== IndexedDB =====
    Toàn bộ mảng notes được lưu thành 1 chuỗi JSON ở khóa "notes". Khóa "primary" (thời điểm chuyển) báo IndexedDB đã là nơi lưu chính:
@@ -1380,7 +1387,7 @@ function save(){
   }
   idbMirror(s);
   p=idbPrimary&&memQuota?(memUse||memLen)/memQuota:memLen/MEMCAP;
-  if(p>=.8&&!memWarned){memWarned=true;setTimeout(function(){toast("Bộ nhớ máy đã dùng "+Math.round(p*100)+"%. Nên bấm Sao lưu (mục Đồng bộ trong Cài đặt) rồi xóa bớt ảnh cũ.")},600)}
+  if(p>=.8&&!memWarned){memWarned=true;setTimeout(function(){toast("Bộ nhớ máy đã dùng "+Math.round(p*100)+"%. Nên bấm Sao lưu (mục Dữ liệu trong Cài đặt) rồi xóa bớt ảnh cũ.")},600)}
   else if(p<.7)memWarned=false;
   memUpd();
 }
@@ -2046,24 +2053,24 @@ function sync(){
   if(busy){again=true;return}
   busy=true;setSt("Đang đồng bộ…");
   fetch(dbUrl()).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()}).then(function(rem){
-    rem=rem||{};var patch={},changed=false,have={};
+    rem=rem||{};var patch={},changed=false,have={},got=0;
     notes.forEach(function(l){have[l.id]=l});
     Object.keys(rem).forEach(function(k){
       var v=rem[k];if(!v||typeof v!=="object")return;
       v.id=Number(k);fixFin(v);var l=have[k];
-      if(!l){notes.push(v);changed=true}
-      else if(tsOf(v)>tsOf(l)){notes[notes.indexOf(l)]=v;changed=true}
+      if(!l){notes.push(v);changed=true;got++}
+      else if(tsOf(v)>tsOf(l)){notes[notes.indexOf(l)]=v;changed=true;got++}
       else if(tsOf(l)>tsOf(v))patch[k]=l;
     });
     notes.forEach(function(l){if(rem[l.id]===undefined)patch[l.id]=l});
-    if(changed){notes.sort(function(a,b){return(b.ts||0)-(a.ts||0)});save();render()}
+    if(changed){recGen();notes.sort(function(a,b){return(b.ts||0)-(a.ts||0)});save();render();if(got&&!lastUndo)toast("Đã cập nhật "+got+" mục từ máy khác")}
     if(Object.keys(patch).length)return fetch(dbUrl(),{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(patch)}).then(function(r){if(!r.ok)throw new Error(r.status)});
-  }).then(function(){var d=new Date();setSt("Đã đồng bộ lúc "+("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2))})
-  .catch(function(){setSt("Chưa đồng bộ được, sẽ thử lại")})
+  }).then(function(){syncFail=0;if(syncBad){syncBad=false;memUpd()}var d=new Date();setSt("Đã đồng bộ lúc "+("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2))})
+  .catch(function(){setSt("Chưa đồng bộ được, sẽ thử lại");syncFail++;if(syncFail>=2&&!syncBad){syncBad=true;memUpd()}})
   .then(function(){busy=false;if(again){again=false;sync()}});
 }
 function setCode(c){
-  code=c;try{localStorage.setItem("ghichu_code",c)}catch(e){}
+  code=c;syncFail=0;if(syncBad){syncBad=false;memUpd()}try{localStorage.setItem("ghichu_code",c)}catch(e){}
   document.getElementById("code").value=c;
   if(c)sync();else setSt("Chưa bật đồng bộ");
 }
@@ -2090,6 +2097,22 @@ document.getElementById("bkp").onclick=function(){
     setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1500);
     try{localStorage.setItem("ghichu_bkp",String(Date.now()))}catch(e){}memUpd();toast("Đã sao lưu "+n+" mục");
   }catch(e){toast("Không sao lưu được")}
+};
+/* Xuất CSV chi tiêu (mở bằng Excel): dấu ; + dòng sep=; để Excel tiếng Việt tách cột đúng, BOM để không lỗi dấu */
+document.getElementById("csv").onclick=function(){
+  try{
+    var rows=fins().filter(function(x){return x.k==="tx"&&x.day}).sort(function(a,b){return a.day<b.day?-1:a.day>b.day?1:(a.ts||0)-(b.ts||0)});
+    if(!rows.length){toast("Chưa có khoản thu chi nào để xuất");return}
+    function q(v){v=String(v==null?"":v);if(/^[=+\-@]/.test(v))v="'"+v;return /[";\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+    var out=["sep=;",["Ngày","Loại","Danh mục","Nội dung","Số tiền","Ghi chú"].join(";")];
+    rows.forEach(function(x){out.push([x.day,x.t==="in"?"Thu":"Chi",catName(x),q(x.desc),x.amt,q(x.note)].join(";").replace(/;;/g,";;"))});
+    var t=new Date(),b=new Blob(["\uFEFF"+out.join("\r\n")],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");
+    a.href=URL.createObjectURL(b);
+    a.download="chitieu-"+t.getFullYear()+"-"+p2(t.getMonth()+1)+"-"+p2(t.getDate())+".csv";
+    document.body.appendChild(a);a.click();
+    setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1500);
+    toast("Đã xuất "+rows.length+" khoản thu chi");
+  }catch(e){toast("Không xuất được CSV")}
 };
 document.getElementById("imp").onclick=function(){document.getElementById("impf").click()};
 document.getElementById("impf").onchange=function(){
@@ -2494,7 +2517,7 @@ function amtTxt(v){
 function habitSug(){
   var now=new Date(),nm=now.getHours()*60+now.getMinutes(),wk=now.getDay()%6===0?1:0,t=Date.now(),by={};
   fins().forEach(function(x){
-    if(x.k!=="tx"||x.t!=="out"||!x.amt||!x.ts)return;
+    if(x.k!=="tx"||x.t!=="out"||!x.amt||!x.ts||x.auto)return;
     var d=new Date(x.ts),m=d.getHours()*60+d.getMinutes(),df=Math.abs(m-nm);df=Math.min(df,1440-df);
     if(df>90)return;
     var age=(t-x.ts)/864e5;if(age<0||age>90)return;
@@ -3031,6 +3054,81 @@ function noteAdd(){var l="vi";try{l=localStorage.getItem("ghichu_lang")||"vi"}ca
 function numStr(n){return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,".")}
 document.addEventListener("input",function(e){var t=e.target,c=t.dataset&&t.dataset.plc;if((c!=="lim"&&c!=="inc")||!/^[\d.]+$/.test(t.value))return;var d=t.value.replace(/\D/g,"");t.value=d?numStr(+d):""});
 function budNote(mk){var b=notes.find(function(x){return x.k==="bud"&&!x.del});if(!b&&mk){var n=Date.now();b={id:3,fin:1,k:"bud",lim:{},inc:0,ts:n,upd:n};notes.push(b)}return b}
+
+/* ===== Chi tiêu lặp hàng tháng =====
+   Mẫu lặp: {fin:1,k:"rec",t:"out"|"in",amt,desc,cat,dd:ngày trong tháng,from:"YYYY-MM" tháng đầu,last:"YYYY-MM" tháng đã ghi gần nhất,off,del}.
+   recGen() tự ghi khoản thu/chi thật (k:"tx", auto:1, rid) cho mỗi tháng đã tới ngày. Id khoản ghi = id mẫu + số thứ tự tháng (cố định),
+   nên 2 máy cùng sinh ra thì trùng id và gộp lại, không bị nhân đôi. Ngày 29-31 tự lùi về ngày cuối tháng ngắn. */
+function recList(){return notes.filter(function(x){return x&&x.fin&&x.k==="rec"&&!x.del})}
+function recGen(){
+  var now=new Date(),cy=now.getFullYear(),cm=now.getMonth()+1,cd=now.getDate(),made=0,have={};
+  notes.forEach(function(x){have[x.id]=1});
+  recList().forEach(function(r){
+    if(r.off||!(r.amt>0)||!r.dd||!r.from)return;
+    var a=(r.last||"").split("-"),y,m,n=0,did=false;
+    if(r.last&&a.length===2){y=+a[0];m=+a[1]+1;if(m>12){m=1;y++}}else{a=r.from.split("-");y=+a[0];m=+a[1]}
+    while((y<cy||(y===cy&&m<=cm))&&n++<36){
+      var dim=new Date(y,m,0).getDate(),d=Math.min(r.dd,dim);
+      if(y===cy&&m===cm&&d>cd)break;
+      var id=r.id+((y*12+m-1)-24000);
+      if(!have[id]){
+        var ts=new Date(y,m-1,d,8,0).getTime();
+        notes.unshift({id:id,fin:1,k:"tx",t:r.t,amt:r.amt,desc:r.desc,cat:r.cat,day:y+"-"+p2(m)+"-"+p2(d),rid:r.id,auto:1,ts:ts,upd:Date.now()});
+        have[id]=1;made++;
+      }
+      r.last=mkey(y,m);did=true;
+      m++;if(m>12){m=1;y++}
+    }
+    if(did)r.upd=Date.now();
+  });
+  return made;
+}
+function recRun(){var n=recGen();if(n){save();render();sync();toast("Đã tự ghi "+n+" khoản chi lặp hàng tháng")}}
+function recParse(v){
+  v=(v||"").trim();
+  var m=v.match(/(?:ng[àa]y|m[ùu]ng|m[ồo]ng)\s*(\d{1,2})\b/i);
+  if(!m)return"Thêm ngày trong tháng, ví dụ: tiền nhà 3tr ngày 5.";
+  var dd=+m[1];if(dd<1||dd>31)return"Ngày phải từ 1 đến 31.";
+  var rest=v.replace(m[0]," ").replace(/(h[àa]ng|m[ỗo]i)\s*th[áa]ng/i," ").replace(/\s+/g," ").trim();
+  var r=parseLine(rest);
+  if(!r)return"Chưa thấy số tiền. Ví dụ: tiền nhà 3tr ngày 5.";
+  var desc=r.desc.trim();
+  return{amt:r.amt,t:r.inc?"in":"out",desc:desc||(r.inc?"Thu lặp":"Chi lặp"),cat:guessCat(desc,r.inc),dd:dd};
+}
+function recAsk(r){
+  dlgAsk({title:r?"Sửa khoản lặp":"Thêm khoản lặp hàng tháng",msg:"Ví dụ: tiền nhà 3tr ngày 5. Có dấu + là khoản thu, ví dụ: +15tr lương ngày 10.",
+    val:r?(r.t==="in"?"+":"")+amtTxt(r.amt)+" "+r.desc+" ngày "+r.dd:"",ok:"Lưu"},function(v){
+    var p=recParse(v);if(typeof p==="string")return p;
+    var now=Date.now(),msg;
+    if(r){r.amt=p.amt;r.t=p.t;r.desc=p.desc;r.cat=p.cat;r.dd=p.dd;r.upd=now;msg="Đã sửa. Áp dụng từ các tháng sau."}
+    else{
+      var d=new Date(),y=d.getFullYear(),m=d.getMonth()+1;
+      if(p.dd<d.getDate()){m++;if(m>12){m=1;y++}}
+      r={id:now,fin:1,k:"rec",t:p.t,amt:p.amt,desc:p.desc,cat:p.cat,dd:p.dd,from:mkey(y,m),last:"",ts:now,upd:now};
+      notes.push(r);
+      msg="Đã thêm. Tự ghi vào Chi tiêu từ ngày "+p.dd+"/"+m+(p.dd>28?" (tháng ngắn thì ghi ngày cuối tháng)":"");
+    }
+    recGen();save();render();sync();toast(msg);
+  });
+}
+function recHtml(){
+  var l=recList().sort(function(a,b){return a.dd-b.dd||a.id-b.id}),h='<div class="pc"><div class="prt"><b>Chi tiêu lặp hàng tháng</b><button type="button" class="lnk" style="padding:0" data-rec="add">+ Thêm</button></div>';
+  if(!l.length)h+='<div class="pm" style="margin-top:6px">Chưa có khoản nào. Ví dụ: tiền nhà 3tr ngày 5, internet 250k ngày 10.</div>';
+  l.forEach(function(r){
+    h+='<div class="prow"><div class="prt"><span'+(r.off?' style="opacity:.55"':'')+'>'+esc(r.desc)+'</span><b class="'+(r.t==="in"?"good":"")+'">'+(r.t==="in"?"+":"")+money(r.amt)+'</b></div>'+
+      '<div class="prt pm" style="margin-top:2px"><span>Ngày '+r.dd+' hàng tháng'+(r.off?' · đang tạm dừng':'')+'</span><span><button type="button" class="lnk" style="padding:0" data-rec="edit" data-rid="'+r.id+'">Sửa</button> · <button type="button" class="lnk" style="padding:0" data-rec="off" data-rid="'+r.id+'">'+(r.off?'Bật lại':'Tạm dừng')+'</button> · <button type="button" class="lnk" style="padding:0" data-rec="del" data-rid="'+r.id+'">Xóa</button></span></div></div>';
+  });
+  return h+'</div>';
+}
+document.addEventListener("click",function(e){
+  var b=e.target.closest("[data-rec]");if(!b)return;
+  var a=b.dataset.rec,r=b.dataset.rid?notes.find(function(x){return x.id==b.dataset.rid}):null;
+  if(a==="add")recAsk(null);
+  else if(a==="edit"&&r)recAsk(r);
+  else if(a==="off"&&r){r.off=!r.off;if(!r.off){var d=new Date(),y=d.getFullYear(),m=d.getMonth()+1;if(r.dd<d.getDate()){m++;if(m>12){m=1;y++}}r.from=mkey(y,m);r.last=""}r.upd=Date.now();recGen();save();render();sync();toast(r.off?"Đã tạm dừng":"Đã bật lại, tính từ tháng này trở đi")}
+  else if(a==="del"&&r)dlgYes({title:"Xóa khoản lặp?",msg:"Các khoản đã ghi vào Chi tiêu vẫn giữ nguyên.",ok:"Xóa",danger:true},function(){r.del=true;r.desc="";r.amt=0;r.upd=Date.now();save();render();sync();toast("Đã xóa khoản lặp")});
+});
+document.addEventListener("visibilitychange",function(){if(!document.hidden)recRun()});
 function renderBud(top,body){
   var key=mkey(ym.y,ym.m),b=budNote(),lim=(b&&b.lim)||{},inc=(b&&b.inc)||0,sp={},tot=0,L=0;
   fins().forEach(function(x){if(x.k==="tx"&&x.t==="out"&&x.day&&x.day.indexOf(key)===0){sp[x.cat]=(sp[x.cat]||0)+x.amt;tot+=x.amt}});
@@ -3045,7 +3143,7 @@ function renderBud(top,body){
     var l=lim[c.k]||0,s=sp[c.k]||0,q2=l?s/l:0;
     h+='<div class="prow"><div class="prt"><span>'+c.n+'</span><input class="plim" data-plc="lim" data-k="'+c.k+'" value="'+(l?numStr(l):"")+'" placeholder="hạn mức" aria-label="Hạn mức '+c.n+'"></div><div class="prt pm" style="margin-top:2px"><span>Đã chi '+money(s)+'</span>'+
       (l?(q2>1?'<span class="po">vượt '+money(s-l)+'</span>':'<span class="'+(q2>=.85?'pw':'')+'">còn '+money(l-s)+'</span>'):'')+'</div>'+(l?'<div class="pbar '+plBc(q2)+'" style="margin-top:6px"><i style="width:'+Math.min(100,Math.round(q2*100))+'%"></i></div>':'')+'</div>'});
-  body.innerHTML=h+'</div><div class="hint">Gõ 2tr hoặc 800k vào ô hạn mức. Số đã chi lấy tự động từ các khoản chi trong tháng.</div>'}
+  body.innerHTML=h+'</div>'+recHtml()+'<div class="hint">Gõ 2tr hoặc 800k vào ô hạn mức. Số đã chi lấy tự động từ các khoản chi trong tháng.</div>'}
 document.addEventListener("click",function(e){
   var b=e.target.closest("[data-pl]");if(!b)return;var a=b.dataset.pl,d=b.dataset,p=d.pid?findFin(d.pid):null,j=+d.pj,it=p&&p.items&&p.items[j];
   if(a==="new")plNew();
@@ -3131,6 +3229,7 @@ document.addEventListener("click",function(e){
 $i("rgSheet").addEventListener("mousedown",function(e){if(e.target===this)rgClose()});
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!$i("rgSheet").hidden)rgClose()});
 setTab(tab);render();
+recRun();
 if(code)sync();
 
 /* ===== Nhập lịch trình: dán văn bản, AI (worker, mode "schedule") đọc, app chuẩn hóa bằng code, xem trước rồi tạo dự án =====
@@ -3383,7 +3482,7 @@ document.addEventListener("focusin",function(e){
   openPSheet({k:k,pid:t.dataset.pid});
 });
 /* Đóng dropdown đồng bộ khi chạm ra ngoài */
-document.addEventListener("click",function(e){var m=document.getElementById("syncmenu");if(m&&m.open&&!m.contains(e.target))m.open=false});
+document.addEventListener("click",function(e){var m=document.getElementById("syncmenu");if(m&&m.open&&!m.contains(e.target))m.open=false;var d=document.getElementById("datamenu");if(d&&d.open&&!d.contains(e.target))d.open=false});
 (function(){var q=document.getElementById("q");
 q.addEventListener("input",function(){q.classList.toggle("has",!!q.value)});
 q.addEventListener("keydown",function(e){if(e.key==="Escape"){q.value="";q.classList.remove("has");query="";render();q.blur()}});})();
