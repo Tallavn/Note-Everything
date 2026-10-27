@@ -3833,6 +3833,49 @@ new MutationObserver(function(ms){ms.forEach(function(m){
   document.addEventListener("touchend",end,{passive:true});
   document.addEventListener("touchcancel",function(){if(on&&!busy)reset()},{passive:true});
 })();
+
+/* ===== Nút Back / quẹt Back: đóng pop-up trên cùng thay vì thoát app =====
+   Mỗi pop-up đang mở giữ 1 mục trong lịch sử. Bấm Back thì đóng pop-up trên cùng; không còn pop-up nào thì Back hoạt động như bình thường. */
+(function(){
+  var depth=0,busy=false,pending=false,order=[],ok=true,tm=0;
+  function tokens(){
+    var out=[],b=document.body.classList;
+    Array.prototype.forEach.call(document.querySelectorAll(".sheet:not([hidden]),.camsheet,.camlive,.lb"),function(el){out.push(el)});
+    if(document.querySelector(".edit")||b.contains("editing"))out.push("edit");
+    if(b.contains("psheet"))out.push("psheet");
+    return out;
+  }
+  function done(){busy=false;if(pending){pending=false;sync()}}
+  function sync(){
+    if(!ok)return;
+    if(busy){pending=true;return}
+    var cur=tokens();
+    order=order.filter(function(t){return cur.indexOf(t)>-1});
+    cur.forEach(function(t){if(order.indexOf(t)<0)order.push(t)});
+    var n=order.length;
+    try{
+      if(n>depth){while(depth<n){history.pushState({ov:depth+1},"");depth++}}
+      else if(n<depth){var k=depth-n;depth=n;busy=true;history.go(-k);setTimeout(function(){if(busy)done()},500)}
+    }catch(e){ok=false}
+  }
+  function closeTop(){
+    var t=order[order.length-1];if(!t)return;
+    var cbd=document.getElementById("cbd");
+    if(t==="edit"){var c=document.querySelector("[data-ecancel]");if(c)c.click();else if(cbd&&document.body.classList.contains("editing"))cbd.click();return}
+    if(t==="psheet"){if(cbd)cbd.click();return}
+    if(t.classList.contains("sheet")){var x=t.querySelector(".shead .x");if(x)x.click();else t.hidden=true;return}
+    if(t.classList.contains("lb")){t.remove();return}
+    if(t.classList.contains("camsheet")){var cx=t.querySelector(".cs-x,.cs-bd");if(cx)cx.click();else t.remove();return}
+    if(t.classList.contains("camlive")){var cl=t.querySelector('[data-cl="close"]');if(cl)cl.click();else t.remove()}
+  }
+  window.addEventListener("popstate",function(){
+    if(busy){done();return}
+    if(depth>0){depth--;closeTop()}
+    setTimeout(sync,0);
+  });
+  function later(){if(tm)return;tm=setTimeout(function(){tm=0;sync()},0)}
+  try{new MutationObserver(later).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:["hidden","class"]})}catch(e){ok=false}
+})();
 </script>
 </body>
 </html>
