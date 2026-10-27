@@ -1636,7 +1636,6 @@ function renderNotes(){
   applyCustom();renderInTags();
   var f=document.getElementById("filters"),h='<button class="chip" aria-pressed="'+(filter==="all")+'" data-f="all">Tất cả ('+vis().filter(inAll).length+')</button>';
   KEYS.forEach(function(k){var n=vis().filter(function(x){return x.cat===k}).length;h+='<button class="chip" aria-pressed="'+(filter===k)+'" data-f="'+k+'">'+(isLocked(k)?'🔒 '+CATS[k].n:CATS[k].n+' ('+n+')')+'</button>'});
-  if(filter!=="all"&&CATS[filter])h+='<button class="chip" data-rentag="'+filter+'" aria-label="Sửa tag đang chọn">✎ Sửa tag</button>';
   h+='<button class="chip" data-addtag="1" aria-label="Thêm tag mới" title="Thêm tag mới">+</button>';
   var sl=f.scrollLeft;f.innerHTML=h;f.scrollLeft=sl;
   var q=norm(query).trim(),list=sortNotes(vis().filter(function(x){return(filter==="all"?inAll(x):x.cat===filter)&&(!q||norm(x.text+" "+x.area+" "+(x.note||"")+" "+(x.br||[]).map(function(b){return(b.l||"")+" "+(b.addr||"")}).join(" ")).indexOf(q)>-1)}));
@@ -1684,7 +1683,6 @@ document.addEventListener("click",function(e){
   if(t.dataset.inopen){inOpen=!inOpen;renderInTags();return}
   if(t.dataset.incat!==undefined){inCat=t.dataset.incat;inOpen=false;renderInTags();document.getElementById("in").focus();return}
   if(t.dataset.addtag){tagSheetOpen("",t.dataset.addfrom||"");return}
-  if(t.dataset.rentag){var rk=t.dataset.rentag;tagSheetOpen(rk,"");return}
   if(t.dataset.deltag){delTag(t.dataset.deltag);return}
   if(t.dataset.f){var fk=t.dataset.f;if(fk!=="all"&&isLocked(fk)){pinAsk(function(){filter=fk;render()});return}filter=fk;render()}
   if(t.dataset.pick){openId=openId==t.dataset.pick?null:t.dataset.pick;render()}
