@@ -781,6 +781,35 @@ var KEYS=Object.keys(CATS),BASE=Object.assign({},CATS),PAL=["food","mem","idea",
 var BASEF={food:"lc",mem:"t",todo:"d"},FEAT=Object.assign({},BASEF);
 function tagHas(k,f){return(FEAT[k]||"").indexOf(f)>-1}
 
+/* Lăn chuột dọc trên hàng cuộn ngang (thanh tag, hàng chọn tag, tab...) => cuộn ngang, có quán tính cho mượt. Hết đầu/cuối hàng thì trả lại cho trang cuộn dọc như thường. */
+function wheelGlide(el){
+  if(el._wg)return;el._wg=1;
+  (function step(){
+    var df=el._wt-el.scrollLeft;
+    if(Math.abs(df)<.5){el.scrollLeft=el._wt;el._wg=0;el._wt=null;return}
+    el.scrollLeft+=df*.18;el._wl=el.scrollLeft;
+    requestAnimationFrame(step);
+  })();
+}
+document.addEventListener("wheel",function(e){
+  if(e.ctrlKey||e.shiftKey||e.defaultPrevented||Math.abs(e.deltaY)<=Math.abs(e.deltaX))return;
+  var el=e.target;if(el&&el.nodeType!==1)el=el.parentElement;
+  while(el&&el!==document.body&&el!==document.documentElement){
+    if(el.scrollWidth>el.clientWidth+1&&el.scrollHeight<=el.clientHeight+4){
+      var ox=getComputedStyle(el).overflowX;
+      if(ox==="auto"||ox==="scroll"){
+        var d=e.deltaY;if(e.deltaMode===1)d*=16;else if(e.deltaMode===2)d*=el.clientWidth;
+        var mx=el.scrollWidth-el.clientWidth;
+        /* đang lướt dở thì cộng dồn vào đích cũ; người dùng vừa kéo/vuốt tay thì bám theo vị trí thật */
+        var base=(el._wt!=null&&el._wl!=null&&Math.abs(el.scrollLeft-el._wl)<3)?el._wt:el.scrollLeft;
+        var nt=Math.max(0,Math.min(mx,base+d));
+        if(Math.abs(nt-el.scrollLeft)>.5||Math.abs(nt-base)>.5){el._wt=nt;el._wl=el.scrollLeft;e.preventDefault();wheelGlide(el)}
+        return;
+      }
+    }
+    el=el.parentElement;
+  }
+},{passive:false});
 /* ===== Ẩn khỏi Tất cả (h) + Khóa PIN (p) =====
    h: ghi chú của tag không hiện ở màn "Tất cả" (vẫn xem được khi bấm chip tag).
    p: tag bị khóa; chưa nhập PIN thì ghi chú ẩn khỏi Tất cả/tìm kiếm/sao chép và không mở được chip tag.
