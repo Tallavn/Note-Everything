@@ -2368,7 +2368,7 @@ function openSheet(){
   document.getElementById("fin-date").value=today();
   document.getElementById("fin-note").value="";document.getElementById("fin-rate").value="";document.getElementById("fin-per").value="m";document.getElementById("fin-due").value="";finImgs=[];renderPend("fin");defMsg();kbPrep(true);sh.hidden=false;var fi=document.getElementById("fin-in");try{fi.focus({preventScroll:true})}catch(e){fi.focus()}
 }
-function closeSheet(){document.getElementById("finSheet").hidden=true}
+function closeSheet(){var a=document.activeElement;if(a&&a.blur&&document.getElementById("finSheet").contains(a))a.blur();document.getElementById("finSheet").hidden=true}
 /* "trả Tuấn Anh 500k" / "thu Nam 200k": trừ vào khoản nợ đang mở thay vì tạo khoản mới */
 function payByText(desc,amt){
   var w=(desc||"").trim().split(/\s+/),k=bare(w[0]||"");
@@ -3767,6 +3767,7 @@ document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!$i("impShe
     kb=false;if(e.touches.length!==1)return;
     var a=document.activeElement,t=e.target;
     if(!isField(a)||!t||t.nodeType!==1)return;
+    if(t.id==="finSheet")return;                           /* chạm vùng trống ngoài bảng chi tiêu: để bảng tự đóng luôn (không chỉ hạ phím) */
     if(t===a||t.closest("#fab,#cbd,.sbar,.fwrap,.setw,.camsheet,.camlive,#toast,#in-msg"))return;                    /* chạm đúng ô đang gõ / nút bút: để bình thường */
     var c=a.closest(".box,.edit,.sync");
     if(c&&c.contains(t))return;                            /* chạm trong vùng nhập (Lưu, Tag, ô khác cùng khung): để bình thường */
