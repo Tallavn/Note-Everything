@@ -888,6 +888,7 @@ html,body{overscroll-behavior-y:contain}
     nửa đời 21 ngày, cần >=2 lần và điểm >=0.7. Mỗi gợi ý được kiểm lại bằng autoFin() (phải ra đúng số tiền,
     kind "tx", "out") -> nếu sửa autoFin/parseTok/amtTxt phải kiểm tra lại vòng này.
     Gợi ý được điền sẵn + bôi chọn (Enter để lưu); dataset.sug đánh dấu để xoá khi đóng mà không lưu.
+    freqSug(): khoản chi lặp >=3 lần (180 ngày, mọi giờ) -> chỉ hiện NÚT gợi ý, không tự điền; trùng gợi ý theo giờ thì bỏ.
  4) CHI NHÁNH + VỊ TRÍ GPS (tag Quán ăn): thẻ giữ vị trí chính ở x.link/x.addr; chi nhánh thêm nằm ở x.br = [{id,l,link,addr}].
     Thẻ chỉ hiện chip "+N chi nhánh", bấm mới mở danh sách (mỗi chi nhánh 1 dòng, cắt bớt bằng ellipsis) để thẻ không bị dài.
     Nút 📍 ở ô nhập (tag Quán ăn): mở Google Maps lấy link -> quay lại hiện nút Dán link (inWait/inLink). Form Sửa (brEditor/brGps) vẫn dùng GPS, lưu thành link
@@ -2698,6 +2699,30 @@ function habitSug(){
     .filter(function(o){var f=autoFin(o.txt);return f&&f.kind==="tx"&&f.obj.t==="out"&&f.obj.amt===o.amt})
     .slice(0,3).map(function(o){return o.txt});
 }
+/* Mục hay lặp lại: khoản CHI cùng mô tả xuất hiện từ 3 lần trở lên (trong 180 ngày), BẤT KỂ giờ giấc -> hiện thành nút gợi ý cho lần sau.
+   Số tiền lấy mức hay gặp nhất (bằng nhau thì lấy lần gần nhất). Chỉ hiện nút, KHÔNG tự điền sẵn vào ô (tránh điền nhầm như gợi ý theo giờ).
+   Mỗi gợi ý cũng được kiểm lại bằng autoFin() như habitSug. skip = các gợi ý theo giờ đã có, để không lặp. */
+function freqSug(skip){
+  var t=Date.now(),by={},sk={};
+  (skip||[]).forEach(function(x){sk[norm(x).trim()]=1});
+  fins().forEach(function(x){
+    if(x.k!=="tx"||x.t!=="out"||!x.amt||!x.ts||x.auto)return;
+    var age=(t-x.ts)/864e5;if(age<0||age>180)return;
+    var desc=(x.desc||"").trim();if(!desc||desc==="(không ghi chú)")return;
+    var k=norm(desc).trim(),o=by[k]||(by[k]={desc:desc,n:0,ts:0,a:{}});
+    o.n++;var c=o.a[x.amt]||(o.a[x.amt]={n:0,ts:0});c.n++;if(x.ts>c.ts)c.ts=x.ts;
+    if(x.ts>o.ts){o.ts=x.ts;o.desc=desc}
+  });
+  return Object.keys(by).map(function(k){
+    var o=by[k],best=0,bc=null;
+    Object.keys(o.a).forEach(function(am){var c=o.a[am];if(!bc||c.n>bc.n||(c.n===bc.n&&c.ts>bc.ts)){bc=c;best=+am}});
+    return{desc:o.desc,n:o.n,ts:o.ts,amt:best,txt:o.desc+" "+amtTxt(best)};
+  }).filter(function(o){return o.n>=3&&o.amt})
+    .sort(function(a,b){return b.n-a.n||b.ts-a.ts})
+    .filter(function(o){var f=autoFin(o.txt);return f&&f.kind==="tx"&&f.obj.t==="out"&&f.obj.amt===o.amt})
+    .filter(function(o){return !sk[norm(o.txt).trim()]})
+    .slice(0,4).map(function(o){return o.txt});
+}
 function clearSug(){
   var el=document.getElementById("in"),bx=document.getElementById("inSug");
   if(bx)bx.innerHTML="";
@@ -2707,11 +2732,14 @@ function showSug(){
   var el=document.getElementById("in"),bx=document.getElementById("inSug");if(!el||!bx)return;
   clearSug();
   if(el.value.trim()||inCat)return;
-  var l=habitSug();if(!l.length)return;
-  el.value=l[0];el.dataset.sug=l[0];
-  el.dispatchEvent(new Event("input",{bubbles:true}));
-  try{el.setSelectionRange(0,el.value.length)}catch(e){}
-  if(l.length>1)bx.innerHTML=l.slice(1).map(function(t){return'<button type="button" data-sug="'+esc(t)+'">'+esc(t)+'</button>'}).join("");
+  var l=habitSug(),fq=freqSug(l);if(!l.length&&!fq.length)return;
+  if(l.length){
+    el.value=l[0];el.dataset.sug=l[0];
+    el.dispatchEvent(new Event("input",{bubbles:true}));
+    try{el.setSelectionRange(0,el.value.length)}catch(e){}
+  }
+  var ch=l.slice(1).concat(fq);
+  if(ch.length)bx.innerHTML=ch.map(function(t){return'<button type="button" data-sug="'+esc(t)+'">'+esc(t)+'</button>'}).join("");
 }
 (function(){
   var el=document.getElementById("in"),bx=document.getElementById("inSug");if(!el||!bx)return;
