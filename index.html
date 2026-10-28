@@ -830,12 +830,25 @@ html,body{overscroll-behavior-y:contain}
   function run(late){
     if(started)return;
     var src=document.getElementById("mainjs");
-    /* Có thể bị gọi ngay khi trang còn đang đọc (IndexedDB báo lỗi tức thì): chờ trang đọc xong rồi mới chạy. */
-    if(!src){document.addEventListener("DOMContentLoaded",function(){run(late)});return}
+    /* Có thể bị gọi khi trang còn đang đọc (IndexedDB trả về nhanh hơn việc tải xong file). Khi đó thẻ #mainjs có thể đã xuất hiện nhưng NỘI DUNG MỚI CÓ MỘT PHẦN -> chạy bản cắt dở sẽ lỗi cú pháp, app trắng trơn (phải kéo tải lại mới hiện).
+       Nên chỉ chạy khi trang đã đọc xong hẳn (readyState != "loading"); chưa xong thì chờ DOMContentLoaded. */
+    if(!src||document.readyState==="loading"){
+      if(!run.w){run.w=1;document.addEventListener("DOMContentLoaded",function(){run(late)})}
+      return}
     started=true;clearTimeout(timer);
     if(late)window.__IDBFAIL=true;
     var s=document.createElement("script");
     s.textContent=src.textContent;
+    /* Lưới an toàn: nếu code chính vẫn lỗi ngay lúc khởi động thì tự tải lại đúng 1 lần (thay cho thao tác kéo để làm mới). */
+    var t0=Date.now();
+    window.addEventListener("error",function(ev){
+      try{
+        if(Date.now()-t0>4000||sessionStorage.getItem("ne_boot_retry"))return;
+        if(document.getElementById("list")&&document.getElementById("list").children.length)return;
+        sessionStorage.setItem("ne_boot_retry","1");location.reload();
+      }catch(x){}
+    });
+    setTimeout(function(){try{sessionStorage.removeItem("ne_boot_retry")}catch(x){}},8000);
     (document.body||document.documentElement).appendChild(s);
     if(document.readyState==="complete"){try{window.dispatchEvent(new Event("load"))}catch(e){}}
   }
@@ -1498,10 +1511,10 @@ function addNote(forceRaw,forceNote){
   var el=document.getElementById("in"),ne=document.getElementById("in-note"),raw=forceRaw!==undefined?forceRaw:el.value.trim();if(!raw)return;
   var nt=(forceRaw!==undefined?(forceNote||""):(ne.value||"")).trim().slice(0,200);
   if(forceRaw===undefined){
-    var f=inCat?null:autoFin(raw);
-    if(f){
+    var f=inCat?null:(ocrFin(raw,nt)||autoFin(raw));
+    if(f){ocrPend=null;
       var o=f.obj,dd=o.day.split("-"),txt;
-      if(nt)o.note=nt;var im0=takeImgs();if(im0.length)o.img=im0;notes.unshift(o);ym={y:+dd[0],m:+dd[1]};fcat="";
+      if(nt&&!o.note)o.note=nt;var im0=takeImgs();if(im0.length)o.img=im0;notes.unshift(o);ym={y:+dd[0],m:+dd[1]};fcat="";
       if(f.kind==="debt")txt="Đã ghi vào Nợ: "+(o.dir==="owe"?"Mình nợ ":"Họ nợ mình ")+money(o.amt)+(o.desc?" · "+esc(o.desc):"");
       else txt="Đã ghi vào Chi tiêu: "+(o.t==="in"?"+":"-")+money(o.amt)+" · "+esc(catName(o))+(o.desc&&o.desc!==catName(o)?" · "+esc(o.desc):"");
       lastFin={id:o.id,raw:raw,note:nt};var pm=(f.kind==="tx"&&o.t==="out")?planHook(o):"";
@@ -1795,6 +1808,28 @@ document.addEventListener("click",function(e){
    Worker cũ chỉ trả text -> giữ nguyên như trước. Schema: {kind:"receipt"|"other", title, address, date, time, table,
    items:[{name,qty,amount}], total, sections:[{heading,lines[]}], lines[]} */
 function ocrMoney(v){var n=typeof v==="number"?v:parseInt(String(v==null?"":v).replace(/\D/g,""),10);return isFinite(n)&&n>0?String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,"."):""}
+var ocrPend=null;
+/* Hóa đơn vừa quét (có tổng tiền) mà người dùng chưa chọn Tag và chưa sửa chữ quét -> ghi vào Chi tiêu thay vì ghi chú.
+   Tổng = d.total, nếu thiếu thì cộng các món. Tên = tên quán; món xếp vào ghi chú (tối đa 200 ký tự). Ngày lấy theo hóa đơn nếu đọc được. */
+function ocrFin(raw,nt){
+  var p=ocrPend;if(!p||!p.d||raw.indexOf(p.text)<0)return null;
+  var d=p.d;if(d.kind==="other")return null;
+  function S(v){return v==null?"":String(v).replace(/\s+/g," ").trim()}
+  function N(v){var n=typeof v==="number"?v:parseInt(String(v==null?"":v).replace(/\D/g,""),10);return isFinite(n)&&n>0?Math.round(n):0}
+  var its=(Array.isArray(d.items)?d.items:[]).filter(function(i){return i&&typeof i==="object"&&S(i.name)});
+  var amt=N(d.total);
+  if(!amt)amt=its.reduce(function(a,i){return a+N(i.amount)*(+i.qty>1?+i.qty:1)},0);
+  if(!amt)return null;
+  var title=S(d.title),names=its.map(function(i){return S(i.name)}).join(", ");
+  var desc=(title&&names?title+": "+names:(title||names||"Hóa đơn")).slice(0,100);
+  var lines=its.map(function(i){var m=ocrMoney(i.amount);return(+i.qty>1?(+i.qty)+"× ":"")+S(i.name)+(m?" — "+m:"")}).join("\n");
+  var now=Date.now(),day=today(),m=/(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})/.exec(S(d.date));
+  if(m){var dd=+m[1],mm=+m[2],yy=+m[3];if(mm>=1&&mm<=12&&dd>=1&&dd<=31&&yy>=2000){var iso=yy+"-"+("0"+mm).slice(-2)+"-"+("0"+dd).slice(-2);if(iso<=day)day=iso}}
+  var o={id:now,fin:1,k:"tx",t:"out",amt:amt,desc:desc,day:day,ts:now,upd:now};
+  o.cat=guessCat(names||desc,false);
+  var note=[nt,lines].filter(Boolean).join("\n").slice(0,200);if(note)o.note=note;
+  return{kind:"tx",obj:o};
+}
 function ocrFmt(d){
   if(!d||typeof d!=="object")return"";
   function S(v){return v==null?"":String(v).replace(/\s+/g," ").trim()}
@@ -1827,6 +1862,11 @@ function ocrRun(f){
     var dd=o.j.data,rich=dd&&((Array.isArray(dd.items)&&dd.items.length)||(Array.isArray(dd.sections)&&dd.sections.length)),t=(rich?ocrFmt(dd):"")||String(o.j.text||"").trim();  /* data thiếu món/nhóm = Gemini điền lười -> dùng chữ chép lại thay vì ghi chú cụt */
     if(!t){toast("Không thấy chữ trong ảnh");return}
     var el=document.getElementById("in");
+    /* Ô đang chứa gợi ý thói quen tự điền (chưa sửa gì) thì kết quả quét THAY HẲN gợi ý, không nối vào sau nó. */
+    var sugOnly=!!el.dataset.sug&&el.value===el.dataset.sug;
+    if(sugOnly){var sb=document.getElementById("inSug");if(sb)sb.innerHTML="";el.dataset.sug="";el.value=""}
+    /* Nhớ dữ liệu hóa đơn để lúc bấm Lưu ghi vào Chi tiêu (xem ocrFin). Chỉ khi ô nhập đang trống, tránh lẫn với chữ khác. */
+    ocrPend=(rich&&!el.value.trim())?{text:t,d:dd}:null;
     el.value=el.value.trim()?el.value.replace(/\s+$/,"")+"\n"+t:t;
     el.dispatchEvent(new Event("input",{bubbles:true}));
     if(!document.body.classList.contains("composing"))openComposer();
