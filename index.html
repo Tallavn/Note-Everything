@@ -2677,8 +2677,14 @@ function kbPrep(follow){
   if(follow){
     /* KHÔNG đoán chiều cao phím nữa (số nhớ từng lệch do thanh gợi ý/phím đổi chiều cao -> khung treo cao rồi tụt xuống).
        Bắt đầu từ chiều cao phím đang đo được (0 nếu phím chưa mở) rồi bám theo phím; bottom có transition ngắn nên trượt mượt. */
-    window.__kbBase=window.innerHeight;window.__kbPred=0;window.__kbHold=false;clearTimeout(window.__kbHT);
-    setKb((window.__kbCur>120)?window.__kbCur:0);return}
+    /* Dự đoán bằng chiều cao phím đã nhớ: khung hiện ĐÚNG chỗ ngay từ frame đầu (không transition vì vừa display:none -> block),
+       sau đó chỉ trượt nhẹ nếu số đo thật lệch. Phím đang mở sẵn thì dùng số đo thật. */
+    var cur=(window.__kbCur>120)?window.__kbCur:0,ph=0;
+    if(!cur){try{ph=window.__kbh||parseInt(localStorage.getItem("kbm")==="layout"?0:localStorage.getItem("kbh"))||0}catch(e){}
+      if(ph<=120||ph>window.innerHeight*0.6)ph=0}
+    window.__kbBase=window.innerHeight;window.__kbPred=ph;window.__kbHold=ph>0;clearTimeout(window.__kbHT);
+    if(ph>0)window.__kbHT=setTimeout(function(){window.__kbHold=false;window.__kbPred=0;if(window.__kb)window.__kb()},700);
+    setKb(cur||ph);return}
   var h=0,m="";try{h=window.__kbh||parseInt(localStorage.getItem("kbh"))||0;m=localStorage.getItem("kbm")||""}catch(e){}
   window.__kbBase=window.innerHeight;
   /* trình duyệt tự co khung nhìn theo bàn phím: khung đã tự sát phím, không cộng thêm */
