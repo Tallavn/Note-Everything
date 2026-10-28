@@ -111,6 +111,17 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .two b{font-size:15.3px}
 .good{color:var(--good)}.bad{color:var(--bad)}
 .lnk{background:none;border:0;color:var(--accent);padding:8px 0 0;font-size:11.7px;text-decoration:underline}
+.nlw{position:relative}
+.nlw textarea{display:block;resize:none}
+.nlw.s textarea{field-sizing:content;max-height:9em;overflow-y:auto;line-height:1.4;min-height:0}
+#notesView>.box .nlw.s textarea{min-height:0;margin-bottom:0;line-height:1.4}
+.nlw #in-note,.nlw textarea.fin-in,.nlw textarea.ed{padding-right:42px!important}
+.nlb{position:absolute;right:4px;bottom:4px;width:32px;height:28px;padding:0;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:var(--r-sm);display:inline-flex;align-items:center;justify-content:center;z-index:1}
+.nlb svg{width:16px;height:16px;flex:none}
+.nlb:active{background:var(--line)}
+/* Ô ghi chú 1 dòng: nút ↵ căn giữa theo chiều dọc (không dính vạch đứt); vạch đứt phía trên phẳng, không bo cong */
+.nlw.s .nlb{top:calc(50% + 2px);bottom:auto;transform:translateY(-50%);right:6px;height:26px;width:30px}
+.nlw textarea.fin-in,#notesView>.box .nlw textarea.fin-in{border-radius:0}
 .fin-in{width:100%;border:0;background:transparent;color:var(--ink);font:inherit;font-size:15.3px;padding:8px 4px;outline:none}
 .fin-in:focus-visible{outline:1px solid var(--accent);outline-offset:0;border-radius:var(--r-sm)}
 .sheet .fin-in,.psh .fin-in{margin-inline:-6px;width:calc(100% + 12px);padding-inline:10px}
@@ -765,7 +776,7 @@ html,body{overscroll-behavior-y:contain}
 <div class="box">
 <button type="button" class="cclose" id="cclose" aria-label="Xóa văn bản">×</button>
 <textarea id="in" placeholder="Gõ gì cũng được, ví dụ: bún chả Hương Liên Hai Bà Trưng, ngon, nhớ quay lại"></textarea>
-<input id="in-note" class="fin-in" type="text" autocomplete="off" enterkeyhint="done" maxlength="200" aria-label="Ghi chú thêm" placeholder="Ghi chú thêm (không bắt buộc)" style="font-size:13.5px;border-top:1px dashed var(--line);margin-top:2px;padding:6px 2px">
+<div class="nlw s"><textarea id="in-note" rows="1" class="fin-in" autocomplete="off" enterkeyhint="done" maxlength="200" aria-label="Ghi chú thêm" placeholder="Ghi chú thêm (không bắt buộc)" style="font-size:13.5px;border-top:1px dashed var(--line);margin-top:2px;padding:6px 2px"></textarea><button type="button" class="nlb" aria-label="Xuống dòng" title="Xuống dòng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 5v7a2 2 0 0 1-2 2H5"/><path d="M9 10l-4 4 4 4"/></svg></button></div>
 <div class="thumbs" id="ph-in"></div><div class="insug" id="inSug"></div><div class="row inrow"><div class="hint nh">Có số tiền → Chi tiêu  ·  Chọn Tag → Ghi chú</div><div class="intags" id="inTags"></div><button type="button" class="cam" data-cam="in" aria-label="Thêm ảnh" title="Thêm ảnh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13.5" r="3.4"/></svg></button><button type="button" class="cam ocr" data-ocr="1" aria-label="Quét chữ từ ảnh" title="Quét chữ từ ảnh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M8 9h8M8 12h8M8 15h5"/></svg></button><button class="add" id="add">Lưu</button></div>
 </div>
 <div class="hint" id="in-msg" style="margin-top:6px" role="status"></div>
@@ -790,14 +801,14 @@ html,body{overscroll-behavior-y:contain}
 <div id="finView" hidden>
 <div class="seg"><button class="chip" data-sub="tx" aria-pressed="true">Thu chi<i class="tbadge" id="subBadgeTx" hidden></i></button><button class="chip" data-sub="debt" aria-pressed="false">Nợ<i class="tbadge" id="subBadgeDebt" hidden></i></button><button class="chip" data-sub="bud" aria-pressed="false">Ngân sách</button></div>
 <div id="finTop"></div>
-<div id="finSheet" class="sheet" hidden><div class="box"><div class="shead"><b id="sheet-title">Thêm khoản mới</b><button class="x" data-sheetclose="1" aria-label="Đóng">×</button></div><input id="fin-in" class="fin-in" type="text" autocomplete="off" enterkeyhint="done" placeholder="45k phở bò · 1tr2 tiền điện · +15tr lương"><input class="fin-in" id="fin-note"  type="text" autocomplete="off" enterkeyhint="done" placeholder="Ghi chú thêm (không bắt buộc)" style="font-size:13px;border-top:1px dashed var(--line)">
+<div id="finSheet" class="sheet" hidden><div class="box"><div class="shead"><b id="sheet-title">Thêm khoản mới</b><button class="x" data-sheetclose="1" aria-label="Đóng">×</button></div><input id="fin-in" class="fin-in" type="text" autocomplete="off" enterkeyhint="done" placeholder="45k phở bò · 1tr2 tiền điện · +15tr lương"><div class="nlw s" style="margin-top:8px"><textarea class="fin-in" id="fin-note" rows="1" maxlength="200"  autocomplete="off" enterkeyhint="done" placeholder="Ghi chú thêm (không bắt buộc)" style="font-size:13px;border-top:1px dashed var(--line)"></textarea><button type="button" class="nlb" aria-label="Xuống dòng" title="Xuống dòng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 5v7a2 2 0 0 1-2 2H5"/><path d="M9 10l-4 4 4 4"/></svg></button></div>
 <div class="thumbs" id="ph-fin"></div><div id="fin-rate-row" class="hint" hidden style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:6px 2px 8px">Lãi suất <input id="fin-rate" class="date" type="text" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="Lãi suất, để trống nếu không có" style="width:64px;text-align:right"> % <select id="fin-per" class="date" aria-label="Kỳ tính lãi"><option value="m">/ tháng</option><option value="y">/ năm</option></select> <span style="margin-left:8px">Hạn trả</span> <input type="date" id="fin-due" class="date" aria-label="Hạn trả nợ, để trống nếu không có"></div><div class="row"><span style="display:inline-flex;gap:8px;align-items:center"><input type="date" id="fin-date" class="date" aria-label="Ngày"><button type="button" class="cam" data-cam="fin" aria-label="Thêm ảnh" title="Thêm ảnh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13.5" r="3.4"/></svg></button></span><span><button class="add" id="fin-add">Lưu</button><span id="fin-debt" hidden><button class="add" data-dir="owe">Mình nợ</button> <button class="add alt" data-dir="lent">Họ nợ mình</button></span></span></div>
 <div class="hint" id="fin-msg" style="margin-top:6px"></div></div></div>
 <div id="finBody" style="margin-top:14px"></div>
 </div>
 
 <div id="planView" hidden></div>
-<div id="plSheet" class="psh"><div class="box"><div class="shead"><b id="pl-title">Tạo dự án mới</b><button class="x" data-pl="pclose" aria-label="Đóng">×</button></div><input id="pl-new2" data-plk="new2" class="fin-in" type="text" autocomplete="off" enterkeyhint="done" placeholder="đà lạt 3 ngày 5tr, hoặc chỉ gõ tên"><input class="fin-in" id="pl-note" data-plk="note" type="text" autocomplete="off" enterkeyhint="done" placeholder="Ghi chú dự án (không bắt buộc)" style="font-size:13px;border-top:1px dashed var(--line)">
+<div id="plSheet" class="psh"><div class="box"><div class="shead"><b id="pl-title">Tạo dự án mới</b><button class="x" data-pl="pclose" aria-label="Đóng">×</button></div><input id="pl-new2" data-plk="new2" class="fin-in" type="text" autocomplete="off" enterkeyhint="done" placeholder="đà lạt 3 ngày 5tr, hoặc chỉ gõ tên"><div class="nlw s" style="margin-top:8px"><textarea class="fin-in" id="pl-note" rows="1" maxlength="200" data-plk="note" autocomplete="off" enterkeyhint="done" placeholder="Ghi chú dự án (không bắt buộc)" style="font-size:13px;border-top:1px dashed var(--line)"></textarea><button type="button" class="nlb" aria-label="Xuống dòng" title="Xuống dòng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 5v7a2 2 0 0 1-2 2H5"/><path d="M9 10l-4 4 4 4"/></svg></button></div>
 <button type="button" class="lnk" id="pl-imp" data-imp="open" style="padding:2px 0 8px;margin-left:0;font-size:12.6px">Nhập lịch trình</button>
 <div class="row inrow" style="align-items:center"><div class="hint nh" id="pl-hint">Có số tiền ở cuối thì thành ngân sách dự án.</div><button class="add" id="pl-go" data-pl="new2" style="flex:none">Tạo</button></div></div></div>
 
@@ -2119,7 +2130,24 @@ document.addEventListener("visibilitychange",back);
 window.addEventListener("focus",back);
 document.getElementById("add").onclick=function(){if(!document.getElementById("in").value.trim()){closeComposer();return}addNote()};
 document.getElementById("in").addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();addNote()}});
-document.getElementById("in-note").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();addNote()}});
+/* Nút ↵ dùng chung (.nlb) cho các ô ghi chú: chèn xuống dòng tại con trỏ trong textarea cùng khung (.nlw). Chặn mousedown/touchstart để không mất focus (bàn phím không hạ xuống). */
+(function(){
+  function ta(e){var b=e.target.closest&&e.target.closest(".nlb");return b?{b:b,t:b.parentNode.querySelector("textarea")}:null}
+  document.addEventListener("mousedown",function(e){if(ta(e))e.preventDefault()},true);
+  document.addEventListener("touchstart",function(e){if(ta(e))e.preventDefault()},{capture:true,passive:false});
+  document.addEventListener("click",function(e){
+    var o=ta(e);if(!o||!o.t)return;e.preventDefault();e.stopPropagation();
+    var el=o.t,a=el.selectionStart,z=el.selectionEnd;if(a==null){a=z=el.value.length}
+    if(el.maxLength>0&&el.value.length-(z-a)+1>el.maxLength)return;
+    if(el.id==="in"&&el.dataset.sug&&el.value===el.dataset.sug){el.dataset.sug="";var sb=document.getElementById("inSug");if(sb)sb.innerHTML=""}
+    el.setRangeText("\n",a,z,"end");
+    el.dispatchEvent(new Event("input",{bubbles:true}));
+    try{el.focus()}catch(x){}
+  },true);
+  /* Trình duyệt cũ chưa có field-sizing: tự co giãn theo chữ */
+  if(!(window.CSS&&CSS.supports&&CSS.supports("field-sizing","content")))document.addEventListener("input",function(e){var t=e.target;if(t&&t.tagName==="TEXTAREA"&&t.parentNode&&t.parentNode.classList.contains("nlw")&&t.id!=="in"){t.style.height="auto";t.style.height=Math.min(t.scrollHeight,150)+"px"}});
+})();
+document.getElementById("in-note").addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();addNote()}});
 var qTimer=0;
 document.getElementById("q").addEventListener("input",function(e){query=e.target.value;clearTimeout(qTimer);if(!query){render();return}qTimer=setTimeout(render,160)});
 document.getElementById("copy").onclick=function(){
@@ -2901,10 +2929,10 @@ function amtStr(n){if(n<1000)return n+"d";if(n%1e6===0)return n/1e6+"tr";if(n%10
 function editForm(x){
   var tx=x.fin&&x.k==="tx",debt=x.fin&&x.k==="debt",h='<div class="edit">';
   var ec=x.fin?x.cat:(editCat||x.cat),food=!x.fin&&(tagHas(ec,"l")||x.area||x.link||MAPRE.test(x.text||""));
-  if(!x.fin)h+='<textarea class="ed" data-ef="1" rows="3" aria-label="Sửa ghi chú">'+esc(editVal)+'</textarea>';
+  if(!x.fin)h+='<div class="nlw"><textarea class="ed" data-ef="1" rows="3" aria-label="Sửa ghi chú">'+esc(editVal)+'</textarea><button type="button" class="nlb" aria-label="Xuống dòng" title="Xuống dòng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 5v7a2 2 0 0 1-2 2H5"/><path d="M9 10l-4 4 4 4"/></svg></button></div>';
   if(food)h+='<input class="ed" data-elink="1" type="text" inputmode="url" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" style="margin-top:8px" aria-label="Link vị trí" placeholder="Link vị trí (Google Maps), có thể để trống" value="'+esc(editLink)+'">'+brEditor();
   else if(x.fin)h+='<input class="ed" data-ef="1" type="text" autocomplete="off" enterkeyhint="done" aria-label="Sửa" value="'+esc(editVal)+'">';
-  h+='<input class="ed" data-enote="1" type="text" autocomplete="off" enterkeyhint="done" style="margin-top:8px" aria-label="Ghi chú thêm" placeholder="Ghi chú thêm (không bắt buộc)" value="'+esc(editNote)+'">';
+  h+='<div class="nlw s" style="margin-top:8px"><textarea class="ed" data-enote="1" rows="1" maxlength="200" autocomplete="off" enterkeyhint="done" aria-label="Ghi chú thêm" placeholder="Ghi chú thêm (không bắt buộc)" >'+esc(editNote)+'</textarea><button type="button" class="nlb" aria-label="Xuống dòng" title="Xuống dòng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 5v7a2 2 0 0 1-2 2H5"/><path d="M9 10l-4 4 4 4"/></svg></button></div>';
   h+='<div class="meta camrow">'+camBtn("edit")+'<div class="thumbs" id="ph-ed">'+pendStrip(editImgs,"edit")+'</div></div>';
   if(debt)h+='<div class="meta" style="gap:6px">Lãi suất <input class="ed" data-erate="1" type="text" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="Lãi suất" value="'+esc(editRate)+'" style="width:70px;text-align:right"> % <select class="ed" data-eper="1" aria-label="Kỳ tính lãi" style="width:auto"><option value="m"'+(editPer==="m"?" selected":"")+'>/ tháng</option><option value="y"'+(editPer==="y"?" selected":"")+'>/ năm</option></select></div><div class="meta" style="gap:6px">Hạn trả <input type="date" class="date" data-eddy="1" value="'+esc(editDueDay)+'" aria-label="Hạn trả nợ"></div>';
   if(debt)h+='<div class="meta"><button class="chip" data-edir="owe" aria-pressed="'+(editDir==="owe")+'">Mình nợ</button><button class="chip" data-edir="lent" aria-pressed="'+(editDir==="lent")+'">Họ nợ mình</button></div>';
@@ -3122,7 +3150,7 @@ document.addEventListener("keydown",function(e){if(e.key==="Escape")closePSheet(
 document.getElementById("finSheet").addEventListener("mousedown",function(e){if(e.target===this)closeSheet()});
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!document.getElementById("finSheet").hidden)closeSheet()});
 document.getElementById("fin-in").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();addFin()}});
-document.getElementById("fin-note").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();addFin()}});
+document.getElementById("fin-note").addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();addFin()}});
 document.getElementById("fin-date").value=today();
 defMsg();
 if("serviceWorker" in navigator)window.addEventListener("load",function(){
@@ -3400,9 +3428,9 @@ document.addEventListener("click",function(e){
   else if(a==="ok"){var f=document.querySelector('[data-plk="ask"]');if(f)plConf(f.dataset.pid,+f.dataset.pj,f.value)}
   else if(a==="no"){plAsk=null;renderPlan()}
   else if(a==="bud"&&p){dlgAsk({title:"Ngân sách dự án",msg:"Ví dụ 5tr, 800k.",val:p.budget?cmp(p.budget):"",ok:"Lưu"},function(nv){var bv=plAmt(nv);if(!bv)return"Chưa đọc được số tiền.";plSet(p,function(){p.budget=bv})})}
-  else if(a==="anote"&&p){var ac5=(p.acts||[]).find(function(x){return x.id==d.aid});if(ac5){dlgAsk({title:"Ghi chú hoạt động",msg:"Để trống để xóa.",val:ac5.note||"",ok:"Lưu"},function(av){plSet(p,function(){ac5.note=av.trim().slice(0,200)})})}}
-  else if(a==="inote"&&it){dlgAsk({title:"Ghi chú khoản chi",msg:"Để trống để xóa.",val:it.note||"",ok:"Lưu"},function(iv){plSet(p,function(){it.note=iv.trim().slice(0,200)})})}
-  else if(a==="pnote"&&p){dlgAsk({title:"Ghi chú dự án",msg:"Để trống để xóa.",val:p.note||"",ok:"Lưu"},function(pv){plSet(p,function(){p.note=pv.trim().slice(0,200)})})}
+  else if(a==="anote"&&p){var ac5=(p.acts||[]).find(function(x){return x.id==d.aid});if(ac5){dlgAsk({title:"Ghi chú hoạt động",msg:"Để trống để xóa. Enter để xuống dòng.",long:1,val:ac5.note||"",ok:"Lưu"},function(av){plSet(p,function(){ac5.note=av.trim().slice(0,200)})})}}
+  else if(a==="inote"&&it){dlgAsk({title:"Ghi chú khoản chi",msg:"Để trống để xóa. Enter để xuống dòng.",long:1,val:it.note||"",ok:"Lưu"},function(iv){plSet(p,function(){it.note=iv.trim().slice(0,200)})})}
+  else if(a==="pnote"&&p){dlgAsk({title:"Ghi chú dự án",msg:"Để trống để xóa. Enter để xuống dòng.",long:1,val:p.note||"",ok:"Lưu"},function(pv){plSet(p,function(){p.note=pv.trim().slice(0,200)})})}
   else if(a==="ren"&&p){dlgAsk({title:"Tên dự án",val:p.name,ok:"Lưu"},function(nn){nn=nn.trim();if(!nn)return"Tên không được để trống.";plSet(p,function(){p.name=plCap(nn)})})}
   else if(a==="range"&&p)rgOpen(p);
   else if(a==="reopen"&&p)plSet(p,function(){p.m=true;p.done=false});
@@ -3434,7 +3462,7 @@ document.addEventListener("change",function(e){
   if(c==="date")plSet(p,function(){p.date=t.value});
   else if(c==="on")plSet(p,function(){p.m=t.checked;if(t.checked)p.done=false})});
 document.addEventListener("keydown",function(e){
-  var t=e.target,k=t.dataset&&t.dataset.plk;if(!k||e.key!=="Enter")return;
+  var t=e.target,k=t.dataset&&t.dataset.plk;if(!k||e.key!=="Enter"||(k==="note"&&e.shiftKey))return;
   if(k==="new")plNew();else if(k==="new2"||k==="note")plSubmit();else if(k==="ask")plConf(t.dataset.pid,+t.dataset.pj,t.value);else if(k==="item")plItem(t.dataset.pid,t.value);else if(k==="act")plAct(t.dataset.pid,t.value)});
 /* Lịch chọn khoảng ngày cho dự án: chạm ngày bắt đầu, rồi chạm ngày kết thúc */
 var rg={pid:null,y:0,m:0,a:"",b:""};
