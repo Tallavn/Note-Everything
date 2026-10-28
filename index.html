@@ -314,6 +314,10 @@ body.psheet .cbd,body.pout .cbd{display:block;position:fixed;inset:0;z-index:55;
 body.psheet .cbd{animation:cbdIn .18s ease-out both}
 body.pout .cbd{animation:cbdOut .14s ease-in both;pointer-events:none}
 @media (prefers-reduced-motion:reduce){body.psheet .psh,body.psheet .cbd{animation:none}body.pout .psh,body.pout .cbd{display:none}.psh{transition:none}}
+/* Khung ghi chú + khung dự án: nằm GIỮA vùng nhìn thấy phía trên bàn phím, giống bảng nhập chi tiêu (.sheet) -> mượt, không nhảy */
+@media (max-width:700px),(pointer:coarse){
+#notesView>.box,.psh{top:12px;bottom:calc(var(--kb,0px) + 12px);left:12px;right:12px;margin:auto;max-width:520px;height:max-content;transform-origin:50% 50%}
+}
 @keyframes cbdIn{from{opacity:0}to{opacity:1}}
 @keyframes cbdOut{from{opacity:1}to{opacity:0}}
 @keyframes fabIn{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
@@ -2664,7 +2668,10 @@ function kbZ(){return parseFloat(document.body.style.zoom)||1}
 var kbS="",kbV="0px";
 function applyKb(){var l=document.querySelectorAll("#notesView>.box,.psh,.sheet,.edit");for(var i=0;i<l.length;i++)l[i].style.setProperty("--kb",kbV)}
 function setKb(h){var v=(h/kbZ())+"px";if(v===kbS)return;kbS=v;kbV=v;applyKb()}
-function kbPrep(){
+function kbPrep(follow){
+  /* follow=true (khung ghi chú, khung dự án): KHÔNG dự đoán chiều cao phím như trước (dự đoán làm khung nhảy lên rồi tụt xuống rồi mới về đúng chỗ).
+     Giống bảng nhập chi tiêu: bắt đầu từ 0 và đi theo phím khi phím trượt lên. */
+  if(follow){window.__kbBase=window.innerHeight;window.__kbHold=false;clearTimeout(window.__kbHT);setKb(0);return}
   var h=0,m="";try{h=window.__kbh||parseInt(localStorage.getItem("kbh"))||0;m=localStorage.getItem("kbm")||""}catch(e){}
   window.__kbBase=window.innerHeight;
   /* trình duyệt tự co khung nhìn theo bàn phím: khung đã tự sát phím, không cộng thêm */
@@ -2692,7 +2699,7 @@ function openPSheet(ctx){
   $i("pl-title").textContent=cfg.t;$i("pl-hint").textContent=cfg.h;$i("pl-go").textContent=cfg.b;
   var el0=$i("pl-new2");el0.placeholder=cfg.p;el0.value="";var nt0=$i("pl-note");nt0.value="";nt0.placeholder=!ctx?"Ghi chú dự án (không bắt buộc)":ctx.k==="act"?"Ghi chú hoạt động (không bắt buộc)":"Ghi chú khoản chi (không bắt buộc)";
   $i("pl-imp").hidden=!!ctx;
-  kbPrep();
+  kbPrep(true);
   b.classList.add("psheet");updateFab();
   var el=document.getElementById("pl-new2");try{el.focus({preventScroll:true})}catch(e){el.focus()}
 }
@@ -2793,7 +2800,7 @@ window.addEventListener("resize",growIn);
 if(window.visualViewport)window.visualViewport.addEventListener("resize",growIn);
 function openComposer(){
   var el=document.getElementById("in");clearTimeout(cT);document.body.classList.remove("cout");
-  kbPrep();
+  kbPrep(true);
   document.body.classList.add("composing");updateFab();
   try{el.focus({preventScroll:true})}catch(e){el.focus()}
   showSug();growIn();
@@ -2855,6 +2862,27 @@ if(MQM.addEventListener)MQM.addEventListener("change",function(){closeComposer()
     if(v!==null)setKb(v);
     var pb=(!c&&h>120)?h+"px":"";if(document.body.style.paddingBottom!==pb)document.body.style.paddingBottom=pb}
   window.__kb=kb;
+  /* (sửa lỗi khung nhập bị lơ lửng cao hơn bàn phím, cả ghi chú lẫn dự án)
+     Sau khi đã có phím, ĐO lại khoảng cách thật từ đáy khung tới đáy vùng nhìn thấy rồi chỉnh cho khớp (10px + safe-area),
+     thay vì tin hoàn toàn vào số dự đoán/số đã nhớ. Chỉ chạy khi phím đã thật sự lên, nên không gây lỗi "rớt xuống đáy". */
+  var sabP=document.createElement("div");sabP.style.cssText="position:fixed;left:0;bottom:0;width:1px;height:var(--sab,0px);pointer-events:none;visibility:hidden";document.body.appendChild(sabP);
+  var fitN=0;
+  function fit(){
+    if(!isField(document.activeElement))return;
+    var el=document.querySelector("body.ein .edit");
+    if(!el)return;
+    var h=Math.max(0,Math.round(probe.getBoundingClientRect().bottom-(vv.offsetTop+vv.height))),
+        shr=window.__kbBase&&window.innerHeight<window.__kbBase-120;
+    if(h<=120&&!shr)return;
+    var r=el.getBoundingClientRect();if(!r.height)return;
+    var Z=kbZ(),vb=vv.offsetTop+vv.height,gap=vb-r.bottom,want=10*Z+sabP.getBoundingClientRect().height,err=gap-want;
+    if(Math.abs(err)<=3)return;
+    var cur=(parseFloat(kbV)||0)*Z,nxt=Math.max(0,cur-err);
+    if(fitN++>6)return;
+    setKb(nxt)}
+  function fitSoon(){fitN=0;requestAnimationFrame(function(){requestAnimationFrame(fit)})}
+  window.__kbFit=fitSoon;
+  window.addEventListener("resize",function(){kb();fitSoon()});
   /* mọi ô nhập: tự cuộn lên phía trên bàn phím */
   function isField(e){return e&&e.matches&&e.matches("input:not([type=checkbox]):not([type=radio]):not([type=button]),textarea,select")}
   function lift(){
@@ -2863,9 +2891,9 @@ if(MQM.addEventListener)MQM.addEventListener("change",function(){closeComposer()
     if(over>0)window.scrollBy({top:over,behavior:"auto"});
     else if(r.top<vv.offsetTop+8)window.scrollBy({top:r.top-vv.offsetTop-16,behavior:"auto"});
   }
-  document.addEventListener("focusin",function(ev){if(!isField(ev.target))return;[0,120,300,550].forEach(function(t){setTimeout(function(){kb();lift()},t)})});
+  document.addEventListener("focusin",function(ev){if(!isField(ev.target))return;[0,120,300,550,900,1400].forEach(function(t){setTimeout(function(){kb();lift();fitSoon()},t)})});
   vv.addEventListener("resize",function(){setTimeout(lift,0)});
-  vv.addEventListener("resize",kb);vv.addEventListener("scroll",kb);kb()})();
+  vv.addEventListener("resize",function(){kb();fitSoon()});vv.addEventListener("scroll",function(){kb();fitSoon()});kb()})();
 /* Hàng tab dừng lại sát dưới header khi cuộn */
 (function(){var hdr=document.querySelector(".hdr"),tabs=document.querySelector(".tabs");if(!hdr||!tabs)return;
   function dock(){tabs.style.top=hdr.offsetHeight+"px"}
