@@ -96,7 +96,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .sheet{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;padding:16px;padding-bottom:calc(16px + var(--kb,0px))}
 .sheet[hidden]{display:none}
 /* Bảng nhập chi tiêu trên điện thoại: nằm sát trên bàn phím như khung ghi chú/dự án (không căn giữa nữa) */
-@media (max-width:700px),(pointer:coarse){#finSheet{align-items:flex-end;padding-bottom:calc(10px + var(--kb,0px) + var(--sab));transition:padding-bottom .14s ease-out}}
+@media (max-width:700px),(pointer:coarse){#finSheet{align-items:flex-end;padding-bottom:calc(10px + var(--sab))}#finSheet .box{translate:0 calc(-1 * var(--kb,0px));transition:translate .2s cubic-bezier(.2,.8,.2,1);will-change:translate}}
 .sheet .box{width:100%;max-width:520px}
 .shead{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
 .x{background:none;border:0;color:var(--muted);font-size:21.6px;line-height:1;padding:0 6px}
@@ -301,7 +301,7 @@ main{padding-top:18px}
 .sbar{margin:0 0 12px}
 /* KHÓA: khung nhập bám bàn phím — xem ghi chú "KHUNG NHẬP BÁM BÀN PHÍM" ở phần script, đừng sửa khi chưa báo */
 /* khung nhập ẩn, chỉ mở khi bấm nút bút */
-#notesView>.box{display:none;position:fixed;z-index:60;left:12px;right:12px;top:auto;bottom:calc(var(--kb,0px) + 10px + var(--sab));margin:0;box-shadow:0 -6px 30px rgba(0,0,0,.3);transition:border-color .15s,box-shadow .15s;transform-origin:50% 100%}
+#notesView>.box{display:none;position:fixed;z-index:60;left:12px;right:12px;top:auto;bottom:calc(10px + var(--sab));translate:0 calc(-1 * var(--kb,0px));margin:0;box-shadow:0 -6px 30px rgba(0,0,0,.3);transition:border-color .15s,box-shadow .15s;transform-origin:50% 100%}
 body.composing #notesView>.box{display:block;animation:sheetPop .12s ease-out both}
 body.cout #notesView>.box{display:block;pointer-events:none;animation:sheetOut .14s cubic-bezier(.4,0,1,1) both}
 body.composing .cbd,body.editing .cbd,body.cout .cbd{display:block;position:fixed;inset:0;z-index:55;background:rgba(0,0,0,.42)}
@@ -311,7 +311,7 @@ body.cout .cbd,body.eout .cbd{animation:cbdOut .14s ease-in both;pointer-events:
 @keyframes sheetIn{0%{opacity:0;transform:translateY(32px) scale(.98)}50%{opacity:1}100%{opacity:1;transform:none}}
 @keyframes sheetOut{from{opacity:1;transform:none}to{opacity:0;transform:translateY(24px) scale(.985)}}
 /* pop-up tạo dự án: cùng cơ chế với khung nhập ghi chú */
-.psh{display:none;position:fixed;z-index:60;left:12px;right:12px;bottom:calc(var(--kb,0px) + 10px + var(--sab));margin:0 auto;max-width:520px;transform-origin:50% 100%}
+.psh{display:none;position:fixed;z-index:60;left:12px;right:12px;bottom:calc(10px + var(--sab));translate:0 calc(-1 * var(--kb,0px));margin:0 auto;max-width:520px;transform-origin:50% 100%}
 .psh .box{box-shadow:0 -6px 30px rgba(0,0,0,.3);border-radius:var(--r-lg);padding:14px 14px 12px}
 body.psheet .psh{display:block;animation:sheetPop .12s ease-out both}
 body.pout .psh{display:block;pointer-events:none;animation:sheetOut .14s cubic-bezier(.4,0,1,1) both}
@@ -319,17 +319,17 @@ body.psheet .cbd,body.pout .cbd{display:block;position:fixed;inset:0;z-index:55;
 body.psheet .cbd{animation:cbdIn .18s ease-out both}
 body.pout .cbd{animation:cbdOut .14s ease-in both;pointer-events:none}
 @media (prefers-reduced-motion:reduce){body.psheet .psh,body.psheet .cbd{animation:none}body.pout .psh,body.pout .cbd{display:none}.psh{transition:none}}
-@media (max-width:700px),(pointer:coarse){#notesView>.box,.psh{transition:bottom .14s ease-out,border-color .15s,box-shadow .15s}}
+@media (max-width:700px),(pointer:coarse){#notesView>.box,.psh,.edit{transition:translate .2s cubic-bezier(.2,.8,.2,1),border-color .15s,box-shadow .15s;will-change:translate}}
 @keyframes cbdIn{from{opacity:0}to{opacity:1}}
 @keyframes cbdOut{from{opacity:1}to{opacity:0}}
 @keyframes fabIn{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
 .fab.show{animation:fabIn .22s cubic-bezier(.16,1,.3,1) both}
 /* form Sửa: cùng kiểu popup với khung nhập */
 .note:has(>.edit),.tx:has(>.edit){visibility:hidden}
-.edit{visibility:visible;position:fixed;z-index:60;left:12px;right:12px;bottom:calc(var(--kb,0px) + 10px + var(--sab));background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px;box-shadow:0 -6px 30px rgba(0,0,0,.3);max-height:calc(100% - var(--kb,0px) - 32px);overflow-y:auto;transform-origin:50% 100%}
+.edit{visibility:visible;position:fixed;z-index:60;left:12px;right:12px;bottom:calc(10px + var(--sab));translate:0 calc(-1 * var(--kb,0px));background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px;box-shadow:0 -6px 30px rgba(0,0,0,.3);max-height:calc(100% - var(--kb,0px) - 32px);overflow-y:auto;transform-origin:50% 100%}
 body.ein .edit{animation:sheetPop .12s ease-out both}
 .edit.out{pointer-events:none;animation:sheetOut .14s cubic-bezier(.4,0,1,1) both}
-@media (prefers-reduced-motion:reduce){body.composing #notesView>.box,body.ein .edit,.fab.show,body.composing .cbd,body.editing .cbd{animation:none}body.cout #notesView>.box,body.cout .cbd{display:none}.edit.out{animation:none;opacity:0}#notesView>.box,.edit{transition:none}}
+@media (prefers-reduced-motion:reduce){body.composing #notesView>.box,body.ein .edit,.fab.show,body.composing .cbd,body.editing .cbd{animation:none}body.cout #notesView>.box,body.cout .cbd{display:none}.edit.out{animation:none;opacity:0}#notesView>.box,.edit,.psh,#finSheet .box{transition:none!important}}
 #notesView>.box textarea{margin:0 -4px 4px;width:calc(100% + 8px);padding:8px 38px 8px 10px;border-radius:var(--r-sm);resize:none}
 #notesView>.box textarea:focus-visible{outline:1px solid var(--accent);outline-offset:0}
 .cclose{display:block;position:absolute;top:20px;right:18px;z-index:1;background:none;border:0;color:var(--muted);font-size:21.6px;line-height:1;padding:2px 6px;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation;outline:none;border-radius:var(--r-sm)}
@@ -2366,7 +2366,7 @@ function openSheet(){
   var sh=document.getElementById("finSheet");
   document.getElementById("sheet-title").textContent=sub==="debt"?"Thêm khoản nợ":"Thêm thu chi";
   document.getElementById("fin-date").value=today();
-  document.getElementById("fin-note").value="";document.getElementById("fin-rate").value="";document.getElementById("fin-per").value="m";document.getElementById("fin-due").value="";finImgs=[];renderPend("fin");defMsg();sh.hidden=false;document.getElementById("fin-in").focus();
+  document.getElementById("fin-note").value="";document.getElementById("fin-rate").value="";document.getElementById("fin-per").value="m";document.getElementById("fin-due").value="";finImgs=[];renderPend("fin");defMsg();kbPrep(true);sh.hidden=false;var fi=document.getElementById("fin-in");try{fi.focus({preventScroll:true})}catch(e){fi.focus()}
 }
 function closeSheet(){document.getElementById("finSheet").hidden=true}
 /* "trả Tuấn Anh 500k" / "thu Nam 200k": trừ vào khoản nợ đang mở thay vì tạo khoản mới */
@@ -2648,8 +2648,8 @@ var plCtx=null;
 
    Nguyên tắc:
    1. Mở: kbPrep() -> thêm class (composing/psheet/ein) -> focus({preventScroll:true}), cùng một nhịp.
-   2. Vị trí: bottom:calc(var(--kb) + 10px + safe-area). KHÔNG transition trên bottom.
-      Hiệu ứng hiện chỉ là mờ dần tại chỗ (sheetPop .12s), không trượt từ dưới lên.
+   2. Vị trí: bottom cố định (10px + safe-area), dịch lên bằng thuộc tính `translate: 0 calc(-1*var(--kb))` (không đụng `transform` của animation)
+      + transition translate .2s: trượt mượt trên compositor, KHÔNG transition trên bottom/padding. Cả 4 khung (ghi chú, dự án, chi tiêu, sửa) dùng chung.
    3. --kb chỉ gán lên các khung (setKb/applyKb). TUYỆT ĐỐI không gán lên :root:
       làm trình duyệt tính lại style cả danh sách, chậm ~200ms mỗi lần.
    4. Dự đoán: kbPrep() lấy chiều cao phím đã nhớ (localStorage "kbh"); chưa có thì ước tính
@@ -2669,7 +2669,7 @@ function kbZ(){return parseFloat(document.body.style.zoom)||1}
 /* --kb chỉ gán lên đúng các khung cần dùng (không gán lên :root): gán lên :root làm trình duyệt tính lại style cả danh sách ghi chú mỗi lần, rất chậm */
 var kbS="",kbV="0px";
 function applyKb(){var l=document.querySelectorAll("#notesView>.box,.psh,.sheet,.edit");for(var i=0;i<l.length;i++)l[i].style.setProperty("--kb",kbV)}
-function setKb(h){var v=(h/kbZ())+"px";if(v===kbS)return;kbS=v;kbV=v;applyKb()}
+function setKb(h){var n=h/kbZ();if(n>0&&kbS&&Math.abs(n-parseFloat(kbS))<3)return;var v=n+"px";if(v===kbS)return;kbS=v;kbV=v;applyKb()}
 function kbPrep(follow){
   /* follow=true: khung ghi chú/dự án. Nếu đã nhớ chiều cao phím thật (kbh) thì đặt khung đúng chỗ ngay và CHỐT vị trí đó
      tới khi phím lên hết (kb() bỏ qua các số đo trung gian nhỏ hơn lúc phím đang trượt) -> không nhảy lên rồi tụt xuống.
@@ -2850,7 +2850,7 @@ if(MQM.addEventListener)MQM.addEventListener("change",function(){closeComposer()
   /* đo đáy thật của layout viewport bằng phần tử fixed: đúng cho cả trình duyệt co layout lẫn chỉ co visual viewport */
   var probe=document.createElement("div");probe.style.cssText="position:fixed;left:0;bottom:0;width:1px;height:0;pointer-events:none;visibility:hidden";document.body.appendChild(probe);
   var kbT=null;
-  function kb(){var h=Math.max(0,Math.round(probe.getBoundingClientRect().bottom-(vv.offsetTop+vv.height))),c=document.body.classList.contains("psheet")||document.body.classList.contains("pout")||document.body.classList.contains("composing")||document.body.classList.contains("cout")||document.body.classList.contains("editing");
+  function kb(){var h=Math.max(0,Math.round(probe.getBoundingClientRect().bottom-(vv.offsetTop+vv.height))),c=document.body.classList.contains("psheet")||document.body.classList.contains("pout")||document.body.classList.contains("composing")||document.body.classList.contains("cout")||document.body.classList.contains("editing")||!!document.querySelector(".sheet:not([hidden])");
     window.__kbCur=h;
     /* chỉ nhớ chiều cao khi đã đứng yên 250ms và đang có ô nhập focus (tránh lưu số lúc phím đang trượt lên/xuống) */
     if(h>120&&isField(document.activeElement)){clearTimeout(kbT);kbT=setTimeout(function(){if(window.__kbCur>120&&isField(document.activeElement)){try{localStorage.setItem("kbh",window.__kbCur)}catch(e){}window.__kbh=window.__kbCur}},250)}
@@ -2894,7 +2894,7 @@ if(MQM.addEventListener)MQM.addEventListener("change",function(){closeComposer()
   /* mọi ô nhập: tự cuộn lên phía trên bàn phím */
   function isField(e){return e&&e.matches&&e.matches("input:not([type=checkbox]):not([type=radio]):not([type=button]),textarea,select")}
   function lift(){
-    var e=document.activeElement;if(!isField(e)||e.id==="in"||e.id==="pl-new2")return;
+    var e=document.activeElement;if(!isField(e)||e.id==="in"||e.id==="pl-new2"||(e.closest&&e.closest(".sheet,.psh,.edit,#notesView>.box")))return;
     var r=e.getBoundingClientRect(),vb=vv.offsetTop+vv.height,over=r.bottom+16-vb;
     if(over>0)window.scrollBy({top:over,behavior:"auto"});
     else if(r.top<vv.offsetTop+8)window.scrollBy({top:r.top-vv.offsetTop-16,behavior:"auto"});
