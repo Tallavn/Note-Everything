@@ -131,6 +131,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .fin-in:focus-visible{outline:1px solid var(--accent);outline-offset:0;border-radius:var(--r-sm)}
 .sheet .fin-in,.psh .fin-in{margin-inline:-6px;width:calc(100% + 12px);padding-inline:10px}
 .sheet .fin-in+.fin-in,.psh .fin-in+.fin-in{margin-top:8px}
+#finSheet #fin-msg:empty{display:none}#finSheet .shead{margin-bottom:0}#finSheet .row{margin-top:8px}
 #finSheet .fin-in{margin-inline:-4px;width:calc(100% + 8px);padding-inline:4px}
 #finSheet #fin-in,#finSheet #fin-note{margin-inline:-1px;width:calc(100% + 2px);padding-inline:8px}
 /* Popup dự án xếp giống form Thêm thu chi: tiêu đề, ghi chú, nút Nhập lịch trình, dòng hướng dẫn cùng thẳng một lề; riêng dòng nhập chính thụt vào */
@@ -2361,7 +2362,7 @@ function rateTxt(x){return String(x.rate).replace(".",",")+"%/"+(x.per==="y"?"n�
 function balance(){var b=0,o=0;fins().forEach(function(x){if(x.k==="open"){o=x.amt;b+=x.amt}else if(x.k==="tx")b+=x.t==="in"?x.amt:-x.amt;else if(x.k==="debt"){var rm=x.rate>0?x.amt-(x.paid||0):Math.max(0,x.amt-(x.paid||0));b+=x.dir==="owe"?rm:-rm}});return{b:b,o:o}}
 function touch(){save();renderFin();sync()}
 function setMsg(t){document.getElementById("fin-msg").textContent=t}
-function defMsg(){setMsg(sub==="debt"?"Gõ số tiền và tên, ví dụ: 500k Nam tiền ăn. Rồi bấm Mình nợ hoặc Họ nợ mình.":"Có dấu + là khoản thu. k = nghìn, tr = triệu (1tr2 = 1,2 triệu).")}
+function defMsg(){setMsg("")}
 function openSheet(){
   var sh=document.getElementById("finSheet");
   document.getElementById("sheet-title").textContent=sub==="debt"?"Thêm khoản nợ":"Thêm thu chi";
