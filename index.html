@@ -1827,6 +1827,8 @@ function ocrFin(raw,nt){
   if(m){var dd=+m[1],mm=+m[2],yy=+m[3];if(mm>=1&&mm<=12&&dd>=1&&dd<=31&&yy>=2000){var iso=yy+"-"+("0"+mm).slice(-2)+"-"+("0"+dd).slice(-2);if(iso<=day)day=iso}}
   var o={id:now,fin:1,k:"tx",t:"out",amt:amt,desc:desc,day:day,ts:now,upd:now};
   o.cat=guessCat(names||desc,false);
+  /* Không khớp từ khóa nào nhưng hóa đơn có số bàn (ăn tại quán) -> Ăn uống */
+  if(o.cat==="khac"&&S(d.table))o.cat="an";
   var note=[nt,lines].filter(Boolean).join("\n").slice(0,200);if(note)o.note=note;
   return{kind:"tx",obj:o};
 }
@@ -2242,7 +2244,7 @@ hd:["tien dien","dien","tien nuoc","nuoc sinh hoat","net","wifi","internet","tie
 sk:["thuoc","kham","benh vien","gym","nha si","vitamin","xet nghiem","bac si","khau trang","massage","spa","yoga"],
 di:["grab","gojek","xanh sm","xe","xang","gui xe","do xang","taxi","bus","buyt","ve may bay","ve tau","ve xe","rua xe","thay nhot","nhot","phi cau duong","sua xe","uber"],
 gt:["phim","rap","game","karaoke","du lich","netflix","spotify","youtube","nhac","ve xem","bar","pub","club","cau ca","choi","picnic","khach san","homestay","tour"],
-an:["pho","bun","banh","com","cafe","ca phe","coffee","tra sua","tra da","tra chanh","an sang","an trua","an toi","an vat","an","lau","nuong","bia","nhau","xoi","mien","mi","che","kem","nuoc ngot","nuoc mia","do an","bua","nha hang","buffet","tiec","hu tieu","chao","banh mi"],
+an:["pho","bun","banh","com","cafe","ca phe","coffee","tra sua","tra da","tra chanh","an sang","an trua","an toi","an vat","an","lau","nuong","bia","nhau","xoi","mien","mi","che","kem","nuoc ngot","nuoc mia","do an","bua","nha hang","buffet","tiec","hu tieu","chao","banh mi","my","quat","sua","tra","nuoc","sinh to","nuoc ep","bo","ga","heo","goi","pizza","burger","lac","sushi","kimbap","xien","tom","muc"],
 sam:["mua","ao","quan ao","giay","dep","tui","shopee","lazada","tiki","sieu thi","tap hoa","do dung","my pham","son"]};
 var MULT={tr:1e6,trieu:1e6,m:1e6,k:1e3,nghin:1e3,ngan:1e3,d:1,dong:1};
 var WD=["CN","T2","T3","T4","T5","T6","T7"];
