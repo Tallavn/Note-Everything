@@ -2872,7 +2872,7 @@ if(MQM.addEventListener)MQM.addEventListener("change",function(){closeComposer()
   var fitN=0;
   function fit(){
     if(!isField(document.activeElement)||window.__kbHold)return;
-    var el=document.querySelector("body.composing #notesView>.box,body.psheet .psh,body.ein .edit");
+    var el=null;/* TẮT: đo lúc khung còn đang trượt làm chỉnh quá tay (khung bay cao rồi tụt xuống sau ~1,3s). Vị trí do kb() đặt trực tiếp từ số đo phím. */
     if(!el)return;
     var h=Math.max(0,Math.round(probe.getBoundingClientRect().bottom-(vv.offsetTop+vv.height))),
         shr=window.__kbBase&&window.innerHeight<window.__kbBase-120;
