@@ -95,6 +95,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .psh{display:none}
 .sheet{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;padding:16px;padding-bottom:calc(16px + var(--kb,0px))}
 .sheet[hidden]{display:none}
+/* Bảng nhập chi tiêu trên điện thoại: nằm sát trên bàn phím như khung ghi chú/dự án (không căn giữa nữa) */
+@media (max-width:700px),(pointer:coarse){#finSheet{align-items:flex-end;padding-bottom:calc(10px + var(--kb,0px) + var(--sab));transition:padding-bottom .14s ease-out}}
 .sheet .box{width:100%;max-width:520px}
 .shead{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
 .x{background:none;border:0;color:var(--muted);font-size:21.6px;line-height:1;padding:0 6px}
