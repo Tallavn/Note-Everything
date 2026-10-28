@@ -314,10 +314,7 @@ body.psheet .cbd,body.pout .cbd{display:block;position:fixed;inset:0;z-index:55;
 body.psheet .cbd{animation:cbdIn .18s ease-out both}
 body.pout .cbd{animation:cbdOut .14s ease-in both;pointer-events:none}
 @media (prefers-reduced-motion:reduce){body.psheet .psh,body.psheet .cbd{animation:none}body.pout .psh,body.pout .cbd{display:none}.psh{transition:none}}
-/* Khung ghi chú + khung dự án: nằm GIỮA vùng nhìn thấy phía trên bàn phím, giống bảng nhập chi tiêu (.sheet) -> mượt, không nhảy */
-@media (max-width:700px),(pointer:coarse){
-#notesView>.box,.psh{top:12px;bottom:calc(var(--kb,0px) + 12px);left:12px;right:12px;margin:auto;max-width:520px;height:max-content;transform-origin:50% 50%}
-}
+@media (max-width:700px),(pointer:coarse){#notesView>.box,.psh{transition:bottom .14s ease-out,border-color .15s,box-shadow .15s}}
 @keyframes cbdIn{from{opacity:0}to{opacity:1}}
 @keyframes cbdOut{from{opacity:1}to{opacity:0}}
 @keyframes fabIn{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
@@ -2669,9 +2666,14 @@ var kbS="",kbV="0px";
 function applyKb(){var l=document.querySelectorAll("#notesView>.box,.psh,.sheet,.edit");for(var i=0;i<l.length;i++)l[i].style.setProperty("--kb",kbV)}
 function setKb(h){var v=(h/kbZ())+"px";if(v===kbS)return;kbS=v;kbV=v;applyKb()}
 function kbPrep(follow){
-  /* follow=true (khung ghi chú, khung dự án): KHÔNG dự đoán chiều cao phím như trước (dự đoán làm khung nhảy lên rồi tụt xuống rồi mới về đúng chỗ).
-     Giống bảng nhập chi tiêu: bắt đầu từ 0 và đi theo phím khi phím trượt lên. */
-  if(follow){window.__kbBase=window.innerHeight;window.__kbHold=false;clearTimeout(window.__kbHT);setKb(0);return}
+  /* follow=true: khung ghi chú/dự án. Nếu đã nhớ chiều cao phím thật (kbh) thì đặt khung đúng chỗ ngay và CHỐT vị trí đó
+     tới khi phím lên hết (kb() bỏ qua các số đo trung gian nhỏ hơn lúc phím đang trượt) -> không nhảy lên rồi tụt xuống.
+     Chưa nhớ được thì không đoán, khung đi theo phím. */
+  if(follow){
+    /* KHÔNG đoán chiều cao phím nữa (số nhớ từng lệch do thanh gợi ý/phím đổi chiều cao -> khung treo cao rồi tụt xuống).
+       Bắt đầu từ chiều cao phím đang đo được (0 nếu phím chưa mở) rồi bám theo phím; bottom có transition ngắn nên trượt mượt. */
+    window.__kbBase=window.innerHeight;window.__kbPred=0;window.__kbHold=false;clearTimeout(window.__kbHT);
+    setKb((window.__kbCur>120)?window.__kbCur:0);return}
   var h=0,m="";try{h=window.__kbh||parseInt(localStorage.getItem("kbh"))||0;m=localStorage.getItem("kbm")||""}catch(e){}
   window.__kbBase=window.innerHeight;
   /* trình duyệt tự co khung nhìn theo bàn phím: khung đã tự sát phím, không cộng thêm */
@@ -2854,7 +2856,8 @@ if(MQM.addEventListener)MQM.addEventListener("change",function(){closeComposer()
     /* Nguyên nhân khung lên sau phím: lúc mới mở phím chưa hiện (đo ra 0) nên trước đây khung bị hạ về đáy rồi mới nhảy lên.
        Giờ: đang chờ phím thì GIỮ vị trí dự đoán; chỉ đặt 0 khi phím thật sự không lên / đã hạ / trình duyệt tự co layout */
     var shr2=window.__kbBase&&window.innerHeight<window.__kbBase-120,act=isField(document.activeElement),v;
-    if(h>120){window.__kbHold=false;clearTimeout(window.__kbHT);v=h}
+    if(h>120&&window.__kbHold&&window.__kbPred&&h<window.__kbPred-8&&act){v=null}
+    else if(h>120){window.__kbHold=false;window.__kbPred=0;clearTimeout(window.__kbHT);v=h}
     else if(!c)v=0;
     else if(shr2)v=0;
     else if(act&&window.__kbHold)v=null;
@@ -2868,8 +2871,8 @@ if(MQM.addEventListener)MQM.addEventListener("change",function(){closeComposer()
   var sabP=document.createElement("div");sabP.style.cssText="position:fixed;left:0;bottom:0;width:1px;height:var(--sab,0px);pointer-events:none;visibility:hidden";document.body.appendChild(sabP);
   var fitN=0;
   function fit(){
-    if(!isField(document.activeElement))return;
-    var el=document.querySelector("body.ein .edit");
+    if(!isField(document.activeElement)||window.__kbHold)return;
+    var el=document.querySelector("body.composing #notesView>.box,body.psheet .psh,body.ein .edit");
     if(!el)return;
     var h=Math.max(0,Math.round(probe.getBoundingClientRect().bottom-(vv.offsetTop+vv.height))),
         shr=window.__kbBase&&window.innerHeight<window.__kbBase-120;
