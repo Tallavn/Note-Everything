@@ -2143,7 +2143,7 @@ document.getElementById("in").addEventListener("keydown",function(e){if(e.key===
     var b=e.target.closest&&e.target.closest(".nlb");if(!b)return null;
     var t=b.parentNode.querySelector("textarea"),a=document.activeElement;
     /* Đang gõ ở ô khác cùng khung (vd ô nhập chính #in): chèn xuống dòng vào ô đó, không nhảy sang ô ghi chú */
-    if(a&&a.tagName==="TEXTAREA"&&a!==t){var c=b.closest(".box,.edit,.sheet");if(c&&c.contains(a)&&(a.id==="in"||(a.parentNode&&a.parentNode.classList.contains("nlw"))))t=a}
+    if(a&&a.tagName==="TEXTAREA"&&a!==t){var c=b.closest(".box,.edit,.sheet,.psh");if(c&&c.contains(a))t=a}
     return {b:b,t:t}}
   document.addEventListener("mousedown",function(e){if(ta(e))e.preventDefault()},true);
   document.addEventListener("click",function(e){
@@ -2156,7 +2156,7 @@ document.getElementById("in").addEventListener("keydown",function(e){if(e.key===
     try{el.focus()}catch(x){}
   },true);
   /* Trình duyệt cũ chưa có field-sizing: tự co giãn theo chữ */
-  if(!(window.CSS&&CSS.supports&&CSS.supports("field-sizing","content")))document.addEventListener("input",function(e){var t=e.target;if(t&&t.tagName==="TEXTAREA"&&t.parentNode&&t.parentNode.classList.contains("nlw")&&t.id!=="in"){t.style.height="auto";t.style.height=Math.min(t.scrollHeight,150)+"px"}});
+  if(!(window.CSS&&CSS.supports&&CSS.supports("field-sizing","content")))document.addEventListener("input",function(e){var t=e.target;if(t&&t.tagName==="TEXTAREA"&&t.parentNode&&((t.parentNode.classList.contains("nlw")&&t.id!=="in")||t.id==="fin-in"||t.id==="pl-new2")){t.style.height="auto";t.style.height=Math.min(t.scrollHeight,150)+"px"}});
 })();
 document.getElementById("in-note").addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();addNote()}});
 var qTimer=0;
