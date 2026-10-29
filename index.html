@@ -231,6 +231,8 @@ main{padding:24px 16px 96px}
 #notesView>.box:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
 #notesView>.box textarea{min-height:76px;padding:2px;line-height:1.5}
 #notesView>.box textarea:focus-visible{outline:none}
+/* Ô nhập ghi chú cùng cỡ với ô nhập Chi tiêu (.fin-in): chữ 15,3px, cao 1 dòng rồi tự cao theo nội dung */
+#notesView>.box textarea#in{font-size:15.3px;line-height:1.35;min-height:2.4em}
 #in-msg{order:2;margin:8px 2px 0!important;min-height:0}
 .inrow{margin-top:0;padding-top:4px;border-top:0}
 .inrow .add{padding:7px 22px;border-radius:var(--r-sm)}
@@ -782,7 +784,7 @@ html,body{overscroll-behavior-y:contain}
 <div id="notesView">
 <div class="box">
 <button type="button" class="cclose" id="cclose" aria-label="Xóa văn bản">×</button>
-<textarea id="in" placeholder="Gõ gì cũng được, ví dụ: bún chả Hương Liên Hai Bà Trưng, ngon, nhớ quay lại"></textarea>
+<textarea id="in" rows="1" placeholder="Gõ gì cũng được, vd: bún chả ngon"></textarea>
 <div class="nlw s"><textarea id="in-note" rows="1" class="fin-in" autocomplete="off" enterkeyhint="done" maxlength="200" aria-label="Ghi chú thêm" placeholder="Ghi chú thêm (không bắt buộc)" style="font-size:13.5px;border-top:1px dashed var(--line);margin-top:2px;padding:6px 2px"></textarea><button type="button" class="nlb" aria-label="Xuống dòng" title="Xuống dòng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 5v7a2 2 0 0 1-2 2H5"/><path d="M9 10l-4 4 4 4"/></svg></button></div>
 <div class="thumbs" id="ph-in"></div><div class="insug" id="inSug"></div><div class="row inrow"><div class="hint nh">Có số tiền → Chi tiêu  ·  Chọn Tag → Ghi chú</div><div class="intags" id="inTags"></div><button type="button" class="cam" data-cam="in" aria-label="Thêm ảnh" title="Thêm ảnh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13.5" r="3.4"/></svg></button><button type="button" class="cam ocr" data-ocr="1" aria-label="Quét chữ từ ảnh" title="Quét chữ từ ảnh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M8 9h8M8 12h8M8 15h5"/></svg></button><button class="add" id="add">Lưu</button></div>
 </div>
@@ -2808,6 +2810,7 @@ document.addEventListener("mousedown",function(e){
 function growIn(){
   var el=document.getElementById("in");if(!el)return;
   var vh=(window.visualViewport&&window.visualViewport.height)||window.innerHeight,mx=Math.max(96,Math.min(320,Math.round(vh*.45)));
+  if(!el.value){el.style.height="";el.style.overflowY="hidden";return}
   el.style.height="auto";
   var cs=getComputedStyle(el),extra=cs.boxSizing==="border-box"?0:(parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom)),
       need=el.scrollHeight-extra,h=Math.min(need,mx);
