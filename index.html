@@ -2140,16 +2140,34 @@ document.getElementById("in").addEventListener("keydown",function(e){if(e.key===
 /* Nút ↵ dùng chung (.nlb) cho các ô ghi chú: chèn xuống dòng tại con trỏ trong textarea cùng khung (.nlw). Chặn mousedown/touchstart để không mất focus (bàn phím không hạ xuống). */
 (function(){
   function ta(e){var b=e.target.closest&&e.target.closest(".nlb");return b?{b:b,t:b.parentNode.querySelector("textarea")}:null}
-  document.addEventListener("mousedown",function(e){if(ta(e))e.preventDefault()},true);
-  document.addEventListener("touchstart",function(e){if(ta(e))e.preventDefault()},{capture:true,passive:false});
-  document.addEventListener("click",function(e){
-    var o=ta(e);if(!o||!o.t)return;e.preventDefault();e.stopPropagation();
-    var el=o.t,a=el.selectionStart,z=el.selectionEnd;if(a==null){a=z=el.value.length}
+  function insNL(o){
+    var el=o.t;if(!el)return;
+    var a=el.selectionStart,z=el.selectionEnd;if(a==null){a=z=el.value.length}
     if(el.maxLength>0&&el.value.length-(z-a)+1>el.maxLength)return;
     if(el.id==="in"&&el.dataset.sug&&el.value===el.dataset.sug){el.dataset.sug="";var sb=document.getElementById("inSug");if(sb)sb.innerHTML=""}
     el.setRangeText("\n",a,z,"end");
     el.dispatchEvent(new Event("input",{bubbles:true}));
     try{el.focus()}catch(x){}
+  }
+  var tx=0,ty=0,tOn=false,lastTouch=0;
+  document.addEventListener("mousedown",function(e){if(ta(e))e.preventDefault()},true);
+  /* KHÔNG preventDefault ở touchstart: làm vậy trình duyệt di động sẽ bỏ luôn sự kiện click -> nút không chạy. Xử lý ở touchend thay vào đó. */
+  document.addEventListener("touchstart",function(e){
+    tOn=!!ta(e);if(tOn&&e.touches[0]){tx=e.touches[0].clientX;ty=e.touches[0].clientY}
+  },{capture:true,passive:true});
+  document.addEventListener("touchend",function(e){
+    if(!tOn)return;tOn=false;
+    var o=ta(e),c=e.changedTouches&&e.changedTouches[0];if(!o)return;
+    if(c&&(Math.abs(c.clientX-tx)>10||Math.abs(c.clientY-ty)>10))return; /* đang cuộn: bỏ qua */
+    if(e.cancelable)e.preventDefault();   /* không cho sinh mousedown/click -> giữ focus, bàn phím không hạ xuống */
+    e.stopPropagation();
+    lastTouch=Date.now();
+    insNL(o);
+  },{capture:true,passive:false});
+  document.addEventListener("click",function(e){
+    var o=ta(e);if(!o||!o.t)return;e.preventDefault();e.stopPropagation();
+    if(Date.now()-lastTouch<700)return;   /* click tổng hợp sau cú chạm đã xử lý ở touchend */
+    insNL(o);
   },true);
   /* Trình duyệt cũ chưa có field-sizing: tự co giãn theo chữ */
   if(!(window.CSS&&CSS.supports&&CSS.supports("field-sizing","content")))document.addEventListener("input",function(e){var t=e.target;if(t&&t.tagName==="TEXTAREA"&&t.parentNode&&t.parentNode.classList.contains("nlw")&&t.id!=="in"){t.style.height="auto";t.style.height=Math.min(t.scrollHeight,150)+"px"}});
