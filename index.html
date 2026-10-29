@@ -2139,7 +2139,12 @@ document.getElementById("add").onclick=function(){if(!document.getElementById("i
 document.getElementById("in").addEventListener("keydown",function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();addNote()}});
 /* Nút ↵ dùng chung (.nlb) cho các ô ghi chú: chèn xuống dòng tại con trỏ trong textarea cùng khung (.nlw). Chặn mousedown/touchstart để không mất focus (bàn phím không hạ xuống). */
 (function(){
-  function ta(e){var b=e.target.closest&&e.target.closest(".nlb");return b?{b:b,t:b.parentNode.querySelector("textarea")}:null}
+  function ta(e){
+    var b=e.target.closest&&e.target.closest(".nlb");if(!b)return null;
+    var t=b.parentNode.querySelector("textarea"),a=document.activeElement;
+    /* Đang gõ ở ô khác cùng khung (vd ô nhập chính #in): chèn xuống dòng vào ô đó, không nhảy sang ô ghi chú */
+    if(a&&a.tagName==="TEXTAREA"&&a!==t){var c=b.closest(".box,.edit,.sheet");if(c&&c.contains(a)&&(a.id==="in"||(a.parentNode&&a.parentNode.classList.contains("nlw"))))t=a}
+    return {b:b,t:t}}
   document.addEventListener("mousedown",function(e){if(ta(e))e.preventDefault()},true);
   document.addEventListener("click",function(e){
     var o=ta(e);if(!o||!o.t)return;e.preventDefault();e.stopPropagation();
