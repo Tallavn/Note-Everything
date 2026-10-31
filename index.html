@@ -229,7 +229,6 @@ main{padding:24px 16px 96px}
 /* Vùng 1: khung nhập */
 #notesView{display:flex;flex-direction:column}
 #notesView>.box{order:1;border-radius:var(--r-lg);padding:14px 14px 12px;box-shadow:var(--shadow);transition:border-color .15s,box-shadow .15s}
-#notesView>.box:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
 #notesView>.box textarea{min-height:76px;padding:2px;line-height:1.5}
 #notesView>.box textarea:focus-visible{outline:none}
 /* Ô nhập ghi chú cùng cỡ với ô nhập Chi tiêu (.fin-in): chữ 15,3px, cao 1 dòng rồi tự cao theo nội dung */
@@ -823,7 +822,6 @@ html,body{overscroll-behavior-y:contain}
 /* Con số chính là thứ duy nhất lớn trên màn hình */
 .big,.wallet .big{font-size:var(--fs-xl);line-height:1.1;letter-spacing:-.02em;margin:4px 0 10px}
 /* Bỏ bóng và quầng sáng trên các bề mặt thường; chỉ lớp nổi (menu, toast, sheet, nút +) giữ bóng */
-#notesView>.box:focus-within{box-shadow:0 0 0 1px var(--accent)}
 .frow #filters .chip,.seg .chip{box-shadow:none}
 .frow #filters .chip[aria-pressed="true"],.seg .chip[aria-pressed="true"]{box-shadow:none}
 .frow .fwrap .fbtn{box-shadow:none}
@@ -857,6 +855,12 @@ html,body{overscroll-behavior-y:contain}
 :root[data-skin="than"] .pbar{height:4px}:root[data-skin="than"] .cbar{height:6px}:root[data-skin="than"] .mbar{height:4px}
 :root[data-skin="than"] .pbar i,:root[data-skin="than"] .cbar i,:root[data-skin="than"] .mbar i{border-radius:0}
 :root[data-skin="than"] .big{font-weight:400;letter-spacing:-.04em}
+#fin-cats{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;border-top:0;margin:8px -4px 0;padding:3px 4px 4px}
+#fin-cats::-webkit-scrollbar{display:none}
+#fin-cats[hidden]{display:none}
+#fin-cats .tag{flex:none;white-space:nowrap}
+#fin-cats .tag.ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
+#finSheet .shead{position:relative;top:-4px}
 /* Mọi pop-up / menu: nền phía dưới được làm mờ nhẹ */
 .cbd,.sheet,.camsheet .cs-bd,body.setopen .hdr::after{-webkit-backdrop-filter:blur(2.5px);backdrop-filter:blur(2.5px)}
 
@@ -917,7 +921,7 @@ body.setopen .setw{z-index:36}
 <div class="seg"><button class="chip" data-sub="tx" aria-pressed="true">Thu chi<i class="tbadge" id="subBadgeTx" hidden></i></button><button class="chip" data-sub="debt" aria-pressed="false">Nợ<i class="tbadge" id="subBadgeDebt" hidden></i></button><button class="chip" data-sub="bud" aria-pressed="false">Ngân sách</button></div>
 <div id="finTop"></div>
 <div id="finSheet" class="sheet" hidden><div class="box"><div class="shead"><b id="sheet-title">Thêm khoản mới</b><button class="x" data-sheetclose="1" aria-label="Đóng">×</button></div><textarea id="fin-in" class="fin-in" autocomplete="off" enterkeyhint="done" placeholder="45k phở bò · 1tr2 tiền điện · +15tr lương" rows="1" maxlength="200" spellcheck="false" autocapitalize="sentences"></textarea><div class="nlw s" style="margin-top:8px"><textarea class="fin-in" id="fin-note" rows="1" maxlength="200"  autocomplete="off" enterkeyhint="done" placeholder="Ghi chú thêm (không bắt buộc)" style="font-size:var(--fs-sm);border-top:1px solid var(--line)"></textarea><button type="button" class="nlb" aria-label="Xuống dòng" title="Xuống dòng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 5v7a2 2 0 0 1-2 2H5"/><path d="M9 10l-4 4 4 4"/></svg></button></div>
-<div class="thumbs" id="ph-fin"></div><div id="fin-rate-row" class="hint" hidden style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:6px 2px 8px">Lãi suất <input id="fin-rate" class="date" type="text" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="Lãi suất, để trống nếu không có" style="width:64px;text-align:right"> % <select id="fin-per" class="date" aria-label="Kỳ tính lãi"><option value="m">/ tháng</option><option value="y">/ năm</option></select> <span style="margin-left:8px">Hạn trả</span> <input type="date" id="fin-due" class="date" aria-label="Hạn trả nợ, để trống nếu không có"></div><div class="row"><span style="display:inline-flex;gap:8px;align-items:center"><input type="date" id="fin-date" class="date" aria-label="Ngày"><button type="button" class="cam" data-cam="fin" aria-label="Thêm ảnh" title="Thêm ảnh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13.5" r="3.4"/></svg></button></span><span><button class="add" id="fin-add">Lưu</button><span id="fin-debt" hidden><button class="add" data-dir="owe">Mình nợ</button> <button class="add alt" data-dir="lent">Họ nợ mình</button></span></span></div>
+<div class="pick" id="fin-cats" role="group" aria-label="Chọn tag" hidden></div><div class="thumbs" id="ph-fin"></div><div id="fin-rate-row" class="hint" hidden style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:6px 2px 8px">Lãi suất <input id="fin-rate" class="date" type="text" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="Lãi suất, để trống nếu không có" style="width:64px;text-align:right"> % <select id="fin-per" class="date" aria-label="Kỳ tính lãi"><option value="m">/ tháng</option><option value="y">/ năm</option></select> <span style="margin-left:8px">Hạn trả</span> <input type="date" id="fin-due" class="date" aria-label="Hạn trả nợ, để trống nếu không có"></div><div class="row"><span style="display:inline-flex;gap:8px;align-items:center"><input type="date" id="fin-date" class="date" aria-label="Ngày"><button type="button" class="cam" data-cam="fin" aria-label="Thêm ảnh" title="Thêm ảnh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13.5" r="3.4"/></svg></button></span><span><button class="add" id="fin-add">Lưu</button><span id="fin-debt" hidden><button class="add" data-dir="owe">Mình nợ</button> <button class="add alt" data-dir="lent">Họ nợ mình</button></span></span></div>
 <div class="hint" id="fin-msg" style="margin-top:6px"></div></div></div>
 <div id="finBody" style="margin-top:14px"></div>
 </div>
@@ -2521,7 +2525,23 @@ function balance(){var b=0,o=0;fins().forEach(function(x){if(x.k==="open"){o=x.a
 function touch(){save();renderFin();sync()}
 function setMsg(t){document.getElementById("fin-msg").textContent=t}
 function defMsg(){setMsg("")}
-function openSheet(){
+var finCat="";
+function renderFinCats(){
+  var el=document.getElementById("fin-cats");if(!el)return;
+  if(sub==="debt"){el.hidden=true;return}
+  el.hidden=false;
+  var h=OUT.map(function(c,i){return'<button type="button" class="tag ftag" data-fincat="'+c.k+'" aria-pressed="'+(finCat===c.k)+'" style="color:var(--k'+i+');background:transparent;border:1px solid currentColor">'+c.n+'</button>'}).join("")+
+    INC.map(function(c){return'<button type="button" class="tag ftag" data-fincat="'+c.k+'" aria-pressed="'+(finCat===c.k)+'" style="color:var(--good);background:transparent;border:1px solid currentColor">'+c.n+'</button>'}).join("");
+  el.innerHTML='<button type="button" class="tag ghost" data-fincat="" aria-pressed="'+(!finCat)+'">Tự động</button>'+h;
+}
+document.addEventListener("mousedown",function(e){if(e.target.closest&&e.target.closest("#fin-cats button"))e.preventDefault()});
+document.addEventListener("click",function(e){
+  var b=e.target.closest&&e.target.closest("#fin-cats [data-fincat]");if(!b)return;
+  e.stopPropagation();
+  var v=b.dataset.fincat;finCat=(v&&finCat===v)?"":v;renderFinCats();
+  var fi=document.getElementById("fin-in");try{fi.focus({preventScroll:true})}catch(x){}
+},true);
+function openSheet(){finCat="";renderFinCats();
   var sh=document.getElementById("finSheet");
   document.getElementById("sheet-title").textContent=sub==="debt"?"Thêm khoản nợ":"Thêm thu chi";
   document.getElementById("fin-date").value=today();
@@ -2568,8 +2588,9 @@ function addFin(dir){
     var dv=document.getElementById("fin-due").value;if(dv)o.dueDay=dv;
     }
   }else{
+    if(finCat)r.inc=INC.some(function(c){return c.k===finCat});
     o={id:now,fin:1,k:"tx",t:r.inc?"in":"out",amt:r.amt,desc:r.desc,day:day,ts:now,upd:now};
-    o.cat=guessCat(r.desc,r.inc);
+    o.cat=finCat||guessCat(r.desc,r.inc);
     if(!o.desc)o.desc=catName(o);
     var d=day.split("-");ym={y:+d[0],m:+d[1]};fcat="";fday="";
   }
@@ -2791,7 +2812,7 @@ function renderFin(){
   var rr=document.getElementById("fin-rate-row");rr.hidden=sub!=="debt";rr.style.display=sub==="debt"?"flex":"none";
   document.getElementById("fin-in").placeholder=sub==="debt"?"500k Nam tiền ăn":"45k phở bò · 1tr2 tiền điện · +15tr lương";
   if(sub==="bud")renderBud(top,body);else if(sub==="debt")renderDebt(top,body);else renderTx(top,body);
-  updDue();
+  renderFinCats();updDue();
 }
 var composerSeen=true,userTouched=false;
 var MQM=window.matchMedia("(max-width:700px),(pointer:coarse)");
