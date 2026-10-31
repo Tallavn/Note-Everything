@@ -6,6 +6,7 @@
 <title>NoteEverything</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#0f6b5c">
+<script>try{var _s=localStorage.getItem("ghichu_skin"),_k={vo:["light","#f6f3ea"],cham:["light","#f1f2f4"],phodem:["dark","#141414"]};if(_k[_s]){var _r=document.documentElement;_r.dataset.skin=_s;_r.dataset.theme=_k[_s][0];document.querySelector('meta[name="theme-color"]').setAttribute("content",_k[_s][1])}}catch(e){}</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="NoteEverything">
@@ -26,19 +27,19 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 :root{--sab:env(safe-area-inset-bottom,0px)}
 /* Android PWA tràn viền: thanh điều hướng đè lên đáy nhưng env() báo 0 -> thanh dưới bị cắt. Chừa tối thiểu 22px. */
 @media (display-mode:standalone) and (pointer:coarse){:root{--sab:max(env(safe-area-inset-bottom,0px),22px)}}
-body{margin:0;background:var(--bg);color:var(--ink);font:14.4px/1.5 "Be Vietnam Pro",system-ui,sans-serif}
+body{margin:0;background:var(--bg);color:var(--ink);font:var(--fs-md)/1.5 "Be Vietnam Pro",system-ui,sans-serif}
 main{max-width:640px;margin:0 auto;padding:20px 16px 80px}
 h1{font-size:18px;margin:0 0 4px;font-weight:700;letter-spacing:.06em;line-height:1.3}
 h1 span{color:var(--accent)}
 .box{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:10px}
 textarea{width:100%;min-height:64px;resize:vertical;border:0;background:transparent;color:var(--ink);font:inherit;outline:none}
 .row{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:4px}
-.hint{color:var(--muted);font-size:11.7px}
+.hint{color:var(--muted);font-size:var(--fs-xs)}
 button{font:inherit;cursor:pointer}
 .add{background:var(--accent);color:var(--accent-ink);border:0;border-radius:var(--r-sm);padding:8px 18px;font-weight:700}
 .add:focus-visible,.chip:focus-visible,.tag:focus-visible,.del:focus-visible,textarea:focus-visible,.search:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .filters{display:flex;gap:6px;overflow-x:auto;margin:16px 0 10px;padding-bottom:4px}
-.chip{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:5px 13px;font-size:12.6px}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:5px 13px;font-size:var(--fs-sm)}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .search{width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:var(--r-sm);padding:8px 12px;font:inherit;margin-bottom:12px}
 .note{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:12px 14px;margin-bottom:8px}
@@ -48,31 +49,31 @@ button{font:inherit;cursor:pointer}
 .note .txt{white-space:pre-wrap;word-break:break-word;overflow:visible}
 .note .more{display:none}
 .txt a{color:var(--accent)}
-.meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px;font-size:11.7px;color:var(--muted)}
-.tag{border:0;border-radius:var(--r-sm);padding:2px 9px;font-size:11.7px;font-weight:500}
-.due{display:inline-flex;align-items:center;gap:4px;border:1px solid currentColor;border-radius:var(--r-sm);padding:1px 8px;font-size:11.7px;font-weight:500;color:var(--muted)}
+.meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px;font-size:var(--fs-xs);color:var(--muted)}
+.tag{border:0;border-radius:var(--r-sm);padding:2px 9px;font-size:var(--fs-xs);font-weight:500}
+.due{display:inline-flex;align-items:center;gap:4px;border:1px solid currentColor;border-radius:var(--r-sm);padding:1px 8px;font-size:var(--fs-xs);font-weight:500;color:var(--muted)}
 .due svg{width:13px;height:13px;flex:none}
 .due.late{color:var(--bad)}.due.soon{color:var(--k0)}
 .area{border:1px solid var(--line);border-radius:var(--r-sm);padding:1px 8px}
 .map.ghost{background:transparent;color:var(--accent);border:1px solid var(--line)}
-.pick{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
-.pick .tag{padding:5px 12px;font-size:12.6px}
-.intags{margin:6px 0 2px;padding-top:8px;border-top:1px dashed var(--line)}
+.pick{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.pick .tag{padding:5px 12px;font-size:var(--fs-sm)}
+.intags{margin:6px 0 2px;padding-top:8px;border-top:1px solid var(--line)}
 .intags .tag.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
 .intags .pick{margin-top:8px;padding-top:8px}
 .insug{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 0}
 .insug:empty{display:none}
-.insug button{border:1px dashed var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:3px 11px;font-size:12.5px}
+.insug button{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:3px 11px;font-size:var(--fs-sm)}
 .insug button:active{background:var(--line)}
 .pick .tag[aria-pressed="true"]{outline:2px solid currentColor}
 .map{text-decoration:none;background:var(--accent);color:var(--accent-ink)}
 .del{margin-left:auto;background:none;border:0;color:var(--muted);padding:2px 6px}
 .empty{text-align:center;color:var(--muted);padding:32px 0}
 .tools{display:flex;gap:12px;justify-content:center;margin-top:20px}
-.tools button{background:none;border:0;color:var(--muted);font-size:11.7px;text-decoration:underline}
-.sync{margin-top:34px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;font-size:11.7px;color:var(--muted)}
-.sync input{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:var(--r-sm);padding:6px 10px;font:inherit;font-size:12.6px;width:200px}
-.sync button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:var(--r-sm);padding:6px 12px;font-size:11.7px}
+.tools button{background:none;border:0;color:var(--muted);font-size:var(--fs-xs);text-decoration:underline}
+.sync{margin-top:34px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;font-size:var(--fs-xs);color:var(--muted)}
+.sync input{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:var(--r-sm);padding:6px 10px;font:inherit;font-size:var(--fs-sm);width:200px}
+.sync button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:var(--r-sm);padding:6px 12px;font-size:var(--fs-xs)}
 .sync button{display:inline-flex;align-items:center;gap:6px}
 .sync #code{flex:1 1 100%;width:100%;box-sizing:border-box;order:0}
 .sync button{flex:1 1 calc(50% - 4px);justify-content:center}
@@ -88,7 +89,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .seg{margin-bottom:12px}
 .tabs .chip,.seg .chip{flex:1;text-align:center;padding:7px 13px}
 .mnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.mnav b{font-size:15.3px}
+.mnav b{font-size:var(--fs-md)}
 .mnav button{width:40px;height:36px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:var(--r-sm);font-size:18px;line-height:1}
 .wallet{position:relative}
 .plus{position:absolute;top:12px;right:12px;width:42px;height:42px;border-radius:50%;border:0;background:var(--accent);color:#fff;font-size:23.4px;line-height:1;padding:0}
@@ -104,15 +105,15 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .dsum{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:10px 12px;margin:8px 0 0}
 .dsum .lnk{padding:0;margin-left:auto}
 .cvt{display:flex;gap:6px;margin-bottom:12px}
-.cvt .chip{flex:1;text-align:center;padding:6px 8px;font-size:12.6px}
+.cvt .chip{flex:1;text-align:center;padding:6px 8px;font-size:var(--fs-sm)}
 .wallet,.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:14px;margin-bottom:12px}
 .big{font-size:27px;font-weight:700;line-height:1.2;margin:2px 0 10px}
 .big.neg{color:var(--bad)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .two div{display:flex;flex-direction:column}
-.two b{font-size:15.3px}
+.two b{font-size:var(--fs-md)}
 .good{color:var(--good)}.bad{color:var(--bad)}
-.lnk{background:none;border:0;color:var(--accent);padding:8px 0 0;font-size:11.7px;text-decoration:underline}
+.lnk{background:none;border:0;color:var(--accent);padding:8px 0 0;font-size:var(--fs-xs);text-decoration:underline}
 .nlw{position:relative}
 .nlw textarea{display:block;resize:none}
 .nlw.s textarea{field-sizing:content;max-height:9em;overflow-y:auto;line-height:1.4;min-height:0}
@@ -124,7 +125,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 /* Ô ghi chú 1 dòng: nút ↵ căn giữa theo chiều dọc (không dính vạch đứt); vạch đứt phía trên phẳng, không bo cong */
 .nlw.s .nlb{top:calc(50% + 2px);bottom:auto;transform:translateY(-50%);right:6px;height:26px;width:30px}
 .nlw textarea.fin-in,#notesView>.box .nlw textarea.fin-in{border-radius:0}
-.fin-in{width:100%;border:0;background:transparent;color:var(--ink);font:inherit;font-size:15.3px;padding:8px 4px;outline:none}
+.fin-in{width:100%;border:0;background:transparent;color:var(--ink);font:inherit;font-size:var(--fs-md);padding:8px 4px;outline:none}
 /* Ô nhập một dòng của bảng chi tiêu/dự án dùng <textarea>: <input type=text> làm Android hiện thanh gợi ý Autofill (chìa khóa/thẻ/ghim) trên bàn phím,
    thanh đó đổi chiều cao vùng nhìn thấy -> khung lệch xa bàn phím và nhảy. Textarea không bị. */
 #fin-in,#pl-new2{resize:none;overflow:hidden;display:block;box-sizing:border-box;line-height:1.35;field-sizing:content;min-height:2.4em}
@@ -146,29 +147,29 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 #notesView>.box:has(#in:placeholder-shown) #add,#plSheet:has(#pl-new2:placeholder-shown) #pl-go{background:var(--line);color:transparent}
 #notesView>.box:has(#in:placeholder-shown) #add::after,#plSheet:has(#pl-new2:placeholder-shown) #pl-go::after{content:"";position:absolute;left:50%;top:50%;width:9px;height:9px;border:solid var(--muted);border-width:0 2px 2px 0;transform:translate(-50%,-70%) rotate(45deg)}
 .psh .shead{position:relative;top:-4px}
-#pl-note{margin-top:2px!important;font-size:13.5px!important}
-#pl-hint,.box .hint.nh{font-size:10.8px;opacity:.7}
+#pl-note{margin-top:2px!important;font-size:var(--fs-sm)!important}
+#pl-hint,.box .hint.nh{font-size:var(--fs-xs);opacity:.7}
 .box .inrow .hint.nh{flex:1;min-width:0;margin:0 6px 0 6px;align-self:center}
 #notesView .inrow .intags{flex:none}
 #notesView .inrow:has(.pick,.indue) .intags{flex:1}
 #notesView .inrow:has(.pick,.indue) .hint.nh{display:none}
 #in-note{margin-inline:-4px;width:calc(100% + 8px);padding-inline:10px!important}
 #in-note:focus-visible,.sheet .fin-in+.fin-in:focus-visible,.psh .fin-in+.fin-in:focus-visible{border-top-color:transparent}
-.date{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:var(--r-sm);padding:5px 8px;font:inherit;font-size:12.6px}
+.date{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:var(--r-sm);padding:5px 8px;font:inherit;font-size:var(--fs-sm)}
 .add.alt{background:transparent;color:var(--accent);border:1px solid var(--accent)}
-.card h3{margin:0 0 10px;font-size:12.6px;color:var(--muted);font-weight:500}
-.crow{display:grid;grid-template-columns:86px 1fr auto;gap:8px;align-items:center;width:100%;border:0;background:none;color:var(--ink);padding:6px 4px;border-radius:var(--r-sm);text-align:left;font-size:12.6px}
+.card h3{margin:0 0 10px;font-size:var(--fs-sm);color:var(--muted);font-weight:500}
+.crow{display:grid;grid-template-columns:86px 1fr auto;gap:8px;align-items:center;width:100%;border:0;background:none;color:var(--ink);padding:6px 4px;border-radius:var(--r-sm);text-align:left;font-size:var(--fs-sm)}
 .crow[aria-pressed="true"]{background:var(--bg);outline:1px solid var(--line)}
 .cbar{height:10px;background:var(--bg);border-radius:999px;overflow:hidden}
 .cbar i{display:block;height:100%;border-radius:999px}
-.cv{font-size:11.7px;color:var(--muted);white-space:nowrap}
-.dh{display:flex;justify-content:space-between;font-size:11.7px;color:var(--muted);margin:14px 2px 6px}
+.cv{font-size:var(--fs-xs);color:var(--muted);white-space:nowrap}
+.dh{display:flex;justify-content:space-between;font-size:var(--fs-xs);color:var(--muted);margin:14px 2px 6px}
 .tx{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:10px 12px;margin-bottom:6px}
 .tx .tdesc{word-break:break-word}
 .tx .ftag{background:transparent;border:1px solid currentColor;margin-top:4px}
 .tamt{font-weight:700;white-space:nowrap;font-size:.9em}.tgc .tgh b,.tgc .tgt b{font-size:.9em}
 .tx .pick{grid-column:1/-1}
-.dtn{background:transparent;border:1px solid var(--line);color:var(--ink);border-radius:var(--r-sm);padding:3px 10px;font-size:11.7px}
+.dtn{background:transparent;border:1px solid var(--line);color:var(--ink);border-radius:var(--r-sm);padding:3px 10px;font-size:var(--fs-xs)}
 .done .tdesc{text-decoration:line-through;color:var(--muted)}
 .ebtn{margin-left:auto;background:none;border:0;color:var(--muted);padding:2px 6px}
 .ebtn+.del{margin-left:0}
@@ -176,7 +177,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 textarea.ed{min-height:64px;resize:vertical}
 .ebtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .ed:focus-visible{outline:none;border-color:var(--accent)}
-.add.sm{padding:5px 14px;font-size:12.6px}
+.add.sm{padding:5px 14px;font-size:var(--fs-sm)}
 .edit .meta{margin-top:8px}
 .edit .meta.eact{display:flex;justify-content:flex-end;align-items:center;gap:8px}
 svg text{font-family:inherit}
@@ -191,7 +192,7 @@ svg text{font-family:inherit}
 body.fabmove .fab{outline:2px dashed var(--accent);outline-offset:4px;cursor:grab}
 .fablock{display:none;position:fixed;z-index:21;gap:4px;padding:5px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.2);align-items:center;white-space:nowrap}
 body.fabmove .fab.show+.fablock{display:flex}
-.fablock button{border:0;border-radius:999px;padding:8px 14px;font:inherit;font-size:12.6px;font-weight:700;background:none;color:var(--muted);cursor:pointer}
+.fablock button{border:0;border-radius:999px;padding:8px 14px;font:inherit;font-size:var(--fs-sm);font-weight:700;background:none;color:var(--muted);cursor:pointer}
 .fablock .fl-ok{background:var(--accent);color:var(--accent-ink)}
 #notesView{padding-bottom:64px}
 #filters{position:fixed;left:0;right:0;bottom:0;z-index:15;margin:0;padding:8px 12px calc(8px + var(--sab));background:var(--surface);border-top:1px solid var(--line)}
@@ -205,20 +206,20 @@ main{overflow-x:clip}
 @media (prefers-reduced-motion:reduce){.tabin-r>*,.tabin-l>*{animation:none!important}}
 /* Tab Ghi chú / Chi tiêu: chữ + gạch chân đúng bằng độ rộng chữ, căn trái, không khung */
 .tabs{gap:24px;margin:0 0 20px;border-bottom:1px solid var(--line)}
-.tabs .chip{flex:none;background:none;border:0;border-bottom:2px solid transparent;border-radius:0;margin-bottom:-1px;padding:8px 2px 10px;font-size:14.4px;font-weight:400;letter-spacing:.01em;color:var(--muted);transition:color .15s,border-color .15s}
+.tabs .chip{flex:none;background:none;border:0;border-bottom:2px solid transparent;border-radius:0;margin-bottom:-1px;padding:8px 2px 10px;font-size:var(--fs-md);font-weight:400;letter-spacing:.01em;color:var(--muted);transition:color .15s,border-color .15s}
 .tabs .chip[aria-pressed="true"]{background:none;color:var(--ink);font-weight:500;border-bottom-color:var(--accent)}
 .tabs .chip:focus-visible{outline-offset:2px;border-radius:4px}
 /* Tách khung nhập và ô tìm kiếm */
 /* Đồng bộ: gom vào một nút dropdown */
 .syncmenu{margin-top:24px;text-align:center}
-.syncmenu>summary{display:inline-flex;align-items:center;gap:6px;list-style:none;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 14px;font-size:12.6px;user-select:none;-webkit-tap-highlight-color:transparent}
+.syncmenu>summary{display:inline-flex;align-items:center;gap:6px;list-style:none;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 14px;font-size:var(--fs-sm);user-select:none;-webkit-tap-highlight-color:transparent}
 .syncmenu>summary::-webkit-details-marker{display:none}
 .syncmenu>summary::after{content:"";width:6px;height:6px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-2px) rotate(45deg);transition:transform .15s}
 .syncmenu[open]>summary::after{transform:translateY(1px) rotate(-135deg)}
 .syncmenu>summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .syncmenu .sync{margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--bg)}
 /* Hàng Tag + Lưu */
-.inrow{align-items:flex-start;margin-top:6px;padding-top:8px;border-top:1px dashed var(--line)}
+.inrow{align-items:flex-start;margin-top:6px;padding-top:8px;border-top:1px solid var(--line)}
 .inrow .intags{flex:1;min-width:0;margin:0;padding:0;border:0}
 .inrow .add{flex:none;padding:6px 20px}
 /* ===== Bố cục chung: chia vùng rõ ràng, khoảng cách theo thang 8/12/16/24/32 ===== */
@@ -232,19 +233,19 @@ main{padding:24px 16px 96px}
 #notesView>.box textarea{min-height:76px;padding:2px;line-height:1.5}
 #notesView>.box textarea:focus-visible{outline:none}
 /* Ô nhập ghi chú cùng cỡ với ô nhập Chi tiêu (.fin-in): chữ 15,3px, cao 1 dòng rồi tự cao theo nội dung */
-#notesView>.box textarea#in{font-size:15.3px;line-height:1.35;min-height:2.4em}
+#notesView>.box textarea#in{font-size:var(--fs-md);line-height:1.35;min-height:2.4em}
 #in-msg{order:2;margin:8px 2px 0!important;min-height:0}
 .inrow{margin-top:0;padding-top:4px;border-top:0}
 .inrow .add{padding:7px 22px;border-radius:var(--r-sm)}
 
 /* Vùng 2: tìm kiếm + lọc + danh sách (cách hẳn vùng nhập) */
-.hdr .search{margin:0;flex:1;min-width:0;padding:10px 14px 10px 40px;border-radius:var(--r-md);font-size:13.5px;box-shadow:var(--shadow);
+.hdr .search{margin:0;flex:1;min-width:0;padding:10px 14px 10px 40px;border-radius:var(--r-md);font-size:var(--fs-sm);box-shadow:var(--shadow);
   background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2393a9a1' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") no-repeat 13px 50%}
 .hdr .search:focus{border-color:var(--accent)}
 .hdr .search:focus-visible{outline:none}
 #filters{order:4;margin:0 0 16px;padding-bottom:2px;scrollbar-width:none}
 #filters::-webkit-scrollbar{display:none}
-.chip{padding:6px 14px;font-size:12.6px}
+.chip{padding:6px 14px;font-size:var(--fs-sm)}
 #list{order:5}
 .note{border-radius:var(--r);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow)}
 .note .meta{margin-top:10px}
@@ -258,7 +259,7 @@ main{padding:24px 16px 96px}
 
 /* Tab phụ Thu chi / Nợ: dạng công tắc phân đoạn, khác hẳn tab gạch chân phía trên */
 .seg{background:var(--line);padding:3px;border-radius:var(--r-md);gap:2px;margin:0 0 16px}
-.seg .chip{border:0;background:transparent;border-radius:999px;padding:7px 10px;font-size:12.6px;color:var(--muted)}
+.seg .chip{border:0;background:transparent;border-radius:999px;padding:7px 10px;font-size:var(--fs-sm);color:var(--muted)}
 .seg .chip[aria-pressed="true"]{background:var(--surface);color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.14)}
 
 /* Tab Chi tiêu: thẻ và dòng */
@@ -267,7 +268,7 @@ main{padding:24px 16px 96px}
 .mnav{margin-bottom:14px}
 .mnav button{border-radius:var(--r-md);box-shadow:var(--shadow)}
 .card h3{margin-bottom:12px}
-.dh{margin:22px 4px 8px;align-items:baseline;font-size:12.6px}.dh span:first-child{font-size:14.4px;font-weight:700;color:var(--ink);letter-spacing:.01em}.dh span:last-child{font-weight:600}
+.dh{margin:22px 4px 8px;align-items:baseline;font-size:var(--fs-sm)}.dh span:first-child{font-size:var(--fs-md);font-weight:700;color:var(--ink);letter-spacing:.01em}.dh span:last-child{font-weight:600}
 .tx{border-radius:var(--r-md);padding:12px 14px;margin-bottom:8px}
 .dsum{border-radius:var(--r-md);padding:12px 14px}
 #finBody{margin-top:16px!important}
@@ -287,9 +288,9 @@ h1{font-size:27px;margin:0 0 28px}
 .fbtn.on{color:var(--accent);border-color:var(--accent)}
 .fbtn.on::after{content:"";position:absolute;top:7px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--accent)}
 .fmenu{position:absolute;right:0;top:calc(100% + 8px);width:232px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:0 10px 30px rgba(0,0,0,.2);padding:6px}
-.fgrp{font-size:10.8px;color:var(--muted);padding:8px 10px 4px;letter-spacing:.04em;text-transform:uppercase}
+.fgrp{font-size:var(--fs-xs);color:var(--muted);padding:8px 10px 4px;letter-spacing:.04em;text-transform:uppercase}
 .fopt+.fgrp{border-top:1px solid var(--line);margin-top:4px;padding-top:12px}
-.fopt{display:flex;width:100%;justify-content:space-between;align-items:center;border:0;background:none;color:var(--ink);padding:9px 10px;border-radius:var(--r-sm);font-size:12.6px;text-align:left}
+.fopt{display:flex;width:100%;justify-content:space-between;align-items:center;border:0;background:none;color:var(--ink);padding:9px 10px;border-radius:var(--r-sm);font-size:var(--fs-sm);text-align:left}
 .fopt[aria-pressed="true"]{background:var(--bg);font-weight:700}
 .fopt[aria-pressed="true"]::after{content:"✓";color:var(--accent)}
 .fbtn:focus-visible,.fopt:focus-visible,.cclose:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -341,7 +342,7 @@ body.ein .edit{animation:sheetPop .12s ease-out both}
 #notesView>.box:has(#in:placeholder-shown) .cclose{visibility:hidden}
 /* thông báo sau khi lưu: nổi phía trên thanh tag */
 #in-msg:empty{display:none}
-#in-msg{position:fixed;left:12px;right:84px;bottom:calc(72px + var(--sab));z-index:25;margin:0!important;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:var(--r-md);padding:10px 12px;box-shadow:var(--shadow);font-size:11.7px}
+#in-msg{position:fixed;left:12px;right:84px;bottom:calc(72px + var(--sab));z-index:25;margin:0!important;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:var(--r-md);padding:10px 12px;box-shadow:var(--shadow);font-size:var(--fs-xs)}
 }
 
 /* ===== Mobile: Thu chi / Nợ xuống đáy, đồng bộ xuống thấp hơn ===== */
@@ -370,14 +371,14 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .acts svg{width:18px;height:18px;display:block}
 
 /* ===== Thẻ ghi chú: chạm để kéo thẻ sang trái, lộ nút Sửa/Xóa ===== */
-.dgrp{font-size:11.7px;font-weight:700;color:var(--muted);letter-spacing:.02em;margin:20px 4px 8px}
+.dgrp{font-size:var(--fs-xs);font-weight:700;color:var(--muted);letter-spacing:.02em;margin:20px 4px 8px}
 #list>.dgrp:first-child{margin-top:4px}
 .tgap{height:14px}
-.cgrp{display:flex;align-items:center;gap:8px;font-size:12.6px;font-weight:700;letter-spacing:.01em;margin:26px 4px 10px}
+.cgrp{display:flex;align-items:center;gap:8px;font-size:var(--fs-sm);font-weight:700;letter-spacing:.01em;margin:26px 4px 10px}
 #list>.cgrp:first-child{margin-top:6px}
 .cgrp{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 #list.reorder>*:not(.cgrp){display:none}
-#list.reorder>.cgrp{margin:8px 4px;padding:12px 12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);font-size:14px;touch-action:none}
+#list.reorder>.cgrp{margin:8px 4px;padding:12px 12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);font-size:var(--fs-md);touch-action:none}
 #list.reorder>.cgrp{will-change:transform}
 #list.reorder>.cgrp.lift{position:relative;z-index:5;border-color:var(--accent);box-shadow:0 8px 22px rgba(0,0,0,.22)}
 @keyframes cgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
@@ -387,7 +388,7 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .cgrp{cursor:pointer}
 .cgch{margin-left:auto;margin-right:6px;width:20px;height:20px;flex:none;opacity:.75}
 #list.reorder .cgch{display:none}
-.cgrp b{font-weight:600;font-size:10.8px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:0 8px;line-height:20px}
+.cgrp b{font-weight:600;font-size:var(--fs-xs);color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:0 8px;line-height:20px}
 .hidecat .cattag{display:none}
 .hidecat .note .meta:not(:has(>:not(.cattag))){display:none}
 .swrap{position:relative;border-radius:var(--r);margin-bottom:6px;overflow:hidden;background:var(--bg)}
@@ -402,7 +403,7 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .txw .swact::before{border:0;border-radius:0 var(--r-md) var(--r-md) 0}
 /* Thẻ đang vuốt mở Sửa/Xóa: khóa mọi nút/link/ảnh trên thẻ (tag, ghim bản đồ, camera, tick...). Chạm vào đó rơi xuống thẻ => thẻ đóng lại. Nút Sửa/Xóa nằm ngoài .swcard nên vẫn bấm bình thường. */
 .swrap.swiped .swcard :is(button,a,img,input,textarea,label,select){pointer-events:none}
-.swact button{flex:1;border:0;border-radius:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10.8px;font-weight:500;padding:0}
+.swact button{flex:1;border:0;border-radius:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:var(--fs-xs);font-weight:500;padding:0}
 .swact svg{width:20px;height:20px;display:block}.swact button span{display:block;line-height:1}
 .swact .sw-edit{flex:0 0 80px;padding-left:28px;background:#d9f1e8;color:#0f6e56}
 .swact .sw-del{flex:0 0 52px;background:#fbdada;color:#a32d2d}
@@ -425,18 +426,18 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 @media (prefers-reduced-motion:reduce){.ck[aria-checked="true"] .tk{animation:none}}
 
 /* Quán ăn: icon ghim nhỏ + địa chỉ rút gọn */
-.pin{display:inline-flex;align-items:center;gap:4px;max-width:100%;padding:2px 8px 2px 6px;border-radius:var(--r-sm);font-size:11.7px;font-weight:500;text-decoration:none;color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.pin{display:inline-flex;align-items:center;gap:4px;max-width:100%;padding:2px 8px 2px 6px;border-radius:var(--r-sm);font-size:var(--fs-xs);font-weight:500;text-decoration:none;color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)}
 .pin.ghost{background:transparent;border:1px solid var(--line);padding:1px 7px 1px 5px}
 .pin svg{width:14px;height:14px;flex:none;display:block}
 .pin span{max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pin:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.brchip{font-size:11.7px;white-space:nowrap}
+.brchip{font-size:var(--fs-xs);white-space:nowrap}
 .brlist{display:flex;flex-direction:column;gap:4px;margin-top:8px}
-.brlist a{display:flex;align-items:center;gap:6px;min-width:0;padding:6px 8px;border:1px solid var(--line);border-radius:var(--r-sm);font-size:12.5px;color:var(--ink);text-decoration:none}
+.brlist a{display:flex;align-items:center;gap:6px;min-width:0;padding:6px 8px;border:1px solid var(--line);border-radius:var(--r-sm);font-size:var(--fs-sm);color:var(--ink);text-decoration:none}
 .brlist a svg{width:14px;height:14px;flex:none}
 .brlist a b{flex:none;max-width:40%;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .brlist a span{flex:1;min-width:0;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.brlist a i{flex:none;font-style:normal;font-size:11.5px;color:var(--muted)}
+.brlist a i{flex:none;font-style:normal;font-size:var(--fs-xs);color:var(--muted)}
 .brrow{display:flex;align-items:center;gap:6px;margin-top:8px}
 .brrow .ed{flex:1;min-width:0;margin-top:0}
 .brrow .ed.brl{flex:0 0 34%}
@@ -449,8 +450,8 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .brx{flex:none;width:34px;height:34px;padding:0;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:var(--r-sm);font-size:18px;line-height:1}
 
 /* Thông báo Hoàn tác */
-.toast{position:fixed;z-index:70;left:12px;right:84px;bottom:calc(84px + var(--sab));display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:var(--r-md);padding:8px 8px 8px 14px;box-shadow:0 8px 28px rgba(0,0,0,.22);font-size:12.6px;animation:toastIn .25s cubic-bezier(.2,.8,.2,1)}
-.toast button{border:0;background:none;color:var(--accent);font-weight:700;font-size:12.6px;padding:8px 12px;border-radius:var(--r-sm)}
+.toast{position:fixed;z-index:70;left:12px;right:84px;bottom:calc(84px + var(--sab));display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:var(--r-md);padding:8px 8px 8px 14px;box-shadow:0 8px 28px rgba(0,0,0,.22);font-size:var(--fs-sm);animation:toastIn .25s cubic-bezier(.2,.8,.2,1)}
+.toast button{border:0;background:none;color:var(--accent);font-weight:700;font-size:var(--fs-sm);padding:8px 12px;border-radius:var(--r-sm)}
 .toast button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 @keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @media (min-width:701px) and (pointer:fine){.toast{left:50%;right:auto;transform:translateX(-50%);bottom:24px;min-width:300px;animation:none}}
@@ -477,14 +478,14 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .pc.off{opacity:.6}
 .pc.pcf,.pc[data-pc] .pph,.pc[data-pc] .pbar{cursor:pointer}
 .pbar{height:8px;border-radius:999px;background:var(--line);overflow:hidden;margin-top:10px}.pbar i{display:block;height:100%;background:var(--accent);border-radius:999px}.pbar.w i{background:var(--k0)}.pbar.o i{background:var(--bad)}
-.pph{display:flex;justify-content:space-between;gap:10px}.pph h3{margin:0;font-size:15.3px}
-.pit{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px dashed var(--line)}
+.pph{display:flex;justify-content:space-between;gap:10px}.pph h3{margin:0;font-size:var(--fs-md)}
+.pit{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
 .pit input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);flex:none}
 .pit span{flex:1;min-width:0;overflow-wrap:anywhere}.pit.dn span{color:var(--muted);text-decoration:line-through}
-.pit em{font-style:normal;font-size:11.7px;color:var(--muted);white-space:nowrap}
+.pit em{font-style:normal;font-size:var(--fs-xs);color:var(--muted);white-space:nowrap}
 #planView .pm,#planView .po,#planView .empty,.hint,.pit span,.note .txt{text-wrap:pretty}
 #planView .pm[data-bal],#planView .po[data-bal]{text-wrap:balance}
-.pam,.px{background:none;border:0;font-size:11.7px;color:var(--muted);padding:0 2px;white-space:nowrap}
+.pam,.px{background:none;border:0;font-size:var(--fs-xs);color:var(--muted);padding:0 2px;white-space:nowrap}
 .pib-row{display:flex;justify-content:flex-end;gap:2px;margin-top:8px}
 .pib{position:relative;width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:var(--r-md);background:none;color:var(--muted);padding:0;-webkit-tap-highlight-color:transparent}
 .pib svg{width:20px;height:20px;display:block}
@@ -493,28 +494,28 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .pib.has::after{content:"";position:absolute;top:9px;right:9px;width:7px;height:7px;border-radius:50%;background:var(--accent)}
 .pask{display:flex;gap:6px;padding:6px 0 10px 30px}
 #planView .pin{flex:1;min-width:0;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:var(--r-sm);padding:8px 12px;font:inherit}
-.plim{width:128px;text-align:right;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:var(--r-sm);padding:3px 8px;font:inherit;font-size:12.6px}
+.plim{width:128px;text-align:right;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:var(--r-sm);padding:3px 8px;font:inherit;font-size:var(--fs-sm)}
 .prow{padding:10px 0;border-top:1px solid var(--line)}.prow:first-child{border-top:0}
 .prt{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.pw{color:var(--k0)}.po{color:var(--bad)}.pm{color:var(--muted);font-size:11.7px}
+.pw{color:var(--k0)}.po{color:var(--bad)}.pm{color:var(--muted);font-size:var(--fs-xs)}
 .pchips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
-.pchips button,.pask button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:3px 12px;font:inherit;font-size:11.7px}
+.pchips button,.pask button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:3px 12px;font:inherit;font-size:var(--fs-xs)}
 .pask .ok{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 /* ===== Lịch trình: dễ đọc hơn ===== */
 #planView .pdh{display:flex;align-items:baseline;gap:10px;margin:22px -4px 2px;padding:9px 12px;background:var(--bg);border-radius:var(--r-sm)}
 #planView .pdh:first-of-type{margin-top:10px}
-.pdn{font-size:14px;font-weight:700;color:var(--ink)}
-.pdd{font-size:12.6px;color:var(--muted)}
-.pds{margin-left:auto;font-size:13.5px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pdn{font-size:var(--fs-md);font-weight:700;color:var(--ink)}
+.pdd{font-size:var(--fs-sm);color:var(--muted)}
+.pds{margin-left:auto;font-size:var(--fs-sm);font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap}
 .pit.pa{display:grid;grid-template-columns:22px 44px minmax(0,1fr) auto 30px;column-gap:8px;align-items:start;padding:12px 0}
 .pit.pa input[type=checkbox]{margin:1px 0 0}
-.pit.pa .ptm{font-style:normal;font-size:12.6px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap;line-height:1.55;padding-top:1px}
-.pit.pa .pbd{font-size:14.4px;font-weight:500;line-height:1.5;overflow-wrap:anywhere}
+.pit.pa .ptm{font-style:normal;font-size:var(--fs-sm);font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;white-space:nowrap;line-height:1.55;padding-top:1px}
+.pit.pa .pbd{font-size:var(--fs-md);font-weight:500;line-height:1.5;overflow-wrap:anywhere}
 .pit.pa .pbd i{font-style:normal;cursor:pointer}
-.pit.pa .pnt{display:block;width:100%;margin:5px 0 0;padding:1px 0 1px 10px;background:none;border:0;border-left:2px solid var(--line);font:inherit;font-size:12.6px;font-weight:400;line-height:1.55;color:var(--muted);text-align:left;white-space:pre-wrap;cursor:pointer}
+.pit.pa .pnt{display:block;width:100%;margin:5px 0 0;padding:1px 0 1px 10px;background:none;border:0;border-left:2px solid var(--line);font:inherit;font-size:var(--fs-sm);font-weight:400;line-height:1.55;color:var(--muted);text-align:left;white-space:pre-wrap;cursor:pointer}
 .pit.pa.dn .pbd{opacity:.65}
 .pit.pa.dn .pnt{text-decoration:none}
-.pit.pa .pam{grid-column:4;justify-self:end;min-height:28px;padding:3px 9px;border-radius:var(--r-sm);background:var(--bg);font-size:12.6px;font-weight:600;font-variant-numeric:tabular-nums;text-decoration:none}
+.pit.pa .pam{grid-column:4;justify-self:end;min-height:28px;padding:3px 9px;border-radius:var(--r-sm);background:var(--bg);font-size:var(--fs-sm);font-weight:600;font-variant-numeric:tabular-nums;text-decoration:none}
 .pit.pa .pam.est{color:var(--muted);font-weight:500}
 .pit.pa .pam.real{color:var(--good,var(--accent));font-weight:700}
 .pit.pa .px{grid-column:5;justify-self:end;width:30px;height:30px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:var(--r-sm);font-size:19px;line-height:1;color:var(--muted)}
@@ -527,38 +528,38 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .pfold{background:none;border:0;padding:0;font:inherit;font-weight:700;color:var(--ink);text-align:left;cursor:pointer}.pfold:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
 #planView .pin:focus-visible,.plim:focus-visible,.pit input:focus-visible,.pchips button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .txw{margin-bottom:8px;border-radius:var(--r-md)}
-.tgc{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);margin:12px 0 10px;overflow:hidden}.tgh{display:flex;align-items:center;gap:7px;font-size:12.6px;font-weight:700;padding:11px 14px 7px}.tgh i{width:8px;height:8px;border-radius:50%;background:currentColor;flex:none}.tgh b{margin-left:auto;font-weight:500;color:var(--muted)}
+.tgc{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);margin:12px 0 10px;overflow:hidden}.tgh{display:flex;align-items:center;gap:7px;font-size:var(--fs-sm);font-weight:700;padding:11px 14px 7px}.tgh i{width:8px;height:8px;border-radius:50%;background:currentColor;flex:none}.tgh b{margin-left:auto;font-weight:500;color:var(--muted)}
 .tgc .txw{margin-bottom:0;border-radius:0;background:var(--surface)}
 .tgc .tx.swcard,.tgc>.tx{border:0;border-radius:0;background:var(--surface)}.tgc>.tx{margin:0;border-top:1px solid var(--line)}.tgc .swrap~.swrap{border-top:1px solid color-mix(in srgb,var(--line) 55%,transparent)}.tgc .tgg .tx.swcard{padding-left:11px}
-.tgc .tgh+.swrap .tx.swcard,.tgc .tgh+.tx{border-top:0}.tgc .tgh+.swrap{border-top:0}.tgc .tgh{font-size:12px;padding:2px 14px 6px 11px;background:none}.tgg{position:relative;border-left:0;margin:12px 0 6px 14px}.tgg::before{content:"";position:absolute;left:0;top:11px;height:calc((100% - 20px)*.8);z-index:2;pointer-events:none;width:2px;border-radius:2px;background:var(--gc,var(--line))}.tgg>.tx{border:0;border-top:1px solid var(--line);border-radius:0;margin:0;background:var(--surface)}.tgc .tgt{display:flex;align-items:center;justify-content:space-between;padding:11px 14px 8px;font-size:14.4px;font-weight:700}.tgc .tgt b{font-weight:700}
+.tgc .tgh+.swrap .tx.swcard,.tgc .tgh+.tx{border-top:0}.tgc .tgh+.swrap{border-top:0}.tgc .tgh{font-size:var(--fs-xs);padding:2px 14px 6px 11px;background:none}.tgg{position:relative;border-left:0;margin:12px 0 6px 14px}.tgg::before{content:"";position:absolute;left:0;top:11px;height:calc((100% - 20px)*.8);z-index:2;pointer-events:none;width:2px;border-radius:2px;background:var(--gc,var(--line))}.tgg>.tx{border:0;border-top:1px solid var(--line);border-radius:0;margin:0;background:var(--surface)}.tgc .tgt{display:flex;align-items:center;justify-content:space-between;padding:11px 14px 8px;font-size:var(--fs-md);font-weight:700}.tgc .tgt b{font-weight:700}
 .tx.swcard{grid-template-columns:1fr auto;border-left:1px solid var(--line);padding-left:14px;margin-bottom:0}
 .dh.dhx{margin:22px 2px 8px}.dh.dhx span:first-child,.dh.dhx span:last-child{font-size:16px;font-weight:500;color:var(--ink)}
 .dstrip{display:flex;gap:2px;height:3px;margin:0 2px 10px;border-radius:2px;overflow:hidden}.dstrip i{display:block;min-width:4px}.dstrip+.tgc{margin-top:0}
 .tgc{margin-bottom:6px}
 .tgc+.tgc{margin-top:0}
 .tgc .tgg{margin:0}.tgc .tgg::before{display:none}.tgc .tgg{position:relative;padding-left:96px}.tgc .tgg+.tgg{border-top:1px solid var(--line)}
-.tgc .tgh{position:absolute;left:0;top:0;width:96px;box-sizing:border-box;display:flex;align-items:flex-start;gap:6px;padding:13px 6px 0 14px;font-size:12px;font-weight:500;line-height:1.3;color:var(--gc);background:none}.tgc .tgh .ci{margin:0}.tgc .tgh i{background:var(--gc);margin-right:7px}.tgc .tgh b{font-size:12px;font-weight:400;color:var(--muted)}
+.tgc .tgh{position:absolute;left:0;top:0;width:96px;box-sizing:border-box;display:flex;align-items:flex-start;gap:6px;padding:13px 6px 0 14px;font-size:var(--fs-xs);font-weight:500;line-height:1.3;color:var(--gc);background:none}.tgc .tgh .ci{margin:0}.tgc .tgh i{background:var(--gc);margin-right:7px}.tgc .tgh b{font-size:var(--fs-xs);font-weight:400;color:var(--muted)}
 .tgc .tgg .tx.swcard{border-left:0;padding:11px 14px}.tgc .tgg:not(.one) .swrap~.swrap{border-top:0}.tgc .tgg:not(.one) .swrap~.swrap::before{content:"";position:absolute;left:0;right:0;top:0;height:1px;z-index:2;pointer-events:none;background:color-mix(in srgb,var(--line) 60%,transparent)}
-.tgc .tdesc{font-size:15px;font-weight:500;color:var(--ink)}.tgc .tamt{font-size:15px;font-weight:500}.tgc .tamt.bad{color:var(--ink)}
-.tsl{display:flex;align-items:flex-start}.ci{width:16px;height:16px;flex:none;color:var(--gc);margin-right:6px}.tsl .ci{margin-top:3px}.tcat{font-size:12px;color:var(--muted)}
+.tgc .tdesc{font-size:var(--fs-md);font-weight:500;color:var(--ink)}.tgc .tamt{font-size:var(--fs-md);font-weight:500}.tgc .tamt.bad{color:var(--ink)}
+.tsl{display:flex;align-items:flex-start}.ci{width:16px;height:16px;flex:none;color:var(--gc);margin-right:6px}.tsl .ci{margin-top:3px}.tcat{font-size:var(--fs-xs);color:var(--muted)}
 .cbtn{top:auto;bottom:12px;right:12px;width:38px;height:38px;background:var(--bg);color:var(--muted);border:1px solid var(--line)}
 .cbtn svg{width:20px;height:20px;display:block;margin:auto}
 .cbtn[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .cbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .wallet{padding:12px 14px;margin-bottom:10px}
-.wallet .hint{font-size:10.8px;line-height:1.3}
+.wallet .hint{font-size:var(--fs-xs);line-height:1.3}
 .wallet .big{font-size:21.6px;margin:0 0 8px}
 .wallet .two{gap:4px 10px}
-.wallet .two b{font-size:13.5px}
+.wallet .two b{font-size:var(--fs-sm)}
 .wallet .two+.two{margin-top:6px!important}
-.wallet .lnk{padding:6px 0 0;font-size:10.8px}
+.wallet .lnk{padding:6px 0 0;font-size:var(--fs-xs)}
 .wallet .plus{top:10px;right:10px;width:34px;height:34px;font-size:19.8px}
 .wallet .cbtn{top:auto;bottom:10px;right:10px;width:30px;height:30px}
 .wallet .cbtn svg{width:17px;height:17px}
 .mnav{margin-bottom:10px}
 .rggrid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
-.rgw{font-size:10.8px;color:var(--muted);padding:4px 0}
-.rgd{border:0;background:none;color:var(--ink);padding:9px 0;border-radius:var(--r-sm);font-size:12.6px}
+.rgw{font-size:var(--fs-xs);color:var(--muted);padding:4px 0}
+.rgd{border:0;background:none;color:var(--ink);padding:9px 0;border-radius:var(--r-sm);font-size:var(--fs-sm)}
 .rgd.td{outline:1px solid var(--line)}
 .rgd.in{background:color-mix(in srgb,var(--accent) 16%,transparent);border-radius:0}
 .rgd.on{background:var(--accent);color:var(--accent-ink);font-weight:700;border-radius:var(--r-sm)}
@@ -603,11 +604,11 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .sbtn{width:38px;height:38px;border-radius:var(--r-sm)}
 .smenu{position:absolute;right:0;top:calc(100% + 8px);width:min(300px,calc(100vw - 32px));background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:0 10px 30px rgba(0,0,0,.2);padding:10px;display:flex;flex-direction:column;gap:6px;z-index:70}
 .smenu[hidden]{display:none}
-.sm-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 6px;font-size:12.6px;color:var(--ink)}
+.sm-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 6px;font-size:var(--fs-sm);color:var(--ink)}
 .zc{display:inline-flex;align-items:center;gap:4px}
-.zc button{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:var(--r-sm);min-width:32px;height:30px;padding:0 8px;font-size:13.5px}
-.zc #zVal{min-width:56px;font-size:12px}
-.sm-btn{width:100%;text-align:left;border:0;background:none;color:var(--ink);padding:8px 6px;border-radius:var(--r-sm);font-size:12.6px}
+.zc button{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:var(--r-sm);min-width:32px;height:30px;padding:0 8px;font-size:var(--fs-sm)}
+.zc #zVal{min-width:56px;font-size:var(--fs-xs)}
+.sm-btn{width:100%;text-align:left;border:0;background:none;color:var(--ink);padding:8px 6px;border-radius:var(--r-sm);font-size:var(--fs-sm)}
 .sm-btn:hover,.zc button:hover{background:color-mix(in srgb,var(--accent) 10%,var(--bg))}
 .sm-btn:focus-visible,.zc button:focus-visible,.sbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .smenu .syncmenu{margin:0;text-align:left;padding:4px 6px 0}
@@ -615,7 +616,7 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .smenu .sync input{width:100%;box-sizing:border-box}
 .smenu .sync #st{text-align:left}
 .smenu .smx{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
-.smenu .sm-sign{margin-top:4px;padding:8px 6px 2px;border-top:1px dashed var(--line);text-align:center;font-size:10.8px;letter-spacing:.02em;color:var(--muted);user-select:none}.smenu .smx .syncmenu{flex:0 0 auto;padding:4px 0 0}.smenu .smx .syncmenu[open]{flex:1 1 100%;padding:4px 0 0}
+.smenu .sm-sign{margin-top:4px;padding:8px 6px 2px;border-top:1px solid var(--line);text-align:center;font-size:var(--fs-xs);letter-spacing:.02em;color:var(--muted);user-select:none}.smenu .smx .syncmenu{flex:0 0 auto;padding:4px 0 0}.smenu .smx .syncmenu[open]{flex:1 1 100%;padding:4px 0 0}
 main{min-height:calc(100dvh / var(--z,1))!important}
 
 /* Logo: Note. / đường kẻ / EVERYTHING */
@@ -633,20 +634,20 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 /* Thanh gạch chân sát chữ hơn (cố định, không đổi theo cuộn) */
 .tabs .chip{padding:8px 2px 6px}
 /* ẢNH / CAMERA */
-.cam{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:5px;width:34px;height:34px;border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:var(--r-sm);padding:0;font:inherit;font-size:12px}
+.cam{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:5px;width:34px;height:34px;border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:var(--r-sm);padding:0;font:inherit;font-size:var(--fs-xs)}
 .cam svg{width:18px;height:18px}
 .cam:active{background:var(--line)}
 .cam.busy{opacity:.45;pointer-events:none}
 .camsheet{position:fixed;inset:0;z-index:300;display:flex;align-items:flex-end;justify-content:center}
 .camsheet .cs-bd{position:absolute;inset:0;background:rgba(0,0,0,.42)}
 .camsheet .cs-box{position:relative;width:min(420px,100%);box-sizing:border-box;padding:12px 12px calc(12px + var(--sab));display:flex;flex-direction:column;gap:8px;background:var(--surface);border-radius:var(--r-lg) var(--r-lg) 0 0;box-shadow:0 -6px 30px rgba(0,0,0,.3)}
-.camsheet .cs-box button{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:var(--r-md);padding:14px;font:inherit;font-size:15px;font-weight:400;text-align:left;display:flex;align-items:center;gap:10px}
+.camsheet .cs-box button{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:var(--r-md);padding:14px;font:inherit;font-size:var(--fs-md);font-weight:400;text-align:left;display:flex;align-items:center;gap:10px}
 .camsheet .cs-i{display:inline-flex;flex:none;color:currentColor}.camsheet .cs-i svg{width:18px;height:18px;display:block}
 .camsheet .cs-box .cs-x{text-align:center;font-weight:500;color:var(--muted);background:transparent;border:0}
 .camlive{position:fixed;inset:0;z-index:310;background:#000;display:flex;flex-direction:column}
 .camlive video{flex:1;min-height:0;width:100%;object-fit:contain;background:#000}
 .camlive .cl-bar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px calc(18px + var(--sab));background:#000}
-.camlive .cl-bar button{border:0;background:transparent;color:#fff;font:inherit;font-size:15px;min-width:56px;padding:8px 0}
+.camlive .cl-bar button{border:0;background:transparent;color:#fff;font:inherit;font-size:var(--fs-md);min-width:56px;padding:8px 0}
 .camlive .cl-bar .cl-shot{width:68px;height:68px;min-width:0;padding:0;border-radius:50%;background:#fff;border:4px solid #000;box-shadow:0 0 0 3px #fff}
 .cam.ocr.busy svg{animation:ocrp .9s ease-in-out infinite alternate}
 @keyframes ocrp{to{opacity:.3}}
@@ -661,8 +662,8 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 #notesView .inrow .intags>[data-inopen]{order:1;margin:0}
 #notesView .inrow .cam{order:2;margin:0}
 #notesView .inrow .intags>.meta{order:3;margin:0!important;min-width:0}
-#notesView .inrow .intags>.meta .chip{padding:5px 10px;font-size:12px;white-space:nowrap}
-#notesView .inrow .intags>.meta.duechip{position:relative;display:inline-flex;align-items:center;flex:none;border:1px solid var(--line);border-radius:999px;padding:5px 8px;font-size:11.7px;white-space:nowrap;color:var(--ink);cursor:pointer;margin:0}
+#notesView .inrow .intags>.meta .chip{padding:5px 10px;font-size:var(--fs-xs);white-space:nowrap}
+#notesView .inrow .intags>.meta.duechip{position:relative;display:inline-flex;align-items:center;flex:none;border:1px solid var(--line);border-radius:999px;padding:5px 8px;font-size:var(--fs-xs);white-space:nowrap;color:var(--ink);cursor:pointer;margin:0}
 #notesView .inrow .intags>.meta.duechip input{position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px;border:0;padding:0;cursor:pointer}
 #notesView .inrow .add{padding:7px 14px;min-width:60px}
 #notesView .inrow .add{order:9;margin-left:auto}
@@ -671,7 +672,7 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 .thumbs:empty{display:none}
 .thumb{width:56px;height:56px;object-fit:cover;border-radius:var(--r-sm);border:1px solid var(--line);display:block;cursor:zoom-in}
 .pth{position:relative;display:inline-block}
-.pthx{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;border:0;background:rgba(0,0,0,.72);color:#fff;font-size:14px;line-height:20px;padding:0}
+.pthx{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;border:0;background:rgba(0,0,0,.72);color:#fff;font-size:var(--fs-md);line-height:20px;padding:0}
 .camrow{align-items:center;flex-wrap:nowrap}
 .camrow .thumbs{margin-top:0}
 .lb{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.88);overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
@@ -684,42 +685,42 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 .lbp,.lbnx{top:50%;margin-top:-20px}
 .lbp{left:8px}.lbnx{right:8px}
 .lbp[hidden],.lbnx[hidden]{display:none}
-.lbn{position:absolute;top:max(20px,calc(env(safe-area-inset-top) + 8px));left:0;right:0;text-align:center;color:#fff;font-size:13px;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+.lbn{position:absolute;top:max(20px,calc(env(safe-area-inset-top) + 8px));left:0;right:0;text-align:center;color:#fff;font-size:var(--fs-sm);pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.6)}
 .lbdots{position:absolute;bottom:max(18px,env(safe-area-inset-bottom));left:0;right:0;display:flex;justify-content:center;gap:7px;pointer-events:none}
 .lbdots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.4)}
 .lbdots i.on{background:#fff}
 /* Nhập lịch trình */
 #impSheet{align-items:center}
 #impSheet .box{max-height:100%;overflow-y:auto;overscroll-behavior:contain}
-#impSheet textarea.ed{min-height:150px;font-size:13.5px}
+#impSheet textarea.ed{min-height:150px;font-size:var(--fs-sm)}
 #impSheet .ed{width:100%}
 #impSheet .pchips button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 #impSheet .impdh{margin-top:14px;font-weight:600;border-bottom:1px solid var(--line);padding-bottom:4px}
-#impSheet .impr{display:grid;grid-template-columns:52px 1fr 76px 28px 28px;gap:6px;align-items:center;padding:8px 0;border-bottom:1px dashed var(--line)}
-#impSheet .impr .ed{padding:6px 8px;font-size:13px;min-width:0}
+#impSheet .impr{display:grid;grid-template-columns:52px 1fr 76px 28px 28px;gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+#impSheet .impr .ed{padding:6px 8px;font-size:var(--fs-sm);min-width:0}
 #impSheet .impr .impa{text-align:right}
 #impSheet .impr .x{padding:0}
 #impSheet .impr.wn{background:color-mix(in srgb,var(--c-amber-bg) 55%,transparent);border-radius:var(--r-sm);padding-left:4px;padding-right:4px}
-#impSheet .impfl{grid-column:1/-1;font-size:11px;color:var(--c-amber)}
+#impSheet .impfl{grid-column:1/-1;font-size:var(--fs-xs);color:var(--c-amber)}
 #impSheet .impfl:empty{display:none}
-#impSheet .impnt{grid-column:1/-1;font-size:11.5px;color:var(--muted);white-space:pre-wrap;word-break:break-word}
+#impSheet .impnt{grid-column:1/-1;font-size:var(--fs-xs);color:var(--muted);white-space:pre-wrap;word-break:break-word}
 #impSheet .impbtns{display:flex;gap:8px;justify-content:space-between;align-items:center;margin-top:10px}
 #impSheet .impbtns .lnk{padding:0}
 #impMsg{margin-top:8px;color:var(--bad)}
 #impMsg:empty{display:none}
-#impSheet .imppp{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px;font-size:12.6px}
+#impSheet .imppp{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px;font-size:var(--fs-sm)}
 #impSheet .imppp .ed{width:56px;padding:6px 8px;text-align:center}
 #impSheet .impfx{border:0;background:none;padding:0;font-size:16px;line-height:1;cursor:pointer}
 @media (max-width:700px),(pointer:coarse){.plimp{display:none!important}}
 /* ===== Chuẩn cỡ chữ (lấy theo tab Dự án): nội dung 14.4 · phụ 12.6 · tiêu đề nhóm 14 đậm ===== */
 #notesView .note .txt{font-weight:500}
-#notesView .note .meta,#notesView .note .tag{font-size:12.6px}
-#notesView .cgrp{font-size:14px}
-#notesView .cgrp b{font-size:12px}
-#notesView .dgrp{font-size:12.6px}
-.dh.dhx span:first-child,.dh.dhx span:last-child{font-size:14px;font-weight:700}
-.tgc .tdesc,.tgc .tamt{font-size:14.4px}
-.tgc .tgh,.tgc .tgh b,.tcat{font-size:12.6px}
+#notesView .note .meta,#notesView .note .tag{font-size:var(--fs-sm)}
+#notesView .cgrp{font-size:var(--fs-md)}
+#notesView .cgrp b{font-size:var(--fs-xs)}
+#notesView .dgrp{font-size:var(--fs-sm)}
+.dh.dhx span:first-child,.dh.dhx span:last-child{font-size:var(--fs-md);font-weight:700}
+.tgc .tdesc,.tgc .tamt{font-size:var(--fs-md)}
+.tgc .tgh,.tgc .tgh b,.tcat{font-size:var(--fs-sm)}
 .tgc .tgg{padding-left:112px}
 .tgc .tgh{width:112px}
 .tgc .tgh span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
@@ -729,24 +730,24 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 #dlgSheet{z-index:80}
 #dlgSheet .box{max-width:420px}
 #dlgSheet .fin-in{margin:8px 0 0;width:100%;border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px;background:var(--bg)}
-#dlgSheet .dlgta{display:block;width:100%;min-height:130px;margin-top:8px;resize:none;border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px;background:var(--bg);color:var(--ink);font:inherit;font-size:12.6px;outline:none}
+#dlgSheet .dlgta{display:block;width:100%;min-height:130px;margin-top:8px;resize:none;border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px;background:var(--bg);color:var(--ink);font:inherit;font-size:var(--fs-sm);outline:none}
 #dlgSheet .fin-in:focus-visible,#dlgSheet .dlgta:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
-#dlgMsg{margin:0 2px;white-space:pre-wrap;word-break:break-word;font-size:12.6px}
+#dlgMsg{margin:0 2px;white-space:pre-wrap;word-break:break-word;font-size:var(--fs-sm)}
 #dlgMsg.err{color:var(--bad)}
 .dlgbtns{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
 .add.danger{background:var(--bad);color:#fff}
 mark.hl{background:color-mix(in srgb,var(--accent) 30%,transparent);color:inherit;border-radius:3px;padding:0 1px}
 #xres{margin-top:18px}
 #xres:empty{display:none}
-.xgrp{display:flex;align-items:center;gap:6px;font-size:12.6px;font-weight:700;color:var(--muted);margin:14px 2px 6px}
+.xgrp{display:flex;align-items:center;gap:6px;font-size:var(--fs-sm);font-weight:700;color:var(--muted);margin:14px 2px 6px}
 .xgrp b{font-weight:500}
 .xrow{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:var(--r-md);padding:9px 12px;margin-bottom:6px}
 .xrow .xd{min-width:0;word-break:break-word}
-.xrow .xd small{display:block;color:var(--muted);font-size:11.7px}
+.xrow .xd small{display:block;color:var(--muted);font-size:var(--fs-xs)}
 .xrow .xm{flex:none;white-space:nowrap;font-weight:700}
 .xrow:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.xmore{color:var(--muted);font-size:11.7px;margin:2px 2px 0}
-.memrow{display:flex;flex-direction:column;gap:5px;font-size:12.6px;padding:4px 6px}
+.xmore{color:var(--muted);font-size:var(--fs-xs);margin:2px 2px 0}
+.memrow{display:flex;flex-direction:column;gap:5px;font-size:var(--fs-sm);padding:4px 6px}
 .memrow>div:first-child{display:flex;justify-content:space-between;gap:8px}
 .mbar{height:6px;background:var(--bg);border-radius:999px;overflow:hidden}
 .mbar i{display:block;height:100%;width:0;background:var(--accent);border-radius:999px}
@@ -791,7 +792,7 @@ html,body{overscroll-behavior-y:contain}
 @keyframes ptrspin{to{transform:rotate(360deg)}}
 /* Khoản lặp đến hạn: dòng nhắc trong danh sách + chấm đỏ ở tab Chi tiêu */
 .tabs .chip{position:relative}
-.tbadge{position:absolute;top:-2px;right:-14px;min-width:18px;height:18px;box-sizing:border-box;padding:0 5px;border-radius:999px;background:var(--bad);color:#fff;font:700 11px/18px "Be Vietnam Pro",system-ui,sans-serif;font-style:normal;text-align:center}
+.tbadge{position:absolute;top:-2px;right:-14px;min-width:18px;height:18px;box-sizing:border-box;padding:0 5px;border-radius:999px;background:var(--bad);color:#fff;font:700 var(--fs-xs)/18px "Be Vietnam Pro",system-ui,sans-serif;font-style:normal;text-align:center}
 .tbadge[hidden]{display:none}
 .note.dwarn{border-left:4px solid var(--k0);background:color-mix(in srgb,var(--k0) 5%,var(--surface))}
 .note.dwarn-late{border-left-color:var(--bad);background:color-mix(in srgb,var(--bad) 5%,var(--surface))}
@@ -800,15 +801,41 @@ html,body{overscroll-behavior-y:contain}
 .dueI{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px dashed var(--bad);border-radius:var(--r-md);padding:10px 12px;margin-bottom:6px}
 .dueI .dbody{flex:1;min-width:0}
 .dueI .dchk{width:24px;height:24px;flex:none;accent-color:var(--accent);margin:0}
-.dueI .dtag{display:inline-block;margin-left:6px;padding:0 8px;border-radius:999px;font-size:11px;font-weight:500;background:var(--c-red-bg);color:var(--c-red)}
+.dueI .dtag{display:inline-block;margin-left:6px;padding:0 8px;border-radius:999px;font-size:var(--fs-xs);font-weight:500;background:var(--c-red-bg);color:var(--c-red)}
 .dueI .dueamt{color:var(--muted);font-weight:700}
-.recmore{display:block;margin:14px 2px 0;padding:6px 0;font-size:12.6px}
+.recmore{display:block;margin:14px 2px 0;padding:6px 0;font-size:var(--fs-sm)}
+
+/* ===== Restyle theo taste-skill: chỉ CSS, không đổi HTML/JS ===== */
+:root{--fs-xs:12px;--fs-sm:13px;--fs-md:15px;--fs-xl:28px;--shadow:none;--r-lg:var(--r-md)}
+/* Con số chính là thứ duy nhất lớn trên màn hình */
+.big,.wallet .big{font-size:var(--fs-xl);line-height:1.1;letter-spacing:-.02em;margin:4px 0 10px}
+/* Bỏ bóng và quầng sáng trên các bề mặt thường; chỉ lớp nổi (menu, toast, sheet, nút +) giữ bóng */
+#notesView>.box:focus-within{box-shadow:0 0 0 1px var(--accent)}
+.frow #filters .chip,.seg .chip{box-shadow:none}
+.frow #filters .chip[aria-pressed="true"],.seg .chip[aria-pressed="true"]{box-shadow:none}
+.frow .fwrap .fbtn{box-shadow:none}
+.frow .fwrap #sortBtn[aria-expanded="true"]{box-shadow:none}
+.seg .chip[aria-pressed="true"]{box-shadow:none}
+.swact::before{box-shadow:none}
+/* Gợi ý nhỏ không còn bị làm mờ tới mức khó đọc */
+#pl-hint,.box .hint.nh{opacity:1}
+/* Vùng chạm của tag lớn hơn một chút */
+.tag{padding:4px 10px}
+
+/* ===== Giao diện màu: Vở · Chàm · Phố đêm (Cài đặt → Màu sắc) ===== */
+:root[data-skin="vo"]{--bg:#f6f3ea;--surface:#fffdf7;--ink:#1c1c1c;--muted:#6a675d;--line:#dcd6c4;--accent:#b83227;--accent-ink:#fff}
+:root[data-skin="cham"]{--bg:#f1f2f4;--surface:#fff;--ink:#14161f;--muted:#5b6070;--line:#d8dbe2;--accent:#1f3a8a;--accent-ink:#fff}
+:root[data-skin="phodem"]{--bg:#141414;--surface:#1e1e1e;--ink:#ece8df;--muted:#a09a8c;--line:#323232;--accent:#f2b440;--accent-ink:#1a1300}
+:root[data-skin] .swact .sw-edit{background:color-mix(in srgb,var(--accent) 14%,var(--surface));color:var(--accent)}
+.sm-row.themes{flex-wrap:wrap}
+.sm-row.themes .zc{flex-wrap:wrap;justify-content:flex-end}
+.sm-row.themes .zc button{min-width:0;padding:0 10px}
 </style>
 </head>
 <body>
 <div class="cbd" id="cbd"></div>
 <main>
-<div class="hdr"><h1 class="logo" aria-label="Note Everything"><b class="lg-n">Note.</b><i class="lg-l" aria-hidden="true"></i><span class="lg-e">EVERYTHING</span></h1><div class="hr"><div class="hsearch sbar" id="hsearch"><input class="search" id="q" type="search" placeholder="Tìm ghi chú, chi tiêu, dự án"></div><div class="setw"><button type="button" class="fbtn sbtn" id="setBtn" aria-label="Cài đặt" aria-haspopup="true" aria-expanded="false" title="Cài đặt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button><div class="smenu" id="setMenu" hidden><div class="sm-row"><span>Cỡ giao diện</span><span class="zc"><button type="button" id="zDn" aria-label="Giảm cỡ giao diện">−</button><button type="button" id="zVal" title="Về 100%">100%</button><button type="button" id="zUp" aria-label="Tăng cỡ giao diện">+</button></span></div><div class="sm-row"><span>Ngôn ngữ</span><span class="zc nolang"><button type="button" id="lgVi">Tiếng Việt</button><button type="button" id="lgEn">English</button></span></div><button type="button" class="sm-btn" id="theme">Đổi giao diện</button><button type="button" class="sm-btn" id="copy">Sao chép tất cả</button><div class="memrow" id="memRow"><div><span>Bộ nhớ máy</span><span id="memVal">–</span></div><div class="mbar"><i id="memBar"></i></div><div class="hint" id="memBk"></div><div class="hint" id="memIdb"></div></div><div class="smx"><details class="syncmenu" id="syncmenu"><summary>Đồng bộ</summary>
+<div class="hdr"><h1 class="logo" aria-label="Note Everything"><b class="lg-n">Note.</b><i class="lg-l" aria-hidden="true"></i><span class="lg-e">EVERYTHING</span></h1><div class="hr"><div class="hsearch sbar" id="hsearch"><input class="search" id="q" type="search" placeholder="Tìm ghi chú, chi tiêu, dự án"></div><div class="setw"><button type="button" class="fbtn sbtn" id="setBtn" aria-label="Cài đặt" aria-haspopup="true" aria-expanded="false" title="Cài đặt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button><div class="smenu" id="setMenu" hidden><div class="sm-row"><span>Cỡ giao diện</span><span class="zc"><button type="button" id="zDn" aria-label="Giảm cỡ giao diện">−</button><button type="button" id="zVal" title="Về 100%">100%</button><button type="button" id="zUp" aria-label="Tăng cỡ giao diện">+</button></span></div><div class="sm-row"><span>Ngôn ngữ</span><span class="zc nolang"><button type="button" id="lgVi">Tiếng Việt</button><button type="button" id="lgEn">English</button></span></div><div class="sm-row themes"><span>Màu sắc</span><span class="zc" id="skinBtns"><button type="button" data-skin="">Mặc định</button><button type="button" data-skin="vo">Vở</button><button type="button" data-skin="cham">Chàm</button><button type="button" data-skin="phodem">Phố đêm</button></span></div><button type="button" class="sm-btn" id="theme">Đổi giao diện</button><button type="button" class="sm-btn" id="copy">Sao chép tất cả</button><div class="memrow" id="memRow"><div><span>Bộ nhớ máy</span><span id="memVal">–</span></div><div class="mbar"><i id="memBar"></i></div><div class="hint" id="memBk"></div><div class="hint" id="memIdb"></div></div><div class="smx"><details class="syncmenu" id="syncmenu"><summary>Đồng bộ</summary>
 <div class="sync"><input id="code" placeholder="Mã đồng bộ" autocomplete="off" spellcheck="false"><button id="conn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg><span>Kết nối</span></button><button id="gen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Tạo mã mới</span></button><button id="off"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18.4 6.6a9 9 0 1 1-12.8 0"/><path d="M12 2v10"/></svg><span>Ngắt</span></button><span id="st" class="hint"></span></div>
 </details><details class="syncmenu" id="datamenu"><summary>Dữ liệu</summary>
 <div class="sync"><button id="bkp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span>Sao lưu</span></button><button id="imp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20V9M7 14l5-5 5 5M5 4h14"/></svg><span>Khôi phục</span></button><input type="file" id="impf" accept=".json,application/json" hidden><button id="csv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg><span>Xuất CSV</span></button></div>
@@ -818,7 +845,7 @@ html,body{overscroll-behavior-y:contain}
 <div class="box">
 <button type="button" class="cclose" id="cclose" aria-label="Xóa văn bản">×</button>
 <textarea id="in" rows="1" placeholder="Gõ gì cũng được, vd: bún chả ngon"></textarea>
-<div class="nlw s"><textarea id="in-note" rows="1" class="fin-in" autocomplete="off" enterkeyhint="done" maxlength="200" aria-label="Ghi chú thêm" placeholder="Ghi chú thêm (không bắt buộc)" style="font-size:13.5px;border-top:1px dashed var(--line);margin-top:2px;padding:6px 2px"></textarea><button type="button" class="nlb" aria-label="Xuống dòng" title="Xuống dòng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 5v7a2 2 0 0 1-2 2H5"/><path d="M9 10l-4 4 4 4"/></svg></button></div>
+<div class="nlw s"><textarea id="in-note" rows="1" class="fin-in" autocomplete="off" enterkeyhint="done" maxlength="200" aria-label="Ghi chú thêm" placeholder="Ghi chú thêm (không bắt buộc)" style="font-size:var(--fs-sm);border-top:1px solid var(--line);margin-top:2px;padding:6px 2px"></textarea><button type="button" class="nlb" aria-label="Xuống dòng" title="Xuống dòng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 5v7a2 2 0 0 1-2 2H5"/><path d="M9 10l-4 4 4 4"/></svg></button></div>
 <div class="thumbs" id="ph-in"></div><div class="insug" id="inSug"></div><div class="row inrow"><div class="hint nh">Có số tiền → Chi tiêu  ·  Chọn Tag → Ghi chú</div><div class="intags" id="inTags"></div><button type="button" class="cam" data-cam="in" aria-label="Thêm ảnh" title="Thêm ảnh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13.5" r="3.4"/></svg></button><button type="button" class="cam ocr" data-ocr="1" aria-label="Quét chữ từ ảnh" title="Quét chữ từ ảnh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M8 9h8M8 12h8M8 15h5"/></svg></button><button class="add" id="add">Lưu</button></div>
 </div>
 <div class="hint" id="in-msg" style="margin-top:6px" role="status"></div>
@@ -843,15 +870,15 @@ html,body{overscroll-behavior-y:contain}
 <div id="finView" hidden>
 <div class="seg"><button class="chip" data-sub="tx" aria-pressed="true">Thu chi<i class="tbadge" id="subBadgeTx" hidden></i></button><button class="chip" data-sub="debt" aria-pressed="false">Nợ<i class="tbadge" id="subBadgeDebt" hidden></i></button><button class="chip" data-sub="bud" aria-pressed="false">Ngân sách</button></div>
 <div id="finTop"></div>
-<div id="finSheet" class="sheet" hidden><div class="box"><div class="shead"><b id="sheet-title">Thêm khoản mới</b><button class="x" data-sheetclose="1" aria-label="Đóng">×</button></div><textarea id="fin-in" class="fin-in" autocomplete="off" enterkeyhint="done" placeholder="45k phở bò · 1tr2 tiền điện · +15tr lương" rows="1" maxlength="200" spellcheck="false" autocapitalize="sentences"></textarea><div class="nlw s" style="margin-top:8px"><textarea class="fin-in" id="fin-note" rows="1" maxlength="200"  autocomplete="off" enterkeyhint="done" placeholder="Ghi chú thêm (không bắt buộc)" style="font-size:13px;border-top:1px dashed var(--line)"></textarea><button type="button" class="nlb" aria-label="Xuống dòng" title="Xuống dòng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 5v7a2 2 0 0 1-2 2H5"/><path d="M9 10l-4 4 4 4"/></svg></button></div>
+<div id="finSheet" class="sheet" hidden><div class="box"><div class="shead"><b id="sheet-title">Thêm khoản mới</b><button class="x" data-sheetclose="1" aria-label="Đóng">×</button></div><textarea id="fin-in" class="fin-in" autocomplete="off" enterkeyhint="done" placeholder="45k phở bò · 1tr2 tiền điện · +15tr lương" rows="1" maxlength="200" spellcheck="false" autocapitalize="sentences"></textarea><div class="nlw s" style="margin-top:8px"><textarea class="fin-in" id="fin-note" rows="1" maxlength="200"  autocomplete="off" enterkeyhint="done" placeholder="Ghi chú thêm (không bắt buộc)" style="font-size:var(--fs-sm);border-top:1px solid var(--line)"></textarea><button type="button" class="nlb" aria-label="Xuống dòng" title="Xuống dòng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 5v7a2 2 0 0 1-2 2H5"/><path d="M9 10l-4 4 4 4"/></svg></button></div>
 <div class="thumbs" id="ph-fin"></div><div id="fin-rate-row" class="hint" hidden style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:6px 2px 8px">Lãi suất <input id="fin-rate" class="date" type="text" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="Lãi suất, để trống nếu không có" style="width:64px;text-align:right"> % <select id="fin-per" class="date" aria-label="Kỳ tính lãi"><option value="m">/ tháng</option><option value="y">/ năm</option></select> <span style="margin-left:8px">Hạn trả</span> <input type="date" id="fin-due" class="date" aria-label="Hạn trả nợ, để trống nếu không có"></div><div class="row"><span style="display:inline-flex;gap:8px;align-items:center"><input type="date" id="fin-date" class="date" aria-label="Ngày"><button type="button" class="cam" data-cam="fin" aria-label="Thêm ảnh" title="Thêm ảnh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13.5" r="3.4"/></svg></button></span><span><button class="add" id="fin-add">Lưu</button><span id="fin-debt" hidden><button class="add" data-dir="owe">Mình nợ</button> <button class="add alt" data-dir="lent">Họ nợ mình</button></span></span></div>
 <div class="hint" id="fin-msg" style="margin-top:6px"></div></div></div>
 <div id="finBody" style="margin-top:14px"></div>
 </div>
 
 <div id="planView" hidden></div>
-<div id="plSheet" class="psh"><div class="box"><div class="shead"><b id="pl-title">Tạo dự án mới</b><button class="x" data-pl="pclose" aria-label="Đóng">×</button></div><textarea id="pl-new2" data-plk="new2" class="fin-in" autocomplete="off" enterkeyhint="done" placeholder="đà lạt 3 ngày 5tr, hoặc chỉ gõ tên" rows="1" maxlength="200" spellcheck="false" autocapitalize="sentences"></textarea><div class="nlw s" style="margin-top:8px"><textarea class="fin-in" id="pl-note" rows="1" maxlength="200" data-plk="note" autocomplete="off" enterkeyhint="done" placeholder="Ghi chú dự án (không bắt buộc)" style="font-size:13px;border-top:1px dashed var(--line)"></textarea><button type="button" class="nlb" aria-label="Xuống dòng" title="Xuống dòng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 5v7a2 2 0 0 1-2 2H5"/><path d="M9 10l-4 4 4 4"/></svg></button></div>
-<button type="button" class="lnk" id="pl-imp" data-imp="open" style="padding:2px 0 8px;margin-left:0;font-size:12.6px">Nhập lịch trình</button>
+<div id="plSheet" class="psh"><div class="box"><div class="shead"><b id="pl-title">Tạo dự án mới</b><button class="x" data-pl="pclose" aria-label="Đóng">×</button></div><textarea id="pl-new2" data-plk="new2" class="fin-in" autocomplete="off" enterkeyhint="done" placeholder="đà lạt 3 ngày 5tr, hoặc chỉ gõ tên" rows="1" maxlength="200" spellcheck="false" autocapitalize="sentences"></textarea><div class="nlw s" style="margin-top:8px"><textarea class="fin-in" id="pl-note" rows="1" maxlength="200" data-plk="note" autocomplete="off" enterkeyhint="done" placeholder="Ghi chú dự án (không bắt buộc)" style="font-size:var(--fs-sm);border-top:1px solid var(--line)"></textarea><button type="button" class="nlb" aria-label="Xuống dòng" title="Xuống dòng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 5v7a2 2 0 0 1-2 2H5"/><path d="M9 10l-4 4 4 4"/></svg></button></div>
+<button type="button" class="lnk" id="pl-imp" data-imp="open" style="padding:2px 0 8px;margin-left:0;font-size:var(--fs-sm)">Nhập lịch trình</button>
 <div class="row inrow" style="align-items:center"><div class="hint nh" id="pl-hint">Có số tiền ở cuối thì thành ngân sách dự án.</div><button class="add" id="pl-go" data-pl="new2" style="flex:none">Tạo</button></div></div></div>
 
 <div id="rgSheet" class="sheet" hidden><div class="box"><div class="shead"><b>Chọn ngày dự án</b><button class="x" data-rgclose="1" aria-label="Đóng">×</button></div>
@@ -1025,7 +1052,7 @@ function pinOpen(mode,cb){
   pinMode=mode;pinCb=cb||null;pinTmp="";
   if(!pinSh){
     var sty=document.createElement("style");
-    sty.textContent='#pinSheet .fin-in{margin-inline:0;width:100%;box-sizing:border-box;text-align:center;letter-spacing:.5em;font-size:22px}#pinSheet .pnacts{display:flex;justify-content:flex-end;margin-top:12px}#pinSheet .pnok{border:0;border-radius:var(--r-sm);padding:7px 18px;font:inherit;font-size:13px;font-weight:700;background:var(--accent);color:var(--accent-ink)}';
+    sty.textContent='#pinSheet .fin-in{margin-inline:0;width:100%;box-sizing:border-box;text-align:center;letter-spacing:.5em;font-size:22px}#pinSheet .pnacts{display:flex;justify-content:flex-end;margin-top:12px}#pinSheet .pnok{border:0;border-radius:var(--r-sm);padding:7px 18px;font:inherit;font-size:var(--fs-sm);font-weight:700;background:var(--accent);color:var(--accent-ink)}';
     document.head.appendChild(sty);
     pinSh=document.createElement("div");pinSh.id="pinSheet";pinSh.className="sheet";pinSh.style.zIndex="70";pinSh.hidden=true;
     document.body.appendChild(pinSh);
@@ -1230,12 +1257,12 @@ function tagSheetOpen(k,from){
   if(!tagSh){
     var sty=document.createElement("style");
     sty.textContent='#tagSheet .fin-in{margin-inline:0;width:100%;box-sizing:border-box}#tagSheet .tgopt{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border-radius:var(--r-md);padding:10px 12px;margin-top:8px}'+
-      '#tagSheet .tgck{flex:none;width:22px;height:22px;border:2px solid var(--line);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;color:transparent}'+
+      '#tagSheet .tgck{flex:none;width:22px;height:22px;border:2px solid var(--line);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:var(--fs-md);line-height:1;color:transparent}'+
       '#tagSheet .tgopt[aria-pressed="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--surface));color:var(--ink)}'+
       '#tagSheet .tgopt[aria-pressed="true"] .tgck{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}'+
-      '#tagSheet .tgopt b{display:block;font-size:14px}#tagSheet .tgopt small{display:block;color:var(--muted);font-size:12px;font-weight:400;margin-top:1px}'+
-      '#tagSheet .tgcols{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}#tagSheet .tgcol{flex:none;width:26px;height:26px;min-width:0;min-height:0;border-radius:50%;border:2px solid transparent;padding:0;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1;font-weight:700;cursor:pointer}#tagSheet .tgcol[aria-pressed="true"]{outline:2px solid var(--ink);outline-offset:1px}#tagSheet .tgcol:not([aria-pressed="true"]) i{display:none}#tagSheet .tgmv{display:flex;gap:8px;align-items:center;margin-top:12px}#tagSheet .tgmv .hint{margin:0 4px 0 0}#tagSheet .tgmv button{padding:5px 12px;font-size:12.5px}#tagSheet .tgmv button:disabled{opacity:.35}#tagSheet .tgacts{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}#tagSheet .tgdel{display:block;border:1px solid var(--bad,#c0392b);border-radius:var(--r-sm);padding:7px 14px;font:inherit;font-size:13px;font-weight:600;background:transparent;color:var(--bad,#c0392b)}'+
-      '#tagSheet .tgsave{display:block;border:0;border-radius:var(--r-sm);padding:7px 18px;font:inherit;font-size:13px;font-weight:700;background:var(--accent);color:var(--accent-ink)}';
+      '#tagSheet .tgopt b{display:block;font-size:var(--fs-md)}#tagSheet .tgopt small{display:block;color:var(--muted);font-size:var(--fs-xs);font-weight:400;margin-top:1px}'+
+      '#tagSheet .tgcols{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}#tagSheet .tgcol{flex:none;width:26px;height:26px;min-width:0;min-height:0;border-radius:50%;border:2px solid transparent;padding:0;display:flex;align-items:center;justify-content:center;font-size:var(--fs-xs);line-height:1;font-weight:700;cursor:pointer}#tagSheet .tgcol[aria-pressed="true"]{outline:2px solid var(--ink);outline-offset:1px}#tagSheet .tgcol:not([aria-pressed="true"]) i{display:none}#tagSheet .tgmv{display:flex;gap:8px;align-items:center;margin-top:12px}#tagSheet .tgmv .hint{margin:0 4px 0 0}#tagSheet .tgmv button{padding:5px 12px;font-size:var(--fs-sm)}#tagSheet .tgmv button:disabled{opacity:.35}#tagSheet .tgacts{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}#tagSheet .tgdel{display:block;border:1px solid var(--bad,#c0392b);border-radius:var(--r-sm);padding:7px 14px;font:inherit;font-size:var(--fs-sm);font-weight:600;background:transparent;color:var(--bad,#c0392b)}'+
+      '#tagSheet .tgsave{display:block;border:0;border-radius:var(--r-sm);padding:7px 18px;font:inherit;font-size:var(--fs-sm);font-weight:700;background:var(--accent);color:var(--accent-ink)}';
     document.head.appendChild(sty);
     tagSh=document.createElement("div");tagSh.id="tagSheet";tagSh.className="sheet";tagSh.style.zIndex="65";tagSh.hidden=true;
     document.body.appendChild(tagSh);
@@ -2606,8 +2633,8 @@ function cmpView(){
   var any=false;
   arr.forEach(function(a){a.v={};sel.forEach(function(c){var v=by[a.k+"|"+c]||0;a.v[c]=v;if(v){any=true;mx=Math.max(mx,v)}})});
   var nm=sel.map(function(c){return OUT.filter(function(o){return o.k===c})[0].n}),lbl=nm.length>2?nm.length+" mục":nm.join(", ");
-  var chips='<div class="cvt" style="margin-bottom:8px"><button type="button" class="chip" style="flex:none;max-width:70%;padding:4px 10px;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" data-cmpmenu="1" aria-expanded="'+cmpOpen+'">Mục: '+lbl+' '+(cmpOpen?'▴':'▾')+'</button><button type="button" class="chip" style="flex:none;padding:4px 10px;font-size:12px" data-cmpn="1" aria-label="Đổi số tháng so sánh">'+cmpN+' tháng ↻</button></div>';
-  if(cmpOpen)chips+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:2px;border:1px solid var(--line);border-radius:var(--r-md);padding:4px;margin-bottom:10px;background:var(--surface)">'+OUT.map(function(o,i){var on=sel.indexOf(o.k)>-1;return'<button type="button" data-cmpcat="'+o.k+'" aria-pressed="'+on+'" style="display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;color:var(--ink);font:inherit;font-size:13px;text-align:left;padding:7px 8px;border-radius:var(--r-sm);min-width:0;white-space:nowrap"><span style="flex:none;width:20px;height:20px;border-radius:var(--r-sm);border:2px solid var(--k'+i+');display:flex;align-items:center;justify-content:center;font-size:13px;line-height:1;'+(on?'background:var(--k'+i+');color:#fff':'color:transparent')+'">✓</span>'+o.n+'</button>'}).join("")+'<div class="hint" style="grid-column:1/-1;margin:2px 8px 4px">Chọn tối đa 4 mục</div></div>';
+  var chips='<div class="cvt" style="margin-bottom:8px"><button type="button" class="chip" style="flex:none;max-width:70%;padding:4px 10px;font-size:var(--fs-xs);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" data-cmpmenu="1" aria-expanded="'+cmpOpen+'">Mục: '+lbl+' '+(cmpOpen?'▴':'▾')+'</button><button type="button" class="chip" style="flex:none;padding:4px 10px;font-size:var(--fs-xs)" data-cmpn="1" aria-label="Đổi số tháng so sánh">'+cmpN+' tháng ↻</button></div>';
+  if(cmpOpen)chips+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:2px;border:1px solid var(--line);border-radius:var(--r-md);padding:4px;margin-bottom:10px;background:var(--surface)">'+OUT.map(function(o,i){var on=sel.indexOf(o.k)>-1;return'<button type="button" data-cmpcat="'+o.k+'" aria-pressed="'+on+'" style="display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;color:var(--ink);font:inherit;font-size:var(--fs-sm);text-align:left;padding:7px 8px;border-radius:var(--r-sm);min-width:0;white-space:nowrap"><span style="flex:none;width:20px;height:20px;border-radius:var(--r-sm);border:2px solid var(--k'+i+');display:flex;align-items:center;justify-content:center;font-size:var(--fs-sm);line-height:1;'+(on?'background:var(--k'+i+');color:#fff':'color:transparent')+'">✓</span>'+o.n+'</button>'}).join("")+'<div class="hint" style="grid-column:1/-1;margin:2px 8px 4px">Chọn tối đa 4 mục</div></div>';
   if(!any)return chips+'<div class="hint" style="margin:8px 0">Chưa có khoản chi nào ở mục này trong '+cmpN+' tháng gần đây.</div>';
   var W=600,H=110,T=22,gw=W/cmpN,nb=sel.length,bw=Math.min(gw*.7/nb,48),lab=nb*cmpN<=12;
   s='<svg viewBox="0 0 '+W+' '+(T+H+28)+'" width="100%" role="img" aria-label="So sánh mục chi theo tháng">';
@@ -3372,12 +3399,12 @@ function plActsHtml(p){
   }
   var unc=plUnc(p);
   if(plCfm==pid&&unc.length){
-    h+='<div class="pask" style="display:block;padding:10px 0 4px;border-top:1px dashed var(--line);margin-top:10px"><div class="pm" style="margin-bottom:6px">Các khoản chưa sửa số. Kiểm tra số đã chi rồi ghi vào Chi tiêu:</div>';
+    h+='<div class="pask" style="display:block;padding:10px 0 4px;border-top:1px solid var(--line);margin-top:10px"><div class="pm" style="margin-bottom:6px">Các khoản chưa sửa số. Kiểm tra số đã chi rồi ghi vào Chi tiêu:</div>';
     unc.forEach(function(it){h+='<div class="prt" style="margin:4px 0"><span>'+esc(it.t)+'</span><input class="plim" data-plk="cfm" data-aid="'+it.aid+'" value="'+cmp(it.a)+'" aria-label="Số đã chi '+esc(it.t)+'"></div>'});
     h+='<div style="display:flex;gap:6px;margin-top:8px"><button class="ok" data-pl="cfmok" data-pid="'+pid+'">Ghi chi tất cả</button><button data-pl="cfmno" data-pid="'+pid+'">Để sau</button></div></div>';
   }else if(unc.length&&acts.length&&acts.every(function(a){return a.done}))h+='<button class="lnk" data-pl="cfmopen" data-pid="'+pid+'">Xác nhận '+unc.length+' khoản chưa sửa số</button>';
   var op='';for(d=1;d<=nd;d++)op+='<option value="'+d+'"'+(d===sel?' selected':'')+'>Ngày '+d+'</option>';
-  h+='<div style="display:flex;gap:6px;margin-top:10px"><select data-plc="dsel" data-pid="'+pid+'" aria-label="Chọn ngày" style="flex:none;width:80px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:var(--r-sm);padding:6px 6px 6px 10px;font:inherit;font-size:11.7px">'+op+'<option value="add">+ Thêm ngày</option></select><input class="pin" data-plk="act" data-pid="'+pid+'" placeholder="8h phở bà Hai 60k" aria-label="Thêm hoạt động" autocomplete="off" style="padding:6px 10px;font-size:12.6px"></div>';
+  h+='<div style="display:flex;gap:6px;margin-top:10px"><select data-plc="dsel" data-pid="'+pid+'" aria-label="Chọn ngày" style="flex:none;width:80px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:var(--r-sm);padding:6px 6px 6px 10px;font:inherit;font-size:var(--fs-xs)">'+op+'<option value="add">+ Thêm ngày</option></select><input class="pin" data-plk="act" data-pid="'+pid+'" placeholder="8h phở bà Hai 60k" aria-label="Thêm hoạt động" autocomplete="off" style="padding:6px 10px;font-size:var(--fs-sm)"></div>';
   return h}
 function renderPlan(){
   var el=$i("planView"),ps=plList().sort(function(a,b){var d=planOn(b)-planOn(a);if(d)return d;return(a.date||"9")<(b.date||"9")?-1:1});
@@ -3408,7 +3435,7 @@ function renderPlan(){
       h+='<div class="pit'+(done?' dn':'')+'"><input type="checkbox" data-pl="tick" '+at+(done?' checked':'')+' aria-label="Đã chi '+esc(it.t)+'"><span>'+(it.note?esc(it.t)+'<button type="button" class="pm" data-pl="inote" '+at+' style="display:block;background:none;border:0;padding:0;margin:0;font:inherit;text-align:left;white-space:pre-wrap;cursor:pointer">'+esc(it.note)+'</button>':'<i data-pl="inote" '+at+' style="font-style:normal;cursor:pointer">'+esc(it.t)+'</i>')+'</span>'+am+'<button class="px" data-pl="idel" '+at+' aria-label="Xóa hạng mục">×</button></div>';
       if(plAsk===id)h+='<div class="pask"><input class="pin" data-plk="ask" '+at+' value="'+cmp(done?r:it.a)+'" aria-label="Số tiền thực tế"><button class="ok" data-pl="ok">Ghi chi</button><button data-pl="no">Hủy</button></div>'});
     h+='<div class="'+(over>0?'po':'pm')+'" data-bal="1" style="margin-top:8px">Dự báo tổng '+money(pl)+'&nbsp;&nbsp;·&nbsp;&nbsp;'+(over>0?'vượt ':'còn dư ')+money(over)+' so với ngân sách</div>';
-    h+='<div style="display:flex;margin-top:10px"><input class="pin" data-plk="item" data-pid="'+pid+'" placeholder="Thêm hạng mục: thuê xe máy 300k" aria-label="Thêm hạng mục" autocomplete="off" style="padding:6px 10px;font-size:12.6px"></div>'+del+'</div>'});
+    h+='<div style="display:flex;margin-top:10px"><input class="pin" data-plk="item" data-pid="'+pid+'" placeholder="Thêm hạng mục: thuê xe máy 300k" aria-label="Thêm hạng mục" autocomplete="off" style="padding:6px 10px;font-size:var(--fs-sm)"></div>'+del+'</div>'});
   el.innerHTML=h;
   var f=document.querySelector('[data-plk="ask"]');if(f){f.focus();f.select()}}
 function noteAdd(){var l="vi";try{l=localStorage.getItem("ghichu_lang")||"vi"}catch(e){}return l==="en"?"+ Note":"+ Ghi chú"}
@@ -3904,6 +3931,21 @@ zv.addEventListener("click",function(){setZ(1)});
 setZ(Z);
 })();
 (function(){
+var SK={vo:["light","#f6f3ea"],cham:["light","#f1f2f4"],phodem:["dark","#141414"]},r=document.documentElement,btns=document.querySelectorAll("#skinBtns button"),cur="";
+try{cur=localStorage.getItem("ghichu_skin")||""}catch(e){}
+if(!SK[cur])cur="";
+function mark(){Array.prototype.forEach.call(btns,function(b){b.setAttribute("aria-pressed",b.getAttribute("data-skin")===cur)})}
+function apply(k,save){cur=SK[k]?k:"";
+  if(cur){r.dataset.skin=cur;r.dataset.theme=SK[cur][0]}else{delete r.dataset.skin;delete r.dataset.theme}
+  var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("content",cur?SK[cur][1]:"#0f6b5c");
+  if(save){try{if(cur)localStorage.setItem("ghichu_skin",cur);else localStorage.removeItem("ghichu_skin")}catch(e){}}
+  mark()}
+Array.prototype.forEach.call(btns,function(b){b.addEventListener("click",function(){apply(b.getAttribute("data-skin"),true)})});
+var tb=document.getElementById("theme");
+if(tb)tb.addEventListener("click",function(){if(cur)apply("",true)},true);
+apply(cur,false);
+})();
+(function(){
 var LANG="vi";try{LANG=localStorage.getItem("ghichu_lang")||"vi"}catch(e){}
 var bV=document.getElementById("lgVi"),bE=document.getElementById("lgEn");
 bV.setAttribute("aria-pressed",LANG!=="en");bE.setAttribute("aria-pressed",LANG==="en");
@@ -3911,7 +3953,7 @@ function setL(l){if(l===LANG)return;try{localStorage.setItem("ghichu_lang",l)}ca
 bV.addEventListener("click",function(){setL("vi")});bE.addEventListener("click",function(){setL("en")});
 if(LANG!=="en")return;
 document.documentElement.lang="en";
-var EX={"Ghi chú": "Notes", "Chi tiêu": "Spending", "Dự án": "Projects", "Thu chi": "Income & expenses", "Nợ": "Debts", "Thu": "Income", "Chi": "Expense", "Xong": "Done", "Ghi chi": "Record", "Ngày": "Date", "Tuần": "Week", "Lưu": "Save", "Hủy": "Cancel", "Sửa": "Edit", "Xóa": "Delete", "Thêm": "Add", "Tạo": "Create", "Đóng": "Close", "Hẹn hò": "Dating", "Khác": "Other", "Đồng bộ": "Sync", "Ngắt": "Disconnect", "Dữ liệu": "Data", "Xuất CSV": "Export CSV", "Sao lưu": "Backup", "Khôi phục": "Restore", "+ Thêm": "+ Add", "Tạm dừng": "Pause", "Bật lại": "Resume"},PH=[["Chi tiêu lặp hàng tháng", "Monthly recurring expenses"], ["Chưa có khoản nào. Bấm + Thêm, ví dụ: tiền nhà 3tr, chọn ngày 5.", "None yet. Tap + Add, e.g. rent 3tr, pick day 5."], [" hàng tháng", " monthly"], [" · đang tạm dừng", " · paused"], ["Thêm khoản lặp hàng tháng", "Add monthly recurring item"], ["Sửa khoản lặp", "Edit recurring item"], ["Ví dụ: tiền nhà 3tr. Có dấu + là khoản thu, ví dụ: +15tr lương. Chọn ngày ở dưới.", "Example: rent 3tr. Use + for income, e.g. +15tr salary. Pick the day below."], ["Lặp vào ngày", "Repeat on day"], ["Chọn ngày trong tháng.", "Pick a day of the month."], ["Xóa khoản lặp?", "Delete recurring item?"], ["Các khoản đã ghi vào Chi tiêu vẫn giữ nguyên.", "Entries already recorded in Spending are kept."], ["Thêm ngày trong tháng, ví dụ: tiền nhà 3tr ngày 5.", "Add a day of the month, e.g. rent 3tr day 5."], ["Ngày phải từ 1 đến 31.", "Day must be between 1 and 31."], ["Chưa thấy số tiền. Ví dụ: tiền nhà 3tr.", "No amount found. Example: rent 3tr."], ["Đã thêm. Tự ghi vào Chi tiêu từ ngày ", "Added. Auto-recorded in Spending from day "], [" (tháng ngắn thì ghi ngày cuối tháng)", " (short months use the last day)"], ["Đã sửa. Áp dụng từ các tháng sau.", "Edited. Applies from next months."], ["Đã tạm dừng", "Paused"], ["Đã bật lại, tính từ tháng này trở đi", "Resumed, counting from this month"], ["Đã xóa khoản lặp", "Recurring item deleted"], ["Đã tự ghi ", "Auto-recorded "], ["khoản chi lặp hàng tháng", "monthly recurring items"], ["Đã cập nhật ", "Updated "], ["mục từ máy khác", "items from another device"], ["Chưa có khoản thu chi nào để xuất", "No income or expenses to export"], ["Đã xuất ", "Exported "], ["khoản thu chi", "income/expense entries"], ["Không xuất được CSV", "Could not export CSV"], ["Thu lặp", "Recurring income"], ["Chi lặp", "Recurring expense"], ["còn trống ~", "free ~"], ["hôm nay", "today"], [" ngày trước", " days ago"],["Tìm ghi chú, chi tiêu, dự án","Search notes, spending, projects"],["Bộ nhớ máy","Device storage"],["Sao lưu gần nhất: ","Last backup: "],["Chưa sao lưu lần nào","Never backed up"],["Nhập lịch trình","Import itinerary"],["Xem trước lịch trình","Itinerary preview"],["Sao chép câu lệnh mẫu","Copy sample prompt"],["Đọc lịch trình","Read itinerary"],["Đang đọc…","Reading…"],["Quay lại","Back"],["Lịch gốc cho","Original plan for"],["người · mình đi","people · I'm going with"],["Ghi chú thêm (không bắt buộc)","Extra note (optional)"],["Ghi chú dự án (không bắt buộc)","Project note (optional)"],["Ghi chú khoản chi (không bắt buộc)","Item note (optional)"],["Ghi chú hoạt động (không bắt buộc)","Activity note (optional)"],["Ghi chú dự án (để trống để xóa):","Project note (leave empty to clear):"],["Ghi chú hoạt động (để trống để xóa):","Activity note (leave empty to clear):"],["Ghi chú khoản chi (để trống để xóa):","Item note (leave empty to clear):"],["Sửa ghi chú","Edit note"],["Ghi chú thêm","Extra note"],["Có số tiền → Chi tiêu  ·  Chọn Tag → Ghi chú","Amount → Spending  ·  Tag → Note"],["Ô địa chỉ để trống thì app tự đoán theo link hoặc tên quán.","Leave the address empty and the app guesses it from the link or place name."],["Ví dụ: 500k Nam tiền ăn.","Example: 500k Nam lunch."],["Ví dụ: 45k phở bò hoặc +15tr lương.","Example: 45k pho or +15tr salary."],["Tên tag mới (tối đa 20 ký tự)","New tag name (max 20 characters)"],["Tên mới của tag (tối đa 20 ký tự)","New tag name (max 20 characters)"],["Sửa tên tag đang chọn","Rename selected tag"],["Đã đổi tên tag","Tag renamed"],["Địa chỉ (số nhà, đường, quận). Để trống thì app tự đoán","Address (number, street, district). Leave empty to auto-guess"],["Sửa tag","Edit tag"],["Chưa có hoạt động. Gõ bên dưới, ví dụ: 8h phở bà Hai 60k. Số tiền là dự kiến, bấm vào số để sửa thành số đã chi thật thì mới ghi vào Chi tiêu.", "No activities yet. Type below, e.g. 8am pho 60k. Amounts are estimates; tap an amount to change it to the actual spend, and only then is it recorded in Spending."], ["Cho vay thì trừ khỏi Tổng ví, đi vay thì cộng vào. Khi thu hoặc trả lại thì Tổng ví hoàn lại tương ứng.", "Lending is deducted from the Total wallet, borrowing is added. When it is collected or repaid, the Total wallet is restored accordingly."], ["Gõ 2tr hoặc 800k vào ô hạn mức. Số đã chi lấy tự động từ các khoản chi trong tháng.", "Enter 2tr or 800k in a limit box. Spent amounts come automatically from this month's expenses."], ["Có dấu + là khoản thu. k = nghìn, tr = triệu (1tr2 = 1,2 triệu).", "A leading + marks income. k = thousand, tr = million (1tr2 = 1.2 million)."], ["Gõ số tiền và tên, ví dụ: 500k Nam tiền ăn. Rồi bấm Mình nợ hoặc Họ nợ mình.", "Enter an amount and name, e.g. 500k Nam lunch. Then tap I owe or They owe me."], ["Gõ gì cũng được, ví dụ: bún chả Hương Liên Hai Bà Trưng, ngon, nhớ quay lại", "Type anything, e.g. bun cha Huong Lien Hai Ba Trung, tasty, go back"], ["Số tiền là dự kiến. Bấm vào số để sửa thành số đã chi thật. Thêm vào Ngày", "Amounts are estimates. Tap an amount to change it to the actual spend. Add to Day"], ["Chưa có dự án. Gõ tên và ngân sách ở trên, ví dụ: đà lạt 3 ngày 5tr.", "No projects yet. Type a name and budget above, e.g. Da Lat 3 days 5tr."], ["Các khoản chưa sửa số. Kiểm tra số đã chi rồi ghi vào Chi tiêu:", "Items not yet adjusted. Check the amounts spent, then record them in Spending:"], ["Số dư ban đầu của ví (ví dụ 5tr, 2tr300). Nhập 0 để bỏ.", "Wallet starting balance (e.g. 5tr, 2tr300). Enter 0 to clear."], ["khoản chưa sửa số. Xác nhận xong là dự án hoàn thành.", "items still have estimated amounts. Confirm and the project will be completed."], ["Không lấy được vị trí. Hãy cho phép truy cập vị trí.", "Couldn't get your location. Please allow location access."], [" · chạm ngày kết thúc, hoặc bấm Xong nếu chỉ 1 ngày", " · tap the end date, or tap Done for a single day"], ["Chưa có ghi chú. Gõ vào ô phía trên để bắt đầu.", "No notes yet. Type in the box to start."], ["Tháng này chưa có giao dịch. Bấm nút + để thêm.", "No transactions this month. Tap + to add."], ["Đã điền Thu dự kiến ở mục Ngân sách = tổng ví (", "Filled Expected income in Budget = total wallet ("], ["Tạo dự án: đà lạt 3 ngày 5tr, hoặc chỉ gõ tên", "Create a project: Da Lat 3 days 5tr, or just type a name"], ["Có số tiền ở cuối thì thành ngân sách dự án.", "An amount at the end becomes the project budget."], ["Gõ tên và số tiền ở cuối, ví dụ: vé xe 600k.", "Type a name with the amount at the end, e.g. bus ticket 600k."], ["Mã cần ít nhất 8 ký tự (chữ, số, - hoặc _)", "Code needs at least 8 characters (letters, digits, - or _)"], ["Gõ tên hoạt động, ví dụ: 8h phở bà Hai 60k", "Type an activity, e.g. 8am pho 60k"], ["45k phở bò · 1tr2 tiền điện · +15tr lương", "45k pho · 1tr2 electricity · +15tr salary"], ["). Bấm vào số ngân sách dự án để nhập.", "). Tap the project budget figure to enter it."], ["Gõ tên dự án, ví dụ: đà lạt 3 ngày 5tr", "Type a project name, e.g. Da Lat 3 days 5tr"], ["Gõ hoạt động, ví dụ: 8h phở bà Hai 60k", "Type an activity, e.g. 8am pho 60k"], ["Bấm một mục để lọc danh sách bên dưới", "Tap an item to filter the list below"], ["Chưa thấy số tiền. Ví dụ: 45k phở bò", "No amount found. Example: 45k pho"], ["Gõ tên và số tiền, ví dụ: vé xe 600k", "Type a name and amount, e.g. bus ticket 600k"], ["Bấm Mình nợ hoặc Họ nợ mình để lưu.", "Tap I owe or They owe me to save."], ["Bấm vào số ngân sách dự án để nhập.", "Tap the project budget figure to enter it."], ["Ngân sách dự án (ví dụ 5tr, 800k):", "Project budget (e.g. 5tr, 800k):"], ["đà lạt 3 ngày 5tr, hoặc chỉ gõ tên", "Da Lat 3 days 5tr, or just type a name"], ["Thu chi theo ngày, nhóm theo tuần", "Income & expenses by day, grouped by week"], ["Giờ kết thúc phải sau giờ bắt đầu", "End time must be after start time"], ["Đây không phải link Google Maps.", "That is not a Google Maps link."], ["Thêm hạng mục: thuê xe máy 300k", "Add item: scooter rental 300k"], ["Có khoản chưa đọc được số tiền", "Some amounts couldn't be read"], ["Thêm + đầu số nếu là khoản thu", "Add + before the amount for income"], ["Thiết bị không hỗ trợ định vị", "This device doesn't support location"], ["Chưa đồng bộ được, sẽ thử lại", "Couldn't sync, will retry"], ["Đã bỏ khoản chi khỏi Chi tiêu", "Expense removed from Spending"], ["Dán link Google Maps vào đây", "Paste Google Maps link here"], ["Ghi chú không được để trống.", "A note can't be empty."], ["Không có giao dịch nào khớp.", "No matching transactions."], [". Bấm lại mục đó để bỏ lọc.", ". Tap it again to clear the filter."], ["Không phải, lưu làm ghi chú", "No, save as a note"], ["Không có ghi chú nào khớp.", "No matching notes."], [" dự án đang bật, tính vào:", " active projects, count toward:"], ["Hạn chót (không bắt buộc)", "Deadline (optional)"], ["Số tiền đã chi thật cho “", "Actual amount spent on “"], ["Tên không được để trống", "Name can't be empty"], ["Gõ số tiền, ví dụ: 1tr7", "Enter an amount, e.g. 1tr7"], ["Chưa đọc được số tiền.", "Couldn't read the amount."], ["Chưa đọc được số tiền", "Couldn't read the amount"], ["Chưa có khoản nợ nào.", "No debts yet."], ["Đã ghi vào Chi tiêu: ", "Added to Spending: "], ["Không thuộc dự án nào", "Not in any project"], ["Số dư chưa đọc được.", "Couldn't read the balance."], ["Hiện hoặc ẩn biểu đồ", "Show or hide chart"], ["Sửa số tiền thực tế", "Edit actual amount"], [" không trừ vào đâu)", " not deducted from anything)"], ["Tag này đã có rồi.", "This tag already exists."], ["Thêm khoản thu chi", "Add transaction"], ["Thu chi theo tháng", "Income & expenses by month"], ["Đã chi / ngân sách", "Spent / budget"], ["đã chi / ngân sách", "spent / budget"], ["Sửa số tiền đã chi", "Edit amount spent"], ["Tìm trong ghi chú", "Search notes"], ["Xóa tag đang chọn", "Delete selected tag"], ["Đã xong hết rồi 🎉", "All done 🎉"], ["Nhóm theo khu vực", "Group by area"], ["Giảm cỡ giao diện", "Decrease interface size"], ["Tăng cỡ giao diện", "Increase interface size"], ["Xem chi tiết ngày", "View day details"], ["Đặt số dư ban đầu", "Set starting balance"], ["Sửa số dư ban đầu", "Edit starting balance"], ["Chưa có hoạt động", "No activities yet"], ["8h phở bà Hai 60k", "8am pho 60k"], ["trả Tuấn Anh 500k", "pay Tuan Anh 500k"], [" so với ngân sách", " vs budget"], ["khoản chưa sửa số", "items with estimated amounts"], ["Chọn ngày bắt đầu", "Choose start date"], ["Chạm ngày bắt đầu", "Tap the start date"], ["Bấm để chọn loại", "Tap to choose type"], ["Đánh dấu đã xong", "Mark as done"], ["Chưa bật đồng bộ", "Sync is off"], ["Đã xóa hoạt động", "Activity deleted"], ["Đã xóa khoản này", "Entry deleted"], ["Thu chi theo giờ", "Income & expenses by hour"], ["500k Nam tiền ăn", "500k Nam lunch"], ["Chỉ ghi chi tiêu", "Record as spending only"], ["Quá hạn · tự tắt", "Overdue · auto off"], ["thuê xe máy 300k", "scooter rental 300k"], ["Xóa giờ kết thúc", "Clear end time"], ["Tìm trên bản đồ", "Find on map"], ["(không ghi chú)", "(no note)"], ["Chưa rõ khu vực", "Unknown area"], ["Sao chép tất cả", "Copy all"], ["Đã đồng bộ lúc ", "Synced at "], ["Tạo ghi chú mới", "New note"], ["Đã xóa khoản nợ", "Debt deleted"], ["Họ đang nợ mình", "Owed to me"], ["Đã ghi vào Nợ: ", "Added to Debts: "], ["Dự kiến để dành", "Expected savings"], ["Số tiền thực tế", "Actual amount"], ["Chọn ngày dự án", "Choose project dates"], ["Xóa giờ bắt đầu", "Clear start time"], ["Bấm để đổi mục", "Tap to change category"], ["Lọc và sắp xếp", "Filter & sort"], ["Theo thời gian", "By time"], ["Mới nhất trước", "Newest first"], ["Đã lưu ghi chú", "Note saved"], ["Đã xóa ghi chú", "Note deleted"], ["Thêm khoản mới", "Add new entry"], ["Thêm hoạt động", "Add activity"], ["Ghi chi tất cả", "Record all"], [" khoản, tổng -", " items, total -"], ["” (ví dụ 75k):", "” (e.g. 75k):"], ["Cũ nhất trước", "Oldest first"], ["Đổi giao diện", "Switch theme"], ["Đang đồng bộ…", "Syncing…"], ["Đã xong dự án", "Project completed"], ["Thu tháng này", "Income this month"], ["Chi tháng này", "Spent this month"], ["Thêm khoản nợ", "Add debt"], ["Sửa giao dịch", "Edit transaction"], ["Xóa giao dịch", "Delete transaction"], ["Đang lọc mục ", "Filtering: "], ["Chi theo ngày", "Spending by day"], ["Đã tính vào “", "Counted toward “"], ["Tạo dự án mới", "New project"], ["Sửa ngân sách", "Edit budget"], ["Thêm hạng mục", "Add item"], [" hoạt động · ", " activities · "], [" vào Chi tiêu", " into Spending"], [" · tính vào “", " · counted toward “"], ["Xóa hoạt động", "Delete activity"], ["Việc cần làm", "To-do"], ["Thêm tag mới", "Add new tag"], ["Gần tôi nhất", "Nearest to me"], ["Theo mức giá", "By price"], ["Giá tăng dần", "Price: low to high"], ["Giá giảm dần", "Price: high to low"], ["Cỡ giao diện", "Interface size"], ["Đã xóa khoản", "Item deleted"], ["Đã xóa dự án", "Project deleted"], ["Mình đang nợ", "I owe"], ["Thêm thu chi", "Add transaction"], ["Sửa khoản nợ", "Edit debt"], ["Xóa khoản nợ", "Delete debt"], ["Xem cả tháng", "View whole month"], ["Tổng hạn mức", "Total limits"], ["Xong dự án. ", "Project finished. "], ["Dự báo tổng ", "Forecast total "], ["Giờ kết thúc", "End time"], ["Xóa hạng mục", "Delete item"], ["Tên tag mới", "New tag name"], ["Đã xóa tag ", "Deleted tag "], ["Sửa ghi chú", "Edit note"], ["Xóa ghi chú", "Delete note"], ["Theo vị trí", "By location"], ["Đã sao chép", "Copied"], ["Tháng trước", "Previous month"], ["Thu dự kiến", "Expected income"], ["đã chi thật", "actually spent"], ["Giờ bắt đầu", "Start time"], ["Mã đồng bộ", "Sync code"], ["Tạo mã mới", "New code"], ["Họ nợ mình", "They owe me"], ["Thay số cũ", "Replace old amount"], ["Đã xong · ", "Done · "], ["Xong dự án", "Finish project"], ["Tên dự án:", "Project name:"], ["Số đã chi ", "Amount spent "], ["Mở bản đồ", "Open map"], ["Tháng sau", "Next month"], ["Tháng này", "This month"], ["Theo ngày", "By day"], ["Cộng thêm", "Add on top"], ["Ngân sách", "Budget"], ["Tạo dự án", "Create project"], ["Xóa dự án", "Delete project"], ["Hoạt động", "Activities"], ["Thêm ngày", "Add day"], ["Xác nhận ", "Confirm "], ["Chọn ngày", "Choose date"], ["” đã chi ", "” spent "], ["Có trong ", "In "], ["Ngày mai ", "Tomorrow "], ["Dán link", "Paste link"], ["Hạn chót", "Deadline"], ["Hoàn tác", "Undo"], ["Ngôn ngữ", "Language"], ["Theo mục", "By category"], ["Giải trí", "Entertainment"], ["Sức khỏe", "Health"], ["Thu khác", "Other income"], ["Đã ghi -", "Recorded -"], ["Hạn mức ", "Limit "], ["Đang bật", "Active"], ["Quá hạn ", "Overdue "], ["Đến giờ ", "To "], ["Xóa ngày", "Clear dates"], ["Hôm nay ", "Today "], ["Chủ nhật", "Sunday"], ["Số tiền ", "Amount "], ["Quán ăn", "Food"], ["Cần nhớ", "To remember"], ["Ý tưởng", "Ideas"], ["Xóa tag", "Delete tag"], ["Xóa hạn", "Clear deadline"], ["Tự động", "Auto"], ["Cài đặt", "Settings"], ["Về 100%", "Reset to 100%"], ["Kết nối", "Connect"], ["Mình nợ", "I owe"], ["Biểu đồ", "Chart"], ["Ăn uống", "Food & drink"], ["Mua sắm", "Shopping"], ["Hóa đơn", "Bills"], ["Trả bớt", "Pay some back"], ["Thu bớt", "Collect some"], ["Đã thu ", "Collected "], ["Đã trả ", "Paid "], ["Tổng ví", "Total wallet"], ["Đã xong", "Done"], ["còn dư ", "spare "], ["Đã ghi ", "Recorded "], ["hạn mức", "limit"], ["Đã chi ", "Spent "], ["Sửa tên", "Rename"], ["Đã làm ", "Done: "], ["Từ giờ ", "From "], ["” của “", "” of “"], ["Hôm nay", "Today"], ["Hôm qua", "Yesterday"], ["Thứ hai", "Monday"], ["Thứ năm", "Thursday"], ["Thứ sáu", "Friday"], ["Thứ bảy", "Saturday"], ["(ví dụ ", "(e.g. "], ["Tất cả", "All"], ["Tháng ", "Month "], ["Đi lại", "Transport"], ["Thưởng", "Bonus"], ["đã thu", "collected"], ["đã trả", "paid"], ["Mở lại", "Reopen"], ["Đã ghi", "Recorded"], ["Đã tắt", "Off"], ["Để sau", "Later"], [" khoản", " items"], ["Thứ ba", "Tuesday"], ["Thứ tư", "Wednesday"], [" tháng", " months"], ["Đã chi", "Spent"], [" dòng", " lines"], ["Tuần ", "Week "], ["Lương", "Salary"], ["vượt ", "over "], ["Ngày ", "Day "], [" ngày", " days"], [" (dư ", " (surplus "], ["Còn ", "Left "], ["còn ", "left "]];
+var EX={"Màu sắc": "Colors", "Mặc định": "Default", "Vở": "Notebook", "Chàm": "Indigo", "Phố đêm": "Night street", "Ghi chú": "Notes", "Chi tiêu": "Spending", "Dự án": "Projects", "Thu chi": "Income & expenses", "Nợ": "Debts", "Thu": "Income", "Chi": "Expense", "Xong": "Done", "Ghi chi": "Record", "Ngày": "Date", "Tuần": "Week", "Lưu": "Save", "Hủy": "Cancel", "Sửa": "Edit", "Xóa": "Delete", "Thêm": "Add", "Tạo": "Create", "Đóng": "Close", "Hẹn hò": "Dating", "Khác": "Other", "Đồng bộ": "Sync", "Ngắt": "Disconnect", "Dữ liệu": "Data", "Xuất CSV": "Export CSV", "Sao lưu": "Backup", "Khôi phục": "Restore", "+ Thêm": "+ Add", "Tạm dừng": "Pause", "Bật lại": "Resume"},PH=[["Chi tiêu lặp hàng tháng", "Monthly recurring expenses"], ["Chưa có khoản nào. Bấm + Thêm, ví dụ: tiền nhà 3tr, chọn ngày 5.", "None yet. Tap + Add, e.g. rent 3tr, pick day 5."], [" hàng tháng", " monthly"], [" · đang tạm dừng", " · paused"], ["Thêm khoản lặp hàng tháng", "Add monthly recurring item"], ["Sửa khoản lặp", "Edit recurring item"], ["Ví dụ: tiền nhà 3tr. Có dấu + là khoản thu, ví dụ: +15tr lương. Chọn ngày ở dưới.", "Example: rent 3tr. Use + for income, e.g. +15tr salary. Pick the day below."], ["Lặp vào ngày", "Repeat on day"], ["Chọn ngày trong tháng.", "Pick a day of the month."], ["Xóa khoản lặp?", "Delete recurring item?"], ["Các khoản đã ghi vào Chi tiêu vẫn giữ nguyên.", "Entries already recorded in Spending are kept."], ["Thêm ngày trong tháng, ví dụ: tiền nhà 3tr ngày 5.", "Add a day of the month, e.g. rent 3tr day 5."], ["Ngày phải từ 1 đến 31.", "Day must be between 1 and 31."], ["Chưa thấy số tiền. Ví dụ: tiền nhà 3tr.", "No amount found. Example: rent 3tr."], ["Đã thêm. Tự ghi vào Chi tiêu từ ngày ", "Added. Auto-recorded in Spending from day "], [" (tháng ngắn thì ghi ngày cuối tháng)", " (short months use the last day)"], ["Đã sửa. Áp dụng từ các tháng sau.", "Edited. Applies from next months."], ["Đã tạm dừng", "Paused"], ["Đã bật lại, tính từ tháng này trở đi", "Resumed, counting from this month"], ["Đã xóa khoản lặp", "Recurring item deleted"], ["Đã tự ghi ", "Auto-recorded "], ["khoản chi lặp hàng tháng", "monthly recurring items"], ["Đã cập nhật ", "Updated "], ["mục từ máy khác", "items from another device"], ["Chưa có khoản thu chi nào để xuất", "No income or expenses to export"], ["Đã xuất ", "Exported "], ["khoản thu chi", "income/expense entries"], ["Không xuất được CSV", "Could not export CSV"], ["Thu lặp", "Recurring income"], ["Chi lặp", "Recurring expense"], ["còn trống ~", "free ~"], ["hôm nay", "today"], [" ngày trước", " days ago"],["Tìm ghi chú, chi tiêu, dự án","Search notes, spending, projects"],["Bộ nhớ máy","Device storage"],["Sao lưu gần nhất: ","Last backup: "],["Chưa sao lưu lần nào","Never backed up"],["Nhập lịch trình","Import itinerary"],["Xem trước lịch trình","Itinerary preview"],["Sao chép câu lệnh mẫu","Copy sample prompt"],["Đọc lịch trình","Read itinerary"],["Đang đọc…","Reading…"],["Quay lại","Back"],["Lịch gốc cho","Original plan for"],["người · mình đi","people · I'm going with"],["Ghi chú thêm (không bắt buộc)","Extra note (optional)"],["Ghi chú dự án (không bắt buộc)","Project note (optional)"],["Ghi chú khoản chi (không bắt buộc)","Item note (optional)"],["Ghi chú hoạt động (không bắt buộc)","Activity note (optional)"],["Ghi chú dự án (để trống để xóa):","Project note (leave empty to clear):"],["Ghi chú hoạt động (để trống để xóa):","Activity note (leave empty to clear):"],["Ghi chú khoản chi (để trống để xóa):","Item note (leave empty to clear):"],["Sửa ghi chú","Edit note"],["Ghi chú thêm","Extra note"],["Có số tiền → Chi tiêu  ·  Chọn Tag → Ghi chú","Amount → Spending  ·  Tag → Note"],["Ô địa chỉ để trống thì app tự đoán theo link hoặc tên quán.","Leave the address empty and the app guesses it from the link or place name."],["Ví dụ: 500k Nam tiền ăn.","Example: 500k Nam lunch."],["Ví dụ: 45k phở bò hoặc +15tr lương.","Example: 45k pho or +15tr salary."],["Tên tag mới (tối đa 20 ký tự)","New tag name (max 20 characters)"],["Tên mới của tag (tối đa 20 ký tự)","New tag name (max 20 characters)"],["Sửa tên tag đang chọn","Rename selected tag"],["Đã đổi tên tag","Tag renamed"],["Địa chỉ (số nhà, đường, quận). Để trống thì app tự đoán","Address (number, street, district). Leave empty to auto-guess"],["Sửa tag","Edit tag"],["Chưa có hoạt động. Gõ bên dưới, ví dụ: 8h phở bà Hai 60k. Số tiền là dự kiến, bấm vào số để sửa thành số đã chi thật thì mới ghi vào Chi tiêu.", "No activities yet. Type below, e.g. 8am pho 60k. Amounts are estimates; tap an amount to change it to the actual spend, and only then is it recorded in Spending."], ["Cho vay thì trừ khỏi Tổng ví, đi vay thì cộng vào. Khi thu hoặc trả lại thì Tổng ví hoàn lại tương ứng.", "Lending is deducted from the Total wallet, borrowing is added. When it is collected or repaid, the Total wallet is restored accordingly."], ["Gõ 2tr hoặc 800k vào ô hạn mức. Số đã chi lấy tự động từ các khoản chi trong tháng.", "Enter 2tr or 800k in a limit box. Spent amounts come automatically from this month's expenses."], ["Có dấu + là khoản thu. k = nghìn, tr = triệu (1tr2 = 1,2 triệu).", "A leading + marks income. k = thousand, tr = million (1tr2 = 1.2 million)."], ["Gõ số tiền và tên, ví dụ: 500k Nam tiền ăn. Rồi bấm Mình nợ hoặc Họ nợ mình.", "Enter an amount and name, e.g. 500k Nam lunch. Then tap I owe or They owe me."], ["Gõ gì cũng được, ví dụ: bún chả Hương Liên Hai Bà Trưng, ngon, nhớ quay lại", "Type anything, e.g. bun cha Huong Lien Hai Ba Trung, tasty, go back"], ["Số tiền là dự kiến. Bấm vào số để sửa thành số đã chi thật. Thêm vào Ngày", "Amounts are estimates. Tap an amount to change it to the actual spend. Add to Day"], ["Chưa có dự án. Gõ tên và ngân sách ở trên, ví dụ: đà lạt 3 ngày 5tr.", "No projects yet. Type a name and budget above, e.g. Da Lat 3 days 5tr."], ["Các khoản chưa sửa số. Kiểm tra số đã chi rồi ghi vào Chi tiêu:", "Items not yet adjusted. Check the amounts spent, then record them in Spending:"], ["Số dư ban đầu của ví (ví dụ 5tr, 2tr300). Nhập 0 để bỏ.", "Wallet starting balance (e.g. 5tr, 2tr300). Enter 0 to clear."], ["khoản chưa sửa số. Xác nhận xong là dự án hoàn thành.", "items still have estimated amounts. Confirm and the project will be completed."], ["Không lấy được vị trí. Hãy cho phép truy cập vị trí.", "Couldn't get your location. Please allow location access."], [" · chạm ngày kết thúc, hoặc bấm Xong nếu chỉ 1 ngày", " · tap the end date, or tap Done for a single day"], ["Chưa có ghi chú. Gõ vào ô phía trên để bắt đầu.", "No notes yet. Type in the box to start."], ["Tháng này chưa có giao dịch. Bấm nút + để thêm.", "No transactions this month. Tap + to add."], ["Đã điền Thu dự kiến ở mục Ngân sách = tổng ví (", "Filled Expected income in Budget = total wallet ("], ["Tạo dự án: đà lạt 3 ngày 5tr, hoặc chỉ gõ tên", "Create a project: Da Lat 3 days 5tr, or just type a name"], ["Có số tiền ở cuối thì thành ngân sách dự án.", "An amount at the end becomes the project budget."], ["Gõ tên và số tiền ở cuối, ví dụ: vé xe 600k.", "Type a name with the amount at the end, e.g. bus ticket 600k."], ["Mã cần ít nhất 8 ký tự (chữ, số, - hoặc _)", "Code needs at least 8 characters (letters, digits, - or _)"], ["Gõ tên hoạt động, ví dụ: 8h phở bà Hai 60k", "Type an activity, e.g. 8am pho 60k"], ["45k phở bò · 1tr2 tiền điện · +15tr lương", "45k pho · 1tr2 electricity · +15tr salary"], ["). Bấm vào số ngân sách dự án để nhập.", "). Tap the project budget figure to enter it."], ["Gõ tên dự án, ví dụ: đà lạt 3 ngày 5tr", "Type a project name, e.g. Da Lat 3 days 5tr"], ["Gõ hoạt động, ví dụ: 8h phở bà Hai 60k", "Type an activity, e.g. 8am pho 60k"], ["Bấm một mục để lọc danh sách bên dưới", "Tap an item to filter the list below"], ["Chưa thấy số tiền. Ví dụ: 45k phở bò", "No amount found. Example: 45k pho"], ["Gõ tên và số tiền, ví dụ: vé xe 600k", "Type a name and amount, e.g. bus ticket 600k"], ["Bấm Mình nợ hoặc Họ nợ mình để lưu.", "Tap I owe or They owe me to save."], ["Bấm vào số ngân sách dự án để nhập.", "Tap the project budget figure to enter it."], ["Ngân sách dự án (ví dụ 5tr, 800k):", "Project budget (e.g. 5tr, 800k):"], ["đà lạt 3 ngày 5tr, hoặc chỉ gõ tên", "Da Lat 3 days 5tr, or just type a name"], ["Thu chi theo ngày, nhóm theo tuần", "Income & expenses by day, grouped by week"], ["Giờ kết thúc phải sau giờ bắt đầu", "End time must be after start time"], ["Đây không phải link Google Maps.", "That is not a Google Maps link."], ["Thêm hạng mục: thuê xe máy 300k", "Add item: scooter rental 300k"], ["Có khoản chưa đọc được số tiền", "Some amounts couldn't be read"], ["Thêm + đầu số nếu là khoản thu", "Add + before the amount for income"], ["Thiết bị không hỗ trợ định vị", "This device doesn't support location"], ["Chưa đồng bộ được, sẽ thử lại", "Couldn't sync, will retry"], ["Đã bỏ khoản chi khỏi Chi tiêu", "Expense removed from Spending"], ["Dán link Google Maps vào đây", "Paste Google Maps link here"], ["Ghi chú không được để trống.", "A note can't be empty."], ["Không có giao dịch nào khớp.", "No matching transactions."], [". Bấm lại mục đó để bỏ lọc.", ". Tap it again to clear the filter."], ["Không phải, lưu làm ghi chú", "No, save as a note"], ["Không có ghi chú nào khớp.", "No matching notes."], [" dự án đang bật, tính vào:", " active projects, count toward:"], ["Hạn chót (không bắt buộc)", "Deadline (optional)"], ["Số tiền đã chi thật cho “", "Actual amount spent on “"], ["Tên không được để trống", "Name can't be empty"], ["Gõ số tiền, ví dụ: 1tr7", "Enter an amount, e.g. 1tr7"], ["Chưa đọc được số tiền.", "Couldn't read the amount."], ["Chưa đọc được số tiền", "Couldn't read the amount"], ["Chưa có khoản nợ nào.", "No debts yet."], ["Đã ghi vào Chi tiêu: ", "Added to Spending: "], ["Không thuộc dự án nào", "Not in any project"], ["Số dư chưa đọc được.", "Couldn't read the balance."], ["Hiện hoặc ẩn biểu đồ", "Show or hide chart"], ["Sửa số tiền thực tế", "Edit actual amount"], [" không trừ vào đâu)", " not deducted from anything)"], ["Tag này đã có rồi.", "This tag already exists."], ["Thêm khoản thu chi", "Add transaction"], ["Thu chi theo tháng", "Income & expenses by month"], ["Đã chi / ngân sách", "Spent / budget"], ["đã chi / ngân sách", "spent / budget"], ["Sửa số tiền đã chi", "Edit amount spent"], ["Tìm trong ghi chú", "Search notes"], ["Xóa tag đang chọn", "Delete selected tag"], ["Đã xong hết rồi 🎉", "All done 🎉"], ["Nhóm theo khu vực", "Group by area"], ["Giảm cỡ giao diện", "Decrease interface size"], ["Tăng cỡ giao diện", "Increase interface size"], ["Xem chi tiết ngày", "View day details"], ["Đặt số dư ban đầu", "Set starting balance"], ["Sửa số dư ban đầu", "Edit starting balance"], ["Chưa có hoạt động", "No activities yet"], ["8h phở bà Hai 60k", "8am pho 60k"], ["trả Tuấn Anh 500k", "pay Tuan Anh 500k"], [" so với ngân sách", " vs budget"], ["khoản chưa sửa số", "items with estimated amounts"], ["Chọn ngày bắt đầu", "Choose start date"], ["Chạm ngày bắt đầu", "Tap the start date"], ["Bấm để chọn loại", "Tap to choose type"], ["Đánh dấu đã xong", "Mark as done"], ["Chưa bật đồng bộ", "Sync is off"], ["Đã xóa hoạt động", "Activity deleted"], ["Đã xóa khoản này", "Entry deleted"], ["Thu chi theo giờ", "Income & expenses by hour"], ["500k Nam tiền ăn", "500k Nam lunch"], ["Chỉ ghi chi tiêu", "Record as spending only"], ["Quá hạn · tự tắt", "Overdue · auto off"], ["thuê xe máy 300k", "scooter rental 300k"], ["Xóa giờ kết thúc", "Clear end time"], ["Tìm trên bản đồ", "Find on map"], ["(không ghi chú)", "(no note)"], ["Chưa rõ khu vực", "Unknown area"], ["Sao chép tất cả", "Copy all"], ["Đã đồng bộ lúc ", "Synced at "], ["Tạo ghi chú mới", "New note"], ["Đã xóa khoản nợ", "Debt deleted"], ["Họ đang nợ mình", "Owed to me"], ["Đã ghi vào Nợ: ", "Added to Debts: "], ["Dự kiến để dành", "Expected savings"], ["Số tiền thực tế", "Actual amount"], ["Chọn ngày dự án", "Choose project dates"], ["Xóa giờ bắt đầu", "Clear start time"], ["Bấm để đổi mục", "Tap to change category"], ["Lọc và sắp xếp", "Filter & sort"], ["Theo thời gian", "By time"], ["Mới nhất trước", "Newest first"], ["Đã lưu ghi chú", "Note saved"], ["Đã xóa ghi chú", "Note deleted"], ["Thêm khoản mới", "Add new entry"], ["Thêm hoạt động", "Add activity"], ["Ghi chi tất cả", "Record all"], [" khoản, tổng -", " items, total -"], ["” (ví dụ 75k):", "” (e.g. 75k):"], ["Cũ nhất trước", "Oldest first"], ["Đổi giao diện", "Switch theme"], ["Đang đồng bộ…", "Syncing…"], ["Đã xong dự án", "Project completed"], ["Thu tháng này", "Income this month"], ["Chi tháng này", "Spent this month"], ["Thêm khoản nợ", "Add debt"], ["Sửa giao dịch", "Edit transaction"], ["Xóa giao dịch", "Delete transaction"], ["Đang lọc mục ", "Filtering: "], ["Chi theo ngày", "Spending by day"], ["Đã tính vào “", "Counted toward “"], ["Tạo dự án mới", "New project"], ["Sửa ngân sách", "Edit budget"], ["Thêm hạng mục", "Add item"], [" hoạt động · ", " activities · "], [" vào Chi tiêu", " into Spending"], [" · tính vào “", " · counted toward “"], ["Xóa hoạt động", "Delete activity"], ["Việc cần làm", "To-do"], ["Thêm tag mới", "Add new tag"], ["Gần tôi nhất", "Nearest to me"], ["Theo mức giá", "By price"], ["Giá tăng dần", "Price: low to high"], ["Giá giảm dần", "Price: high to low"], ["Cỡ giao diện", "Interface size"], ["Đã xóa khoản", "Item deleted"], ["Đã xóa dự án", "Project deleted"], ["Mình đang nợ", "I owe"], ["Thêm thu chi", "Add transaction"], ["Sửa khoản nợ", "Edit debt"], ["Xóa khoản nợ", "Delete debt"], ["Xem cả tháng", "View whole month"], ["Tổng hạn mức", "Total limits"], ["Xong dự án. ", "Project finished. "], ["Dự báo tổng ", "Forecast total "], ["Giờ kết thúc", "End time"], ["Xóa hạng mục", "Delete item"], ["Tên tag mới", "New tag name"], ["Đã xóa tag ", "Deleted tag "], ["Sửa ghi chú", "Edit note"], ["Xóa ghi chú", "Delete note"], ["Theo vị trí", "By location"], ["Đã sao chép", "Copied"], ["Tháng trước", "Previous month"], ["Thu dự kiến", "Expected income"], ["đã chi thật", "actually spent"], ["Giờ bắt đầu", "Start time"], ["Mã đồng bộ", "Sync code"], ["Tạo mã mới", "New code"], ["Họ nợ mình", "They owe me"], ["Thay số cũ", "Replace old amount"], ["Đã xong · ", "Done · "], ["Xong dự án", "Finish project"], ["Tên dự án:", "Project name:"], ["Số đã chi ", "Amount spent "], ["Mở bản đồ", "Open map"], ["Tháng sau", "Next month"], ["Tháng này", "This month"], ["Theo ngày", "By day"], ["Cộng thêm", "Add on top"], ["Ngân sách", "Budget"], ["Tạo dự án", "Create project"], ["Xóa dự án", "Delete project"], ["Hoạt động", "Activities"], ["Thêm ngày", "Add day"], ["Xác nhận ", "Confirm "], ["Chọn ngày", "Choose date"], ["” đã chi ", "” spent "], ["Có trong ", "In "], ["Ngày mai ", "Tomorrow "], ["Dán link", "Paste link"], ["Hạn chót", "Deadline"], ["Hoàn tác", "Undo"], ["Ngôn ngữ", "Language"], ["Theo mục", "By category"], ["Giải trí", "Entertainment"], ["Sức khỏe", "Health"], ["Thu khác", "Other income"], ["Đã ghi -", "Recorded -"], ["Hạn mức ", "Limit "], ["Đang bật", "Active"], ["Quá hạn ", "Overdue "], ["Đến giờ ", "To "], ["Xóa ngày", "Clear dates"], ["Hôm nay ", "Today "], ["Chủ nhật", "Sunday"], ["Số tiền ", "Amount "], ["Quán ăn", "Food"], ["Cần nhớ", "To remember"], ["Ý tưởng", "Ideas"], ["Xóa tag", "Delete tag"], ["Xóa hạn", "Clear deadline"], ["Tự động", "Auto"], ["Cài đặt", "Settings"], ["Về 100%", "Reset to 100%"], ["Kết nối", "Connect"], ["Mình nợ", "I owe"], ["Biểu đồ", "Chart"], ["Ăn uống", "Food & drink"], ["Mua sắm", "Shopping"], ["Hóa đơn", "Bills"], ["Trả bớt", "Pay some back"], ["Thu bớt", "Collect some"], ["Đã thu ", "Collected "], ["Đã trả ", "Paid "], ["Tổng ví", "Total wallet"], ["Đã xong", "Done"], ["còn dư ", "spare "], ["Đã ghi ", "Recorded "], ["hạn mức", "limit"], ["Đã chi ", "Spent "], ["Sửa tên", "Rename"], ["Đã làm ", "Done: "], ["Từ giờ ", "From "], ["” của “", "” of “"], ["Hôm nay", "Today"], ["Hôm qua", "Yesterday"], ["Thứ hai", "Monday"], ["Thứ năm", "Thursday"], ["Thứ sáu", "Friday"], ["Thứ bảy", "Saturday"], ["(ví dụ ", "(e.g. "], ["Tất cả", "All"], ["Tháng ", "Month "], ["Đi lại", "Transport"], ["Thưởng", "Bonus"], ["đã thu", "collected"], ["đã trả", "paid"], ["Mở lại", "Reopen"], ["Đã ghi", "Recorded"], ["Đã tắt", "Off"], ["Để sau", "Later"], [" khoản", " items"], ["Thứ ba", "Tuesday"], ["Thứ tư", "Wednesday"], [" tháng", " months"], ["Đã chi", "Spent"], [" dòng", " lines"], ["Tuần ", "Week "], ["Lương", "Salary"], ["vượt ", "over "], ["Ngày ", "Day "], [" ngày", " days"], [" (dư ", " (surplus "], ["Còn ", "Left "], ["còn ", "left "]];
 var VIRE=/[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬÈÉẺẼẸÊỀẾỂỄỆÌÍỈĨỊÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÙÚỦŨỤƯỪỨỬỮỰỲÝỶỸỴĐ]/;
 var SKIP=".nolang,.txt,.tdesc,.pit span,.pfold,h3,textarea,input,script,style,.ed";
 function tr(s){
@@ -4017,7 +4059,7 @@ new MutationObserver(function(ms){ms.forEach(function(m){
 /* Ô ngày/giờ hiển thị kiểu Việt Nam: dd/mm/yyyy, 24 giờ. Ô gốc của trình duyệt (hiện mm/dd/yyyy theo ngôn ngữ máy, mình không đổi được) vẫn nằm đè lên, trong suốt, để bấm vào mở lịch/đồng hồ như thường; chữ hiển thị là phần bọc bên ngoài. */
 (function(){
   var st=document.createElement("style");
-  st.textContent=".dwrap{position:relative;display:inline-flex;align-items:center;gap:6px;box-sizing:border-box;min-height:30px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:var(--r-sm);padding:5px 8px;font:inherit;font-size:12.6px;line-height:1.2;cursor:pointer;white-space:nowrap;vertical-align:middle}"+
+  st.textContent=".dwrap{position:relative;display:inline-flex;align-items:center;gap:6px;box-sizing:border-box;min-height:30px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:var(--r-sm);padding:5px 8px;font:inherit;font-size:var(--fs-sm);line-height:1.2;cursor:pointer;white-space:nowrap;vertical-align:middle}"+
     ".dwrap .dtx.empty{color:var(--muted)}.dwrap svg{width:14px;height:14px;flex:none;color:var(--muted)}"+
     ".dwrap input{position:absolute;inset:0;width:100%;height:100%;min-width:0;margin:0;padding:0;border:0;opacity:0;font-size:16px;cursor:pointer;background:transparent}"+
     ".dwrap:focus-within{outline:2px solid var(--accent);outline-offset:2px}";
