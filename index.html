@@ -384,6 +384,10 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 #list.settle>*{animation:cgIn .22s ease both}
 @media (prefers-reduced-motion:reduce){#list.settle>*{animation:none}}
 .cgrp i{width:9px;height:9px;border-radius:50%;flex:none}
+.cgrp{cursor:pointer}
+.cgch{margin-left:auto;margin-right:8px;width:8px;height:8px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translate(-2px,-2px);transition:transform .2s;opacity:.65;flex:none}
+.cgrp.col .cgch{transform:rotate(-45deg) translate(-1px,-1px)}
+#list.reorder .cgch{display:none}
 .cgrp b{font-weight:600;font-size:10.8px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:0 8px;line-height:20px}
 .hidecat .cattag{display:none}
 .hidecat .note .meta:not(:has(>:not(.cattag))){display:none}
@@ -1090,6 +1094,7 @@ function setGroupOrder(vk){
   function stop(){
     clearTimeout(tm);tm=null;
     if(!drag||drag.done)return;
+    window.__cgDrag=Date.now();
     drag.done=true;var h=drag.h;
     h.style.transition="transform "+DUR+"ms ease";h.style.transform="translateY(0)";
     setTimeout(function(){
@@ -1126,6 +1131,13 @@ function setGroupOrder(vk){
   document.addEventListener("pointerup",stop);
   document.addEventListener("pointercancel",function(){if(drag)stop();else{clearTimeout(tm);tm=null}});
   L.addEventListener("contextmenu",function(e){if(e.target.closest&&e.target.closest(".cgrp"))e.preventDefault()});
+  L.addEventListener("click",function(e){
+    var h=e.target.closest&&e.target.closest(".cgrp");
+    if(!h||!h.dataset.gk||drag||L.classList.contains("reorder")||Date.now()-(window.__cgDrag||0)<700)return;
+    if(!window.cgCol)window.cgCol={};
+    var k=h.dataset.gk;if(window.cgCol[k])delete window.cgCol[k];else window.cgCol[k]=1;
+    try{localStorage.setItem("cgcol",JSON.stringify(window.cgCol))}catch(x){}
+    renderNotes()});
 })();
 function addTag(name,f,col){
   name=(name||"").trim().slice(0,20);if(!name)return"";
@@ -2063,11 +2075,12 @@ function renderNotes(){
     gks=KEYS.filter(function(k){return cnt[k]});
   }
   var grouped=false,lastDay=null,lastArea=null,lastCat=null;
+  if(!window.cgCol){window.cgCol={};try{window.cgCol=JSON.parse(localStorage.getItem("cgcol")||"{}")||{}}catch(e){}}
   L.innerHTML=list.map(function(x){
     var head="";
     if(grouped){var dk=dayStart(x.ts||0);if(dk!==lastDay){lastDay=dk;head='<div class="dgrp">'+dayLabelN(x.ts||0)+'</div>'}}
     if(sortBy==="area"){var al=areaLabel(x);if(al!==lastArea){lastArea=al;head='<div class="dgrp">'+esc(al)+'</div>'}}
-    if(filter==="all"&&bycat){var gk=CATS[x.cat]?x.cat:"other";if(gk!==lastCat){head='<div class="cgrp" data-gk="'+gk+'" style="color:var(--c-'+CATS[gk].c+')"><i style="background:var(--c-'+CATS[gk].c+')"></i>'+esc(CATS[gk].n)+'<b>'+cnt[gk]+'</b></div>'}lastCat=gk;if(editing==x.id)return head+'<div class="note">'+editForm(x)+'</div>';return head+noteCard(x,grouped)}
+    if(filter==="all"&&bycat){var gk=CATS[x.cat]?x.cat:"other";var isCol=!q&&window.cgCol[gk];if(gk!==lastCat){head='<div class="cgrp'+(isCol?' col':'')+'" data-gk="'+gk+'" role="button" aria-expanded="'+(!isCol)+'" style="color:var(--c-'+CATS[gk].c+')"><i style="background:var(--c-'+CATS[gk].c+')"></i>'+esc(CATS[gk].n)+'<b>'+cnt[gk]+'</b><u class="cgch"></u></div>'}lastCat=gk;if(editing==x.id)return head+'<div class="note">'+editForm(x)+'</div>';if(isCol)return head;return head+noteCard(x,grouped)}
     if(!head&&lastCat!==null&&x.cat!==lastCat)head='<div class="tgap"></div>';
     lastCat=x.cat;
     if(editing==x.id)return head+'<div class="note">'+editForm(x)+'</div>';
