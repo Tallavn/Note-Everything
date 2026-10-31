@@ -1750,7 +1750,7 @@ function brFill(){
 var inImgs=[],finImgs=[],editImgs=[],carryImg=null,camCtx="",MAXIMG=3;
 var IC_CAM='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13.5" r="3.4"/></svg>';
 function camBtn(ctx,cls){return '<button type="button" class="cam'+(cls?' '+cls:'')+'" data-cam="'+ctx+'" aria-label="Thêm ảnh" title="Thêm ảnh">'+IC_CAM+'</button>'}
-function imgStrip(x){var a=x&&x.img;if(!a||!a.length)return "";return '<div class="thumbs">'+a.map(function(u,i){return '<img class="thumb" src="'+u+'" alt="Ảnh '+(i+1)+'" data-imgv="'+x.id+':'+i+'">'}).join("")+'</div>'}
+function imgStrip(x){var a=x&&x.img;if(window.__noImg||!a||!a.length)return "";return '<div class="thumbs">'+a.map(function(u,i){return '<img class="thumb" src="'+u+'" alt="Ảnh '+(i+1)+'" data-imgv="'+x.id+':'+i+'">'}).join("")+'</div>'}
 function pendStrip(arr,kind){return arr.map(function(u,i){return '<span class="pth"><img class="thumb" src="'+u+'" alt="" data-imgp="'+kind+':'+i+'"><button type="button" class="pthx" data-imgrm="'+kind+':'+i+'" aria-label="Bỏ ảnh">×</button></span>'}).join("")}
 function pendArr(kind){return kind==="in"?inImgs:kind==="fin"?finImgs:editImgs}
 function renderPend(kind){var el=document.getElementById({in:"ph-in",fin:"ph-fin",edit:"ph-ed"}[kind]);if(el)el.innerHTML=pendStrip(pendArr(kind),kind)}
@@ -2080,7 +2080,7 @@ function renderNotes(){
     var head="";
     if(grouped){var dk=dayStart(x.ts||0);if(dk!==lastDay){lastDay=dk;head='<div class="dgrp">'+dayLabelN(x.ts||0)+'</div>'}}
     if(sortBy==="area"){var al=areaLabel(x);if(al!==lastArea){lastArea=al;head='<div class="dgrp">'+esc(al)+'</div>'}}
-    if(filter==="all"&&bycat){var gk=CATS[x.cat]?x.cat:"other";var isCol=!q&&window.cgCol[gk];if(gk!==lastCat){head='<div class="cgrp'+(isCol?' col':'')+'" data-gk="'+gk+'" role="button" aria-expanded="'+(!isCol)+'" style="color:var(--c-'+CATS[gk].c+')"><i style="background:var(--c-'+CATS[gk].c+')"></i>'+esc(CATS[gk].n)+'<b>'+cnt[gk]+'</b><u class="cgch"></u></div>'}lastCat=gk;if(editing==x.id)return head+'<div class="note">'+editForm(x)+'</div>';if(isCol)return head;return head+noteCard(x,grouped)}
+    if(filter==="all"&&bycat){var gk=CATS[x.cat]?x.cat:"other";var isCol=!!window.cgCol[gk];if(gk!==lastCat){head='<div class="cgrp'+(isCol?' col':'')+'" data-gk="'+gk+'" role="button" aria-expanded="'+(!isCol)+'" style="color:var(--c-'+CATS[gk].c+')"><i style="background:var(--c-'+CATS[gk].c+')"></i>'+esc(CATS[gk].n)+'<b>'+cnt[gk]+'</b><u class="cgch"></u></div>'}lastCat=gk;if(editing==x.id)return head+'<div class="note">'+editForm(x)+'</div>';window.__noImg=isCol;var nc=noteCard(x,grouped);window.__noImg=false;return head+nc}
     if(!head&&lastCat!==null&&x.cat!==lastCat)head='<div class="tgap"></div>';
     lastCat=x.cat;
     if(editing==x.id)return head+'<div class="note">'+editForm(x)+'</div>';
