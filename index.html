@@ -181,8 +181,8 @@ textarea.ed{min-height:64px;resize:vertical}
 .edit .meta{margin-top:8px}
 .edit .meta.eact{display:flex;justify-content:flex-end;align-items:center;gap:8px}
 svg text{font-family:inherit}
-.fab{display:none;position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + var(--sab));width:56px;height:56px;border-radius:50%;border:0;padding:0;background:var(--accent);color:var(--accent-ink);box-shadow:0 4px 14px rgba(0,0,0,.28);align-items:center;justify-content:center;z-index:20;-webkit-tap-highlight-color:transparent}
-.fab svg{width:26px;height:26px;display:block}
+.fab{display:none;position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + var(--sab));width:var(--fabs,56px);height:var(--fabs,56px);border-radius:50%;border:0;padding:0;background:var(--accent);color:var(--accent-ink);box-shadow:0 4px 14px rgba(0,0,0,.28);align-items:center;justify-content:center;z-index:20;-webkit-tap-highlight-color:transparent}
+.fab svg{width:calc(var(--fabs,56px)*.46);height:calc(var(--fabs,56px)*.46);display:block}
 .fab:active{transform:scale(.94)}
 @media (max-width:700px),(pointer:coarse){
 .fab.show{display:flex}
@@ -190,7 +190,11 @@ svg text{font-family:inherit}
 .wallet .plus[data-add]{display:none}
 .fab{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 body.fabmove .fab{outline:2px dashed var(--accent);outline-offset:4px;cursor:grab}
-.fablock{display:none;position:fixed;z-index:21;gap:4px;padding:5px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.2);align-items:center;white-space:nowrap}
+.fablock{display:none;position:fixed;z-index:21;flex-direction:column;gap:6px;padding:8px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:22px;box-shadow:0 4px 14px rgba(0,0,0,.2);align-items:stretch;white-space:nowrap}
+.fablock .fl-sz{display:flex;align-items:center;gap:10px;padding:2px 10px 0}
+.fablock .fl-sz i{flex:none;border-radius:50%;background:var(--muted);display:block}
+.fablock .fl-sz input{flex:1;min-width:130px;margin:0;accent-color:var(--accent);touch-action:pan-x}
+.fablock .fl-row{display:flex;gap:4px;justify-content:flex-end}
 body.fabmove .fab.show+.fablock{display:flex}
 .fablock button{border:0;border-radius:999px;padding:8px 14px;font:inherit;font-size:var(--fs-sm);font-weight:700;background:none;color:var(--muted);cursor:pointer}
 .fablock .fl-ok{background:var(--accent);color:var(--accent-ink)}
@@ -948,7 +952,7 @@ body.setopen .setw{z-index:36}
 <div id="dlgSheet" class="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="dlgTitle"><div class="box"><div class="shead"><b id="dlgTitle"></b><button type="button" class="x" data-dlg="no" aria-label="Đóng">×</button></div><div class="hint" id="dlgMsg" hidden></div><input id="dlgIn" class="fin-in" type="text" autocomplete="off" enterkeyhint="done" hidden><textarea id="dlgTa" class="dlgta" hidden></textarea><label class="hint" id="dlgDayRow" hidden style="display:flex;align-items:center;gap:8px;margin:8px 2px 0">Lặp vào ngày <select id="dlgDay" class="date" aria-label="Ngày trong tháng"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option></select> hàng tháng</label><div class="dlgbtns"><button type="button" class="add alt" data-dlg="no">Hủy</button><button type="button" class="add" id="dlgOk" data-dlg="ok">Lưu</button></div></div></div>
 <div class="toast" id="toast" role="status" hidden></div>
 <button type="button" class="fab" id="fab" aria-label="Tạo ghi chú mới" title="Tạo ghi chú mới"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
-<div class="fablock" id="fablock"><button type="button" id="fl-reset">Đặt lại</button><button type="button" class="fl-ok" id="fl-ok">Khoá vị trí</button></div>
+<div class="fablock" id="fablock"><div class="fl-sz"><i style="width:8px;height:8px"></i><input type="range" id="fl-size" min="40" max="88" step="2" value="56" aria-label="Kích thước nút"><i style="width:16px;height:16px"></i></div><div class="fl-row"><button type="button" id="fl-reset">Đặt lại</button><button type="button" class="fl-ok" id="fl-ok">Khoá vị trí</button></div></div>
 <input type="file" id="camIn" accept="image/*" multiple tabindex="-1" aria-hidden="true" style="position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none">
 <input type="file" id="camCap" accept="image/*" capture="environment" tabindex="-1" aria-hidden="true" style="position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none">
 <input type="file" id="ocrIn" accept="image/*" tabindex="-1" aria-hidden="true" style="position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none">
@@ -3097,13 +3101,18 @@ if(MQM.addEventListener)MQM.addEventListener("change",function(){closeComposer()
   dock()})();
 /* Nút +: nhấn giữ ~0,5s để mở khoá, kéo đến chỗ muốn, bấm "Khoá vị trí" để cố định */
 (function(){var fab=document.getElementById("fab"),bar=document.getElementById("fablock");if(!fab||!bar)return;
-  var KEY="ghichu_fabpos",S=56,M=8,pos=null,unlocked=false,tm=null,drag=false,moved=false,sup=false,sx=0,sy=0,ox=0,oy=0;
+  var KEY="ghichu_fabpos",KS="ghichu_fabsize",DS=56,MIN=40,MAX=88,S=DS,M=8,pos=null,unlocked=false,tm=null,drag=false,moved=false,sup=false,sx=0,sy=0,ox=0,oy=0,sl=document.getElementById("fl-size");
   try{pos=JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){}
+  try{var v=parseInt(localStorage.getItem(KS),10);if(v>=MIN&&v<=MAX)S=v}catch(e){}
   function clamp(p){var W=window.innerWidth,H=window.innerHeight;return{r:Math.min(Math.max(p.r,M),Math.max(M,W-S-M)),b:Math.min(Math.max(p.b,M),Math.max(M,H-S-M))}}
-  function place(){if(!unlocked)return;var r=fab.getBoundingClientRect();if(!r.width)return;var h=bar.offsetHeight||40,w=bar.offsetWidth||200,t=r.top-h-10;if(t<M)t=r.bottom+10;bar.style.top=t+"px";
-    if(r.right<w+M){bar.style.left=Math.max(M,r.left)+"px";bar.style.right="auto"}else{bar.style.left="auto";bar.style.right=Math.max(M,window.innerWidth-r.right)+"px"}}
+  /* Thanh công cụ neo theo CÙNG hệ bottom/right với nút (không dùng top/innerHeight) nên luôn dính sát nút, kể cả khi thanh địa chỉ trình duyệt co giãn */
+  function place(){if(!unlocked)return;var cs=getComputedStyle(fab),fb=parseFloat(cs.bottom)||0,fr=parseFloat(cs.right)||0,fh=fab.offsetHeight||S,h=bar.offsetHeight||90,w=bar.offsetWidth||200,r=fab.getBoundingClientRect();if(!r.width)return;
+    bar.style.top="auto";
+    if(r.top-h-10>=M)bar.style.bottom=(fb+fh+10)+"px";else bar.style.bottom=(fb-h-10)+"px";
+    if(r.right<w+M){bar.style.left=Math.max(M,r.left)+"px";bar.style.right="auto"}else{bar.style.left="auto";bar.style.right=fr+"px"}}
+  function setSize(n){S=Math.min(MAX,Math.max(MIN,n));document.documentElement.style.setProperty("--fabs",S+"px");if(sl)sl.value=S}
   function apply(){if(pos&&typeof pos.r==="number"&&typeof pos.b==="number"){var c=clamp(pos);fab.style.right=c.r+"px";fab.style.bottom=c.b+"px"}else{fab.style.right="";fab.style.bottom=""}place()}
-  function store(){try{if(pos)localStorage.setItem(KEY,JSON.stringify(pos));else localStorage.removeItem(KEY)}catch(e){}}
+  function store(){try{if(pos)localStorage.setItem(KEY,JSON.stringify(pos));else localStorage.removeItem(KEY);if(S!==DS)localStorage.setItem(KS,String(S));else localStorage.removeItem(KS)}catch(e){}}
   function setUnlocked(v){unlocked=v;document.body.classList.toggle("fabmove",v);place()}
   fab.addEventListener("pointerdown",function(e){if(e.button>0)return;drag=false;moved=false;sup=false;sx=e.clientX;sy=e.clientY;
     var r=fab.getBoundingClientRect();ox=window.innerWidth-r.right;oy=window.innerHeight-r.bottom;try{fab.setPointerCapture(e.pointerId)}catch(x){}
@@ -3117,9 +3126,11 @@ if(MQM.addEventListener)MQM.addEventListener("change",function(){closeComposer()
   fab.addEventListener("pointerup",up);fab.addEventListener("pointercancel",up);
   fab.addEventListener("contextmenu",function(e){e.preventDefault()});
   fab.addEventListener("click",function(e){if(unlocked||sup){e.stopImmediatePropagation();e.preventDefault()}});
+  if(sl)sl.addEventListener("input",function(){setSize(parseInt(sl.value,10)||DS);apply()});
   document.getElementById("fl-ok").addEventListener("click",function(){store();setUnlocked(false)});
-  document.getElementById("fl-reset").addEventListener("click",function(){pos=null;store();apply()});
-  window.addEventListener("resize",apply);apply()})();
+  document.getElementById("fl-reset").addEventListener("click",function(){pos=null;setSize(DS);store();apply()});
+  window.addEventListener("resize",apply);if(window.visualViewport)window.visualViewport.addEventListener("resize",apply);
+  setSize(S);apply()})();
 document.getElementById("fab").addEventListener("click",function(){
   if(tab==="fin"){openSheet();return}
   if(tab!=="plan"){openComposer();return}
