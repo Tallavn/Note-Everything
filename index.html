@@ -679,7 +679,7 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 .camrow{align-items:center;flex-wrap:nowrap}
 .camrow .thumbs{margin-top:0}
 #ph-ed:empty{display:none}.brbtns+.thumbs,.hint+.thumbs{margin-top:8px}.brbtns .cam{flex:none}
-.lkw{position:relative;margin-top:8px}.lkgps:not(.busy){color:#e8566f}.lkdv{height:1px;background:var(--line);margin:10px 0 0}.edit .lkw{margin-top:10px}.lkpin svg{width:16px;height:16px;display:block}.lkpin{display:inline-flex;align-items:center;justify-content:center;color:var(--muted)}.lkw .ed{margin-top:0!important;padding-left:44px!important}.lkgps{position:absolute;left:3px;top:50%;transform:translateY(-50%);width:36px;height:36px;padding:0;border:0;background:transparent;color:var(--muted);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}.lkgps svg{width:18px;height:18px;flex:none}.lkgps:active{background:var(--line)}.lkgps.busy{color:var(--accent);animation:lkp 1s ease-in-out infinite}@keyframes lkp{50%{opacity:.35}}@media (prefers-reduced-motion:reduce){.lkgps.busy{animation:none}}
+.lkw{position:relative;margin-top:8px}.lkgps:not(.busy){color:#e8566f}.edit .fcard{border:1px solid var(--line);border-radius:var(--r-sm);background:var(--bg);overflow:hidden}.edit .fcard:focus-within{border-color:var(--accent)}.edit .fcard>*+*{border-top:1px solid var(--line)}.edit .fcard .nlw,.edit .fcard .lkw{margin:0!important}.edit .fcard .ed{border:0!important;background:transparent!important;border-radius:0!important;margin:0!important}.edit .thumbs{margin-top:8px}.edit .pick:not(#_p){border-top:0;padding:4px;margin-left:-4px;margin-right:-4px}.edit .meta.eact{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}.edit .etools{display:flex;align-items:center;gap:8px;margin-right:auto;min-width:0}.lkpin svg{width:16px;height:16px;display:block}.lkpin{display:inline-flex;align-items:center;justify-content:center;color:var(--muted)}.lkw .ed{margin-top:0!important;padding-left:44px!important}.lkgps{position:absolute;left:3px;top:50%;transform:translateY(-50%);width:36px;height:36px;padding:0;border:0;background:transparent;color:var(--muted);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}.lkgps svg{width:18px;height:18px;flex:none}.lkgps:active{background:var(--line)}.lkgps.busy{color:var(--accent);animation:lkp 1s ease-in-out infinite}@keyframes lkp{50%{opacity:.35}}@media (prefers-reduced-motion:reduce){.lkgps.busy{animation:none}}
 .chip .chipic{width:15px;height:15px;flex:none;vertical-align:-2px;margin-right:5px;display:inline-block}
 .lb{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.88);overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
 .lbt{display:flex;width:100%;height:100%;will-change:transform}
@@ -770,13 +770,13 @@ mark.hl{background:color-mix(in srgb,var(--accent) 30%,transparent);color:inheri
 .frow #filters .chip[aria-pressed="true"],.seg .chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);box-shadow:0 3px 10px rgba(15,107,92,.28)}
 .frow .fwrap .fbtn{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--surface);box-shadow:0 2px 6px rgba(15,35,30,.10)}
 .frow .fwrap .fbtn.on{border-color:var(--accent);color:var(--accent)}
-.frow .fwrap{right:0;bottom:calc(9px + var(--sab));height:40px;width:46px}
-.frow .fwrap .fbtn{width:46px;height:40px;border-radius:20px 0 0 20px;padding-right:2px;border-right:0;box-shadow:-2px 2px 8px rgba(15,35,30,.12)}
-.frow .fwrap .fbtn.on::after{right:auto;left:28px}
+.frow .fwrap{right:0;bottom:calc(4px + var(--sab));height:50px;width:58px}
+.frow .fwrap .fbtn{width:58px;height:50px;border-radius:25px 0 0 25px;padding-right:2px;border-right:0;box-shadow:-2px 2px 8px rgba(15,35,30,.12)}
+.frow .fwrap .fbtn.on::after{right:auto;left:34px}.frow .fwrap .fbtn svg{width:25px;height:25px}
 .frow #filters{padding-right:54px}
 /* Cả điện thoại và PC: chip tag mờ dần mượt (đường cong smoothstep) trước nút lọc; mờ trái chỉ hiện khi đã cuộn, mờ phải chỉ hiện khi còn chip phía sau (JS đặt --fl/--fr) */
 .frow #filters{--fl:0px;--fr:28px;--fo:48px;-webkit-mask-image:linear-gradient(to right,transparent 0,rgba(0,0,0,.156) calc(var(--fl)*.25),rgba(0,0,0,.5) calc(var(--fl)*.5),rgba(0,0,0,.844) calc(var(--fl)*.75),#000 var(--fl),#000 calc(100% - var(--fo) - var(--fr)),rgba(0,0,0,.844) calc(100% - var(--fo) - var(--fr)*.75),rgba(0,0,0,.5) calc(100% - var(--fo) - var(--fr)*.5),rgba(0,0,0,.156) calc(100% - var(--fo) - var(--fr)*.25),transparent calc(100% - var(--fo)),transparent 100%);mask-image:linear-gradient(to right,transparent 0,rgba(0,0,0,.156) calc(var(--fl)*.25),rgba(0,0,0,.5) calc(var(--fl)*.5),rgba(0,0,0,.844) calc(var(--fl)*.75),#000 var(--fl),#000 calc(100% - var(--fo) - var(--fr)),rgba(0,0,0,.844) calc(100% - var(--fo) - var(--fr)*.75),rgba(0,0,0,.5) calc(100% - var(--fo) - var(--fr)*.5),rgba(0,0,0,.156) calc(100% - var(--fo) - var(--fr)*.25),transparent calc(100% - var(--fo)),transparent 100%)}
-@media (min-width:701px) and (pointer:fine){.frow #filters{--fo:0px}}
+@media (min-width:701px) and (pointer:fine){.frow #filters{--fo:0px}.frow .fwrap{top:-5px;bottom:auto}}
 /* Nút lọc: bỏ khung, nền và bóng, chỉ còn icon */
 .frow .fwrap .fbtn,:root[data-skin] .frow .fwrap .fbtn{border:0!important;background:transparent!important;box-shadow:none!important;border-radius:0}
 .frow .fwrap #sortBtn[aria-expanded="true"]{background:transparent!important;color:var(--muted);box-shadow:none!important}
@@ -788,7 +788,7 @@ mark.hl{background:color-mix(in srgb,var(--accent) 30%,transparent);color:inheri
 #sortBtn[aria-expanded="true"] .icx{opacity:1;transform:none}
 .frow .fwrap .fbtn{transition:background .2s ease,color .2s ease,border-color .2s ease,width .25s ease,padding .25s ease}
 .frow .fwrap #sortBtn[aria-expanded="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);box-shadow:-2px 2px 12px rgba(15,107,92,.35)}
-.frow .fwrap #sortBtn[aria-expanded="true"]::after{display:none}
+.frow .fwrap #sortBtn[aria-expanded="true"]::after{display:none}.frow .fwrap #sortBtn[aria-expanded="true"]:not(#_x){color:var(--ink)!important}.frow .fwrap #sortBtn.on[aria-expanded="true"]:not(#_x){color:var(--accent)!important}
 .frow .fmenu{right:12px}
 .fmenu:not([hidden]){animation:fmIn .2s cubic-bezier(.2,.9,.3,1.1);transform-origin:100% 100%}
 @keyframes fmIn{from{opacity:0;transform:translateY(10px) scale(.86)}to{opacity:1;transform:none}}
@@ -1775,7 +1775,7 @@ function brList(x){
     var b=r.b,ad=compactAddr(b.addr||"")||(r.c?r.c[0].toFixed(4)+", "+r.c[1].toFixed(4):""),lb=b.l||("Chi nhánh "+(r.i+1));
     return'<a href="'+esc(brUrl(x,b))+'" target="_blank" rel="noopener noreferrer" aria-label="Mở bản đồ: '+esc(lb+" "+ad)+'">'+IC_PIN+'<b>'+esc(lb)+'</b><span>'+esc(ad)+'</span>'+(r.d!=null?'<i>'+fmtKm(r.d)+'</i>':'')+'</a>'}).join("")+'</div>';
 }
-function brEditor(camH,col){
+function brEditor(){
   var h="";
   editBr.forEach(function(b,i){
     var cl=brCoords(b),val=b.addr||(cl?"":(b.link||""));
@@ -1783,7 +1783,6 @@ function brEditor(camH,col){
        '<input class="ed" data-brk="'+i+'" type="text" autocomplete="off" autocapitalize="off" enterkeyhint="done" aria-label="Link hoặc địa chỉ chi nhánh" placeholder="'+(cl?"📍 Đã lưu vị trí (tự điền địa chỉ)":"Link hoặc địa chỉ")+'" value="'+esc(val)+'">'+
        '<button type="button" class="brx" data-brdel="'+i+'" aria-label="Xóa chi nhánh">×</button></div>'});
   var has=!!((editLink||"").trim()||(editAddr||"").trim());
-  h+='<div class="meta brbtns" style="margin-top:8px">'+(col?"":'<button type="button" class="chip" data-bradd="1">＋ Chi nhánh</button>')+(camH||"")+'</div>';
   if(brMsg)h+='<div class="hint nh" style="margin-top:6px">'+esc(brMsg)+'</div>';
   return h;
 }
@@ -3110,12 +3109,13 @@ function setTab(t){
 var editLkFor=null,editing=null,editVal="",editAddr="",editCat="",editFcat="",editNote="",editLink="",editDue="",editDay="",editDir="",editRate="",editPer="m",editDueDay="",editErr="";
 function amtStr(n){if(n<1000)return n+"d";if(n%1e6===0)return n/1e6+"tr";if(n%1000===0)return n/1000+"k";return String(n)}
 function editForm(x){
-  var tx=x.fin&&x.k==="tx",debt=x.fin&&x.k==="debt",h='<div class="edit">';
+  var tx=x.fin&&x.k==="tx",debt=x.fin&&x.k==="debt",tools="",h='<div class="edit">';
   var ec=x.fin?x.cat:(editCat||x.cat),food=!x.fin&&(tagHas(ec,"l")||x.area||x.link||MAPRE.test(x.text||""));var hasLoc=!!((editLink||"").trim()||(editAddr||"").trim());
+  h+='<div class="fcard">';if(x.fin)h+='<input class="ed" data-ef="1" type="text" autocomplete="off" enterkeyhint="done" aria-label="Sửa" value="'+esc(editVal)+'">';
   if(!x.fin)h+='<div class="nlw"><textarea class="ed" data-ef="1" rows="3" aria-label="Sửa ghi chú">'+esc(editVal)+'</textarea><button type="button" class="nlb" aria-label="Xuống dòng" title="Xuống dòng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 5v7a2 2 0 0 1-2 2H5"/><path d="M9 10l-4 4 4 4"/></svg></button></div>';
   var noteH='<div class="nlw s" style="margin-top:8px"><textarea class="ed" data-enote="1" rows="1" maxlength="200" autocomplete="off" enterkeyhint="done" aria-label="Ghi chú thêm" placeholder="Ghi chú thêm (không bắt buộc)" >'+esc(editNote)+'</textarea><button type="button" class="nlb" aria-label="Xuống dòng" title="Xuống dòng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 5v7a2 2 0 0 1-2 2H5"/><path d="M9 10l-4 4 4 4"/></svg></button></div>',camH=camBtn("edit"),thumbH='<div class="thumbs" id="ph-ed">'+pendStrip(editImgs,"edit")+'</div>';
-  if(food){var lkOpen=editLkFor===x.id||!!(editLink||"").trim()||editBr.length>0,pinBtn='<button type="button" class="chip lkpin" data-lkopen="1" aria-label="Thêm link vị trí" title="Thêm link vị trí"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-5.6-7-11a7 7 0 0 1 14 0c0 5.4-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></button>';h+=noteH+'<div class="lkdv"></div>'+(lkOpen?'<div class="lkw"><button type="button" class="lkgps" data-brgps="1" aria-label="'+(hasLoc?"Thêm chi nhánh ở vị trí hiện tại":"Lấy vị trí hiện tại")+'" title="'+(hasLoc?"Thêm chi nhánh ở vị trí hiện tại":"Lấy vị trí hiện tại")+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="5" fill="currentColor"/><path d="M12 13v9"/></svg></button><input class="ed" data-elink="1" type="text" inputmode="url" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-label="Link vị trí" placeholder="Link vị trí (Google Maps), có thể để trống" value="'+esc(editLink)+'"></div>':'')+brEditor(lkOpen?camH:pinBtn+camH,!lkOpen)+thumbH}
-  else{if(x.fin)h+='<input class="ed" data-ef="1" type="text" autocomplete="off" enterkeyhint="done" aria-label="Sửa" value="'+esc(editVal)+'">';h+=noteH+'<div class="meta camrow">'+camH+thumbH+'</div>'}
+  if(food){var lkOpen=editLkFor===x.id||!!(editLink||"").trim()||editBr.length>0,pinBtn='<button type="button" class="chip lkpin" data-lkopen="1" aria-label="Thêm link vị trí" title="Thêm link vị trí"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-5.6-7-11a7 7 0 0 1 14 0c0 5.4-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></button>';tools=(lkOpen?'<button type="button" class="chip" data-bradd="1">＋ Chi nhánh</button>':pinBtn)+camH;h+=noteH+(lkOpen?'<div class="lkw"><button type="button" class="lkgps" data-brgps="1" aria-label="'+(hasLoc?"Thêm chi nhánh ở vị trí hiện tại":"Lấy vị trí hiện tại")+'" title="'+(hasLoc?"Thêm chi nhánh ở vị trí hiện tại":"Lấy vị trí hiện tại")+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="5" fill="currentColor"/><path d="M12 13v9"/></svg></button><input class="ed" data-elink="1" type="text" inputmode="url" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-label="Link vị trí" placeholder="Link vị trí (Google Maps), có thể để trống" value="'+esc(editLink)+'"></div>':'')+'</div>'+brEditor()+thumbH}
+  else{tools=camH;h+=noteH+'</div>'+thumbH}
   if(debt)h+='<div class="meta" style="gap:6px">Lãi suất <input class="ed" data-erate="1" type="text" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="Lãi suất" value="'+esc(editRate)+'" style="width:70px;text-align:right"> % <select class="ed" data-eper="1" aria-label="Kỳ tính lãi" style="width:auto"><option value="m"'+(editPer==="m"?" selected":"")+'>/ tháng</option><option value="y"'+(editPer==="y"?" selected":"")+'>/ năm</option></select></div><div class="meta" style="gap:6px">Hạn trả <input type="date" class="date" data-eddy="1" value="'+esc(editDueDay)+'" aria-label="Hạn trả nợ"></div>';
   if(debt)h+='<div class="meta"><button class="chip" data-edir="owe" aria-pressed="'+(editDir==="owe")+'">Mình nợ</button><button class="chip" data-edir="lent" aria-pressed="'+(editDir==="lent")+'">Họ nợ mình</button></div>';
   if(x.fin)h+='<div class="meta"><input type="date" class="date" data-ed="1" value="'+esc(editDay||"")+'" aria-label="Ngày">'+(tx?'<span>Thêm + đầu số nếu là khoản thu</span>':'')+'</div>';
@@ -3125,7 +3125,7 @@ function editForm(x){
   if(editErr)h+='<div class="meta bad">'+esc(editErr)+'</div>';
   var hint=!x.fin?"":(debt?"Ví dụ: 500k Nam tiền ăn.":"Ví dụ: 45k phở bò hoặc +15tr lương.");
   if(hint)h+='<div class="hint nh" style="margin-top:6px">'+esc(hint)+'</div>';
-  return h+'<div class="meta eact"><button class="add alt sm" data-ecancel="1">Hủy</button><button class="add sm" data-esave="'+x.id+'">Lưu</button></div></div>';
+  return h+'<div class="meta eact"><div class="etools">'+tools+'</div><button class="add alt sm" data-ecancel="1">Hủy</button><button class="add sm" data-esave="'+x.id+'">Lưu</button></div></div>';
 }
 function centerPick(){var b=document.querySelector(".edit .pick [aria-pressed=true]"),p=b&&b.parentNode;if(p)p.scrollLeft=Math.max(0,b.offsetLeft-(p.clientWidth-b.offsetWidth)/2)}
 function focusEdit(){applyKb();setTimeout(function(){centerPick();var f=document.querySelector("[data-ef]");if(f){f.focus();try{f.setSelectionRange(f.value.length,f.value.length)}catch(e){}}},0)}
