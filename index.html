@@ -678,6 +678,9 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 .pthx{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;border:0;background:rgba(0,0,0,.72);color:#fff;font-size:var(--fs-md);line-height:20px;padding:0}
 .camrow{align-items:center;flex-wrap:nowrap}
 .camrow .thumbs{margin-top:0}
+#ph-ed:empty{display:none}.brbtns+.thumbs,.hint+.thumbs{margin-top:8px}.brbtns .cam{flex:none}
+.lkw{position:relative;margin-top:8px}.edit .lkw{margin-top:21px}.edit .lkw::before{content:"";position:absolute;left:0;right:0;top:-11px;height:1px;background:var(--line);pointer-events:none}.lkw .ed{margin-top:0!important;padding-left:44px!important}.lkgps{position:absolute;left:3px;top:50%;transform:translateY(-50%);width:36px;height:36px;padding:0;border:0;background:transparent;color:var(--muted);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}.lkgps svg{width:18px;height:18px;flex:none}.lkgps:active{background:var(--line)}.lkgps.busy{color:var(--accent);animation:lkp 1s ease-in-out infinite}@keyframes lkp{50%{opacity:.35}}@media (prefers-reduced-motion:reduce){.lkgps.busy{animation:none}}
+.chip .chipic{width:15px;height:15px;flex:none;vertical-align:-2px;margin-right:5px;display:inline-block}
 .lb{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.88);overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
 .lbt{display:flex;width:100%;height:100%;will-change:transform}
 .lbt.anim{transition:transform .25s ease}
@@ -771,8 +774,15 @@ mark.hl{background:color-mix(in srgb,var(--accent) 30%,transparent);color:inheri
 .frow .fwrap .fbtn{width:46px;height:40px;border-radius:20px 0 0 20px;padding-right:2px;border-right:0;box-shadow:-2px 2px 8px rgba(15,35,30,.12)}
 .frow .fwrap .fbtn.on::after{right:auto;left:28px}
 .frow #filters{padding-right:54px}
-#sortBtn .ic{position:relative;width:19px;height:19px;display:block;flex:none}
-#sortBtn .ic svg{position:absolute;inset:0;width:19px;height:19px;transition:transform .25s ease,opacity .2s ease}
+/* Cả điện thoại và PC: chip tag mờ dần mượt (đường cong smoothstep) trước nút lọc; mờ trái chỉ hiện khi đã cuộn, mờ phải chỉ hiện khi còn chip phía sau (JS đặt --fl/--fr) */
+.frow #filters{--fl:0px;--fr:28px;--fo:48px;-webkit-mask-image:linear-gradient(to right,transparent 0,rgba(0,0,0,.156) calc(var(--fl)*.25),rgba(0,0,0,.5) calc(var(--fl)*.5),rgba(0,0,0,.844) calc(var(--fl)*.75),#000 var(--fl),#000 calc(100% - var(--fo) - var(--fr)),rgba(0,0,0,.844) calc(100% - var(--fo) - var(--fr)*.75),rgba(0,0,0,.5) calc(100% - var(--fo) - var(--fr)*.5),rgba(0,0,0,.156) calc(100% - var(--fo) - var(--fr)*.25),transparent calc(100% - var(--fo)),transparent 100%);mask-image:linear-gradient(to right,transparent 0,rgba(0,0,0,.156) calc(var(--fl)*.25),rgba(0,0,0,.5) calc(var(--fl)*.5),rgba(0,0,0,.844) calc(var(--fl)*.75),#000 var(--fl),#000 calc(100% - var(--fo) - var(--fr)),rgba(0,0,0,.844) calc(100% - var(--fo) - var(--fr)*.75),rgba(0,0,0,.5) calc(100% - var(--fo) - var(--fr)*.5),rgba(0,0,0,.156) calc(100% - var(--fo) - var(--fr)*.25),transparent calc(100% - var(--fo)),transparent 100%)}
+@media (min-width:701px) and (pointer:fine){.frow #filters{--fo:0px}}
+/* Nút lọc: bỏ khung, nền và bóng, chỉ còn icon */
+.frow .fwrap .fbtn,:root[data-skin] .frow .fwrap .fbtn{border:0!important;background:transparent!important;box-shadow:none!important;border-radius:0}
+.frow .fwrap #sortBtn[aria-expanded="true"]{background:transparent!important;color:var(--muted);box-shadow:none!important}
+.frow .fwrap #sortBtn.on[aria-expanded="true"]{color:var(--accent)}
+#sortBtn .ic{position:relative;width:21px;height:21px;display:block;flex:none}
+#sortBtn .ic svg{position:absolute;inset:0;width:21px;height:21px;transition:transform .25s ease,opacity .2s ease}
 #sortBtn .icx{opacity:0;transform:rotate(-90deg) scale(.6)}
 #sortBtn[aria-expanded="true"] .icf{opacity:0;transform:rotate(90deg) scale(.6)}
 #sortBtn[aria-expanded="true"] .icx{opacity:1;transform:none}
@@ -868,7 +878,7 @@ html,body{overscroll-behavior-y:contain}
 <div class="hint" id="in-msg" style="margin-top:6px" role="status"></div>
 <div class="frow"><div class="filters" id="filters"></div>
 <div class="fwrap">
-<button type="button" class="fbtn" id="sortBtn" aria-label="Lọc và sắp xếp" aria-haspopup="true" aria-expanded="false" title="Lọc và sắp xếp"><span class="ic"><svg class="icf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg><svg class="icx" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
+<button type="button" class="fbtn" id="sortBtn" aria-label="Lọc và sắp xếp" aria-haspopup="true" aria-expanded="false" title="Lọc và sắp xếp"><span class="ic"><svg class="icf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h9M4 12h7M4 18h7M15 15l3 3 3-3M18 6v12"/></svg><svg class="icx" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
 <div class="fmenu" id="sortMenu" hidden>
 <div class="fgrp">Theo thời gian</div>
 <button type="button" class="fopt" data-sort="new" aria-pressed="true">Mới nhất trước</button>
@@ -1765,7 +1775,7 @@ function brList(x){
     var b=r.b,ad=compactAddr(b.addr||"")||(r.c?r.c[0].toFixed(4)+", "+r.c[1].toFixed(4):""),lb=b.l||("Chi nhánh "+(r.i+1));
     return'<a href="'+esc(brUrl(x,b))+'" target="_blank" rel="noopener noreferrer" aria-label="Mở bản đồ: '+esc(lb+" "+ad)+'">'+IC_PIN+'<b>'+esc(lb)+'</b><span>'+esc(ad)+'</span>'+(r.d!=null?'<i>'+fmtKm(r.d)+'</i>':'')+'</a>'}).join("")+'</div>';
 }
-function brEditor(){
+function brEditor(camH){
   var h="";
   editBr.forEach(function(b,i){
     var cl=brCoords(b),val=b.addr||(cl?"":(b.link||""));
@@ -1773,7 +1783,7 @@ function brEditor(){
        '<input class="ed" data-brk="'+i+'" type="text" autocomplete="off" autocapitalize="off" enterkeyhint="done" aria-label="Link hoặc địa chỉ chi nhánh" placeholder="'+(cl?"📍 Đã lưu vị trí (tự điền địa chỉ)":"Link hoặc địa chỉ")+'" value="'+esc(val)+'">'+
        '<button type="button" class="brx" data-brdel="'+i+'" aria-label="Xóa chi nhánh">×</button></div>'});
   var has=!!((editLink||"").trim()||(editAddr||"").trim());
-  h+='<div class="meta brbtns" style="margin-top:8px"><button type="button" class="chip" data-brgps="1">📍 '+(has?"Chi nhánh ở đây":"Vị trí hiện tại")+'</button><button type="button" class="chip" data-bradd="1">＋ Chi nhánh</button></div>';
+  h+='<div class="meta brbtns" style="margin-top:8px"><button type="button" class="chip" data-bradd="1">＋ Chi nhánh</button>'+(camH||"")+'</div>';
   if(brMsg)h+='<div class="hint nh" style="margin-top:6px">'+esc(brMsg)+'</div>';
   return h;
 }
@@ -3101,12 +3111,11 @@ var editing=null,editVal="",editAddr="",editCat="",editFcat="",editNote="",editL
 function amtStr(n){if(n<1000)return n+"d";if(n%1e6===0)return n/1e6+"tr";if(n%1000===0)return n/1000+"k";return String(n)}
 function editForm(x){
   var tx=x.fin&&x.k==="tx",debt=x.fin&&x.k==="debt",h='<div class="edit">';
-  var ec=x.fin?x.cat:(editCat||x.cat),food=!x.fin&&(tagHas(ec,"l")||x.area||x.link||MAPRE.test(x.text||""));
+  var ec=x.fin?x.cat:(editCat||x.cat),food=!x.fin&&(tagHas(ec,"l")||x.area||x.link||MAPRE.test(x.text||""));var hasLoc=!!((editLink||"").trim()||(editAddr||"").trim());
   if(!x.fin)h+='<div class="nlw"><textarea class="ed" data-ef="1" rows="3" aria-label="Sửa ghi chú">'+esc(editVal)+'</textarea><button type="button" class="nlb" aria-label="Xuống dòng" title="Xuống dòng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 5v7a2 2 0 0 1-2 2H5"/><path d="M9 10l-4 4 4 4"/></svg></button></div>';
-  if(food)h+='<input class="ed" data-elink="1" type="text" inputmode="url" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" style="margin-top:8px" aria-label="Link vị trí" placeholder="Link vị trí (Google Maps), có thể để trống" value="'+esc(editLink)+'">'+brEditor();
-  else if(x.fin)h+='<input class="ed" data-ef="1" type="text" autocomplete="off" enterkeyhint="done" aria-label="Sửa" value="'+esc(editVal)+'">';
-  h+='<div class="nlw s" style="margin-top:8px"><textarea class="ed" data-enote="1" rows="1" maxlength="200" autocomplete="off" enterkeyhint="done" aria-label="Ghi chú thêm" placeholder="Ghi chú thêm (không bắt buộc)" >'+esc(editNote)+'</textarea><button type="button" class="nlb" aria-label="Xuống dòng" title="Xuống dòng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 5v7a2 2 0 0 1-2 2H5"/><path d="M9 10l-4 4 4 4"/></svg></button></div>';
-  h+='<div class="meta camrow">'+camBtn("edit")+'<div class="thumbs" id="ph-ed">'+pendStrip(editImgs,"edit")+'</div></div>';
+  var noteH='<div class="nlw s" style="margin-top:8px"><textarea class="ed" data-enote="1" rows="1" maxlength="200" autocomplete="off" enterkeyhint="done" aria-label="Ghi chú thêm" placeholder="Ghi chú thêm (không bắt buộc)" >'+esc(editNote)+'</textarea><button type="button" class="nlb" aria-label="Xuống dòng" title="Xuống dòng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 5v7a2 2 0 0 1-2 2H5"/><path d="M9 10l-4 4 4 4"/></svg></button></div>',camH=camBtn("edit"),thumbH='<div class="thumbs" id="ph-ed">'+pendStrip(editImgs,"edit")+'</div>';
+  if(food)h+=noteH+'<div class="lkw"><button type="button" class="lkgps" data-brgps="1" aria-label="'+(hasLoc?"Thêm chi nhánh ở vị trí hiện tại":"Lấy vị trí hiện tại")+'" title="'+(hasLoc?"Thêm chi nhánh ở vị trí hiện tại":"Lấy vị trí hiện tại")+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22"/></svg></button><input class="ed" data-elink="1" type="text" inputmode="url" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-label="Link vị trí" placeholder="Link vị trí (Google Maps), có thể để trống" value="'+esc(editLink)+'"></div>'+brEditor(camH)+thumbH;
+  else{if(x.fin)h+='<input class="ed" data-ef="1" type="text" autocomplete="off" enterkeyhint="done" aria-label="Sửa" value="'+esc(editVal)+'">';h+=noteH+'<div class="meta camrow">'+camH+thumbH+'</div>'}
   if(debt)h+='<div class="meta" style="gap:6px">Lãi suất <input class="ed" data-erate="1" type="text" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="Lãi suất" value="'+esc(editRate)+'" style="width:70px;text-align:right"> % <select class="ed" data-eper="1" aria-label="Kỳ tính lãi" style="width:auto"><option value="m"'+(editPer==="m"?" selected":"")+'>/ tháng</option><option value="y"'+(editPer==="y"?" selected":"")+'>/ năm</option></select></div><div class="meta" style="gap:6px">Hạn trả <input type="date" class="date" data-eddy="1" value="'+esc(editDueDay)+'" aria-label="Hạn trả nợ"></div>';
   if(debt)h+='<div class="meta"><button class="chip" data-edir="owe" aria-pressed="'+(editDir==="owe")+'">Mình nợ</button><button class="chip" data-edir="lent" aria-pressed="'+(editDir==="lent")+'">Họ nợ mình</button></div>';
   if(x.fin)h+='<div class="meta"><input type="date" class="date" data-ed="1" value="'+esc(editDay||"")+'" aria-label="Ngày">'+(tx?'<span>Thêm + đầu số nếu là khoản thu</span>':'')+'</div>';
@@ -3285,7 +3294,7 @@ document.addEventListener("click",function(e){
   if(d.edir){editDir=d.edir;render();return}
   if(d.ecat){editCat=d.ecat;render();focusEdit();return}
   if(d.efcat){editFcat=d.efcat;render();focusEdit();return}
-  if(d.brgps){t.disabled=true;t.textContent="📍 Đang lấy…";brGps();return}
+  if(d.brgps){t.disabled=true;if(t.classList.contains("lkgps"))t.classList.add("busy");else t.textContent="📍 Đang lấy…";brGps();return}
   if(d.bradd){editBr.push({id:Date.now(),l:"",link:"",addr:""});brMsg="";render();setTimeout(function(){var f=document.querySelectorAll("[data-brl]");if(f.length)f[f.length-1].focus()},0);return}
   if(d.brdel!==undefined){editBr.splice(+d.brdel,1);render();return}
   if(d.brt){brOpen=(brOpen!=null&&brOpen==d.brt)?null:d.brt;renderNotes();return}
@@ -3905,7 +3914,7 @@ document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!$i("impShe
     var a=document.activeElement,t=e.target;
     if(!isField(a)||!t||t.nodeType!==1)return;
     if(t.id==="finSheet")return;                           /* chạm vùng trống ngoài bảng chi tiêu: để bảng tự đóng luôn (không chỉ hạ phím) */
-    if(t===a||t.closest("#fab,#cbd,.sbar,.fwrap,.setw,.camsheet,.camlive,#toast,#in-msg"))return;                    /* chạm đúng ô đang gõ / nút bút: để bình thường */
+    if(t===a||t.closest("#fab,#cbd,.sbar,.fwrap,.setw,.camsheet,.camlive,#toast,#in-msg,#xclr"))return;                    /* chạm đúng ô đang gõ / nút bút: để bình thường */
     var c=a.closest(".box,.edit,.sync");
     if(c&&c.contains(t))return;                            /* chạm trong vùng nhập (Lưu, Tag, ô khác cùng khung): để bình thường */
     kb=true;var p=e.touches[0];tx=p.clientX;ty=p.clientY;tt=Date.now()},{passive:true,capture:true});
@@ -3946,6 +3955,62 @@ document.getElementById("zDn").addEventListener("click",function(){setZ(Z-.1)});
 document.getElementById("zUp").addEventListener("click",function(){setZ(Z+.1)});
 zv.addEventListener("click",function(){setZ(1)});
 setZ(Z);
+})();
+/* Nút X xóa hết văn bản: một nút chung nổi trong ô đang gõ, chỉ hiện khi ô có chữ. Bấm không làm mất focus nên bàn phím giữ nguyên. */
+(function(){
+  var st=document.createElement("style");
+  st.textContent="#xclr{position:fixed;z-index:90;width:22px;height:22px;border-radius:50%;border:0;padding:0;background:var(--line);color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}#xclr::before{content:\"\";position:absolute;inset:-11px}#xclr[hidden]{display:none}.xpad{padding-right:38px!important}.nlw textarea.xpad:not(#_x){padding-right:76px!important}";
+  document.head.appendChild(st);
+  var btn=document.createElement("button");
+  btn.type="button";btn.id="xclr";btn.hidden=true;btn.tabIndex=-1;btn.setAttribute("aria-label","Xóa hết văn bản");
+  btn.innerHTML='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+  document.documentElement.appendChild(btn);
+  var cur=null,raf=0,BAD=/^(password|hidden|checkbox|radio|button|submit|reset|range|file|color|image|date|time|month|week|datetime-local|number)$/i;
+  function ok(el){
+    if(!el||el.nodeType!==1)return false;
+    if(el.tagName==="INPUT"){if(BAD.test(el.type||"text"))return false}
+    else if(el.tagName!=="TEXTAREA")return false;
+    return !(el.readOnly||el.disabled||el.hidden);
+  }
+  function place(){
+    if(!cur||!cur.isConnected||document.activeElement!==cur||!cur.value){btn.hidden=true;return false}
+    var r=cur.getBoundingClientRect();
+    if(r.width<100||r.height<10){btn.hidden=true;return false}
+    var h=22,cy=Math.min(r.height/2,22),nl=cur.parentNode&&cur.parentNode.querySelector?cur.parentNode.querySelector(":scope>.nlb"):null,nr=nl?nl.getBoundingClientRect():null;
+    if(nr&&nr.width){btn.style.left=(nr.left-h-8)+"px";btn.style.top=(nr.top+nr.height/2-h/2)+"px"}
+    else{btn.style.left=(r.right-h-9)+"px";btn.style.top=(r.top+cy-h/2)+"px"}
+    btn.hidden=false;
+    return true;
+  }
+  function loop(){raf=place()?requestAnimationFrame(loop):0}
+  function upd(){if(!raf&&place())raf=requestAnimationFrame(loop)}
+  document.addEventListener("focusin",function(e){
+    var t=e.target;
+    if(ok(t)){cur=t;t.classList.add("xpad");upd()}else{cur=null;btn.hidden=true}
+  });
+  document.addEventListener("focusout",function(){setTimeout(function(){if(!ok(document.activeElement)){cur=null;btn.hidden=true}},0)});
+  document.addEventListener("input",function(e){if(e.target===cur)upd()},true);
+  ["mousedown","pointerdown"].forEach(function(n){btn.addEventListener(n,function(e){e.preventDefault()})});
+  btn.addEventListener("click",function(e){
+    e.preventDefault();e.stopPropagation();
+    var el=cur;if(!el)return;
+    el.value="";
+    el.dispatchEvent(new Event("input",{bubbles:true}));
+    try{el.focus({preventScroll:true})}catch(x){}
+    btn.hidden=true;
+  });
+})();
+(function(){
+  var fl=document.getElementById("filters");if(!fl)return;
+  function fade(){
+    var max=fl.scrollWidth-fl.clientWidth;
+    fl.style.setProperty("--fl",fl.scrollLeft>6?"14px":"0px");
+    fl.style.setProperty("--fr",max-fl.scrollLeft>6?"28px":"0px");
+  }
+  fl.addEventListener("scroll",fade,{passive:true});
+  window.addEventListener("resize",fade);
+  if(window.MutationObserver)new MutationObserver(fade).observe(fl,{childList:true,subtree:true});
+  fade();setTimeout(fade,300);
 })();
 /* Bong bóng Messenger / thông báo nổi làm cửa sổ mất focus => hệ điều hành hạ bàn phím. Khi cửa sổ được trả lại, tự focus lại đúng ô đang gõ (giữ nguyên vị trí con trỏ) để bàn phím lên lại. */
 (function(){
