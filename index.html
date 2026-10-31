@@ -449,7 +449,7 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .edit .pick::-webkit-scrollbar,.intags .pick::-webkit-scrollbar,.acts-row .pick::-webkit-scrollbar{display:none}
 .edit .pick .tag,.intags .pick .tag,.acts-row .pick .tag{flex:none;white-space:nowrap}
 .brbtns{flex-wrap:nowrap;gap:8px}
-.brbtns .chip{white-space:nowrap;min-width:0;padding-left:12px;padding-right:12px}
+.brbtns .chip{white-space:nowrap;min-width:0;padding-left:12px;padding-right:12px}.brbtns [data-bradd]{margin-left:16px}
 .brx{flex:none;width:34px;height:34px;padding:0;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:var(--r-sm);font-size:18px;line-height:1}
 
 /* Thông báo Hoàn tác */
@@ -679,7 +679,7 @@ h1.logo .lg-e{font-size:7.5px;font-weight:500;letter-spacing:.42em;padding-left:
 .camrow{align-items:center;flex-wrap:nowrap}
 .camrow .thumbs{margin-top:0}
 #ph-ed:empty{display:none}.brbtns+.thumbs,.hint+.thumbs{margin-top:8px}.brbtns .cam{flex:none}
-.lkw{position:relative;margin-top:8px}.edit .lkw{margin-top:21px}.edit .lkw::before{content:"";position:absolute;left:0;right:0;top:-11px;height:1px;background:var(--line);pointer-events:none}.lkw .ed{margin-top:0!important;padding-left:44px!important}.lkgps{position:absolute;left:3px;top:50%;transform:translateY(-50%);width:36px;height:36px;padding:0;border:0;background:transparent;color:var(--muted);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}.lkgps svg{width:18px;height:18px;flex:none}.lkgps:active{background:var(--line)}.lkgps.busy{color:var(--accent);animation:lkp 1s ease-in-out infinite}@keyframes lkp{50%{opacity:.35}}@media (prefers-reduced-motion:reduce){.lkgps.busy{animation:none}}
+.lkw{position:relative;margin-top:8px}.lkgps:not(.busy){color:#e8566f}.lkdv{height:1px;background:var(--line);margin:10px 0 0}.edit .lkw{margin-top:10px}.lkpin svg{width:16px;height:16px;display:block}.lkpin{display:inline-flex;align-items:center;justify-content:center;color:var(--muted)}.lkw .ed{margin-top:0!important;padding-left:44px!important}.lkgps{position:absolute;left:3px;top:50%;transform:translateY(-50%);width:36px;height:36px;padding:0;border:0;background:transparent;color:var(--muted);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}.lkgps svg{width:18px;height:18px;flex:none}.lkgps:active{background:var(--line)}.lkgps.busy{color:var(--accent);animation:lkp 1s ease-in-out infinite}@keyframes lkp{50%{opacity:.35}}@media (prefers-reduced-motion:reduce){.lkgps.busy{animation:none}}
 .chip .chipic{width:15px;height:15px;flex:none;vertical-align:-2px;margin-right:5px;display:inline-block}
 .lb{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.88);overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
 .lbt{display:flex;width:100%;height:100%;will-change:transform}
@@ -1775,7 +1775,7 @@ function brList(x){
     var b=r.b,ad=compactAddr(b.addr||"")||(r.c?r.c[0].toFixed(4)+", "+r.c[1].toFixed(4):""),lb=b.l||("Chi nhánh "+(r.i+1));
     return'<a href="'+esc(brUrl(x,b))+'" target="_blank" rel="noopener noreferrer" aria-label="Mở bản đồ: '+esc(lb+" "+ad)+'">'+IC_PIN+'<b>'+esc(lb)+'</b><span>'+esc(ad)+'</span>'+(r.d!=null?'<i>'+fmtKm(r.d)+'</i>':'')+'</a>'}).join("")+'</div>';
 }
-function brEditor(camH){
+function brEditor(camH,col){
   var h="";
   editBr.forEach(function(b,i){
     var cl=brCoords(b),val=b.addr||(cl?"":(b.link||""));
@@ -1783,7 +1783,7 @@ function brEditor(camH){
        '<input class="ed" data-brk="'+i+'" type="text" autocomplete="off" autocapitalize="off" enterkeyhint="done" aria-label="Link hoặc địa chỉ chi nhánh" placeholder="'+(cl?"📍 Đã lưu vị trí (tự điền địa chỉ)":"Link hoặc địa chỉ")+'" value="'+esc(val)+'">'+
        '<button type="button" class="brx" data-brdel="'+i+'" aria-label="Xóa chi nhánh">×</button></div>'});
   var has=!!((editLink||"").trim()||(editAddr||"").trim());
-  h+='<div class="meta brbtns" style="margin-top:8px"><button type="button" class="chip" data-bradd="1">＋ Chi nhánh</button>'+(camH||"")+'</div>';
+  h+='<div class="meta brbtns" style="margin-top:8px">'+(col?"":'<button type="button" class="chip" data-bradd="1">＋ Chi nhánh</button>')+(camH||"")+'</div>';
   if(brMsg)h+='<div class="hint nh" style="margin-top:6px">'+esc(brMsg)+'</div>';
   return h;
 }
@@ -3107,14 +3107,14 @@ function setTab(t){
     v.classList.remove("tabin-r","tabin-l");void v.offsetWidth;v.classList.add(c);setTimeout(function(){v.classList.remove(c)},340)}
   scrollRestore();updateFab();
 }
-var editing=null,editVal="",editAddr="",editCat="",editFcat="",editNote="",editLink="",editDue="",editDay="",editDir="",editRate="",editPer="m",editDueDay="",editErr="";
+var editLkFor=null,editing=null,editVal="",editAddr="",editCat="",editFcat="",editNote="",editLink="",editDue="",editDay="",editDir="",editRate="",editPer="m",editDueDay="",editErr="";
 function amtStr(n){if(n<1000)return n+"d";if(n%1e6===0)return n/1e6+"tr";if(n%1000===0)return n/1000+"k";return String(n)}
 function editForm(x){
   var tx=x.fin&&x.k==="tx",debt=x.fin&&x.k==="debt",h='<div class="edit">';
   var ec=x.fin?x.cat:(editCat||x.cat),food=!x.fin&&(tagHas(ec,"l")||x.area||x.link||MAPRE.test(x.text||""));var hasLoc=!!((editLink||"").trim()||(editAddr||"").trim());
   if(!x.fin)h+='<div class="nlw"><textarea class="ed" data-ef="1" rows="3" aria-label="Sửa ghi chú">'+esc(editVal)+'</textarea><button type="button" class="nlb" aria-label="Xuống dòng" title="Xuống dòng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 5v7a2 2 0 0 1-2 2H5"/><path d="M9 10l-4 4 4 4"/></svg></button></div>';
   var noteH='<div class="nlw s" style="margin-top:8px"><textarea class="ed" data-enote="1" rows="1" maxlength="200" autocomplete="off" enterkeyhint="done" aria-label="Ghi chú thêm" placeholder="Ghi chú thêm (không bắt buộc)" >'+esc(editNote)+'</textarea><button type="button" class="nlb" aria-label="Xuống dòng" title="Xuống dòng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 5v7a2 2 0 0 1-2 2H5"/><path d="M9 10l-4 4 4 4"/></svg></button></div>',camH=camBtn("edit"),thumbH='<div class="thumbs" id="ph-ed">'+pendStrip(editImgs,"edit")+'</div>';
-  if(food)h+=noteH+'<div class="lkw"><button type="button" class="lkgps" data-brgps="1" aria-label="'+(hasLoc?"Thêm chi nhánh ở vị trí hiện tại":"Lấy vị trí hiện tại")+'" title="'+(hasLoc?"Thêm chi nhánh ở vị trí hiện tại":"Lấy vị trí hiện tại")+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22"/></svg></button><input class="ed" data-elink="1" type="text" inputmode="url" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-label="Link vị trí" placeholder="Link vị trí (Google Maps), có thể để trống" value="'+esc(editLink)+'"></div>'+brEditor(camH)+thumbH;
+  if(food){var lkOpen=editLkFor===x.id||!!(editLink||"").trim()||editBr.length>0,pinBtn='<button type="button" class="chip lkpin" data-lkopen="1" aria-label="Thêm link vị trí" title="Thêm link vị trí"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-5.6-7-11a7 7 0 0 1 14 0c0 5.4-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></button>';h+=noteH+'<div class="lkdv"></div>'+(lkOpen?'<div class="lkw"><button type="button" class="lkgps" data-brgps="1" aria-label="'+(hasLoc?"Thêm chi nhánh ở vị trí hiện tại":"Lấy vị trí hiện tại")+'" title="'+(hasLoc?"Thêm chi nhánh ở vị trí hiện tại":"Lấy vị trí hiện tại")+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="5" fill="currentColor"/><path d="M12 13v9"/></svg></button><input class="ed" data-elink="1" type="text" inputmode="url" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-label="Link vị trí" placeholder="Link vị trí (Google Maps), có thể để trống" value="'+esc(editLink)+'"></div>':'')+brEditor(lkOpen?camH:pinBtn+camH,!lkOpen)+thumbH}
   else{if(x.fin)h+='<input class="ed" data-ef="1" type="text" autocomplete="off" enterkeyhint="done" aria-label="Sửa" value="'+esc(editVal)+'">';h+=noteH+'<div class="meta camrow">'+camH+thumbH+'</div>'}
   if(debt)h+='<div class="meta" style="gap:6px">Lãi suất <input class="ed" data-erate="1" type="text" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="Lãi suất" value="'+esc(editRate)+'" style="width:70px;text-align:right"> % <select class="ed" data-eper="1" aria-label="Kỳ tính lãi" style="width:auto"><option value="m"'+(editPer==="m"?" selected":"")+'>/ tháng</option><option value="y"'+(editPer==="y"?" selected":"")+'>/ năm</option></select></div><div class="meta" style="gap:6px">Hạn trả <input type="date" class="date" data-eddy="1" value="'+esc(editDueDay)+'" aria-label="Hạn trả nợ"></div>';
   if(debt)h+='<div class="meta"><button class="chip" data-edir="owe" aria-pressed="'+(editDir==="owe")+'">Mình nợ</button><button class="chip" data-edir="lent" aria-pressed="'+(editDir==="lent")+'">Họ nợ mình</button></div>';
@@ -3131,7 +3131,7 @@ function centerPick(){var b=document.querySelector(".edit .pick [aria-pressed=tr
 function focusEdit(){applyKb();setTimeout(function(){centerPick();var f=document.querySelector("[data-ef]");if(f){f.focus();try{f.setSelectionRange(f.value.length,f.value.length)}catch(e){}}},0)}
 function startEdit(id){
   var x=findFin(id);if(!x||x.del)return;
-  editing=x.id;swipedId=null;editErr="";openId=null;openTx=null;editDay=x.day||today();editDue=x.due||"";editDir=x.dir||"";editRate=x.rate>0?String(x.rate).replace(".",","):"";editPer=x.per==="y"?"y":"m";editDueDay=x.dueDay||"";editLink=x.link||"";editAddr=x.addr||"";editBr=JSON.parse(JSON.stringify(x.br||[]));brMsg="";editNote=x.note||"";editImgs=(x.img||[]).slice();editCat=x.fin?"":x.cat;editFcat=x.fin?x.cat:"";prepEdit();
+  editing=x.id;editLkFor=null;swipedId=null;editErr="";openId=null;openTx=null;editDay=x.day||today();editDue=x.due||"";editDir=x.dir||"";editRate=x.rate>0?String(x.rate).replace(".",","):"";editPer=x.per==="y"?"y":"m";editDueDay=x.dueDay||"";editLink=x.link||"";editAddr=x.addr||"";editBr=JSON.parse(JSON.stringify(x.br||[]));brMsg="";editNote=x.note||"";editImgs=(x.img||[]).slice();editCat=x.fin?"":x.cat;editFcat=x.fin?x.cat:"";prepEdit();
   if(!x.fin)editVal=x.text;
   else if(x.k==="tx")editVal=(x.t==="in"?"+":"")+amtStr(x.amt)+(x.desc?" "+x.desc:"");
   else editVal=amtStr(x.amt)+(x.desc&&x.desc!=="(không ghi chú)"?" "+x.desc:"");
@@ -3294,6 +3294,7 @@ document.addEventListener("click",function(e){
   if(d.edir){editDir=d.edir;render();return}
   if(d.ecat){editCat=d.ecat;render();focusEdit();return}
   if(d.efcat){editFcat=d.efcat;render();focusEdit();return}
+  if(d.lkopen){editLkFor=editing;render();setTimeout(function(){var f=document.querySelector("[data-elink]");if(f)f.focus()},0);return}
   if(d.brgps){t.disabled=true;if(t.classList.contains("lkgps"))t.classList.add("busy");else t.textContent="📍 Đang lấy…";brGps();return}
   if(d.bradd){editBr.push({id:Date.now(),l:"",link:"",addr:""});brMsg="";render();setTimeout(function(){var f=document.querySelectorAll("[data-brl]");if(f.length)f[f.length-1].focus()},0);return}
   if(d.brdel!==undefined){editBr.splice(+d.brdel,1);render();return}
