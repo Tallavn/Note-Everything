@@ -287,6 +287,10 @@ h1{font-size:27px;margin:0 0 28px}
 .fbtn svg{width:19px;height:19px;display:block}
 .fbtn.on{color:var(--accent);border-color:var(--accent)}
 .fbtn.on::after{content:"";position:absolute;top:7px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--accent)}
+/* Bảng lọc/sắp xếp mở: lớp chắn toàn màn hình (bấm ra ngoài chỉ đóng bảng, không chạm được thứ khác) + bảng nằm trên nút + */
+#fmBack{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.22);touch-action:none;-webkit-tap-highlight-color:transparent}
+body.fmopen #fmBack{display:block}
+body.fmopen .fwrap{z-index:101}
 .fmenu{position:absolute;right:0;top:calc(100% + 8px);width:232px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:0 10px 30px rgba(0,0,0,.2);padding:6px}
 .fgrp{font-size:var(--fs-xs);color:var(--muted);padding:8px 10px 4px;letter-spacing:.04em;text-transform:uppercase}
 .fopt+.fgrp{border-top:1px solid var(--line);margin-top:4px;padding-top:12px}
@@ -1687,7 +1691,11 @@ function syncSortUI(){
 function toggleSortMenu(open){
   document.getElementById("sortMenu").hidden=!open;
   document.getElementById("sortBtn").setAttribute("aria-expanded",open);
+  var bk=document.getElementById("fmBack");
+  if(!bk){bk=document.createElement("div");bk.id="fmBack";bk.setAttribute("aria-hidden","true");document.body.appendChild(bk)}
+  document.body.classList.toggle("fmopen",!!open);
 }
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&document.body.classList.contains("fmopen"))toggleSortMenu(false)});
 document.addEventListener("click",function(e){
   var m=document.getElementById("sortMenu"),b=e.target.closest("#sortBtn"),o=e.target.closest("[data-sort]");
   if(b){toggleSortMenu(m.hidden);return}
@@ -4229,7 +4237,7 @@ new MutationObserver(function(ms){ms.forEach(function(m){
   function atTop(){return (window.pageYOffset||document.documentElement.scrollTop||0)<=0}
   function blocked(t){
     var b=document.body.classList;
-    if(b.contains("composing")||b.contains("editing")||b.contains("psheet")||b.contains("fabmove")||b.contains("pout")||b.contains("cout"))return true;
+    if(b.contains("fmopen")||b.contains("composing")||b.contains("editing")||b.contains("psheet")||b.contains("fabmove")||b.contains("pout")||b.contains("cout"))return true;
     if(document.querySelector(".sheet:not([hidden]),.edit,.camsheet,.camlive,.lb"))return true;
     var l=document.getElementById("list");if(l&&l.classList.contains("reorder"))return true;
     var a=document.activeElement;if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))return true;
