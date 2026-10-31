@@ -406,6 +406,9 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .swact button{flex:1;border:0;border-radius:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:var(--fs-xs);font-weight:500;padding:0}
 .swact svg{width:20px;height:20px;display:block}.swact button span{display:block;line-height:1}
 .swact .sw-edit{flex:0 0 80px;padding-left:28px;background:#d9f1e8;color:#0f6e56}
+/* Vùng "nắp" 28px bên trái nút Sửa chỉ để trang trí: không nhận chạm, chạm vào đó rơi xuống thẻ. Chỉ phần màu nhìn thấy mới bấm được. */
+.swact{pointer-events:none}.swact button{pointer-events:none;position:relative}.swact .sw-del{pointer-events:auto}
+.swact .sw-edit::after{content:"";position:absolute;top:0;bottom:0;right:0;left:28px;pointer-events:auto}
 .swact .sw-del{flex:0 0 52px;background:#fbdada;color:#a32d2d}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .swact .sw-edit{background:#1c3a33;color:#6ee7b7}:root:not([data-theme="light"]) .swact .sw-del{background:#3b2326;color:#fca5a5}}
 :root[data-theme="dark"] .swact .sw-edit{background:#1c3a33;color:#6ee7b7}
@@ -3937,12 +3940,37 @@ try{Z=+localStorage.getItem("ghichu_zoom")||1}catch(e){}
 function setZ(v,keep){Z=Math.min(1.4,Math.max(.8,Math.round(v*10)/10));document.body.style.zoom=Z;document.documentElement.style.setProperty("--z",Z);zv.textContent=Math.round(Z*100)+"%";try{localStorage.setItem("ghichu_zoom",String(Z))}catch(e){}}
 function menu(o){sm.hidden=!o;sb.setAttribute("aria-expanded",o)}
 sb.addEventListener("click",function(){menu(sm.hidden)});
-document.addEventListener("click",function(e){if(!sm.hidden&&!e.target.closest("#setMenu,#setBtn"))menu(false)});
+document.addEventListener("click",function(e){if(!sm.hidden&&!e.target.closest("#setMenu,#setBtn")){e.preventDefault();e.stopPropagation();menu(false)}},true);
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!sm.hidden){menu(false);sb.focus()}});
 document.getElementById("zDn").addEventListener("click",function(){setZ(Z-.1)});
 document.getElementById("zUp").addEventListener("click",function(){setZ(Z+.1)});
 zv.addEventListener("click",function(){setZ(1)});
 setZ(Z);
+})();
+/* Bong bóng Messenger / thông báo nổi làm cửa sổ mất focus => hệ điều hành hạ bàn phím. Khi cửa sổ được trả lại, tự focus lại đúng ô đang gõ (giữ nguyên vị trí con trỏ) để bàn phím lên lại. */
+(function(){
+  var last=null,s0=0,s1=0,at=0;
+  function isF(el){return !!el&&el.nodeType===1&&(el.tagName==="TEXTAREA"||(el.tagName==="INPUT"&&!/^(checkbox|radio|button|submit|reset|range|file|color|image|date|time|month|week|datetime-local)$/i.test(el.type||"text"))||el.isContentEditable)}
+  window.addEventListener("blur",function(e){
+    if(e.target!==window)return;
+    var a=document.activeElement;
+    if(isF(a)){last=a;at=Date.now();try{s0=a.selectionStart;s1=a.selectionEnd}catch(x){s0=s1=null}}else last=null;
+  });
+  function back(){
+    if(!last||document.hidden)return;
+    var el=last;last=null;
+    if(Date.now()-at>60000||!el.isConnected)return;
+    setTimeout(function(){
+      if(!el.isConnected)return;
+      try{
+        if(document.activeElement===el)el.blur();
+        el.focus({preventScroll:true});
+        if(s0!=null&&el.setSelectionRange)el.setSelectionRange(s0,s1);
+      }catch(x){}
+    },80);
+  }
+  window.addEventListener("focus",back);
+  document.addEventListener("visibilitychange",back);
 })();
 (function(){
 var SK={vo:["light","#f6f3ea"],cham:["light","#f1f2f4"],phodem:["dark","#141414"],than:["dark","#000000"]},r=document.documentElement,btns=document.querySelectorAll("#skinBtns button"),cur="";
