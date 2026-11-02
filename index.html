@@ -1190,7 +1190,7 @@ function setGroupOrder(vk){
     others.forEach(function(x){x.style.transition="transform "+DUR+"ms ease";x.style.transform=""});
     h.style.transform="translateY("+(want-(h.offsetTop+h.offsetHeight/2))+"px)";
   }
-  function clean(){hdrs().forEach(function(x){x.style.transition="";x.style.transform="";x.classList.remove("lift")});L.classList.remove("reorder")}
+  function clean(){blkOff();hdrs().forEach(function(x){x.style.transition="";x.style.transform="";x.classList.remove("lift")});L.classList.remove("reorder")}
   function stop(){
     clearTimeout(tm);tm=null;
     if(!drag||drag.done)return;
@@ -1208,14 +1208,17 @@ function setGroupOrder(vk){
     var h=e.target.closest&&e.target.closest(".cgrp");
     if(!h||!h.dataset.gk||e.button>0||drag||hdrs().length<2)return;
     sx=e.clientX;sy=e.clientY;clearTimeout(tm);
+    if(Date.now()-lastSc<150)return;   /* đang cuộn quán tính: chạm vào để vuốt tiếp, không phải nhấn giữ để kéo nhóm */
+    var y0=window.scrollY;
     tm=setTimeout(function(){
       tm=null;
+      if(Math.abs(window.scrollY-y0)>2)return;   /* trang đã cuộn trong lúc giữ: bỏ */
       var r=h.getBoundingClientRect(),g=Math.max(-r.height/2,Math.min(r.height/2,sy-(r.top+r.height/2)));
       L.classList.add("reorder");
       var r2=h.getBoundingClientRect();
       if(Math.abs(r2.top-r.top)>1)window.scrollBy(0,r2.top-r.top);
       h.classList.add("lift");
-      drag={h:h,grab:g};
+      drag={h:h,grab:g};blkArm();
       h.style.transition="transform "+DUR+"ms ease, box-shadow "+DUR+"ms ease";
       place(sy);
       setTimeout(function(){if(drag&&!drag.done)h.style.transition="box-shadow "+DUR+"ms ease"},DUR+20);
@@ -1227,7 +1230,12 @@ function setGroupOrder(vk){
     if(tm&&Math.hypot(e.clientX-sx,e.clientY-sy)>8){clearTimeout(tm);tm=null}
     if(drag&&!drag.done)place(e.clientY);
   });
-  document.addEventListener("touchmove",function(e){if(drag&&e.cancelable)e.preventDefault()},{passive:false});
+  /* Không để listener touchmove non-passive ở document nữa (nó bắt MỌI lần vuốt phải chờ main thread -> cuộn bị trễ/rớt, phải vuốt 2-3 lần). Chỉ gắn khi đã vào chế độ kéo nhóm, gỡ khi xong. */
+  var blkOn=false;
+  function blk(e){if(drag&&e.cancelable)e.preventDefault()}
+  function blkArm(){if(!blkOn){blkOn=true;document.addEventListener("touchmove",blk,{passive:false})}}
+  function blkOff(){if(blkOn){blkOn=false;document.removeEventListener("touchmove",blk,{passive:false})}}
+  var lastSc=0;window.addEventListener("scroll",function(){lastSc=Date.now()},{passive:true});
   document.addEventListener("pointerup",stop);
   document.addEventListener("pointercancel",function(){if(drag)stop();else{clearTimeout(tm);tm=null}});
   L.addEventListener("contextmenu",function(e){if(e.target.closest&&e.target.closest(".cgrp"))e.preventDefault()});
