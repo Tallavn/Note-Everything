@@ -203,12 +203,12 @@ body.fabmove .fab.show+.fablock{display:flex}
 }
 .rt{display:inline-flex;align-items:center;font-size:var(--fs-xs);font-weight:700;color:#fff;background:var(--c);border-radius:var(--r-sm);padding:1px 9px}
 .starrow{gap:8px}.starrow .scr{flex:1;min-width:120px;max-width:220px;margin:0;accent-color:var(--accent);touch-action:pan-y}.starrow .scv{min-width:62px}
-@keyframes tabInR{from{opacity:0;transform:translateX(72px) scale(.96)}to{opacity:1;transform:none}}
-@keyframes tabInL{from{opacity:0;transform:translateX(-72px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes tabInR{from{opacity:0;transform:translateX(36px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes tabInL{from{opacity:0;transform:translateX(-36px) scale(.98)}to{opacity:1;transform:none}}
 /* Chỉ trượt phần nội dung. Không áp transform lên cả khung tab, vì transform làm các thanh position:fixed bên trong (lọc, seg, khung nhập) bị tính vị trí theo khung đó rồi nhảy về khi hết hiệu ứng */
-.tabin-r>*:not(.box):not(.seg):not(.frow):not(.plbar):not(.sheet):not(.psh):not(#in-msg){animation:tabInR .42s cubic-bezier(.16,.84,.3,1) both}
-.tabin-l>*:not(.box):not(.seg):not(.frow):not(.plbar):not(.sheet):not(.psh):not(#in-msg){animation:tabInL .42s cubic-bezier(.16,.84,.3,1) both}
-.tabin-r>*:nth-child(2),.tabin-l>*:nth-child(2){animation-delay:.04s}.tabin-r>*:nth-child(3),.tabin-l>*:nth-child(3){animation-delay:.08s}.tabin-r>*:nth-child(n+4),.tabin-l>*:nth-child(n+4){animation-delay:.12s}
+.tabin-r>*:not(.box):not(.seg):not(.frow):not(.plbar):not(.sheet):not(.psh):not(#in-msg){animation:tabInR .3s cubic-bezier(.16,.84,.3,1) both}
+.tabin-l>*:not(.box):not(.seg):not(.frow):not(.plbar):not(.sheet):not(.psh):not(#in-msg){animation:tabInL .3s cubic-bezier(.16,.84,.3,1) both}
+.tabin-r>*:nth-child(2),.tabin-l>*:nth-child(2){animation-delay:.02s}.tabin-r>*:nth-child(3),.tabin-l>*:nth-child(3){animation-delay:.04s}.tabin-r>*:nth-child(n+4),.tabin-l>*:nth-child(n+4){animation-delay:.06s}
 main{overflow-x:clip}
 @media (prefers-reduced-motion:reduce){.tabin-r>*,.tabin-l>*{animation:none!important}}
 /* Tab Ghi chú / Chi tiêu: chữ + gạch chân đúng bằng độ rộng chữ, căn trái, không khung */
@@ -3168,6 +3168,12 @@ function setTab(t){
     v.classList.remove("tabin-r","tabin-l");void v.offsetWidth;v.classList.add(c);setTimeout(function(){v.classList.remove(c)},620)}
   scrollRestore();updateFab();
 }
+/* Chuyển trang con (Thu chi / Nợ / Ngân sách): dùng đúng hiệu ứng trượt như chuyển tab Ghi chú -> Chi tiêu (tabin-r / tabin-l) */
+function subAnim(from,to){
+  if(from===to)return;
+  var OD={tx:0,debt:1,bud:2},v=document.getElementById("finView"),c=OD[to]>OD[from]?"tabin-r":"tabin-l";
+  v.classList.remove("tabin-r","tabin-l");void v.offsetWidth;v.classList.add(c);setTimeout(function(){v.classList.remove(c)},620);
+}
 var editScore=0,editLkFor=null,editing=null,editVal="",editAddr="",editCat="",editFcat="",editNote="",editLink="",editDue="",editDay="",editDir="",editRate="",editPer="m",editDueDay="",editErr="";
 function amtStr(n){if(n<1000)return n+"d";if(n%1e6===0)return n/1e6+"tr";if(n%1000===0)return n/1000+"k";return String(n)}
 function editForm(x){
@@ -3327,7 +3333,7 @@ document.addEventListener("click",function(e){
   if(d.cmpmenu){cmpOpen=!cmpOpen;chartView="cmp";renderFin();return}
   if(d.cmpn){cmpN=cmpN===2?3:cmpN===3?6:cmpN===6?12:2;chartView="cmp";renderFin();return}
   if(d.cv){if(d.cv==="trend"&&chartView==="trend"){trendN=trendN===1?3:trendN===3?6:trendN===6?12:1}chartView=d.cv;renderFin();return}
-  if(d.sub){scrollSave();sub=d.sub;fcat="";openTx=null;defMsg();renderFin();scrollRestore();updateFab();return}
+  if(d.sub){scrollSave();var psub=sub;sub=d.sub;fcat="";openTx=null;defMsg();renderFin();subAnim(psub,sub);scrollRestore();updateFab();return}
   if(d.mo){var mm=ym.m+Number(d.mo),yy=ym.y;if(mm<1){mm=12;yy--}if(mm>12){mm=1;yy++}ym={y:yy,m:mm};fcat="";fday="";openTx=null;renderFin();return}
   if(d.fcat){fcat=fcat===d.fcat?"":d.fcat;renderFin();return}
   if(d.ftx){openTx=openTx==d.ftx?null:d.ftx;renderFin();return}
