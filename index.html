@@ -203,11 +203,11 @@ body.fabmove .fab.show+.fablock{display:flex}
 }
 .rt{display:inline-flex;align-items:center;font-size:var(--fs-xs);font-weight:700;color:#fff;background:var(--c);border-radius:var(--r-sm);padding:1px 9px}
 .starrow{gap:8px}.starrow .scr{flex:1;min-width:120px;max-width:220px;margin:0;accent-color:var(--accent);touch-action:pan-y}.starrow .scv{min-width:62px}
-@keyframes tabInR{from{opacity:0}to{opacity:1}}
-@keyframes tabInL{from{opacity:0}to{opacity:1}}
+@keyframes tabInR{from{opacity:.4;transform:translateX(30%)}to{opacity:1;transform:none}}
+@keyframes tabInL{from{opacity:.4;transform:translateX(-30%)}to{opacity:1;transform:none}}
 /* Chỉ trượt phần nội dung. Không áp transform lên cả khung tab, vì transform làm các thanh position:fixed bên trong (lọc, seg, khung nhập) bị tính vị trí theo khung đó rồi nhảy về khi hết hiệu ứng */
-.tabin-r>*:not(.box):not(.seg):not(.frow):not(.plbar):not(.sheet):not(.psh):not(#in-msg){animation:tabInR .26s cubic-bezier(.4,0,.2,1) both}
-.tabin-l>*:not(.box):not(.seg):not(.frow):not(.plbar):not(.sheet):not(.psh):not(#in-msg){animation:tabInL .26s cubic-bezier(.4,0,.2,1) both}
+.tabin-r>*:not(.box):not(.seg):not(.frow):not(.plbar):not(.sheet):not(.psh):not(#in-msg){animation:tabInR .4s cubic-bezier(.32,.72,0,1) both}
+.tabin-l>*:not(.box):not(.seg):not(.frow):not(.plbar):not(.sheet):not(.psh):not(#in-msg){animation:tabInL .4s cubic-bezier(.32,.72,0,1) both}
 main{overflow-x:clip}
 @media (prefers-reduced-motion:reduce){.tabin-r>*,.tabin-l>*{animation:none!important}}
 /* Tab Ghi chú / Chi tiêu: chữ + gạch chân đúng bằng độ rộng chữ, căn trái, không khung */
