@@ -1424,6 +1424,7 @@ function dueInfo(x){
   return{t:d.getTime(),lb:lb,cl:cl}
 }
 var doneTimer=null;
+function fixDash(s){return String(s).replace(/[\u2010-\u2015\u2212\uFE63\uFF0D]/g,"-").replace(/\uFF0B/g,"+")}
 function norm(s){return " "+s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d")+" "}
 var STRICT={food:["quán","tiệm"]};
 var DISH=["pho","bun","banh","com","lau","nuong","che","xoi","mien","mi","ga","bo","hai san","oc","kem","tra","bia","ngon"];
@@ -1602,6 +1603,7 @@ function save(){
 }
 function fmt(ts){var d=new Date(ts);return d.getDate()+"/"+(d.getMonth()+1)+" "+("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2)}
 function strongAmt(tok){
+  tok=fixDash(tok);
   var t=norm(tok).trim().replace(/^[+\-=]/,"").replace(/[;:!?]+$/,"").replace(/[.,]+$/,""),sg=/^[+\-=]/.test(tok.trim()),p,u;
   if(/^\d+(?:[.,]\d+)?(k|tr|trieu|nghin|ngan)(\d{1,3})?$/.test(t)||/^\d+(d|dong)$/.test(t)){p=parseTok(t);return p?p.v:0}
   u=t.replace(/(d|dong)$/,"");
@@ -1614,6 +1616,7 @@ function bare(w){return norm(w).trim().replace(/[^a-z0-9]/g,"")}
 /* Chỉ coi là nợ khi gõ đúng "vay", "nợ", "mượn" (có dấu). Gõ không dấu "no"/"muon" thì chỉ tính khi đứng đầu câu, để "ăn no", "muốn" không bị nhầm */
 function debtWord(w,first){var t=String(w).normalize("NFC").toLowerCase().replace(/[;:!?.,]+$/,"");return t==="vay"||t==="nợ"||t==="mượn"||(!!first&&(t==="no"||t==="muon"))}
 function autoFin(raw){
+  raw=fixDash(raw);
   if(raw.indexOf("\n")>-1||raw.length>80||/https?:\/\//i.test(raw)||raw.indexOf("#")>-1||area(raw))return null;
   var tk=raw.trim().split(/\s+/),idx=-1,v=0,i;
   for(i=0;i<tk.length;i++){v=strongAmt(tk[i]);if(v){idx=i;break}}
@@ -2486,6 +2489,7 @@ function parseTok(raw){
   return{v:Math.round(b*MULT[m[2]]),s:true};
 }
 function parseLine(raw){
+  raw=fixDash(raw);
   var tk=raw.trim().split(/\s+/),best=-1,weak=-1,i,p,sg,tok;
   for(i=0;i<tk.length;i++){
     sg=tk[i].replace(/^[+\-=]/,"");if(!sg)continue;p=parseTok(sg);if(!p)continue;
