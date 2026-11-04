@@ -166,7 +166,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .dh{display:flex;justify-content:space-between;font-size:var(--fs-xs);color:var(--muted);margin:14px 2px 6px}
 .tx{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:10px 12px;margin-bottom:6px}
 .tx .tdesc{word-break:break-word}
-.tx .ftag{background:transparent;border:1px solid currentColor;margin-top:4px}
+.tx .ftag{background:color-mix(in srgb,currentColor 14%,transparent);border:1px solid color-mix(in srgb,currentColor 38%,transparent);margin-top:4px}
 .tamt{font-weight:700;white-space:nowrap;font-size:.9em}.tgc .tgh b,.tgc .tgt b{font-size:.9em}
 .tx .pick{grid-column:1/-1}
 .dtn{background:transparent;border:1px solid var(--line);color:var(--ink);border-radius:var(--r-sm);padding:3px 10px;font-size:var(--fs-xs)}
@@ -1076,6 +1076,146 @@ body.setopen .gfab{display:none!important}
 #planView .pdh{background:var(--fill);border-radius:14px;margin:22px 0 2px;padding:12px 14px}
 .pit.pa .pam{border-radius:10px;background:var(--fill)}
 .pit input[type=checkbox]{border-radius:6px}
+
+/* ===== MICA 2 VÙNG cho khung nhập ghi chú =====
+   Vùng 1 (ngoài, đục hơn): khung + thanh công cụ trên cùng (Tag, ảnh, quét chữ, Lưu).
+   Vùng 2 (trong, trong suốt hơn): .cpane chứa ô nhập chính + ghi chú thêm. */
+#notesView,#finSheet,#plSheet{
+  --m-o:rgba(255,255,255,.66);--m-o-edge:rgba(255,255,255,.8);--m-chip:rgba(255,255,255,.55);
+  --m-i:rgba(255,255,255,.14);--m-i-edge:rgba(255,255,255,.55);--m-i-hi:rgba(255,255,255,.8);
+  --m-sh:0 24px 60px rgba(30,40,45,.14);--m-line:rgba(0,0,0,.07)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(#notesView,#finSheet,#plSheet){
+  --m-o:rgba(40,44,47,.7);--m-o-edge:rgba(255,255,255,.10);--m-chip:rgba(255,255,255,.09);
+  --m-i:rgba(255,255,255,.04);--m-i-edge:rgba(255,255,255,.08);--m-i-hi:rgba(255,255,255,.10);
+  --m-sh:0 24px 60px rgba(0,0,0,.5);--m-line:rgba(255,255,255,.08)}}
+:root[data-theme="dark"] :is(#notesView,#finSheet,#plSheet){
+  --m-o:rgba(40,44,47,.7);--m-o-edge:rgba(255,255,255,.10);--m-chip:rgba(255,255,255,.09);
+  --m-i:rgba(255,255,255,.04);--m-i-edge:rgba(255,255,255,.08);--m-i-hi:rgba(255,255,255,.10);
+  --m-sh:0 24px 60px rgba(0,0,0,.5);--m-line:rgba(255,255,255,.08)}
+/* vùng 1 */
+#notesView>.box{
+  background:var(--m-o);
+  -webkit-backdrop-filter:blur(34px) saturate(1.3);backdrop-filter:blur(34px) saturate(1.3);
+  border:0;box-shadow:inset 0 0 0 1px var(--m-o-edge),var(--m-sh);
+  border-radius:30px;padding:8px;
+}
+#notesView>.box .inrow{margin:0;padding:4px 4px 10px;border:0}
+/* vùng 2 */
+#notesView>.box .cpane{
+  position:relative;border-radius:24px;padding:10px 12px 8px;
+  background:var(--m-i);
+  -webkit-backdrop-filter:blur(6px) saturate(1.15);backdrop-filter:blur(6px) saturate(1.15);
+  box-shadow:inset 0 0 0 1px var(--m-i-edge),inset 0 1px 0 var(--m-i-hi);
+}
+#notesView>.box .cpane textarea#in{background:transparent;border:0!important;box-shadow:none;border-radius:0;margin:0;width:100%;padding:4px 30px 4px 2px;min-height:5em}
+#notesView>.box .cpane textarea#in:focus,#notesView>.box .cpane textarea#in:focus-visible{outline:none;box-shadow:none}
+#notesView>.box .cpane .nlw.s{margin:4px 0 0;padding:0;border-top:1px solid var(--m-line);background:transparent}
+#notesView>.box .cpane .nlw.s textarea#in-note{background:transparent;border:0!important;margin:0!important;padding:10px 40px 6px 2px!important}
+#notesView>.box .cpane .cclose{display:none!important} /* đã có nút xóa nổi #xclr */
+#notesView>.box .thumbs:not(:empty){margin:8px 4px 0}
+/* chip kính trên thanh công cụ */
+#notesView .inrow .intags>.tag.ghost,.intags>.tag[data-inopen],
+#notesView .inrow .intags>.meta .chip,#notesView .inrow .intags>.meta.duechip{
+  background:var(--m-chip);border:0;color:var(--ink);border-radius:999px;
+}
+#notesView>.box .cam{background:var(--m-chip);border:0;border-radius:50%}
+#notesView>.box .insug button{background:var(--m-chip);border:0;color:var(--ink)}
+@media (max-width:700px),(pointer:coarse){
+  body.composing .cbd{background:linear-gradient(rgba(0,0,0,.10),rgba(0,0,0,.10)),color-mix(in srgb,var(--bg) 22%,transparent);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+}
+/* ===== cùng kiểu mica cho Chi tiêu (#finSheet) và Dự án (#plSheet) ===== */
+#finSheet .box,#plSheet .box{
+  background:var(--m-o);
+  -webkit-backdrop-filter:blur(34px) saturate(1.3);backdrop-filter:blur(34px) saturate(1.3);
+  border:0;box-shadow:inset 0 0 0 1px var(--m-o-edge),var(--m-sh);border-radius:30px;padding:8px;
+}
+#finSheet .shead,#plSheet .shead{padding:4px 8px 0;top:0}
+#finSheet .box>.row,#plSheet .box>.mbar{margin:0;padding:4px 4px 10px;border:0;align-items:center}
+#plSheet .box>.mbar{height:auto!important;min-height:46px;overflow:visible!important;flex-wrap:nowrap;justify-content:flex-start;gap:8px}
+#finSheet .cpane textarea:focus,#finSheet .cpane textarea:focus-visible,#plSheet .cpane textarea:focus,#plSheet .cpane textarea:focus-visible{outline:none!important;box-shadow:none!important}
+#plSheet .mbar .sp{flex:1}
+#finSheet .box>.row .date{background:var(--m-chip);border:0;border-radius:999px}
+#finSheet .cam,#plSheet .cam{background:var(--m-chip);border:0;border-radius:50%}
+#plSheet .mbar .lnk{padding:8px 14px!important;margin:0!important;border-radius:999px;background:var(--m-chip);color:var(--ink)}
+#finSheet .cpane,#plSheet .cpane{
+  position:relative;border-radius:24px;padding:10px 12px 8px;
+  background:var(--m-i);
+  -webkit-backdrop-filter:blur(6px) saturate(1.15);backdrop-filter:blur(6px) saturate(1.15);
+  box-shadow:inset 0 0 0 1px var(--m-i-edge),inset 0 1px 0 var(--m-i-hi);
+}
+#finSheet .cpane>textarea:first-child,#plSheet .cpane>textarea:first-child{background:transparent;border:0!important;box-shadow:none;border-radius:0;margin:0;width:100%;padding:4px 2px;min-height:4.5em}
+#finSheet .cpane .nlw.s,#plSheet .cpane .nlw.s{margin:4px 0 0!important;padding:0;border-top:1px solid var(--m-line);background:transparent}
+#finSheet .cpane .nlw.s textarea,#plSheet .cpane .nlw.s textarea{background:transparent;border:0!important;margin:0!important;width:100%;padding:10px 40px 6px 2px!important}
+#finSheet .box>.pick,#finSheet .box>.thumbs:not(:empty),#finSheet .box>#fin-rate-row:not([hidden]){margin:8px 6px 0}
+#plSheet .box>.hint.nh{margin:8px 8px 4px!important}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  #notesView>.box{background:var(--surface)}
+  #notesView>.box .cpane,#finSheet .cpane,#plSheet .cpane{background:var(--bg)}
+  #finSheet .box,#plSheet .box{background:var(--surface)}
+}
+
+#fin-cats .tag.ghost{background:color-mix(in srgb,var(--muted) 14%,transparent)}
+#fin-cats .tag.ghost[aria-pressed="true"]{color:var(--ink)}
+
+/* ===== mica y hệt bảng nhập Ghi chú cho mọi pop-up nhập liệu còn lại (Sửa, Chọn ngày, Nhập lịch trình, Mục tiêu, Lặp, hộp thoại, chọn ảnh) ===== */
+:is(#rgSheet,#impSheet,#gSheet,#recSheet,#dlgSheet,.edit,.camsheet){
+  --m-o:rgba(255,255,255,.66);--m-o-edge:rgba(255,255,255,.8);--m-chip:rgba(255,255,255,.55);
+  --m-i:rgba(255,255,255,.14);--m-i-edge:rgba(255,255,255,.55);--m-i-hi:rgba(255,255,255,.8);
+  --m-sh:0 24px 60px rgba(30,40,45,.14);--m-line:rgba(0,0,0,.07)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(#rgSheet,#impSheet,#gSheet,#recSheet,#dlgSheet,.edit,.camsheet){
+  --m-o:rgba(40,44,47,.7);--m-o-edge:rgba(255,255,255,.10);--m-chip:rgba(255,255,255,.09);
+  --m-i:rgba(255,255,255,.04);--m-i-edge:rgba(255,255,255,.08);--m-i-hi:rgba(255,255,255,.10);
+  --m-sh:0 24px 60px rgba(0,0,0,.5);--m-line:rgba(255,255,255,.08)}}
+:root[data-theme="dark"] :is(#rgSheet,#impSheet,#gSheet,#recSheet,#dlgSheet,.edit,.camsheet){
+  --m-o:rgba(40,44,47,.7);--m-o-edge:rgba(255,255,255,.10);--m-chip:rgba(255,255,255,.09);
+  --m-i:rgba(255,255,255,.04);--m-i-edge:rgba(255,255,255,.08);--m-i-hi:rgba(255,255,255,.10);
+  --m-sh:0 24px 60px rgba(0,0,0,.5);--m-line:rgba(255,255,255,.08)}
+/* vùng 1: khung ngoài */
+:is(#rgSheet,#impSheet,#gSheet,#recSheet,#dlgSheet)>.box,.edit,.camsheet .cs-box{
+  background:var(--m-o);
+  -webkit-backdrop-filter:blur(34px) saturate(1.3);backdrop-filter:blur(34px) saturate(1.3);
+  border:0;box-shadow:inset 0 0 0 1px var(--m-o-edge),var(--m-sh);border-radius:30px}
+/* vùng 2: ô nhập / thẻ bên trong */
+.edit .fcard,:is(#rgSheet,#impSheet,#gSheet,#recSheet,#dlgSheet) .ed:not(input[type=range]):not(input[type=checkbox]):not(input[type=radio]){
+  background:var(--m-i);border:0;
+  -webkit-backdrop-filter:blur(6px) saturate(1.15);backdrop-filter:blur(6px) saturate(1.15);
+  box-shadow:inset 0 0 0 1px var(--m-i-edge),inset 0 1px 0 var(--m-i-hi)}
+.edit .fcard{border-radius:24px}
+.edit .fcard:focus-within{border:0;box-shadow:inset 0 0 0 1px var(--m-i-edge),inset 0 1px 0 var(--m-i-hi)}
+.edit .fcard .ed,.edit .fcard textarea{background:transparent!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none;backdrop-filter:none}
+.edit .fcard>*+*,.edit .fcard .nlw.s{border-top-color:var(--m-line)}
+/* chip kính */
+:is(#rgSheet,#impSheet,#gSheet,#recSheet,#dlgSheet) .chip,:is(#rgSheet,#impSheet,#gSheet,#recSheet,#dlgSheet) .pchips button:not([aria-pressed="true"]),.edit .chip,.edit .cam,:is(#rgSheet,#impSheet,#gSheet,#recSheet,#dlgSheet) .cam{
+  background:var(--m-chip);border:0;color:var(--ink)}
+.camsheet .cs-box button{background:var(--m-chip);border:0;color:var(--ink)}
+.camsheet .cs-box .cs-x{background:transparent}
+:is(#rgSheet,#impSheet,#gSheet,#recSheet,#dlgSheet) .shead,.edit .shead{border-color:var(--m-line)}
+/* nền mờ phía sau giống lúc nhập ghi chú */
+@media (max-width:700px),(pointer:coarse){
+  .sheet,body.editing .cbd,.camsheet .cs-bd{background:linear-gradient(rgba(0,0,0,.10),rgba(0,0,0,.10)),color-mix(in srgb,var(--bg) 22%,transparent);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  :is(#rgSheet,#impSheet,#gSheet,#recSheet,#dlgSheet)>.box,.edit,.camsheet .cs-box{background:var(--surface)}
+  .edit .fcard{background:var(--bg)}
+}
+
+/* nền trắng cho các nút tag thu chi (ghi đè style inline) */
+#fin-cats .tag,.ftag{background:#fff!important}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) :is(#fin-cats .tag,.ftag){background:rgba(255,255,255,.09)!important}}
+:root[data-theme="dark"] :is(#fin-cats .tag,.ftag){background:rgba(255,255,255,.09)!important}
+
+/* bo cong 20px giống thẻ ghi chú cho các khối ở tab Chi tiêu / Dự án */
+.wallet,.card,.dsum,.dueI,.pc,.tgc,.txw,.tx,.swrap,.g-row,.ft,.xrow,.g-shot,.g-ai,#in-msg,.toast{border-radius:20px}
+.tgc .txw,.tgc .tx.swcard,.tgc>.tx{border-radius:0}
+.txw .swact::before{border-radius:0 20px 20px 0}
+.swact::before{border-radius:0 20px 20px 0}
+.tx.swcard{border-radius:20px}
+#planView .pdh{border-radius:20px}
+#planView .plbar{border-radius:28px}
+#planView .pin{border-radius:16px}
+.fbtn,.fmenu,.smenu{border-radius:20px}
+.tgc .swrap,.tgc .tgg{border-radius:0}
+.tabs{justify-content:center}
 </style>
 </head>
 <body>
@@ -1089,10 +1229,13 @@ body.setopen .gfab{display:none!important}
 <div class="tabs"><button class="chip" data-tab="notes" aria-pressed="true"><span class="tl">Ghi chú</span></button><button class="chip" data-tab="fin" aria-pressed="false"><span class="tl">Chi tiêu</span><i class="tbadge" id="tabBadge" hidden></i></button><button class="chip" data-tab="plan" aria-pressed="false"><span class="tl">Dự án</span></button></div>
 <div id="notesView">
 <div class="box">
+<div class="row inrow"><div class="hint nh">Có số tiền → Chi tiêu  ·  Chọn Tag → Ghi chú</div><div class="intags" id="inTags"></div><button type="button" class="cam" data-cam="in" aria-label="Thêm ảnh" title="Thêm ảnh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13.5" r="3.4"/></svg></button><button type="button" class="cam ocr" data-ocr="1" aria-label="Quét chữ từ ảnh" title="Quét chữ từ ảnh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M8 9h8M8 12h8M8 15h5"/></svg></button><button class="add" id="add">Lưu</button></div>
+<div class="cpane">
 <button type="button" class="cclose" id="cclose" aria-label="Xóa văn bản">×</button>
 <textarea id="in" rows="1" placeholder="Gõ gì cũng được, vd: bún chả ngon"></textarea>
 <div class="nlw s"><textarea id="in-note" rows="1" class="fin-in" autocomplete="off" enterkeyhint="done" maxlength="200" aria-label="Ghi chú thêm" placeholder="Ghi chú thêm (không bắt buộc)" style="font-size:var(--fs-sm);border-top:1px solid var(--line);margin-top:2px;padding:6px 2px"></textarea><button type="button" class="nlb" aria-label="Xuống dòng" title="Xuống dòng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 5v7a2 2 0 0 1-2 2H5"/><path d="M9 10l-4 4 4 4"/></svg></button></div>
-<div class="thumbs" id="ph-in"></div><div class="insug" id="inSug"></div><div class="row inrow"><div class="hint nh">Có số tiền → Chi tiêu  ·  Chọn Tag → Ghi chú</div><div class="intags" id="inTags"></div><button type="button" class="cam" data-cam="in" aria-label="Thêm ảnh" title="Thêm ảnh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13.5" r="3.4"/></svg></button><button type="button" class="cam ocr" data-ocr="1" aria-label="Quét chữ từ ảnh" title="Quét chữ từ ảnh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M8 9h8M8 12h8M8 15h5"/></svg></button><button class="add" id="add">Lưu</button></div>
+</div>
+<div class="thumbs" id="ph-in"></div><div class="insug" id="inSug"></div>
 </div>
 <div class="hint" id="in-msg" style="margin-top:6px" role="status"></div>
 <div class="frow"><div class="filters" id="filters"></div>
@@ -1116,9 +1259,9 @@ body.setopen .gfab{display:none!important}
 <div id="finView" hidden>
 <div class="seg"><button class="chip" data-sub="tx" aria-pressed="true">Thu chi<i class="tbadge" id="subBadgeTx" hidden></i></button><button class="chip" data-sub="debt" aria-pressed="false">Nợ<i class="tbadge" id="subBadgeDebt" hidden></i></button><button class="chip" data-sub="bud" aria-pressed="false">Ngân sách</button></div>
 <div id="finTop"></div>
-<div id="finSheet" class="sheet" hidden><div class="box"><div class="shead"><b id="sheet-title">Thêm khoản mới</b><button class="x" data-sheetclose="1" aria-label="Đóng">×</button></div><textarea id="fin-in" class="fin-in" autocomplete="off" enterkeyhint="done" placeholder="45k phở bò · 1tr2 tiền điện · +15tr lương" rows="1" maxlength="200" spellcheck="false" autocapitalize="sentences"></textarea><div class="nlw s" style="margin-top:8px"><textarea class="fin-in" id="fin-note" rows="1" maxlength="200"  autocomplete="off" enterkeyhint="done" placeholder="Ghi chú thêm (không bắt buộc)" style="font-size:var(--fs-sm);border-top:1px solid var(--line)"></textarea><button type="button" class="nlb" aria-label="Xuống dòng" title="Xuống dòng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 5v7a2 2 0 0 1-2 2H5"/><path d="M9 10l-4 4 4 4"/></svg></button></div>
-<div class="pick" id="fin-cats" role="group" aria-label="Chọn tag" hidden></div><div class="thumbs" id="ph-fin"></div><div id="fin-rate-row" class="hint" hidden style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:6px 2px 8px">Lãi suất <input id="fin-rate" class="date" type="text" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="Lãi suất, để trống nếu không có" style="width:64px;text-align:right"> % <select id="fin-per" class="date" aria-label="Kỳ tính lãi"><option value="m">/ tháng</option><option value="y">/ năm</option></select> <span style="margin-left:8px">Hạn trả</span> <input type="date" id="fin-due" class="date" aria-label="Hạn trả nợ, để trống nếu không có"></div><div class="row"><span style="display:inline-flex;gap:8px;align-items:center"><input type="date" id="fin-date" class="date" aria-label="Ngày"><button type="button" class="cam" data-cam="fin" aria-label="Thêm ảnh" title="Thêm ảnh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13.5" r="3.4"/></svg></button></span><span><button class="add" id="fin-add">Lưu</button><span id="fin-debt" hidden><button class="add" data-dir="owe">Mình nợ</button> <button class="add alt" data-dir="lent">Họ nợ mình</button></span></span></div>
-<div class="hint" id="fin-msg" style="margin-top:6px"></div></div></div>
+<div id="finSheet" class="sheet" hidden><div class="box"><div class="shead"><b id="sheet-title">Thêm khoản mới</b><button class="x" data-sheetclose="1" aria-label="Đóng">×</button></div><div class="row"><span style="display:inline-flex;gap:8px;align-items:center"><input type="date" id="fin-date" class="date" aria-label="Ngày"><button type="button" class="cam" data-cam="fin" aria-label="Thêm ảnh" title="Thêm ảnh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13.5" r="3.4"/></svg></button></span><span><button class="add" id="fin-add">Lưu</button><span id="fin-debt" hidden><button class="add" data-dir="owe">Mình nợ</button> <button class="add alt" data-dir="lent">Họ nợ mình</button></span></span></div>
+<div class="cpane"><textarea id="fin-in" class="fin-in" autocomplete="off" enterkeyhint="done" placeholder="45k phở bò · 1tr2 tiền điện · +15tr lương" rows="1" maxlength="200" spellcheck="false" autocapitalize="sentences"></textarea><div class="nlw s" style="margin-top:8px"><textarea class="fin-in" id="fin-note" rows="1" maxlength="200"  autocomplete="off" enterkeyhint="done" placeholder="Ghi chú thêm (không bắt buộc)" style="font-size:var(--fs-sm);border-top:1px solid var(--line)"></textarea><button type="button" class="nlb" aria-label="Xuống dòng" title="Xuống dòng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 5v7a2 2 0 0 1-2 2H5"/><path d="M9 10l-4 4 4 4"/></svg></button></div></div>
+<div class="pick" id="fin-cats" role="group" aria-label="Chọn tag" hidden></div><div class="thumbs" id="ph-fin"></div><div id="fin-rate-row" class="hint" hidden style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:6px 2px 8px">Lãi suất <input id="fin-rate" class="date" type="text" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="Lãi suất, để trống nếu không có" style="width:64px;text-align:right"> % <select id="fin-per" class="date" aria-label="Kỳ tính lãi"><option value="m">/ tháng</option><option value="y">/ năm</option></select> <span style="margin-left:8px">Hạn trả</span> <input type="date" id="fin-due" class="date" aria-label="Hạn trả nợ, để trống nếu không có"></div><div class="hint" id="fin-msg" style="margin-top:6px"></div></div></div>
 <div id="finBody" style="margin-top:14px"></div>
 </div>
 
@@ -1146,9 +1289,9 @@ body.setopen .gfab{display:none!important}
 </section>
 <div class="hint g-foot">Bấm logo để quay lại ghi chú · dữ liệu mode này lưu trên máy này</div>
 </div>
-<div id="plSheet" class="psh"><div class="box"><div class="shead"><b id="pl-title">Tạo dự án mới</b><button class="x" data-pl="pclose" aria-label="Đóng">×</button></div><textarea id="pl-new2" data-plk="new2" class="fin-in" autocomplete="off" enterkeyhint="done" placeholder="đà lạt 3 ngày 5tr, hoặc chỉ gõ tên" rows="1" maxlength="200" spellcheck="false" autocapitalize="sentences"></textarea><div class="nlw s" style="margin-top:8px"><textarea class="fin-in" id="pl-note" rows="1" maxlength="200" data-plk="note" autocomplete="off" enterkeyhint="done" placeholder="Ghi chú dự án (không bắt buộc)" style="font-size:var(--fs-sm);border-top:1px solid var(--line)"></textarea><button type="button" class="nlb" aria-label="Xuống dòng" title="Xuống dòng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 5v7a2 2 0 0 1-2 2H5"/><path d="M9 10l-4 4 4 4"/></svg></button></div>
-<button type="button" class="lnk" id="pl-imp" data-imp="open" style="padding:2px 0 8px;margin-left:0;font-size:var(--fs-sm)">Nhập lịch trình</button>
-<div class="row inrow" style="align-items:center"><div class="hint nh" id="pl-hint">Có số tiền ở cuối thì thành ngân sách dự án.</div><button class="add" id="pl-go" data-pl="new2" style="flex:none">Tạo</button></div></div></div>
+<div id="plSheet" class="psh"><div class="box"><div class="shead"><b id="pl-title">Tạo dự án mới</b><button class="x" data-pl="pclose" aria-label="Đóng">×</button></div><div class="row inrow mbar"><button type="button" class="lnk" id="pl-imp" data-imp="open" style="padding:2px 0 8px;margin-left:0;font-size:var(--fs-sm)">Nhập lịch trình</button><span class="sp"></span><button class="add" id="pl-go" data-pl="new2" style="flex:none">Tạo</button></div>
+<div class="cpane"><textarea id="pl-new2" data-plk="new2" class="fin-in" autocomplete="off" enterkeyhint="done" placeholder="đà lạt 3 ngày 5tr, hoặc chỉ gõ tên" rows="1" maxlength="200" spellcheck="false" autocapitalize="sentences"></textarea><div class="nlw s" style="margin-top:8px"><textarea class="fin-in" id="pl-note" rows="1" maxlength="200" data-plk="note" autocomplete="off" enterkeyhint="done" placeholder="Ghi chú dự án (không bắt buộc)" style="font-size:var(--fs-sm);border-top:1px solid var(--line)"></textarea><button type="button" class="nlb" aria-label="Xuống dòng" title="Xuống dòng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 5v7a2 2 0 0 1-2 2H5"/><path d="M9 10l-4 4 4 4"/></svg></button></div></div>
+<div class="hint nh" id="pl-hint">Có số tiền ở cuối thì thành ngân sách dự án.</div></div></div>
 
 <div id="rgSheet" class="sheet" hidden><div class="box"><div class="shead"><b>Chọn ngày dự án</b><button class="x" data-rgclose="1" aria-label="Đóng">×</button></div>
 <div class="mnav"><button type="button" data-rgmo="-1" aria-label="Tháng trước">‹</button><b id="rgTitle"></b><button type="button" data-rgmo="1" aria-label="Tháng sau">›</button></div>
@@ -2768,8 +2911,8 @@ function renderFinCats(){
   var el=document.getElementById("fin-cats");if(!el)return;
   if(sub==="debt"){el.hidden=true;return}
   el.hidden=false;
-  var h=OUT.map(function(c,i){return'<button type="button" class="tag ftag" data-fincat="'+c.k+'" aria-pressed="'+(finCat===c.k)+'" style="color:var(--k'+i+');background:transparent;border:1px solid currentColor">'+c.n+'</button>'}).join("")+
-    INC.map(function(c){return'<button type="button" class="tag ftag" data-fincat="'+c.k+'" aria-pressed="'+(finCat===c.k)+'" style="color:var(--good);background:transparent;border:1px solid currentColor">'+c.n+'</button>'}).join("");
+  var h=OUT.map(function(c,i){return'<button type="button" class="tag ftag" data-fincat="'+c.k+'" aria-pressed="'+(finCat===c.k)+'" style="color:var(--k'+i+');background:color-mix(in srgb,currentColor 14%,transparent);border:1px solid color-mix(in srgb,currentColor 38%,transparent)">'+c.n+'</button>'}).join("")+
+    INC.map(function(c){return'<button type="button" class="tag ftag" data-fincat="'+c.k+'" aria-pressed="'+(finCat===c.k)+'" style="color:var(--good);background:color-mix(in srgb,currentColor 14%,transparent);border:1px solid color-mix(in srgb,currentColor 38%,transparent)">'+c.n+'</button>'}).join("");
   el.innerHTML='<button type="button" class="tag ghost" data-fincat="" aria-pressed="'+(!finCat)+'">Tự động</button>'+h;
 }
 document.addEventListener("mousedown",function(e){if(e.target.closest&&e.target.closest("#fin-cats button"))e.preventDefault()});
@@ -2961,7 +3104,7 @@ function cmpView(){
     return'<div class="hint" style="margin:4px 0"><span style="color:var(--k'+oi+')">■</span> '+OUT[oi].n+': '+txt+'</div>'}).join("");
   return chips+s+'<div style="margin-top:8px">'+rows+'</div>';
 }
-function pickerFin(x){var l=x.t==="in"?INC:OUT;return'<div class="pick">'+l.map(function(c,i){var col=x.t==="in"?"var(--good)":"var(--k"+i+")";return'<button class="tag ftag" data-fset="'+c.k+'" data-id="'+x.id+'" aria-pressed="'+(x.cat===c.k)+'" style="color:'+col+';background:transparent;border:1px solid currentColor">'+c.n+'</button>'}).join("")+'</div>'}
+function pickerFin(x){var l=x.t==="in"?INC:OUT;return'<div class="pick">'+l.map(function(c,i){var col=x.t==="in"?"var(--good)":"var(--k"+i+")";return'<button class="tag ftag" data-fset="'+c.k+'" data-id="'+x.id+'" aria-pressed="'+(x.cat===c.k)+'" style="color:'+col+';background:color-mix(in srgb,currentColor 14%,transparent);border:1px solid color-mix(in srgb,currentColor 38%,transparent)">'+c.n+'</button>'}).join("")+'</div>'}
 var showChart=false,showSum=false;try{showChart=localStorage.getItem("ghichu_chart")==="1";showSum=localStorage.getItem("ghichu_tagsum")==="1"}catch(e){}
 function renderTx(top,body){
   var key=mkey(ym.y,ym.m),ms=monthSum(ym.y,ym.m),bl=balance(),days=new Date(ym.y,ym.m,0).getDate(),dueAll=recDue(),po=0,pi=0,td0=today();
@@ -3037,8 +3180,8 @@ function renderDebt(top,body){
     var dchip=(function(){var dd=debtDays(x);if(dd===null)return'';var col=dd<0?"var(--bad)":dd<=DEBT_SOON?"var(--k0)":"var(--muted)",lb=dd<0?"Quá hạn "+(-dd)+" ngày":dd===0?"Hạn trả hôm nay":dd===1?"Hạn trả ngày mai":"Hạn trả "+dayLabel(x.dueDay)+" · còn "+dd+" ngày";return'<div class="meta"><span class="tag" style="background:transparent;border:0;padding:0;color:'+col+';font-weight:700;text-transform:uppercase">'+lb+'</span></div>'})();
     var dw=debtDays(x),dsoon=dw!==null&&dw<=DEBT_SOON,wc=(dw!==null&&dw<=DEBT_SOON)?(dw<0?" dwarn dwarn-late":" dwarn"):"";
     return'<div class="note acts-row'+(done?' done':'')+wc+'"><div class="nmain">'+(dsoon?dchip:'')+(x.desc&&x.desc!=="(không ghi chú)"?'<div class="tdesc" style="word-break:break-word">'+esc(x.desc)+'</div>':'')+(x.note?'<div class="hint" style="margin:2px 0;white-space:pre-wrap;word-break:break-word">'+esc(x.note)+'</div>':'')+imgStrip(x)+
-    '<div class="meta"><span class="tag" style="background:transparent;border:1px solid currentColor;color:'+(own?"var(--bad)":"var(--good)")+'">'+(own?"Mình nợ":"Họ nợ mình")+'</span>'+
-    '<b style="color:var(--ink)">'+(done?"Đã xong · "+money(tot):"Còn "+money(rem)+" / "+money(tot))+'</b><span>'+(x.day?dayLabel(x.day):"")+'</span></div>'+(dsoon?"":dchip)+(x.rate>0?'<div class="meta"><span class="tag" style="background:transparent;border:1px solid currentColor;color:var(--k0)">Lãi '+rateTxt(x)+'</span><span>Gốc '+money(x.amt)+' + lãi '+money(itr)+(x.end?' (chốt '+dayLabel(x.end)+')':'')+'</span></div>':'')+
+    '<div class="meta"><span class="tag" style="background:color-mix(in srgb,currentColor 14%,transparent);border:1px solid color-mix(in srgb,currentColor 38%,transparent);color:'+(own?"var(--bad)":"var(--good)")+'">'+(own?"Mình nợ":"Họ nợ mình")+'</span>'+
+    '<b style="color:var(--ink)">'+(done?"Đã xong · "+money(tot):"Còn "+money(rem)+" / "+money(tot))+'</b><span>'+(x.day?dayLabel(x.day):"")+'</span></div>'+(dsoon?"":dchip)+(x.rate>0?'<div class="meta"><span class="tag" style="background:color-mix(in srgb,currentColor 14%,transparent);border:1px solid color-mix(in srgb,currentColor 38%,transparent);color:var(--k0)">Lãi '+rateTxt(x)+'</span><span>Gốc '+money(x.amt)+' + lãi '+money(itr)+(x.end?' (chốt '+dayLabel(x.end)+')':'')+'</span></div>':'')+
     '<div class="meta">'+(done?'<button class="dtn" data-dreopen="'+x.id+'">Mở lại</button>':'<button class="dtn" data-dpay="'+x.id+'">'+(own?"Trả bớt":"Thu bớt")+'</button><button class="dtn" data-ddone="'+x.id+'">Đã xong</button>')+'</div></div><span class="acts"><button class="ebtn" data-edit="'+x.id+'" aria-label="Sửa khoản nợ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button><button class="del" data-ddel="'+x.id+'" aria-label="Xóa khoản nợ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></span></div>';
   }).join("");
 }
@@ -3415,7 +3558,7 @@ function editForm(x){
   if(x.fin)h+='<div class="meta"><input type="date" class="date" data-ed="1" value="'+esc(editDay||"")+'" aria-label="Ngày">'+(tx?'<span>Thêm + đầu số nếu là khoản thu</span>':'')+'</div>';
   if(!x.fin)h+='<div class="meta starrow"><span>Điểm</span><input type="range" class="scr" data-escore="1" min="1" max="10" step="0.5" value="'+(editScore||5)+'" aria-label="Điểm đánh giá trên 10"><span class="scv" style="'+(editScore?'color:'+scCol(editScore)+';font-weight:700':'')+'">'+(editScore?scTxt(editScore):'Chưa chấm')+'</span>'+(editScore?'<button type="button" class="chip" data-escoreclr="1">Bỏ</button>':'')+'</div>';
   if(!x.fin)h+='<div class="pick" style="margin-top:8px">'+KEYS.map(function(k){var c=CATS[k];return '<button type="button" class="tag" data-ecat="'+k+'" aria-pressed="'+(ec===k)+'" style="background:var(--c-'+c.c+'-bg);color:var(--c-'+c.c+')">'+esc(c.n)+'</button>'}).join('')+'<button type="button" class="tag ghost" data-addtag="1" data-addfrom="edit" aria-label="Tạo tag mới" style="background:transparent;color:var(--muted);border:1px solid var(--line)">＋ Tag</button></div>';
-  if(tx){var fl=x.t==="in"?INC:OUT,fc=editFcat||x.cat;h+='<div class="pick">'+fl.map(function(c,i){var col=x.t==="in"?"var(--good)":"var(--k"+i+")";return '<button type="button" class="tag ftag" data-efcat="'+c.k+'" aria-pressed="'+(fc===c.k)+'" style="color:'+col+';background:transparent;border:1px solid currentColor">'+c.n+'</button>'}).join('')+'</div>'}
+  if(tx){var fl=x.t==="in"?INC:OUT,fc=editFcat||x.cat;h+='<div class="pick">'+fl.map(function(c,i){var col=x.t==="in"?"var(--good)":"var(--k"+i+")";return '<button type="button" class="tag ftag" data-efcat="'+c.k+'" aria-pressed="'+(fc===c.k)+'" style="color:'+col+';background:color-mix(in srgb,currentColor 14%,transparent);border:1px solid color-mix(in srgb,currentColor 38%,transparent)">'+c.n+'</button>'}).join('')+'</div>'}
   if(!x.fin&&tagHas(ec,"d"))h+='<div class="meta"><span>Hạn chót</span><input type="datetime-local" class="date" data-edue="1" value="'+esc(editDue||"")+'" aria-label="Hạn chót">'+(editDue?'<button type="button" class="chip" data-edueclear="1">Xóa hạn</button>':'')+'</div>';
   if(editErr)h+='<div class="meta bad">'+esc(editErr)+'</div>';
   var hint=!x.fin?"":(debt?"Ví dụ: 500k Nam tiền ăn.":"Ví dụ: 45k phở bò hoặc +15tr lương.");
@@ -3868,7 +4011,7 @@ function recHtml(){
   var l=recList().sort(function(a,b){return a.dd-b.dd||a.id-b.id}),h='<div class="pc"><div class="prt"><span class="pm">Tới ngày sẽ nhắc trong danh sách Chi tiêu</span><button type="button" class="lnk" style="padding:0" data-rec="add">+ Thêm</button></div>';
   if(!l.length)h+='<div class="pm" style="margin-top:6px">Chưa có khoản nào. Bấm + Thêm, ví dụ: tiền nhà 3tr, chọn ngày 5.</div>';
   l.forEach(function(r){
-    h+='<div class="prow"><div class="prt"><span'+(r.off?' style="opacity:.55"':'')+'>'+esc(r.desc)+' <span class="tag" style="background:transparent;border:1px solid currentColor;color:'+(r.t==="in"?"var(--good)":"var(--bad)")+'">'+(r.t==="in"?"Thu":"Chi")+'</span></span><b class="'+(r.t==="in"?"good":"bad")+'">'+(r.t==="in"?"+":"-")+money(r.amt)+'</b></div>'+
+    h+='<div class="prow"><div class="prt"><span'+(r.off?' style="opacity:.55"':'')+'>'+esc(r.desc)+' <span class="tag" style="background:color-mix(in srgb,currentColor 14%,transparent);border:1px solid color-mix(in srgb,currentColor 38%,transparent);color:'+(r.t==="in"?"var(--good)":"var(--bad)")+'">'+(r.t==="in"?"Thu":"Chi")+'</span></span><b class="'+(r.t==="in"?"good":"bad")+'">'+(r.t==="in"?"+":"-")+money(r.amt)+'</b></div>'+
       '<div class="prt pm" style="margin-top:2px"><span>Ngày '+r.dd+' hàng tháng'+(r.off?' · đang tạm dừng':'')+'</span><span><button type="button" class="lnk" style="padding:0" data-rec="edit" data-rid="'+r.id+'">Sửa</button> · <button type="button" class="lnk" style="padding:0" data-rec="off" data-rid="'+r.id+'">'+(r.off?'Bật lại':'Tạm dừng')+'</button> · <button type="button" class="lnk" style="padding:0" data-rec="del" data-rid="'+r.id+'">Xóa</button></span></div></div>';
   });
   return h+'</div>';
