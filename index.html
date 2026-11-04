@@ -1265,6 +1265,28 @@ body.setopen .gfab{display:none!important}
   background:var(--m-i)!important;border:0!important;
   -webkit-backdrop-filter:blur(6px) saturate(1.15);backdrop-filter:blur(6px) saturate(1.15);
   box-shadow:inset 0 0 0 1px var(--m-i-edge),inset 0 1px 0 var(--m-i-hi)}
+
+
+/* khung nhập Chi tiêu + Dự án: cùng kích thước, vị trí, khoảng cách với khung nhập Ghi chú */
+#finSheet{padding-inline:12px}
+#finSheet{align-items:flex-end;padding-bottom:calc(16px + var(--kb,0px))}
+#finSheet .box{max-width:608px}
+#plSheet{max-width:608px;bottom:calc(16px + var(--sab));left:12px;right:12px}
+#finSheet .box>.row,#plSheet .box>.mbar{gap:8px;padding:4px 4px 10px;margin:0}
+#finSheet .cpane,#plSheet .cpane{padding:10px 12px 8px;border-radius:24px}
+#finSheet .cpane>textarea:first-child,#plSheet .cpane>textarea:first-child{min-height:5em;padding:4px 30px 4px 2px;font-size:var(--fs-md);line-height:1.35}
+#finSheet .cpane .nlw.s textarea,#plSheet .cpane .nlw.s textarea{padding:10px 40px 6px 2px!important}
+#finSheet .cam,#plSheet .cam{width:36px;height:36px}
+
+/* nút Lưu (chưa nhập) thành nút tròn mũi tên xuống giống bảng Ghi chú */
+#finSheet:has(#fin-in:placeholder-shown):not(:has(.thumbs:not(:empty))) #fin-add{font-size:0;color:transparent;width:46px;height:46px;min-width:0;padding:0;border-radius:50%;background:var(--fill2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23596070' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") center/24px no-repeat}
+
+/* nút tròn mũi tên xuống: chỉ có mũi tên, không nền tròn: Ghi chú, Dự án, Chi tiêu giống nhau */
+:is(#notesView>.box:has(#in:placeholder-shown) #add,#plSheet:has(#pl-new2:placeholder-shown) #pl-go,#finSheet:has(#fin-in:placeholder-shown):not(:has(.thumbs:not(:empty))) #fin-add){
+  font-size:0!important;color:transparent!important;width:46px!important;height:46px!important;min-width:0!important;
+  padding:0!important;border:0!important;border-radius:50%!important;box-shadow:none!important;
+  background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23596070' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") center/24px no-repeat!important}
+:is(#notesView>.box:has(#in:placeholder-shown) #add,#plSheet:has(#pl-new2:placeholder-shown) #pl-go,#finSheet:has(#fin-in:placeholder-shown):not(:has(.thumbs:not(:empty))) #fin-add)::after{display:none!important;content:none!important}
 </style>
 </head>
 <body>
@@ -3790,7 +3812,7 @@ document.addEventListener("click",function(e){
 });
 document.addEventListener("input",function(e){var t=e.target;if(!t.dataset)return;if(t.dataset.ef)editVal=t.value;else if(t.dataset.elink)editLink=t.value;else if(t.dataset.eaddr)editAddr=t.value;else if(t.dataset.enote)editNote=t.value;else if(t.dataset.escore){editScore=parseFloat(t.value)||0;var sv=t.parentNode.querySelector(".scv");if(sv){sv.textContent=scTxt(editScore);sv.style.color=scCol(editScore);sv.style.fontWeight="700"}if(!t.parentNode.querySelector("[data-escoreclr]")){var cb=document.createElement("button");cb.type="button";cb.className="chip";cb.dataset.escoreclr="1";cb.textContent="Bỏ";t.parentNode.appendChild(cb)}}else if(t.dataset.ed)editDay=t.value;else if(t.dataset.erate)editRate=t.value;else if(t.dataset.eddy)editDueDay=t.value;else if(t.dataset.eper)editPer=t.value;else if(t.dataset.edue)editDue=t.value;else if(t.dataset.indue)inDue=t.value;else if(t.dataset.brl!==undefined){if(editBr[+t.dataset.brl])editBr[+t.dataset.brl].l=t.value}else if(t.dataset.brk!==undefined){var bb=editBr[+t.dataset.brk],bv=t.value.trim();if(bb){if(/^https?:\/\//i.test(bv)){bb.link=(bv.match(/https?:\/\/\S+/i)||[bv])[0];bb.addr=""}else bb.addr=bv}}});
 document.addEventListener("keydown",function(e){var t=e.target;if(!t.dataset||!(t.dataset.ef||t.dataset.elink||t.dataset.eaddr||t.dataset.enote))return;if(e.key==="Escape"){closeEdit()}else if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();saveEdit(editing)}});
-document.getElementById("fin-add").onclick=function(){addFin()};
+document.getElementById("fin-add").onclick=function(){var i=document.getElementById("fin-in");if(i&&!i.value.trim()&&!document.querySelector("#finSheet .thumbs:not(:empty)")){var c=document.querySelector("#finSheet [data-sheetclose]");if(c){c.click();return}}addFin()};
 document.addEventListener("click",function(e){
   var g=e.target.closest&&e.target.closest("[data-fday]");
   if(!g||g.tagName==="BUTTON")return;
