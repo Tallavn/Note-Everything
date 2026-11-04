@@ -1287,6 +1287,20 @@ body.setopen .gfab{display:none!important}
   padding:0!important;border:0!important;border-radius:50%!important;box-shadow:none!important;
   background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23596070' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") center/24px no-repeat!important}
 :is(#notesView>.box:has(#in:placeholder-shown) #add,#plSheet:has(#pl-new2:placeholder-shown) #pl-go,#finSheet:has(#fin-in:placeholder-shown):not(:has(.thumbs:not(:empty))) #fin-add)::after{display:none!important;content:none!important}
+
+/* ===== Nhịp khoảng cách danh sách ghi chú: nhóm (chính) tách rõ, thẻ (phụ) gần nhau ===== */
+/* Giữa 2 nhóm: khoảng cách lớn nhất. Tiêu đề sát thẻ đầu của chính nó (gần hơn khoảng cách giữa các thẻ). */
+#list:not(.reorder)>.cgrp:not(:first-child){margin:24px 4px 6px}
+#list:not(.reorder)>.cgrp.col+.cgrp{margin-top:10px}
+#list:not(.reorder)>.cgrp:first-child{margin-top:4px}
+#notesView .cgrp{font-weight:600}
+#list:not(.reorder)>.dgrp:not(:first-child){margin:28px 4px 6px}
+/* Các thẻ cùng nhóm: đều và vừa đủ thoáng */
+#list .swrap{margin-bottom:8px}
+.tgap{height:18px}
+/* Trong thẻ: nội dung chính nổi, dòng phụ (tag, điểm, hạn...) lùi xuống gần hơn */
+#notesView .note .meta{margin-top:8px}
+#notesView .note .hint{margin-top:3px!important}
 </style>
 </head>
 <body>
