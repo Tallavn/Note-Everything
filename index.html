@@ -1012,6 +1012,70 @@ body.setopen .gfab{display:none!important}
 .gq-i .hint{display:block}
 .gq-i b{flex:none;font-size:var(--fs-sm);font-variant-numeric:tabular-nums}
 .gq-e{padding:10px 6px;color:var(--muted);font-size:var(--fs-sm)}
+/* ===== BO CONG + KHUNG NHẬP THEO ẢNH MẪU (ghi đè, đặt cuối cùng) ===== */
+:root{--r-xl:28px;--fill:color-mix(in srgb,var(--ink) 7%,var(--surface));--fill2:color-mix(in srgb,var(--ink) 15%,var(--surface))}
+
+/* Tab: viên thuốc, căn trái */
+.tabs{gap:6px;margin:0 0 18px;border-bottom:0;justify-content:flex-start}
+.tabs .chip{padding:9px 18px;border-radius:999px;border:0;margin:0;font-weight:500}
+.tabs .chip[aria-pressed="true"]{background:var(--surface);border-bottom-color:transparent;font-weight:700;box-shadow:var(--shadow)}
+
+/* Tag, ghim, điểm: viên thuốc */
+.tag,.pin,.pin.ghost{border-radius:999px}
+#planView .pin{border-radius:14px}
+.rt{border-radius:999px;padding:2px 11px;font-weight:700}
+
+/* Nhóm tag + thẻ ghi chú */
+#notesView .cgrp{text-transform:lowercase;font-weight:500}
+.note{border-radius:20px}
+#notesView .note.swcard{border-left:1px solid var(--line);padding:14px 16px;border-radius:20px}
+#notesView .note .txt{font-weight:600}
+
+/* Nút tròn dùng chung: camera, quét chữ, xuống dòng */
+.cam{border-radius:50%;width:36px;height:36px;border:0;background:var(--fill);color:var(--muted)}
+.cam.cam-chip{width:auto;height:auto;border-radius:999px}
+.nlb{border-radius:50%;width:30px;height:30px;background:var(--surface)}
+.nlw.s .nlb{height:30px;width:30px}
+.lkpin.chip{border-radius:999px;padding:0 14px;height:34px;min-width:46px;justify-content:center}
+
+/* ===== Khung nhập nhanh (ảnh 1) ===== */
+#notesView>.box{border-radius:28px;padding:14px 14px 12px}
+#notesView>.box textarea#in{background:var(--fill);border:1.5px solid transparent!important;border-radius:22px;padding:14px 42px 14px 16px;min-height:4.2em;box-shadow:none}
+#notesView>.box textarea#in:focus,#notesView>.box textarea#in:focus-visible{border-color:transparent!important;outline:none}
+#notesView>.box .nlw.s{margin:12px -14px 0;padding:0 14px;border-top:1px solid var(--line)}
+#notesView>.box .nlw.s textarea#in-note{border-top:0!important;margin-top:0!important;padding:12px 40px 12px 4px!important}
+#notesView>.box .nlw.s .nlb{right:14px}
+#notesView>.box .inrow{align-items:center;gap:8px;padding-top:6px}
+#notesView .inrow .intags>.tag.ghost,.intags>.tag[data-inopen]{border-radius:999px;padding:6px 14px;background:var(--surface);border:1px solid var(--line);font-weight:500}
+#notesView .inrow .add{border-radius:999px;padding:9px 24px;min-width:68px}
+/* Ô trống: nút Lưu thành nút tròn mũi tên xuống để thu gọn */
+#notesView>.box:has(#in:placeholder-shown) #add{font-size:0;color:transparent;width:46px;height:46px;min-width:0;padding:0;border-radius:50%;background:var(--fill2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23596070' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") center/24px no-repeat}
+
+/* ===== Form Sửa (ảnh 2) ===== */
+.edit{border-radius:28px;padding:18px 16px 16px}
+.edit .fcard{border-radius:16px;border:1.5px solid var(--line);background:var(--fill)}
+.edit .fcard:focus-within{border-color:var(--accent)}
+.edit .starrow .scv{font-weight:700;color:var(--good,var(--accent))}
+.edit .starrow .scv:empty{display:none}
+.edit .starrow .scr{-webkit-appearance:none;appearance:none;height:6px;border-radius:999px;background:linear-gradient(var(--accent),var(--accent)) 0/var(--p,50%) 100% no-repeat,var(--line);max-width:none}
+.edit .starrow .scr::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#4a4f5c;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)}
+.edit .starrow .scr::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#4a4f5c;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)}
+.edit .starrow .scr::-moz-range-track{background:transparent}
+.edit .tag{padding:7px 16px}
+.edit .eact .add.sm,.inrow .add.sm{border-radius:999px;padding:8px 20px}
+.edit .add.alt{background:var(--fill2);color:var(--ink);border:0}
+
+/* ===== Các bảng nhập khác (Chi tiêu, Dự án) ===== */
+#finSheet .box,.psh .box{border-radius:28px}
+.psh .inrow .add,#finSheet .row .add{border-radius:999px}
+
+/* ===== Dự án (ảnh 4) ===== */
+.pc{border-radius:28px;padding:18px 16px}
+.pchips button{padding:6px 16px;font-size:var(--fs-sm)}
+.date{border-radius:12px}
+#planView .pdh{background:var(--fill);border-radius:14px;margin:22px 0 2px;padding:12px 14px}
+.pit.pa .pam{border-radius:10px;background:var(--fill)}
+.pit input[type=checkbox]{border-radius:6px}
 </style>
 </head>
 <body>
@@ -5025,6 +5089,13 @@ sheet.addEventListener("keydown",function(e){if((e.key==="Enter"||e.key===" ")&&
 $("gSeg").addEventListener("click",function(e){var b=e.target.closest("[data-gsub]");if(b)showSub(b.dataset.gsub)});
 $("gQ").addEventListener("input",function(){fq=this.value;renderFoods()});
 })();
+</script>
+<script>
+/* Thanh trượt Điểm: tô phần đã chọn bằng màu chính (đặt biến --p) */
+(function(){function p(r){try{var a=+r.min||0,b=+r.max||100;r.style.setProperty("--p",((r.value-a)/(b-a)*100)+"%")}catch(e){}}
+function all(){var l=document.querySelectorAll(".scr");for(var i=0;i<l.length;i++)p(l[i])}
+document.addEventListener("input",function(e){if(e.target&&e.target.classList&&e.target.classList.contains("scr"))p(e.target)},true);
+new MutationObserver(all).observe(document.body,{childList:true,subtree:true});all()})();
 </script>
 </body>
 </html>
