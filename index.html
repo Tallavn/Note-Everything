@@ -97,7 +97,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 .sheet{position:fixed;inset:0;z-index:50;background:linear-gradient(rgba(0,0,0,.1),rgba(0,0,0,.1)),color-mix(in srgb,var(--bg) 28%,transparent);display:flex;align-items:center;justify-content:center;padding:16px;padding-bottom:calc(16px + var(--kb,0px))}
 .sheet[hidden]{display:none}
 /* Bảng nhập chi tiêu trên điện thoại: nằm sát trên bàn phím như khung ghi chú/dự án (không căn giữa nữa) */
-@media (max-width:700px),(pointer:coarse){#finSheet{align-items:flex-end;padding-bottom:calc(10px + var(--sab))}#finSheet .box{translate:0 calc(-1 * var(--kb,0px));transition:translate .2s cubic-bezier(.2,.8,.2,1);will-change:translate}}
+@media (max-width:700px),(pointer:coarse){#finSheet,#gSheet{align-items:flex-end;padding-bottom:calc(10px + var(--sab))}#finSheet .box,#gSheet .box{translate:0 calc(-1 * var(--kb,0px));transition:translate .2s cubic-bezier(.2,.8,.2,1);will-change:translate}#gSheet .box{max-height:calc(100vh - var(--kb,0px) - var(--sab) - 24px)}}
 .sheet .box{width:100%;max-width:520px}
 .shead{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
 .x{background:none;border:0;color:var(--muted);font-size:21.6px;line-height:1;padding:0 6px}
@@ -4799,10 +4799,15 @@ function renderFoods(){
 /* ---------- Bảng nhập (sheet) ---------- */
 var cur=null;
 function openSheet(html,focusId){
-  box.innerHTML=html;sheet.hidden=false;
-  if(focusId){setTimeout(function(){var el=$(focusId);if(el&&window.matchMedia&&matchMedia("(pointer:fine)").matches){el.focus();if(el.select)el.select()}},60)}
+  /* cùng cơ chế bám bàn phím với bảng Chi tiêu: kbPrep -> hiện bảng -> focus({preventScroll:true}) cùng một nhịp */
+  box.innerHTML=html;
+  var el=focusId?$(focusId):null;
+  if(el&&typeof kbPrep==="function")kbPrep(true);
+  sheet.hidden=false;
+  if(el){try{el.focus({preventScroll:true})}catch(e){el.focus()}
+    if(el.select&&window.matchMedia&&matchMedia("(pointer:fine)").matches)el.select()}
 }
-function closeSheet(){sheet.hidden=true;box.innerHTML="";cur=null;scan=null}
+function closeSheet(){var a=document.activeElement;if(a&&a.blur&&sheet.contains(a))a.blur();sheet.hidden=true;box.innerHTML="";cur=null;scan=null}
 function head(t,ic){return'<div class="shead"><b>'+(ic?'<span aria-hidden="true">'+ic+'</span> ':'')+esc(t)+'</b><button type="button" class="x" data-g="sx" aria-label="Đóng">×</button></div>'}
 function fld(label,id,val,ph){return'<label class="g-f"><span>'+label+'</span><input id="'+id+'" class="ed" type="text" inputmode="decimal" autocomplete="off" value="'+esc(val==null?"":val)+'" placeholder="'+esc(ph||"")+'"></label>'}
 function openAdd(f){
