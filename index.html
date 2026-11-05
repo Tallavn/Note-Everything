@@ -1407,6 +1407,33 @@ main #list .note.acts-row{align-items:flex-start}
 #planView>.pc{margin:0!important}
 main #planView .plbar{left:calc((100% + var(--sbw)) / 2);width:min(608px,calc(100% - var(--sbw) - 64px))}
 }
+
+/* ===== Giao diện PC "Tối giản": nền xám nhạt, ghi chú gom theo tag trên một tấm nền riêng, khung nhập ở đáy. Chỉ áp cho PC và skin Mặc định; mobile giữ nguyên. ===== */
+@media (min-width:1000px) and (pointer:fine) and (prefers-color-scheme:light){
+:root:not([data-skin]):not([data-theme="dark"]){--bg:#f3f3f0;--surface:#fff;--ink:#1f2328;--muted:#737a80;--line:#e4e5e1;--accent:#0f6b5c;--accent-ink:#fff}
+}
+@media (min-width:1000px) and (pointer:fine){
+:root:not([data-skin])[data-theme="light"]{--bg:#f3f3f0;--surface:#fff;--ink:#1f2328;--muted:#737a80;--line:#e4e5e1;--accent:#0f6b5c;--accent-ink:#fff}
+main::before{background:transparent}
+.tabs .chip:hover,main #notesView .frow #filters .chip:hover{background:color-mix(in srgb,var(--ink) 6%,transparent)}
+.tabs .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+main #notesView .frow #filters .chip[aria-pressed="true"]{background:var(--surface);box-shadow:0 0 0 1px var(--line)}
+/* khung nhập ghim ở đáy */
+main #notesView{padding-bottom:220px}
+main #notesView>.box{position:fixed;left:calc(var(--sbw) + 32px);bottom:34px;width:min(960px,calc(100% - var(--sbw) - 64px));max-width:none;margin:0;z-index:30;box-shadow:0 10px 30px -14px rgba(0,0,0,.25)}
+main #notesView #in-msg:not(:empty){position:fixed;left:calc(var(--sbw) + 34px);bottom:8px;margin:0!important;z-index:30}
+/* ghi chú trên một tấm nền, mỗi ghi chú một hàng lùi vào dưới tiêu đề tag */
+main #list{display:block;max-width:960px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:4px 22px 10px}
+main #list>.empty{padding:28px 0}
+main #list>.cgrp{margin:18px 0 2px}
+main #list>.cgrp:first-child{margin-top:12px}
+main #list .cgrp b{background:none;border:0;padding:0;line-height:1}
+main #notesView #list .swrap{background:var(--surface);border-radius:0;margin:0}
+main #notesView #list .swrap>.note.swcard{background:var(--surface);border:0;border-bottom:1px solid var(--line);border-radius:0;box-shadow:none;margin:0 0 0 22px;padding:12px 0}
+main #notesView #list>.swrap:last-child>.note.swcard,main #notesView #list>.swrap:has(+.cgrp)>.note.swcard{border-bottom:0}
+main #list .cattag{background:none!important;padding:0!important;border-radius:0}
+main #list .cattag::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:currentColor;margin-right:6px}
+}
 </style>
 </head>
 <body>
