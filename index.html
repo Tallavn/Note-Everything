@@ -1304,6 +1304,109 @@ body.setopen .gfab{display:none!important}
 /* Trong thẻ: nội dung chính nổi, dòng phụ (tag, điểm, hạn...) lùi xuống gần hơn */
 #notesView .note .meta{margin-top:8px}
 #notesView .note .hint{margin-top:3px!important}
+/* ===== GIAO DIỆN PC: Sidebar + lưới thẻ (phương án A trong pc-demo.html) =====
+   Chỉ CSS, đặt cuối <style>. Chỉ bật khi màn rộng >= 1000px VÀ dùng chuột (pointer:fine).
+   Điện thoại / máy tính bảng / cửa sổ hẹp giữ nguyên bố cục cũ, JS chính không bị sửa.
+   Sidebar không có thẻ riêng: các phần tử cũ được ghim bên trái bằng position:fixed
+     logo (.hdr) -> tab (.tabs) -> danh sách tag (#filters) -> nút Cài đặt (.setw).
+   Thanh trên của vùng nội dung: ô tìm kiếm (#hsearch) + nút Lọc/sắp xếp (.fwrap).
+   Đổi bề rộng sidebar: sửa --sbw. Đổi vị trí dọc: sửa top của .tabs (đang 92px) và #filters (đang 232px). */
+@media (min-width:1000px) and (pointer:fine){
+:root{--sbw:240px}
+
+/* --- nền sidebar + thanh trên --- */
+main::before{content:"";position:fixed;left:0;top:0;bottom:0;width:var(--sbw);background:var(--surface);border-right:1px solid var(--line);z-index:20;pointer-events:none}
+body:not(.gym):has(#notesView:not([hidden]))::before{content:"";position:fixed;left:var(--sbw);right:0;top:0;height:76px;background:var(--bg);z-index:21;pointer-events:none}
+main{max-width:none;margin:0;padding:28px 32px 56px calc(var(--sbw) + 32px)}
+body:not(.gym) main:has(#notesView:not([hidden])){padding-top:96px}
+#notesView,#finView,#planView{max-width:1560px}
+body.gym #gymView{max-width:640px;margin:0 auto}
+
+/* --- logo --- */
+.hdr{position:fixed;left:0;top:0;width:var(--sbw);margin:0;padding:22px 20px 0;background:none;box-shadow:none;display:block}
+.hdr h1.logo{align-items:flex-start;margin:0}
+body.setopen .hdr::after{display:none}
+
+/* --- ô tìm kiếm: thanh dài ở đầu vùng nội dung --- */
+.hdr .hsearch{position:fixed;left:calc(var(--sbw) + 32px);top:16px;width:min(520px,calc(100% - var(--sbw) - 150px));height:44px;margin:0;z-index:35}
+.hdr .hsearch .search,.hdr .hsearch .search:focus,.hdr .hsearch .search.has{position:absolute;left:0;top:0;right:auto;width:100%;height:100%;padding:0 84px 0 44px;color:var(--ink);caret-color:auto;cursor:text;border-radius:14px;background-position:15px center!important;font-size:var(--fs-md)}
+.hdr .hsearch .search::placeholder,.hdr .hsearch .search:focus::placeholder{color:var(--muted)}
+.hdr .hsearch::after{content:"Ctrl K";position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:11px;line-height:1.5;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:0 7px;pointer-events:none}
+.hdr .hsearch:focus-within::after{opacity:0}
+
+/* --- nút Cài đặt: cuối sidebar, menu mở lên trên --- */
+.setw{position:fixed;left:12px;bottom:14px;width:calc(var(--sbw) - 24px)}
+#setBtn{width:100%;height:42px;padding:0 12px;gap:10px;justify-content:flex-start;border:0;background:none;box-shadow:none;border-radius:12px;color:var(--muted)}
+#setBtn::before{content:attr(aria-label);order:2;font-size:var(--fs-md);font-weight:500}
+#setBtn:hover{background:var(--bg);color:var(--ink)}
+#setBtn.dot::after{top:9px;right:auto;left:27px}
+.smenu{left:0;right:auto;top:auto;bottom:calc(100% + 8px);width:340px;max-height:calc(100dvh / var(--z,1) - 90px);overflow-y:auto}
+
+/* --- tab: danh sách dọc có biểu tượng --- */
+.tabs{position:fixed;top:92px!important;left:12px;width:calc(var(--sbw) - 24px);flex-direction:column;justify-content:flex-start;gap:4px;margin:0;padding:0;background:none;box-shadow:none;border:0;z-index:26}
+.tabs .chip{display:flex;align-items:center;gap:12px;flex:none;width:100%;height:40px;padding:0 12px;margin:0;border:0;border-radius:12px;background:none;box-shadow:none;color:var(--ink);font-size:var(--fs-md);font-weight:500;text-align:left}
+.tabs .chip:hover{background:color-mix(in srgb,var(--bg) 60%,transparent)}
+.tabs .chip[aria-pressed="true"]{background:var(--bg);box-shadow:none;font-weight:700;color:var(--ink)}
+.tabs .chip::before{content:"";flex:none;width:18px;height:18px;background:currentColor;opacity:.85;-webkit-mask:var(--ti) center/contain no-repeat;mask:var(--ti) center/contain no-repeat}
+.tabs .chip[data-tab="notes"]{--ti:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z'/%3E%3Cpath d='M14 3v5h5M9 13h6M9 17h6'/%3E%3C/svg%3E")}
+.tabs .chip[data-tab="fin"]{--ti:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z'/%3E%3Cpath d='M4 7l12-3v3M16 13.5h.01'/%3E%3C/svg%3E")}
+.tabs .chip[data-tab="plan"]{--ti:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/%3E%3C/svg%3E")}
+.tabs .chip .tbadge{position:static;margin-left:auto}
+
+/* --- danh sách tag trong sidebar (chip lọc cũ xếp dọc, có chấm màu) --- */
+main #notesView .frow{display:contents}
+main #notesView .frow #filters{position:fixed;left:12px;top:232px;bottom:68px;width:calc(var(--sbw) - 24px);height:auto;z-index:26;display:flex;flex-direction:column;align-items:stretch;gap:2px;margin:0!important;padding:0;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;background:none;border:0;box-shadow:none;-webkit-mask-image:none;mask-image:none}
+main #notesView .frow #filters::before{content:"Tag";display:block;flex:none;padding:10px 12px 6px;font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+main #notesView .frow #filters .chip{display:flex;align-items:center;gap:10px;flex:none;width:100%;padding:8px 12px;border:0;border-radius:12px;background:none;box-shadow:none;color:var(--ink);font-size:var(--fs-sm);font-weight:500;text-align:left;white-space:nowrap}
+main #notesView .frow #filters .chip:hover{background:color-mix(in srgb,var(--bg) 60%,transparent)}
+main #notesView .frow #filters .chip[aria-pressed="true"]{background:var(--bg);color:var(--ink);box-shadow:none;border:0;font-weight:700}
+main #notesView .frow #filters .chip::before{content:"";flex:none;width:9px;height:9px;border-radius:50%;background:var(--dot,var(--muted))}
+main #notesView .frow #filters .chip[data-f="all"]::before{box-sizing:border-box;background:none;border:2px solid var(--muted)}
+main #notesView .frow #filters .chip[data-addtag]{font-size:0;color:var(--muted)}
+main #notesView .frow #filters .chip[data-addtag]::before{display:none}
+main #notesView .frow #filters .chip[data-addtag]::after{content:"+ " attr(aria-label);font-size:var(--fs-sm)}
+#filters .chip[data-f="food"]{--dot:var(--c-food)}
+#filters .chip[data-f="mem"]{--dot:var(--c-mem)}
+#filters .chip[data-f="idea"]{--dot:var(--c-idea)}
+#filters .chip[data-f="todo"]{--dot:var(--c-todo)}
+#filters .chip[data-f="other"]{--dot:var(--c-other)}
+
+/* --- nút Lọc/sắp xếp: góc phải thanh trên --- */
+main #notesView .frow .fwrap{position:fixed;top:16px;right:32px;bottom:auto;left:auto;width:44px;height:44px}
+main #notesView .frow .fwrap .fbtn{width:44px;height:44px;padding:0;border-radius:14px}
+main #notesView .frow .fwrap #sortBtn:not([aria-expanded="true"]){background:var(--surface)!important;border:1px solid var(--line)!important}
+main #notesView .frow .fmenu{right:0}
+
+/* --- khung nhập ghi chú: nằm đầu trang, nền đặc (bỏ kiểu kính nổi ở đáy) --- */
+:root:root:root #notesView{--m-o:var(--surface);--m-o-edge:var(--line);--m-chip:var(--fill);--m-i:var(--fill);--m-i-edge:transparent;--m-i-hi:transparent;--m-sh:0 0 0 0 transparent;--m-line:var(--line)}
+main #notesView{padding-bottom:0}
+main #notesView>.box{position:relative;left:auto;bottom:auto;transform:none;z-index:auto;width:100%;max-width:860px;margin:0 0 20px}
+main #notesView #in-msg{order:2}
+main #notesView #xres{order:3;margin-top:0;margin-bottom:12px}
+
+/* --- danh sách ghi chú: lưới nhiều cột, tiêu đề nhóm trải cả hàng --- */
+main #list{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;align-content:start;align-items:stretch;padding-bottom:0}
+main #list>.cgrp,main #list>.dgrp,main #list>.empty,main #list>.note{grid-column:1/-1}
+main #list>.tgap{grid-column:1/-1;height:0}
+main #list.reorder{display:block}
+main #list .swrap{display:flex;margin:0}
+main #list .swrap>.swcard{flex:1 1 auto;min-width:0}
+main #list .note.acts-row{align-items:flex-start}
+
+/* --- Chi tiêu: thanh Thu chi/Nợ/Ngân sách ở trên, ví bên trái (dính khi cuộn), danh sách bên phải --- */
+#finView{display:grid;grid-template-columns:minmax(300px,360px) minmax(0,1fr);column-gap:28px;align-items:start}
+#finView>.seg{grid-column:1/-1;justify-content:flex-start;max-width:520px;margin:0 0 8px;padding:0;background:none}
+#finView>#finTop{grid-column:1;position:sticky;top:20px}
+#finView>#finBody{grid-column:2;grid-row:2/span 2;margin-top:0!important}
+#finView>#finBody>.dh:first-child{margin-top:6px}
+
+/* --- Dự án: lưới thẻ --- */
+#planView{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:14px;align-items:start}
+#planView>.plimp,#planView>.empty{grid-column:1/-1}
+#planView>.plimp{margin:0!important}
+#planView>.pc{margin:0!important}
+main #planView .plbar{left:calc((100% + var(--sbw)) / 2);width:min(608px,calc(100% - var(--sbw) - 64px))}
+}
 </style>
 </head>
 <body>
@@ -5334,6 +5437,27 @@ $("gQ").addEventListener("input",function(){fq=this.value;renderFoods()});
 function all(){var l=document.querySelectorAll(".scr");for(var i=0;i<l.length;i++)p(l[i])}
 document.addEventListener("input",function(e){if(e.target&&e.target.classList&&e.target.classList.contains("scr"))p(e.target)},true);
 new MutationObserver(all).observe(document.body,{childList:true,subtree:true});all()})();
+</script>
+<script>
+/* Giao diện PC (sidebar): chấm màu cho chip tag + phím tắt Ctrl/⌘ K để tìm kiếm. Chỉ phụ trợ, lỗi cũng không ảnh hưởng app. */
+(function(){try{
+  var mq=window.matchMedia("(min-width:1000px) and (pointer:fine)"),f=document.getElementById("filters");
+  function dots(){
+    if(!f||typeof CATS==="undefined")return;
+    Array.prototype.forEach.call(f.querySelectorAll(".chip[data-f]"),function(b){
+      var c=CATS[b.getAttribute("data-f")];
+      if(c&&c.c)b.style.setProperty("--dot","var(--c-"+c.c+")");
+    });
+  }
+  if(f&&window.MutationObserver)new MutationObserver(dots).observe(f,{childList:true});
+  dots();
+  document.addEventListener("keydown",function(e){
+    if(!mq.matches||!(e.ctrlKey||e.metaKey)||e.shiftKey||e.altKey||(e.key!=="k"&&e.key!=="K"))return;
+    var q=document.getElementById("q"),h=document.getElementById("hsearch");
+    if(!q||(h&&h.hidden))return;
+    e.preventDefault();q.focus();q.select();
+  });
+}catch(x){}})();
 </script>
 </body>
 </html>
