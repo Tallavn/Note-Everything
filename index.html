@@ -771,7 +771,7 @@ mark.hl{background:color-mix(in srgb,var(--accent) 30%,transparent);color:inheri
 .memrow .hint.od{color:var(--bad)}
 #setBtn.dot::after{content:"";position:absolute;top:5px;right:5px;width:9px;height:9px;border-radius:50%;background:var(--bad);border:2px solid var(--surface)}
 /* Thanh lọc đáy (Ghi chú) và thanh chuyển đáy (Chi tiêu/Dự án): nền hòa vào trang, chip nổi nhẹ, mục đang chọn dùng màu chủ đạo */
-.frow #filters,.seg{background:linear-gradient(to top,var(--bg) 62%,transparent);border-top:0;box-shadow:none}
+.frow #filters,.seg{background:var(--bg);border-top:0;box-shadow:none}
 .frow #filters{height:calc(60px + var(--sab));padding:12px 62px calc(10px + var(--sab)) 14px;align-items:center;gap:8px}
 .seg{padding:12px 14px calc(10px + var(--sab));gap:8px}
 .frow #filters .chip,.seg .chip{background:var(--surface);color:var(--ink);border:1px solid var(--line);box-shadow:0 2px 6px rgba(15,35,30,.10);padding:8px 15px;font-weight:500}
@@ -1618,6 +1618,7 @@ main{height:calc(94dvh / var(--z,1));min-height:0!important}
 main #notesView{height:calc(94dvh / var(--z,1) - 110px)}
 }
 
+.frow .fwrap{background:var(--bg)}
 </style>
 </head>
 <body>
@@ -3876,7 +3877,7 @@ if(MQM.addEventListener)MQM.addEventListener("change",function(){closeComposer()
   vv.addEventListener("resize",function(){kb();fitSoon()});vv.addEventListener("scroll",function(){kb();fitSoon()});kb()})();
 /* Hàng tab dừng lại sát dưới header khi cuộn */
 (function(){var hdr=document.querySelector(".hdr"),tabs=document.querySelector(".tabs");if(!hdr||!tabs)return;
-  function dock(){tabs.style.top=(Math.floor(hdr.getBoundingClientRect().height)-2)+"px"}
+  function dock(){var z=parseFloat(document.body.style.zoom)||1;tabs.style.top=(Math.ceil(hdr.offsetHeight)-1)+"px"}
   window.addEventListener("resize",dock);window.addEventListener("load",dock);if(window.ResizeObserver)new ResizeObserver(dock).observe(hdr);
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(dock);
   dock()})();
