@@ -1545,6 +1545,79 @@ main #notesView #in-msg:not(:empty){left:calc(var(--desk-left) + var(--sbw) + 26
 :root[data-theme="dark"] main #notesView #list .ne-selected .hint{color:#e4c7a5}
 }
 
+
+/* Desktop hierarchy: navigation / browsing / reading, each with its own scroll area. */
+@media(min-width:1000px) and (pointer:fine){
+:root{--sbw:184px;--desk-left:3vw;--desk-right:3vw;--desk-top:3vh;--desk-bottom:3vh;--desk-pad:24px}
+body{height:100vh;min-height:0;overflow:hidden}
+main{height:94vh;min-height:0;border-radius:26px;padding:86px var(--desk-pad) 24px calc(var(--sbw) + var(--desk-pad));overflow:auto}
+body:not(.gym) main:has(#notesView:not([hidden])){padding-top:86px;overflow:hidden}
+.hdr{left:calc(var(--desk-left) + 24px);top:calc(var(--desk-top) + 25px);width:140px}
+h1.logo .lg-n{font-size:26px}h1.logo .lg-e{font-size:6px}
+.hdr .hsearch{left:calc(var(--desk-left) + var(--sbw) + var(--desk-pad));top:calc(var(--desk-top) + 23px);width:clamp(280px,31vw,520px);height:38px}
+.hdr .hsearch .search,.hdr .hsearch .search:focus,.hdr .hsearch .search.has{font-size:13px;padding-right:70px}
+main #notesView .frow .fwrap{top:calc(var(--desk-top) + 25px);right:calc(var(--desk-right) + 26px)}
+.tabs{left:calc(var(--desk-left) + 16px);top:calc(var(--desk-top) + 105px)!important;width:152px}
+.tabs .chip{font-size:13px;height:38px}
+main #notesView .frow #filters{left:calc(var(--desk-left) + 16px);top:calc(var(--desk-top) + 257px);bottom:calc(var(--desk-bottom) + 75px);width:152px}
+main #notesView .frow #filters .chip{font-size:12px;min-height:35px}
+.setw{left:calc(var(--desk-left) + 20px);bottom:calc(var(--desk-bottom) + 20px);width:148px}
+main #notesView{height:calc(94vh - 110px);min-height:0;grid-template-columns:minmax(300px,39%) minmax(0,1fr);grid-template-rows:48px minmax(0,1fr);gap:0 0;position:relative}
+.ne-list-head{height:48px;padding:0 22px 12px 0;margin:0;align-items:center;border-bottom:1px solid var(--line)}
+.ne-list-head h2{font-size:21px;letter-spacing:-.5px}
+.ne-list-head h2 .ne-count{font-size:12px;font-weight:400;color:var(--muted);margin-left:8px;letter-spacing:0}
+.ne-new{width:auto;height:32px;padding:0 13px;font-size:12px;font-weight:600;border-radius:10px;background:var(--accent);color:var(--accent-ink)}
+main #notesView #list{height:100%;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:8px 20px 20px 0;border-radius:0}
+main #notesView #list>.cgrp,main #notesView #list>.dgrp{font-size:11px;margin:18px 3px 8px;font-weight:600}
+main #notesView #list>.cgrp:first-child{margin-top:8px}
+main #notesView #list .swrap{margin:0 0 7px;border-radius:12px}
+main #notesView #list .swrap>.note.swcard{position:relative;min-height:0;padding:14px 40px 14px 14px;border-radius:12px;border:1px solid transparent;background:color-mix(in srgb,var(--ink) 3%,var(--surface))}
+main #notesView #list .swrap.ne-selected>.note.swcard{background:color-mix(in srgb,var(--accent) 17%,var(--surface));color:var(--ink);border-color:color-mix(in srgb,var(--accent) 38%,var(--line));box-shadow:inset 3px 0 0 var(--accent)}
+main #notesView #list .ne-selected .hint{color:var(--muted)}
+main #notesView #list .note .txt{font-size:13px;font-weight:600;line-height:1.6}
+main #notesView #list .note .hint{font-size:11px;line-height:1.6}
+main #notesView #list .meta{margin-top:7px;font-size:10px}
+main #notesView #list .meta:empty{display:none}
+main #notesView #list .ck{position:absolute;right:10px;top:13px;margin:0;width:22px;height:22px}
+main #notesView #list .ck .bx{width:17px;height:17px;border-width:1.5px;border-radius:5px}
+main #notesView #list .ck .tk{width:20px;height:20px}
+.ne-detail{position:relative;top:auto;align-self:stretch;height:100%;grid-row:1/span 2;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;border-left:1px solid var(--line);padding:0 clamp(22px,3vw,52px) 32px;display:flex;flex-direction:column;gap:0}
+.ne-cover{display:none}
+.ne-reader-top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;min-height:48px;padding:0 0 12px;margin-bottom:28px;border-bottom:1px solid var(--line);flex-shrink:0}
+.ne-reader-label{font-size:11px;color:var(--muted);font-weight:500}
+.ne-detail h2{font-size:clamp(23px,1.8vw,30px);line-height:1.45;letter-spacing:-.6px;margin:0 0 18px;width:100%;max-width:720px;flex-shrink:0}
+.ne-detail>.nmain{width:100%;max-width:720px;flex-shrink:0}
+.ne-detail .txt{font-size:14px;line-height:1.9}
+.ne-detail .meta{margin:0 0 22px;gap:7px}
+.ne-detail .nmain>.hint{font-size:13px;margin:18px 0!important}
+.ne-detail-actions{margin:0;gap:7px;justify-content:flex-start}
+.ne-detail-actions button{padding:6px 11px;border-radius:8px;font-size:11px;background:transparent}
+.ne-detail-actions button:first-child{background:var(--fill);font-weight:500}
+.ne-detail-actions button:last-child{color:var(--muted)}
+.ne-detail-actions button:last-child:hover{color:var(--bad);border-color:var(--bad)}
+.ne-detail>.ck{position:static;align-self:flex-start;width:auto;height:auto;gap:9px;margin:8px 0 20px;padding:9px 12px;border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:12px}
+.ne-detail>.ck .bx{width:18px;height:18px;border-radius:5px;border-width:1.5px;flex:none}
+.ne-detail>.ck .tk{width:20px;height:20px;flex:none}
+.ne-detail .thumbs{margin-top:18px}.ne-detail .thumb{width:100px;height:100px}
+main #notesView #xres{position:absolute;top:48px;left:0;width:39%;z-index:3;background:var(--surface);max-height:calc(100% - 48px);overflow:auto}
+main #notesView #xres:empty{display:none}
+main #notesView>.box{left:calc(var(--desk-left) + var(--sbw) + 24px);bottom:calc(var(--desk-bottom) + 20px)}
+}
+@media(min-width:1000px) and (max-width:1199px) and (pointer:fine){
+:root{--sbw:160px;--desk-pad:18px}
+.tabs,main #notesView .frow #filters{width:132px}.setw{width:130px}
+main #notesView{grid-template-columns:minmax(270px,42%) minmax(0,1fr)}
+.ne-detail{padding-inline:22px}.ne-reader-top{gap:8px}.ne-detail-actions button{padding:6px 8px}
+}
+
+
+@media(min-width:1000px) and (pointer:fine){
+:root{--desk-top:calc(3dvh / var(--z,1));--desk-bottom:calc(3dvh / var(--z,1))}
+body{height:calc(100dvh / var(--z,1))}
+main{height:calc(94dvh / var(--z,1));min-height:0!important}
+main #notesView{height:calc(94dvh / var(--z,1) - 110px)}
+}
+
 </style>
 </head>
 <body>
@@ -5604,25 +5677,24 @@ new MutationObserver(all).observe(document.body,{childList:true,subtree:true});a
  var mq=matchMedia('(min-width:1000px) and (pointer:fine)'),view=document.getElementById('notesView'),list=document.getElementById('list');
  if(!view||!list)return;
  var selected=null,head=document.createElement('div'),detail=document.createElement('article');
- head.className='ne-list-head';head.innerHTML='<h2>Ghi chú</h2><button type="button" class="ne-new" aria-label="Thêm ghi chú" title="Thêm ghi chú">+</button>';
+ head.className='ne-list-head';head.innerHTML='<h2>Ghi chú<span class="ne-count"></span></h2><button type="button" class="ne-new" aria-label="Thêm ghi chú" title="Thêm ghi chú">+ Thêm mới</button>';
  detail.className='ne-detail';detail.setAttribute('aria-label','Nội dung ghi chú');view.insertBefore(head,list);view.appendChild(detail);
  head.querySelector('button').onclick=function(){if(typeof openComposer==='function')openComposer();else{var f=document.getElementById('fab');if(f)f.click()}};
  function paint(){
   if(!mq.matches)return;
   var cards=Array.from(list.querySelectorAll('.swrap>.note.swcard')),card=cards.find(function(c){return c.dataset.id===selected})||cards[0];
   cards.forEach(function(c){c.parentElement.classList.toggle('ne-selected',c===card);c.setAttribute('aria-expanded',String(c===card))});
-  detail.replaceChildren();if(!card){selected=null;var empty=document.createElement('p');empty.className='hint';empty.textContent='Chọn + để viết ghi chú đầu tiên của bạn.';detail.appendChild(empty);return}
+  detail.replaceChildren();if(!card){var counter=head.querySelector('.ne-count');if(counter)counter.textContent='0';selected=null;var empty=document.createElement('p');empty.className='hint';empty.textContent='Chọn + để viết ghi chú đầu tiên của bạn.';detail.appendChild(empty);return}
   selected=card.dataset.id;
-  var cover=document.createElement('div');cover.className='ne-cover';cover.setAttribute('aria-hidden','true');
-  cover.innerHTML='<svg viewBox="0 0 160 140" fill="none"><rect x="37" y="24" width="85" height="96" rx="10" fill="currentColor" opacity=".14"/><rect x="28" y="15" width="85" height="96" rx="10" fill="var(--surface)" stroke="currentColor" stroke-width="2"/><path d="M46 40h48M46 53h37M46 66h44M46 79h27" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="m91 99 28-40 9 7-28 40-13 5z" fill="currentColor"/><path d="M20 113h119" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
-  detail.appendChild(cover);
+  var count=head.querySelector('.ne-count');if(count)count.textContent=String(cards.length);
+  var toolbar=document.createElement('div');toolbar.className='ne-reader-top';var label=document.createElement('span');label.className='ne-reader-label';label.textContent='NỘI DUNG GHI CHÚ';toolbar.appendChild(label);detail.appendChild(toolbar);
   var content=card.querySelector('.nmain').cloneNode(true),text=content.querySelector('.txt'),raw=text?text.textContent:'',lines=raw.split('\n'),title=document.createElement('h2');
   title.textContent=lines[0]||'Ghi chú';detail.appendChild(title);
   if(text){if(lines.length>1){text.innerHTML=typeof linkify==='function'?linkify(lines.slice(1).join('\n')):lines.slice(1).join('\n')}else text.remove()}
-  detail.appendChild(content);
-  var check=card.querySelector('.ck');if(check)detail.appendChild(check.cloneNode(true));
+  var meta=content.querySelector('.meta');if(meta)content.insertBefore(meta,content.firstChild);detail.appendChild(content);
+  var check=card.querySelector('.ck');if(check){var completion=check.cloneNode(true),completionText=document.createElement('span');completionText.textContent=check.getAttribute('aria-checked')==='true'?'Đã hoàn thành':'Đánh dấu hoàn thành';completion.appendChild(completionText);detail.appendChild(completion)}
   var actions=document.createElement('div');actions.className='ne-detail-actions';
-  [['Sửa ghi chú','edit'],['Xóa','del']].forEach(function(a){var b=document.createElement('button');b.type='button';b.textContent=a[0];b.dataset[a[1]]=selected;actions.appendChild(b)});detail.appendChild(actions);
+  [['Sửa ghi chú','edit'],['Xóa','del']].forEach(function(a){var b=document.createElement('button');b.type='button';b.textContent=a[0];b.dataset[a[1]]=selected;actions.appendChild(b)});toolbar.appendChild(actions);
  }
  list.addEventListener('click',function(e){if(!mq.matches||e.target.closest('a,button,input,textarea,select,label'))return;var card=e.target.closest('.note.swcard');if(!card)return;e.preventDefault();e.stopPropagation();selected=card.dataset.id;paint()},true);
  list.addEventListener('keydown',function(e){if(!mq.matches||!e.target.matches('.note.swcard')||!['Enter',' '].includes(e.key))return;e.preventDefault();e.stopPropagation();selected=e.target.dataset.id;paint()},true);
