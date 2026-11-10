@@ -6314,7 +6314,7 @@ new MutationObserver(all).observe(document.body,{childList:true,subtree:true});a
 html body main #notesView{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:48px minmax(0,1fr) auto!important;padding-right:0;transition:padding-right .35s cubic-bezier(.2,.8,.2,1);overflow:visible}
 html body main #notesView.ne-open{padding-right:460px}
 html body main #notesView>.ne-list-head{grid-column:1;padding-right:0}
-html body main #notesView #list{grid-column:1;grid-row:2;padding:6px 0 16px}
+html body main #notesView #list{grid-column:1;grid-row:2;padding:6px 14px 16px 0;margin-right:-14px}  /* dịch thanh cuộn sang phải 14px (vào khoảng trống giữa list và panel); padding bù lại nên nội dung list giữ nguyên bề rộng */
 html body main #notesView>.box{position:static!important;grid-column:1;grid-row:3;width:100%!important;max-width:none!important;margin:8px 0 0!important;left:auto!important;bottom:auto!important;transform:none!important}
 html body main #notesView #xres{width:100%}
 /* nhóm */
