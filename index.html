@@ -6273,6 +6273,8 @@ html body main #notesView #list .swrap>.note.swcard{padding:12px 64px 12px 12px;
 html body main #notesView #list .swrap>.note.swcard:hover{background:color-mix(in srgb,var(--ink) 4%,transparent)}
 html body main #notesView.ne-open #list .swrap.ne-selected>.note.swcard{background:color-mix(in srgb,var(--accent) 12%,transparent);box-shadow:none;border-color:var(--line)}
 html body main #notesView #list .swrap>.note.swcard:has(.ck){padding-left:46px}
+/* lề trái nội dung các dòng: dịch ~18px sang phải (tới vạch đỏ), chỉ đổi padding-left của dòng, không đụng thứ khác */
+html body main #notesView #list .swrap>.note.swcard:not(:has(.ck)){padding-left:30px}
 html body main #notesView #list .swcard .ck{left:12px;right:auto;top:50%;transform:translateY(-50%)}
 html body main #notesView #list .nmain{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);column-gap:24px;align-items:center}
 html body main #notesView #list .nmain>.txt{grid-column:1;grid-row:1;font-size:14px;font-weight:600;line-height:1.4}
