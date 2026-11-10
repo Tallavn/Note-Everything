@@ -1566,7 +1566,7 @@ main #notesView .frow .fwrap{top:calc(var(--desk-top) + 25px);right:calc(var(--d
 main #notesView .frow #filters{left:calc(var(--desk-left) + 16px);top:calc(var(--desk-top) + 257px);bottom:calc(var(--desk-bottom) + 75px);width:152px}
 main #notesView .frow #filters .chip{font-size:12px;min-height:35px}
 .setw{left:calc(var(--desk-left) + 20px);bottom:calc(var(--desk-bottom) + 20px);width:148px}
-main #notesView{height:calc(94vh - 110px);min-height:0;grid-template-columns:minmax(300px,39%) minmax(0,1fr);grid-template-rows:48px minmax(0,1fr);gap:0 0;position:relative}
+main #notesView{height:calc(94vh - 134px);min-height:0;grid-template-columns:minmax(300px,39%) minmax(0,1fr);grid-template-rows:48px minmax(0,1fr);gap:0 0;position:relative}
 .ne-list-head{height:48px;padding:0 22px 12px 0;margin:0;align-items:center;border-bottom:1px solid var(--line)}
 .ne-list-head h2{font-size:21px;letter-spacing:-.5px}
 .ne-list-head h2 .ne-count{font-size:12px;font-weight:400;color:var(--muted);margin-left:8px;letter-spacing:0}
@@ -1619,7 +1619,7 @@ main #notesView{grid-template-columns:minmax(270px,42%) minmax(0,1fr)}
 :root{--desk-top:calc(3dvh / var(--z,1));--desk-bottom:calc(3dvh / var(--z,1))}
 body{height:calc(100dvh / var(--z,1))}
 main{height:calc(94dvh / var(--z,1));min-height:0!important}
-main #notesView{height:calc(94dvh / var(--z,1) - 110px)}
+main #notesView{height:calc(94dvh / var(--z,1) - 134px)}
 }
 
 @media (max-width:999px),(pointer:coarse){body:not(.gym)::after{content:"";position:fixed;left:0;right:0;bottom:0;height:calc(82px + var(--sab));background:linear-gradient(to top,var(--bg) 65%,transparent);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);-webkit-mask-image:linear-gradient(to top,#000 70%,transparent);mask-image:linear-gradient(to top,#000 70%,transparent);z-index:14;pointer-events:none}}
@@ -6239,7 +6239,7 @@ new MutationObserver(all).observe(document.body,{childList:true,subtree:true});a
 <style id="ne-d-layout">
 /* ===== Bố cục D: danh sách nhóm 1 dòng + panel ảnh trượt từ phải (chỉ desktop) ===== */
 @media (min-width:1000px) and (pointer:fine){
-html body main #notesView{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:48px minmax(0,1fr) auto!important;padding-right:0;transition:padding-right .35s cubic-bezier(.2,.8,.2,1);overflow:hidden}
+html body main #notesView{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:48px minmax(0,1fr) auto!important;padding-right:0;transition:padding-right .35s cubic-bezier(.2,.8,.2,1);overflow:visible}
 html body main #notesView.ne-open{padding-right:460px}
 html body main #notesView>.ne-list-head{grid-column:1;padding-right:0}
 html body main #notesView #list{grid-column:1;grid-row:2;padding:6px 0 16px}
