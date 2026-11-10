@@ -1630,6 +1630,11 @@ main #notesView{height:calc(94dvh / var(--z,1) - 110px)}
 .tagsec{scroll-margin-top:84px;border-radius:8px}.tagfocus{animation:tagflash 1.8s ease}
 @keyframes tagflash{0%,60%{background:color-mix(in srgb,var(--accent) 24%,transparent)}100%{background:transparent}}
 .dh.dhx.tagsec span:first-child{color:var(--gc)}
+.tgc .tmg{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 14px;cursor:pointer;border-top:1px solid color-mix(in srgb,var(--line) 55%,transparent);background:var(--surface)}
+.tgc .tgg>.tmg:first-child{border-top:0}.tgc .tmg:hover{background:color-mix(in srgb,var(--gc) 7%,var(--surface))}
+.tmgc0{display:inline-block;width:14px;margin-right:4px;font-size:.8em;color:var(--gc)}
+.tgc .tmgc{margin-left:14px;border-left:2px solid var(--gc);background:color-mix(in srgb,var(--gc) 4%,var(--surface))}
+.tgc .tmgc .tx.swcard,.tgc .tmgc .txw{background:transparent}
 </style>
 </head>
 <body>
@@ -1821,12 +1826,15 @@ main #notesView{height:calc(94dvh / var(--z,1) - 110px)}
 
 /* Xếp theo tag (Thu chi) + chạm tên mục ở Ngân sách để nhảy về nhóm tag đó */
 document.addEventListener("click",function(e){
+  var m=e.target.closest&&e.target.closest("[data-tmg]");
+  if(m){var mk=m.dataset.tmg;tagOpen[mk]=!tagOpen[mk];scrollSave();renderFin();scrollRestore();return}
   var b=e.target.closest&&e.target.closest("[data-tagmode],[data-budgo]");if(!b)return;
   if(b.dataset.tagmode){tagMode=!tagMode;tagFocus="";try{localStorage.setItem("ghichu_tagmode",tagMode?"1":"0")}catch(x){}renderFin();return}
   var psub=sub;sub="tx";fcat="";fday="";openTx=null;tagMode=true;tagFocus="out:"+b.dataset.budgo;
   try{localStorage.setItem("ghichu_tagmode","1")}catch(x){}
   defMsg();renderFin();subAnim(psub,sub);updateFab();
 });
+document.addEventListener("keydown",function(e){if(e.key!=="Enter"&&e.key!==" ")return;var m=e.target.closest&&e.target.closest("[data-tmg]");if(m&&e.target===m){e.preventDefault();m.click()}});
 </script>
 <script type="text/plain" id="mainjs">
 /* ===================== GHI CHÚ CHO LẦN SỬA SAU (đọc trước khi sửa) =====================
@@ -3617,7 +3625,22 @@ function cmpView(){
 }
 function pickerFin(x){var l=x.t==="in"?INC:OUT;return'<div class="pick">'+l.map(function(c,i){var col=x.t==="in"?"var(--good)":"var(--k"+i+")";return'<button class="tag ftag" data-fset="'+c.k+'" data-id="'+x.id+'" aria-pressed="'+(x.cat===c.k)+'" style="color:'+col+';background:color-mix(in srgb,currentColor 14%,transparent);border:1px solid color-mix(in srgb,currentColor 38%,transparent)">'+c.n+'</button>'}).join("")+'</div>'}
 var showChart=false,showSum=false;try{showChart=localStorage.getItem("ghichu_chart")==="1";showSum=localStorage.getItem("ghichu_tagsum")==="1"}catch(e){}
-var tagMode=false,tagFocus="";try{tagMode=localStorage.getItem("ghichu_tagmode")==="1"}catch(e){}
+var tagMode=false,tagFocus="",tagOpen={};try{tagMode=localStorage.getItem("ghichu_tagmode")==="1"}catch(e){}
+/* Chế độ xếp theo tag: các khoản cùng tên trong một tag gộp thành 1 dòng (tổng tiền, ×số lần); bấm dòng gộp để xem từng khoản */
+function tagRowsHtml(gk,arr){
+  var bk={},bo=[];
+  arr.forEach(function(y){var nd=norm(y.desc||"").replace(/\s+/g," ").trim(),k=nd||("#"+y.id);if(!bk[k]){bk[k]=[];bo.push(k)}bk[k].push(y)});
+  function dl(y){var d2=y.day.split("-");return(+d2[2])+"/"+(+d2[1])}
+  return bo.map(function(k){
+    var g=bk[k];
+    if(g.length===1)return txRowHtml(g[0],dl(g[0]));
+    var sm=0,key=gk+"|"+k,i;g.forEach(function(y){sm+=y.amt});
+    var open=!!tagOpen[key]||g.some(function(y){return editing==y.id||swipedId==y.id}),
+        lo=g[g.length-1],hi=g[0],rg=lo.day===hi.day?dl(hi):dl(lo)+" – "+dl(hi),x0=g[0];
+    var h='<div class="tmg" data-tmg="'+esc(key)+'" role="button" tabindex="0" aria-expanded="'+open+'"><div><div class="tdesc"><span class="tmgc0">'+(open?"▾":"▸")+'</span>'+esc(x0.desc||"")+'<span class="hint" style="margin:0 0 0 8px;font-weight:400">×'+g.length+' · '+rg+'</span></div></div><div class="tamt '+(x0.t==="in"?"good":"bad")+'">'+(x0.t==="in"?"+":"")+money(sm)+'</div></div>';
+    if(open)h+='<div class="tmgc">'+g.map(function(y){return txRowHtml(y,dl(y))}).join("")+'</div>';
+    return h})
+  .join("")}
 /* Một dòng giao dịch (dùng cho chế độ xếp theo tag; dl = nhãn ngày hiện trước mô tả) */
 function txRowHtml(x,dl){
   if(editing==x.id)return'<div class="tx" style="display:block">'+editForm(x)+'</div>';
@@ -3668,7 +3691,7 @@ function renderTx(top,body){
       var arr2=tg[gk].sort(function(a,b){return a.day<b.day?1:(a.day>b.day?-1:(b.ts||0)-(a.ts||0))}),sm=0;
       arr2.forEach(function(y){sm+=y.amt});
       var x0=arr2[0];
-      h+='<div class="dh dhx tagsec'+(tagFocus===gk?' tagfocus':'')+'" data-tagsec="'+gk+'" style="--gc:'+catColor(x0)+'"><span>'+esc(catName(x0))+'</span><span>'+(x0.t==="in"?"+":"")+money(sm)+' · '+arr2.length+'</span></div><div class="tgc"><div class="tgg one" style="--gc:'+catColor(x0)+';padding-left:0">'+arr2.map(function(y){var d2=y.day.split("-");return txRowHtml(y,(+d2[2])+"/"+(+d2[1]))}).join("")+'</div></div>'});
+      h+='<div class="dh dhx tagsec'+(tagFocus===gk?' tagfocus':'')+'" data-tagsec="'+gk+'" style="--gc:'+catColor(x0)+'"><span>'+esc(catName(x0))+'</span><span>'+(x0.t==="in"?"+":"")+money(sm)+' · '+arr2.length+'</span></div><div class="tgc"><div class="tgg one" style="--gc:'+catColor(x0)+';padding-left:0">'+tagRowsHtml(gk,arr2)+'</div></div>'});
   }
   else{
     var g={};items.forEach(function(x){(g[x.day]=g[x.day]||[]).push(x)});
