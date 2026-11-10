@@ -6304,12 +6304,12 @@ html body .ne-detail .thumbs .thumb:first-child:nth-last-child(odd){grid-column:
   if(!mq.matches)return;
   if(e.target.closest('.ne-close')){setOpen(false);return}
   var c=e.target.closest('#list .note.swcard');
-  if(c&&!e.target.closest('a,button,input,textarea,select,label'))setOpen(true);
+  if(c&&!e.target.closest('a,button,input,textarea,select,label'))setOpen(!(nv.classList.contains('ne-open')&&c.parentElement.classList.contains('ne-selected')));
  },true);
  document.addEventListener('keydown',function(e){
   if(!mq.matches)return;
   if(e.key==='Escape'&&nv.classList.contains('ne-open')&&!e.target.closest('input,textarea,select')){setOpen(false);return}
-  if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('#list .note.swcard'))setOpen(true);
+  if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('#list .note.swcard'))setOpen(!(nv.classList.contains('ne-open')&&e.target.parentElement.classList.contains('ne-selected')));
  },true);
  var tries=0;
  function boot(){
