@@ -2230,7 +2230,7 @@ function linkify(s){return esc(s).replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" 
 function toArr(v){return Array.isArray(v)?v:(v&&typeof v==="object"?Object.keys(v).map(function(k){return v[k]}):[])}
 function fixFin(x){if(!x||typeof x!=="object")return x;
   if(x.k==="plan"){x.items=toArr(x.items).filter(function(it){return it&&typeof it==="object"});x.items.forEach(function(it){it.txs=toArr(it.txs)})}
-  else if(x.k==="bud"&&(!x.lim||typeof x.lim!=="object"))x.lim={};
+  else if(x.k==="bud"){if(!x.lim||typeof x.lim!=="object")x.lim={};if(!Array.isArray(x.cus))x.cus=[]}
   return x}
 function load(){
   var ra=null,rb=window.__IDBNOTES||null,a=null,b=null,took=0;
@@ -4309,7 +4309,7 @@ function renderPlan(){
   var f=document.querySelector('[data-plk="ask"]');if(f){f.focus();f.select()}}
 function noteAdd(){var l="vi";try{l=localStorage.getItem("ghichu_lang")||"vi"}catch(e){}return l==="en"?"+ Note":"+ Ghi chú"}
 function numStr(n){return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,".")}
-document.addEventListener("input",function(e){var t=e.target,c=t.dataset&&t.dataset.plc;if((c!=="lim"&&c!=="inc")||!/^[\d.]+$/.test(t.value))return;var d=t.value.replace(/\D/g,"");t.value=d?numStr(+d):""});
+document.addEventListener("input",function(e){var t=e.target,c=t.dataset&&t.dataset.plc;if((c!=="lim"&&c!=="inc"&&c!=="cus")||!/^[\d.]+$/.test(t.value))return;var d=t.value.replace(/\D/g,"");t.value=d?numStr(+d):""});
 function budNote(mk){var b=notes.find(function(x){return x.k==="bud"&&!x.del});if(!b&&mk){var n=Date.now();b={id:3,fin:1,k:"bud",lim:{},inc:0,ts:n,upd:n};notes.push(b)}return b}
 
 /* ===== Chi tiêu lặp hàng tháng =====
@@ -4432,6 +4432,7 @@ function renderBud(top,body){
   var key=mkey(ym.y,ym.m),b=budNote(),lim=(b&&b.lim)||{},inc=(b&&b.inc)||0,sp={},tot=0,L=0;
   fins().forEach(function(x){if(x.k==="tx"&&x.t==="out"&&x.day&&x.day.indexOf(key)===0){sp[x.cat]=(sp[x.cat]||0)+x.amt;tot+=x.amt}});
   OUT.forEach(function(c){L+=lim[c.k]||0});
+  var cus=(b&&Array.isArray(b.cus))?b.cus:[];cus.forEach(function(c){L+=c.v||0});
   top.innerHTML='<div class="mnav"><button data-mo="-1" aria-label="Tháng trước">‹</button><b>Tháng '+ym.m+'/'+ym.y+'</b><button data-mo="1" aria-label="Tháng sau">›</button></div>';
   var keep=inc-L,q;
   q=L?tot/L:0;
@@ -4442,7 +4443,20 @@ function renderBud(top,body){
     var l=lim[c.k]||0,s=sp[c.k]||0,q2=l?s/l:0;
     h+='<div class="prow"><div class="prt"><span>'+c.n+'</span><input class="plim" data-plc="lim" data-k="'+c.k+'" value="'+(l?numStr(l):"")+'" placeholder="hạn mức" aria-label="Hạn mức '+c.n+'"></div><div class="prt pm" style="margin-top:2px"><span>Đã chi '+money(s)+'</span>'+
       (l?(q2>1?'<span class="po">vượt '+money(s-l)+'</span>':'<span class="'+(q2>=.85?'pw':'')+'">còn '+money(l-s)+'</span>'):'')+'</div>'+(l?'<div class="pbar '+plBc(q2)+'" style="margin-top:6px"><i style="width:'+Math.min(100,Math.round(q2*100))+'%"></i></div>':'')+'</div>'});
+  cus.forEach(function(c){
+    h+='<div class="prow"><div class="prt"><span>'+esc(c.n)+'</span><input class="plim" data-plc="cus" data-cid="'+c.id+'" value="'+(c.v?numStr(c.v):"")+'" placeholder="số tiền" aria-label="Số tiền '+esc(c.n)+'"></div><div class="prt pm" style="margin-top:2px"><span>Khoản phải chi</span><span><button type="button" class="lnk" style="padding:0" data-bud="cedit" data-cid="'+c.id+'">Sửa tên</button> · <button type="button" class="lnk" style="padding:0" data-bud="cdel" data-cid="'+c.id+'">Xóa</button></span></div></div>'});
+  h+='<div class="prow"><button type="button" class="lnk" style="padding:0" data-bud="cadd">+ Thêm khoản phải chi</button></div>';
   body.innerHTML=h+'</div><div class="hint">Gõ 2tr hoặc 800k vào ô hạn mức. Số đã chi lấy tự động từ các khoản chi trong tháng.</div>'}
+function budCusParse(v){v=(v||"").trim();if(!v)return null;var m=v.match(/^(.*\S)\s+(\S+)$/),a=m?plAmt(m[2]):0;return a?{n:m[1].trim().slice(0,40),v:a}:{n:v.slice(0,40),v:0}}
+document.addEventListener("click",function(e){
+  var bb=e.target.closest("[data-bud]");if(!bb)return;
+  var ac=bb.dataset.bud,bn=budNote(1);bn.cus=bn.cus||[];
+  var cu=bb.dataset.cid?bn.cus.find(function(x){return x.id==bb.dataset.cid}):null;
+  function done(){bn.upd=Date.now();save();renderFin();sync()}
+  if(ac==="cadd")dlgAsk({title:"Thêm khoản phải chi",msg:"Gõ tên và số tiền, ví dụ: tiền nhà 3tr.",val:"",ok:"Thêm"},function(v){var r=budCusParse(v);if(!r)return"Tên không được để trống";bn.cus.push({id:Date.now(),n:r.n,v:r.v});done()});
+  else if(ac==="cedit"&&cu)dlgAsk({title:"Sửa khoản phải chi",msg:"Gõ tên và số tiền, ví dụ: tiền nhà 3tr.",val:cu.n+(cu.v?" "+cmp(cu.v):""),ok:"Lưu"},function(v){var r=budCusParse(v);if(!r)return"Tên không được để trống";cu.n=r.n;if(r.v)cu.v=r.v;done()});
+  else if(ac==="cdel"&&cu)dlgYes({title:"Xóa khoản phải chi?",msg:"“"+cu.n+"” sẽ bị bỏ khỏi tổng hạn mức.",ok:"Xóa",danger:true},function(){bn.cus=bn.cus.filter(function(x){return x!==cu});done()});
+});
 document.addEventListener("click",function(e){
   var b=e.target.closest("[data-pl]");if(!b)return;var a=b.dataset.pl,d=b.dataset,p=d.pid?findFin(d.pid):null,j=+d.pj,it=p&&p.items&&p.items[j];
   if(a==="new")plNew();
@@ -4481,6 +4495,7 @@ document.addEventListener("click",function(e){
   plFold[c.dataset.pc]=!fd;try{localStorage.setItem("ghichu_planfold",JSON.stringify(plFold))}catch(x){}renderPlan()});
 document.addEventListener("change",function(e){
   var t=e.target,c=t.dataset&&t.dataset.plc;if(!c)return;
+  if(c==="cus"){var b0=budNote(1),it0=(b0.cus||[]).find(function(x){return x.id==t.dataset.cid});if(it0){it0.v=plAmt(t.value);b0.upd=Date.now();save();renderFin();sync()}return}
   if(c==="lim"||c==="inc"){var b=budNote(1),v=plAmt(t.value);if(c==="inc")b.inc=v;else{b.lim=b.lim||{};b.lim[t.dataset.k]=v}b.upd=Date.now();save();renderFin();sync();return}
   var p=findFin(t.dataset.pid);if(!p)return;
   if(c==="dsel"){if(t.value==="add")plSet(p,function(){p.nd=plNd(p)+1;plDay[p.id]=p.nd});else plDay[p.id]=+t.value;return}
