@@ -1617,7 +1617,8 @@ main #notesView{grid-template-columns:minmax(270px,42%) minmax(0,1fr)}
 
 @media(min-width:1000px) and (pointer:fine){
 :root{--desk-top:calc(3dvh / var(--z,1));--desk-bottom:calc(3dvh / var(--z,1))}
-body{height:calc(100dvh / var(--z,1))}
+/* margin trên/dưới của khung trắng không được gộp ra ngoài body, nếu không tài liệu cao hơn màn hình ~3% và bị cuộn lệch khung lên trên */
+body{display:flow-root;height:calc(100dvh / var(--z,1))}
 main{height:calc(94dvh / var(--z,1));min-height:0!important}
 main #notesView{height:calc(94dvh / var(--z,1) - 134px)}
 }
@@ -6273,8 +6274,8 @@ html body main #notesView #list .swrap>.note.swcard{padding:12px 64px 12px 12px;
 html body main #notesView #list .swrap>.note.swcard:hover{background:color-mix(in srgb,var(--ink) 4%,transparent)}
 html body main #notesView.ne-open #list .swrap.ne-selected>.note.swcard{background:color-mix(in srgb,var(--accent) 12%,transparent);box-shadow:none;border-color:var(--line)}
 html body main #notesView #list .swrap>.note.swcard:has(.ck){padding-left:46px}
-/* lề trái nội dung các dòng: dịch ~18px sang phải (tới vạch đỏ), chỉ đổi padding-left của dòng, không đụng thứ khác */
-html body main #notesView #list .swrap>.note.swcard:not(:has(.ck)){padding-left:30px}
+/* lề trái nội dung các dòng: dịch ~9px sang phải, thẳng với chữ "á" trong "Quán ăn", chỉ đổi padding-left của dòng, không đụng thứ khác */
+html body main #notesView #list .swrap>.note.swcard:not(:has(.ck)){padding-left:21px}
 html body main #notesView #list .swcard .ck{left:12px;right:auto;top:50%;transform:translateY(-50%)}
 html body main #notesView #list .nmain{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);column-gap:24px;align-items:center}
 html body main #notesView #list .nmain>.txt{grid-column:1;grid-row:1;font-size:14px;font-weight:600;line-height:1.4}
