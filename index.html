@@ -6313,6 +6313,16 @@ html body .ne-detail .thumbs{display:grid!important;grid-template-columns:1fr 1f
 html body .ne-detail .thumbs .thumb{width:100%!important;height:auto!important;aspect-ratio:4/3!important;grid-column:auto!important;object-fit:cover}
 html body .ne-detail .thumbs .thumb:first-child:nth-last-child(odd){grid-column:1/-1!important}
 }
+/* ===== QUY TẮC LỚP (z-index): cái nào là pop-up thì đè lên TẤT CẢ, mọi thứ còn lại (kể cả ô nhập dưới đáy) bị làm mờ phía sau.
+   nền < ô nhập (--z-dock) < lớp tối (--z-scrim) < pop-up (--z-popup) < thông báo/hộp thoại.
+   Menu Cài đặt / Sắp xếp là pop-up: lớp tối phủ trên ô nhập, menu nằm trên lớp tối. Ô nhập, sửa, sheet tự là pop-up nên giữ lớp tối thấp như cũ. */
+:root{--z-dock:61;--z-scrim:64;--z-popup:66}
+html body.setopen .cbd,html body.sortopen .cbd{z-index:var(--z-scrim)}
+html body.setopen .hdr{z-index:var(--z-popup)}
+html body.sortopen .fwrap,html body.sortopen main #notesView .frow .fwrap{z-index:var(--z-popup)}
+@media (min-width:1000px) and (pointer:fine){
+html body.setopen .hdr :is(.logo,.hsearch){opacity:.55;filter:blur(2.5px);pointer-events:none;transition:opacity .18s,filter .18s}
+}
 </style>
 <script id="ne-d-js">
 (function(){
