@@ -1625,6 +1625,10 @@ main #notesView{height:calc(94dvh / var(--z,1) - 110px)}
 @media (max-width:999px),(pointer:coarse){body:not(.gym)::after{content:"";position:fixed;left:0;right:0;bottom:0;height:calc(82px + var(--sab));background:linear-gradient(to top,var(--bg) 65%,transparent);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);-webkit-mask-image:linear-gradient(to top,#000 70%,transparent);mask-image:linear-gradient(to top,#000 70%,transparent);z-index:14;pointer-events:none}}
 #calcTip{position:fixed;z-index:2147483000;pointer-events:none;max-width:calc(100vw - 16px);padding:6px 10px;border-radius:8px;background:var(--ink);color:var(--bg);font-size:13px;font-weight:700;line-height:1.2;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.28)}
 #calcTip[hidden]{display:none}
+.tagbar{display:flex;margin:0 2px 6px}
+.bnm{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;text-align:left;cursor:pointer}.bnm:hover{text-decoration:underline;text-underline-offset:3px}
+.tagsec{scroll-margin-top:84px;border-radius:8px}.tagfocus{animation:tagflash 1.8s ease}
+@keyframes tagflash{0%,60%{background:color-mix(in srgb,var(--accent) 24%,transparent)}100%{background:transparent}}
 </style>
 </head>
 <body>
@@ -1813,6 +1817,15 @@ main #notesView{height:calc(94dvh / var(--z,1) - 110px)}
     else if(!t.classList.contains("plim"))t.value=amtTxt(r.v);
     hide()},true);
 })();
+
+/* Xếp theo tag (Thu chi) + chạm tên mục ở Ngân sách để nhảy về nhóm tag đó */
+document.addEventListener("click",function(e){
+  var b=e.target.closest&&e.target.closest("[data-tagmode],[data-budgo]");if(!b)return;
+  if(b.dataset.tagmode){tagMode=!tagMode;tagFocus="";try{localStorage.setItem("ghichu_tagmode",tagMode?"1":"0")}catch(x){}renderFin();return}
+  var psub=sub;sub="tx";fcat="";fday="";openTx=null;tagMode=true;tagFocus="out:"+b.dataset.budgo;
+  try{localStorage.setItem("ghichu_tagmode","1")}catch(x){}
+  defMsg();renderFin();subAnim(psub,sub);updateFab();
+});
 </script>
 <script type="text/plain" id="mainjs">
 /* ===================== GHI CHÚ CHO LẦN SỬA SAU (đọc trước khi sửa) =====================
@@ -3603,6 +3616,13 @@ function cmpView(){
 }
 function pickerFin(x){var l=x.t==="in"?INC:OUT;return'<div class="pick">'+l.map(function(c,i){var col=x.t==="in"?"var(--good)":"var(--k"+i+")";return'<button class="tag ftag" data-fset="'+c.k+'" data-id="'+x.id+'" aria-pressed="'+(x.cat===c.k)+'" style="color:'+col+';background:color-mix(in srgb,currentColor 14%,transparent);border:1px solid color-mix(in srgb,currentColor 38%,transparent)">'+c.n+'</button>'}).join("")+'</div>'}
 var showChart=false,showSum=false;try{showChart=localStorage.getItem("ghichu_chart")==="1";showSum=localStorage.getItem("ghichu_tagsum")==="1"}catch(e){}
+var tagMode=false,tagFocus="";try{tagMode=localStorage.getItem("ghichu_tagmode")==="1"}catch(e){}
+/* Một dòng giao dịch (dùng cho chế độ xếp theo tag; dl = nhãn ngày hiện trước mô tả) */
+function txRowHtml(x,dl){
+  if(editing==x.id)return'<div class="tx" style="display:block">'+editForm(x)+'</div>';
+  var sw=swipedId==x.id;
+  return'<div class="swrap txw'+(sw?' swiped':'')+'" data-id="'+x.id+'"><div class="swact"><button type="button" class="sw-edit" data-edit="'+x.id+'" aria-label="Sửa giao dịch">'+IC_EDIT+'<span>Sửa</span></button><button type="button" class="sw-del" data-fdel="'+x.id+'" aria-label="Xóa giao dịch">'+IC_DEL+'<span>Xóa</span></button></div><div class="tx swcard" data-id="'+x.id+'" role="button" tabindex="0" aria-expanded="'+sw+'"><div><div class="tdesc">'+(dl?'<span class="hint" style="margin:0 8px 0 0;font-weight:400">'+dl+'</span>':'')+esc(x.desc||"")+'</div>'+(x.note?'<div class="hint" style="margin:2px 0;white-space:pre-wrap;word-break:break-word">'+esc(x.note)+'</div>':'')+imgStrip(x)+'</div><div class="tamt '+(x.t==="in"?"good":"bad")+'">'+(x.t==="in"?"+":"")+money(x.amt)+'</div></div></div>';
+}
 function renderTx(top,body){
   var key=mkey(ym.y,ym.m),ms=monthSum(ym.y,ym.m),bl=balance(),days=new Date(ym.y,ym.m,0).getDate(),dueAll=recDue(),po=0,pi=0,td0=today();
   dueAll.forEach(function(o){if(o.r.t==="in")pi+=o.r.amt;else po+=o.r.amt});
@@ -3632,11 +3652,23 @@ function renderTx(top,body){
     if(!views[chartView])chartView=avail[0][0];
     h+='<div class="card"><div class="cvt">'+avail.map(function(a){return'<button class="chip" data-cv="'+a[0]+'" aria-pressed="'+(chartView===a[0])+'">'+a[1]+'</button>'}).join("")+'</div>'+views[chartView]+'</div>';
   }
+  if(all.length)h+='<div class="tagbar"><button type="button" class="chip" data-tagmode="1" aria-pressed="'+tagMode+'">Xếp theo tag</button></div>';
   var items=all.filter(function(x){return(!fcat||(x.t==="out"&&x.cat===fcat))&&(!fday||x.day===fday)});
   if(fcat)h+='<div class="hint" style="margin:0 2px 4px">Đang lọc mục '+esc((OUT.filter(function(c){return c.k===fcat})[0]||{n:""}).n)+'. Bấm lại mục đó để bỏ lọc.</div>';
   var dueH=(key===td0.slice(0,7)&&!fcat&&(!fday||fday===td0))?dueRowsHtml():"",dueShown=false;
   if(dueH&&!items.some(function(x){return x.day===td0})){h+='<div class="dh dhx"><span>'+dayLabel(td0)+'</span><span></span></div>'+dueH;dueH="";dueShown=true}
   if(!items.length){if(!dueShown)h+='<div class="empty">'+(all.length?"Không có giao dịch nào khớp.":"Tháng này chưa có giao dịch. Bấm nút + để thêm.")+'</div>'}
+  else if(tagMode){
+    if(dueH){h+='<div class="dh dhx"><span>Đến hạn</span><span></span></div>'+dueH;dueH="";dueShown=true}
+    var tg={},to=[];
+    items.forEach(function(x){var gk=x.t+":"+x.cat;if(!tg[gk]){tg[gk]=[];to.push(gk)}tg[gk].push(x)});
+    to.sort(function(a,b){var xa=tg[a][0],xb=tg[b][0];if(xa.t!==xb.t)return xa.t==="out"?-1:1;return catIdx(xa)-catIdx(xb)});
+    to.forEach(function(gk){
+      var arr2=tg[gk].sort(function(a,b){return a.day<b.day?1:(a.day>b.day?-1:(b.ts||0)-(a.ts||0))}),sm=0;
+      arr2.forEach(function(y){sm+=y.amt});
+      var x0=arr2[0];
+      h+='<div class="dh dhx tagsec'+(tagFocus===gk?' tagfocus':'')+'" data-tagsec="'+gk+'"><span>'+esc(catName(x0))+'</span><span>'+(x0.t==="in"?"+":"")+money(sm)+' · '+arr2.length+'</span></div><div class="tgc"><div class="tgg one" style="--gc:'+catColor(x0)+';padding-left:0">'+arr2.map(function(y){var d2=y.day.split("-");return txRowHtml(y,(+d2[2])+"/"+(+d2[1]))}).join("")+'</div></div>'});
+  }
   else{
     var g={};items.forEach(function(x){(g[x.day]=g[x.day]||[]).push(x)});
     Object.keys(g).sort().reverse().forEach(function(day){
@@ -3663,6 +3695,7 @@ function renderTx(top,body){
     });
   }
   body.innerHTML=h;
+  if(tagMode&&tagFocus){var tf=tagFocus;tagFocus="";setTimeout(function(){var fe=document.querySelector('#finBody [data-tagsec="'+tf+'"]');if(fe)try{fe.scrollIntoView({behavior:"smooth",block:"start"})}catch(e){fe.scrollIntoView()}},120)}
 }
 function renderDebt(top,body){
   var ds=fins().filter(function(x){return x.k==="debt"}),owe=0,lent=0;
@@ -4567,13 +4600,13 @@ function renderBud(top,body){
   all.forEach(function(it,ix){
     var arrows=grip,on=off.indexOf(it.id)<0,tg='';
     if(it.std){var c=it.c,l=lim[c.k]||0,s=sp[c.k]||0,q2=l?s/l:0;
-      h+='<div class="prow" data-oid="'+it.id+'" style="cursor:pointer;'+(on?'':'opacity:.45;filter:grayscale(1);')+'" title="Chạm vào vùng trống để '+(on?'tắt':'bật')+'"><div class="prt"><span>'+tg+c.n+'</span><input class="plim" data-plc="lim" data-k="'+c.k+'" value="'+(l?numStr(l):"")+'" placeholder="hạn mức" aria-label="Hạn mức '+c.n+'"></div><div class="prt pm" style="margin-top:2px"><span>Đã chi '+money(s)+'</span><span>'+
+      h+='<div class="prow" data-oid="'+it.id+'" style="cursor:pointer;'+(on?'':'opacity:.45;filter:grayscale(1);')+'" title="Chạm vào vùng trống để '+(on?'tắt':'bật')+'"><div class="prt"><span><button type="button" class="bnm" data-budgo="'+c.k+'" title="Xem các khoản chi của mục này">'+tg+c.n+'</button></span><input class="plim" data-plc="lim" data-k="'+c.k+'" value="'+(l?numStr(l):"")+'" placeholder="hạn mức" aria-label="Hạn mức '+c.n+'"></div><div class="prt pm" style="margin-top:2px"><span>Đã chi '+money(s)+'</span><span>'+
       (l?(q2>1?'<span class="po">vượt '+money(s-l)+'</span>':'<span class="'+(q2>=.85?'pw':'')+'">còn '+money(l-s)+'</span>'):'')+' <button type="button" class="lnk" style="padding:0" data-bud="sdel" data-k="'+c.k+'">Xóa</button>'+arrows+'</span></div>'+(l?'<div class="pbar '+plBc(q2)+'" style="margin-top:6px"><i style="width:'+Math.min(100,Math.round(q2*100))+'%"></i></div>':'')+'</div>'}
     else{var c2=it.c;
       h+='<div class="prow" data-oid="'+it.id+'" style="cursor:pointer;'+(on?'':'opacity:.45;filter:grayscale(1);')+'" title="Chạm vào vùng trống để '+(on?'tắt':'bật')+'"><div class="prt"><span>'+tg+esc(c2.n)+'</span><input class="plim" data-plc="cus" data-cid="'+c2.id+'" value="'+(c2.v?numStr(c2.v):"")+'" placeholder="số tiền" aria-label="Số tiền '+esc(c2.n)+'"></div><div class="prt pm" style="margin-top:2px"><span>Khoản phải chi</span><span><button type="button" class="lnk" style="padding:0" data-bud="cedit" data-cid="'+c2.id+'">Sửa tên</button> · <button type="button" class="lnk" style="padding:0" data-bud="cdel" data-cid="'+c2.id+'">Xóa</button>'+arrows+'</span></div></div>'}
   });
   h+='<div class="prow"><button type="button" class="lnk" style="padding:0" data-bud="cadd">+ Thêm khoản phải chi</button>'+(hid.length?' &nbsp;·&nbsp; <button type="button" class="lnk" style="padding:0" data-bud="srestore">Khôi phục '+hid.length+' mục đã xóa</button>':'')+'</div>';
-  body.innerHTML=h+'</div><div class="hint">Gõ 2tr hoặc 800k vào ô hạn mức. Số đã chi lấy tự động từ các khoản chi trong tháng. Chạm vào vùng trống của một mục để tắt hoặc bật.</div>'}
+  body.innerHTML=h+'</div><div class="hint">Gõ 2tr hoặc 800k vào ô hạn mức. Số đã chi lấy tự động từ các khoản chi trong tháng. Chạm vào vùng trống của một mục để tắt hoặc bật. Chạm vào tên mục để xem các khoản chi của mục đó.</div>'}
 (function(){var dr=null;
 function rows(c,ex){return Array.prototype.filter.call(c.children,function(r){return r!==ex&&r.dataset&&r.dataset.oid})}
 document.addEventListener("pointerdown",function(e){
