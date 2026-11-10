@@ -6113,7 +6113,7 @@ new MutationObserver(all).observe(document.body,{childList:true,subtree:true});a
  head.querySelector('button').onclick=function(){if(typeof openComposer==='function')openComposer();else{var f=document.getElementById('fab');if(f)f.click()}};
  function paint(){
   if(!mq.matches)return;
-  var cards=Array.from(list.querySelectorAll('.swrap>.note.swcard')),card=cards.find(function(c){return c.dataset.id===selected})||cards[0];
+  var cards=Array.from(list.querySelectorAll('.swrap>.note.swcard')),card=cards.find(function(c){return c.dataset.id===selected});if(!card&&selected!=null&&typeof editing!=="undefined"&&String(editing)===String(selected))return;card=card||cards[0];
   cards.forEach(function(c){c.parentElement.classList.toggle('ne-selected',c===card);c.setAttribute('aria-expanded',String(c===card))});
   detail.replaceChildren();if(!card){var counter=head.querySelector('.ne-count');if(counter)counter.textContent='0';selected=null;var empty=document.createElement('p');empty.className='hint';empty.textContent='Chọn + để viết ghi chú đầu tiên của bạn.';detail.appendChild(empty);return}
   selected=card.dataset.id;
@@ -6319,7 +6319,14 @@ html body .ne-detail .thumbs .thumb:first-child:nth-last-child(odd){grid-column:
    var top=d.querySelector('.ne-reader-top');
    if(top&&!top.querySelector('.ne-close')){var b=document.createElement('button');b.type='button';b.className='ne-close';b.setAttribute('aria-label','Đóng');b.textContent='×';top.appendChild(b)}
   }
-  new MutationObserver(addClose).observe(d,{childList:true});addClose();
+  function addPhotos(){
+   var eb=d.querySelector('.ne-detail-actions button[data-edit]');if(!eb||typeof imgStrip!=='function'||typeof notes==='undefined')return;
+   var x=notes.find(function(n){return String(n.id)===String(eb.dataset.edit)});
+   if(!x||!x.img||!x.img.length||d.querySelector('.thumbs'))return;
+   var host=d.querySelector(':scope>.nmain')||d,tmp=document.createElement('div');tmp.innerHTML=imgStrip(x);
+   if(tmp.firstChild)host.appendChild(tmp.firstChild);
+  }
+  new MutationObserver(function(){addClose();addPhotos()}).observe(d,{childList:true});addClose();addPhotos();
   d.addEventListener('wheel',function(e){e.stopImmediatePropagation()},{capture:true,passive:true});
  }
  boot();
