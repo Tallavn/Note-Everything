@@ -1629,6 +1629,7 @@ main #notesView{height:calc(94dvh / var(--z,1) - 110px)}
 .bnm{background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;text-align:left;cursor:pointer}.bnm:hover{text-decoration:underline;text-underline-offset:3px}
 .tagsec{scroll-margin-top:84px;border-radius:8px}.tagfocus{animation:tagflash 1.8s ease}
 @keyframes tagflash{0%,60%{background:color-mix(in srgb,var(--accent) 24%,transparent)}100%{background:transparent}}
+.dh.dhx.tagsec span:first-child{color:var(--gc)}
 </style>
 </head>
 <body>
@@ -3667,7 +3668,7 @@ function renderTx(top,body){
       var arr2=tg[gk].sort(function(a,b){return a.day<b.day?1:(a.day>b.day?-1:(b.ts||0)-(a.ts||0))}),sm=0;
       arr2.forEach(function(y){sm+=y.amt});
       var x0=arr2[0];
-      h+='<div class="dh dhx tagsec'+(tagFocus===gk?' tagfocus':'')+'" data-tagsec="'+gk+'"><span>'+esc(catName(x0))+'</span><span>'+(x0.t==="in"?"+":"")+money(sm)+' · '+arr2.length+'</span></div><div class="tgc"><div class="tgg one" style="--gc:'+catColor(x0)+';padding-left:0">'+arr2.map(function(y){var d2=y.day.split("-");return txRowHtml(y,(+d2[2])+"/"+(+d2[1]))}).join("")+'</div></div>'});
+      h+='<div class="dh dhx tagsec'+(tagFocus===gk?' tagfocus':'')+'" data-tagsec="'+gk+'" style="--gc:'+catColor(x0)+'"><span>'+esc(catName(x0))+'</span><span>'+(x0.t==="in"?"+":"")+money(sm)+' · '+arr2.length+'</span></div><div class="tgc"><div class="tgg one" style="--gc:'+catColor(x0)+';padding-left:0">'+arr2.map(function(y){var d2=y.day.split("-");return txRowHtml(y,(+d2[2])+"/"+(+d2[1]))}).join("")+'</div></div>'});
   }
   else{
     var g={};items.forEach(function(x){(g[x.day]=g[x.day]||[]).push(x)});
