@@ -1780,18 +1780,21 @@ html body .ne-detail{background:transparent}
 }
 @media (prefers-reduced-motion:reduce){.ne-mica{transition:none!important}}
 
-/* ===== PC: khung đọc ghi chú căn giữa toàn bộ (khối nội dung, chữ, thẻ, ảnh) ===== */
+/* ===== PC: ghi chú CÓ ẢNH được căn giữa (khối nội dung, chữ, thẻ, ảnh); ghi chú không ảnh giữ bố cục như các trang khác ===== */
 @media (min-width:1000px) and (pointer:fine){
-html body .ne-detail{--rw:720px}
-html body .ne-detail>.ne-reader-top,html body .ne-detail>.nmain{width:100%;max-width:var(--rw);margin-inline:auto}
-html body .ne-detail .ne-left,html body .ne-detail .ne-left .txt,html body .ne-detail .ne-left .hint,html body .ne-detail>.nmain>.txt,html body .ne-detail>.nmain>.hint,html body .ne-detail>h2{text-align:center}
-html body .ne-detail .ne-left h2{margin-inline:auto}
-html body .ne-detail .meta{justify-content:center}
-html body .ne-detail>.ck{align-self:center;margin-inline:auto}
+html body .ne-detail:has(.thumbs){--rw:720px}
+html body .ne-detail:has(.thumbs)>.ne-reader-top,html body .ne-detail:has(.thumbs)>.nmain{width:100%;max-width:var(--rw);margin-inline:auto}
+html body .ne-detail:has(.thumbs) .ne-left{text-align:center}
+html body .ne-detail:has(.thumbs) .ne-left h2{margin-inline:auto}
+html body .ne-detail:has(.thumbs) .meta{justify-content:center}
+html body .ne-detail:has(.thumbs)>.ck{align-self:center;margin-inline:auto}
+/* chỉ 1 ảnh: ảnh vuông, to hơn cho đỡ trống */
+html body .ne-detail .thumbs:has(.thumb:only-child){grid-template-columns:minmax(0,640px);justify-content:center}
+html body .ne-detail .thumbs .thumb:only-child{grid-column:1;aspect-ratio:1}
 }
 /* ≥1600px: chữ một cột, ảnh một cột, cụm chữ nằm giữa theo chiều dọc so với cột ảnh */
 @media (min-width:1600px) and (pointer:fine){
-html body .ne-detail{--rw:1040px}
+html body .ne-detail:has(.thumbs){--rw:1040px}
 html body .ne-detail>.nmain:has(.thumbs){display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);column-gap:36px;align-items:center}
 html body .ne-detail>.nmain:has(.thumbs)>.thumbs{margin-top:0}
 }
