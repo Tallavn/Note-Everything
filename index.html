@@ -1766,6 +1766,23 @@ html body .ne-detail>.nmain:has(.thumbs){max-width:none;display:grid;grid-templa
 html body .ne-detail>.nmain:has(.thumbs)>*{grid-column:1}
 html body .ne-detail>.nmain:has(.thumbs)>.thumbs{grid-column:2;grid-row:1/-1;margin-top:0}
 }
+
+/* ===== PC: nền mica lấy từ ảnh đầu tiên của ghi chú (kiểu B: mờ giảm dần trái → phải, fade ở mép trái) ===== */
+.ne-mica{display:none}
+@media (min-width:1000px) and (pointer:fine){
+html body main #notesView>.ne-mica{display:block;grid-column:2;grid-row:1/span 2;align-self:stretch;height:100%;position:relative;z-index:0;overflow:hidden;pointer-events:none;
+  opacity:0;transition:opacity .35s;--k:1;--t:.55;--f:60;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 calc(var(--f)*1%));mask-image:linear-gradient(90deg,transparent 0,#000 calc(var(--f)*1%))}
+html body main #notesView>.ne-mica.on{opacity:1}
+.ne-mica .l{position:absolute;inset:-90px;background:var(--img) 70% 50%/cover no-repeat;transform:scale(1.12)}
+.ne-mica .a{filter:blur(calc(80px*var(--k))) saturate(1.6);-webkit-mask-image:linear-gradient(90deg,#000 0,#000 28%,transparent 66%);mask-image:linear-gradient(90deg,#000 0,#000 28%,transparent 66%)}
+.ne-mica .b{filter:blur(calc(36px*var(--k))) saturate(1.4);-webkit-mask-image:linear-gradient(90deg,transparent 14%,#000 44%,#000 62%,transparent 90%);mask-image:linear-gradient(90deg,transparent 14%,#000 44%,#000 62%,transparent 90%)}
+.ne-mica .c{filter:blur(calc(10px*var(--k)));-webkit-mask-image:linear-gradient(90deg,transparent 48%,#000 88%);mask-image:linear-gradient(90deg,transparent 48%,#000 88%)}
+.ne-mica .tint{position:absolute;inset:0;background:linear-gradient(90deg,color-mix(in srgb,var(--surface) calc(var(--t)*100%),transparent),color-mix(in srgb,var(--surface) calc(var(--t)*35%),transparent))}
+.ne-mica .noise{position:absolute;inset:0;opacity:.07;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
+html body .ne-detail{background:transparent}
+}
+@media (prefers-reduced-motion:reduce){.ne-mica{transition:none!important}}
 </style>
 </head>
 <body>
@@ -6126,6 +6143,34 @@ new MutationObserver(all).observe(document.body,{childList:true,subtree:true});a
   });
   if(mq.addEventListener)mq.addEventListener('change',function(){try{sync()}catch(e){}});
   patch();
+})();
+</script>
+
+<script>
+/* PC: nền mica phía sau khung đọc, lấy từ ảnh đầu tiên của ghi chú đang chọn. */
+(function(){
+  var mica,last=null,tries=0;
+  function build(){
+    var d=document.createElement('div');d.className='ne-mica';d.setAttribute('aria-hidden','true');
+    d.innerHTML='<div class="l a"></div><div class="l b"></div><div class="l c"></div><div class="tint"></div><div class="noise"></div>';
+    return d;
+  }
+  function sync(){
+    var detail=document.querySelector('#notesView>.ne-detail');if(!detail)return;
+    if(!mica)mica=build();
+    if(mica.nextSibling!==detail)detail.parentNode.insertBefore(mica,detail);
+    var im=detail.querySelector('.thumbs .thumb'),src=im?im.getAttribute('src'):'';
+    if(src===last)return;last=src;
+    mica.style.setProperty('--img',src?'url("'+src.replace(/"/g,'%22')+'")':'none');
+    mica.classList.toggle('on',!!src);
+  }
+  function start(){
+    var detail=document.querySelector('#notesView>.ne-detail');
+    if(!detail){if(++tries<100)setTimeout(start,100);return}
+    new MutationObserver(sync).observe(detail,{childList:true});
+    sync();
+  }
+  start();
 })();
 </script>
 
