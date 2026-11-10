@@ -505,6 +505,10 @@ main>div#notesView,main>div#finView{margin-bottom:120px}
 .pib.has::after{content:"";position:absolute;top:9px;right:9px;width:7px;height:7px;border-radius:50%;background:var(--accent)}
 .pask{display:flex;gap:6px;padding:6px 0 10px 30px}
 #planView .pin{flex:1;min-width:0;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:var(--r-sm);padding:8px 12px;font:inherit}
+.bdrag{display:inline-flex;align-items:center;justify-content:center;width:30px;height:24px;margin-left:8px;border-radius:8px;color:var(--ink);opacity:.45;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;vertical-align:middle}
+.bdrag:hover{opacity:.9;background:color-mix(in srgb,currentColor 8%,transparent)}
+.prow.bdragging{position:relative;z-index:5;background:var(--surface);box-shadow:0 8px 24px rgba(0,0,0,.18);border-radius:14px;opacity:.97;transition:none}
+.prow.bdragging .bdrag{cursor:grabbing;opacity:1}
 .plim{width:128px;text-align:right;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:var(--r-sm);padding:3px 8px;font:inherit;font-size:var(--fs-sm)}
 .prow{padding:10px 0;border-top:1px solid var(--line)}.prow:first-child{border-top:0}
 .prt{display:flex;justify-content:space-between;align-items:center;gap:10px}
@@ -4439,14 +4443,46 @@ function renderBud(top,body){
   var h='<div class="pc"><div class="prt"><span>Thu dự kiến</span><input class="plim" data-plc="inc" value="'+(inc?numStr(inc):"")+'" placeholder="0" aria-label="Thu dự kiến"></div><div class="prt" style="margin-top:6px"><span>Tổng hạn mức</span><b>'+money(L)+'</b></div>'+
     (inc&&L?'<div class="prt" style="margin-top:6px"><span>Dự kiến để dành</span><b class="'+(keep<0?'bad':'good')+'">'+(keep<0?"-":"")+money(keep)+'</b></div>':'')+
     (L?'<div class="pbar '+plBc(q)+'"><i style="width:'+Math.min(100,Math.round(q*100))+'%"></i></div><div class="pm" style="margin-top:6px">Đã chi '+money(tot)+' / '+money(L)+'</div>':'')+'</div><div class="pc">';
-  OUT.forEach(function(c){
-    var l=lim[c.k]||0,s=sp[c.k]||0,q2=l?s/l:0;
-    h+='<div class="prow"><div class="prt"><span>'+c.n+'</span><input class="plim" data-plc="lim" data-k="'+c.k+'" value="'+(l?numStr(l):"")+'" placeholder="hạn mức" aria-label="Hạn mức '+c.n+'"></div><div class="prt pm" style="margin-top:2px"><span>Đã chi '+money(s)+'</span>'+
-      (l?(q2>1?'<span class="po">vượt '+money(s-l)+'</span>':'<span class="'+(q2>=.85?'pw':'')+'">còn '+money(l-s)+'</span>'):'')+'</div>'+(l?'<div class="pbar '+plBc(q2)+'" style="margin-top:6px"><i style="width:'+Math.min(100,Math.round(q2*100))+'%"></i></div>':'')+'</div>'});
-  cus.forEach(function(c){
-    h+='<div class="prow"><div class="prt"><span>'+esc(c.n)+'</span><input class="plim" data-plc="cus" data-cid="'+c.id+'" value="'+(c.v?numStr(c.v):"")+'" placeholder="số tiền" aria-label="Số tiền '+esc(c.n)+'"></div><div class="prt pm" style="margin-top:2px"><span>Khoản phải chi</span><span><button type="button" class="lnk" style="padding:0" data-bud="cedit" data-cid="'+c.id+'">Sửa tên</button> · <button type="button" class="lnk" style="padding:0" data-bud="cdel" data-cid="'+c.id+'">Xóa</button></span></div></div>'});
+  var all=OUT.map(function(c){return{id:c.k,n:c.n,std:1,c:c}}).concat(cus.map(function(c){return{id:"c"+c.id,n:c.n,c:c}})),ord=(b&&b.ord)||[];
+  all.sort(function(x,y){var i=ord.indexOf(x.id),j=ord.indexOf(y.id);if(i<0)i=1e6+all.indexOf(x);if(j<0)j=1e6+all.indexOf(y);return i-j});
+  var grip='<span class="bdrag" aria-label="Giữ và kéo để đổi vị trí" role="button"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" aria-hidden="true"><circle cx="4.5" cy="3" r="1.3"/><circle cx="9.5" cy="3" r="1.3"/><circle cx="4.5" cy="7" r="1.3"/><circle cx="9.5" cy="7" r="1.3"/><circle cx="4.5" cy="11" r="1.3"/><circle cx="9.5" cy="11" r="1.3"/></svg></span>';
+  all.forEach(function(it,ix){
+    var arrows=grip;
+    if(it.std){var c=it.c,l=lim[c.k]||0,s=sp[c.k]||0,q2=l?s/l:0;
+      h+='<div class="prow" data-oid="'+it.id+'"><div class="prt"><span>'+c.n+'</span><input class="plim" data-plc="lim" data-k="'+c.k+'" value="'+(l?numStr(l):"")+'" placeholder="hạn mức" aria-label="Hạn mức '+c.n+'"></div><div class="prt pm" style="margin-top:2px"><span>Đã chi '+money(s)+'</span><span>'+
+      (l?(q2>1?'<span class="po">vượt '+money(s-l)+'</span>':'<span class="'+(q2>=.85?'pw':'')+'">còn '+money(l-s)+'</span>'):'')+arrows+'</span></div>'+(l?'<div class="pbar '+plBc(q2)+'" style="margin-top:6px"><i style="width:'+Math.min(100,Math.round(q2*100))+'%"></i></div>':'')+'</div>'}
+    else{var c2=it.c;
+      h+='<div class="prow" data-oid="'+it.id+'"><div class="prt"><span>'+esc(c2.n)+'</span><input class="plim" data-plc="cus" data-cid="'+c2.id+'" value="'+(c2.v?numStr(c2.v):"")+'" placeholder="số tiền" aria-label="Số tiền '+esc(c2.n)+'"></div><div class="prt pm" style="margin-top:2px"><span>Khoản phải chi</span><span><button type="button" class="lnk" style="padding:0" data-bud="cedit" data-cid="'+c2.id+'">Sửa tên</button> · <button type="button" class="lnk" style="padding:0" data-bud="cdel" data-cid="'+c2.id+'">Xóa</button>'+arrows+'</span></div></div>'}
+  });
   h+='<div class="prow"><button type="button" class="lnk" style="padding:0" data-bud="cadd">+ Thêm khoản phải chi</button></div>';
   body.innerHTML=h+'</div><div class="hint">Gõ 2tr hoặc 800k vào ô hạn mức. Số đã chi lấy tự động từ các khoản chi trong tháng.</div>'}
+(function(){var dr=null;
+function rows(c,ex){return Array.prototype.filter.call(c.children,function(r){return r!==ex&&r.dataset&&r.dataset.oid})}
+document.addEventListener("pointerdown",function(e){
+  var h=e.target.closest&&e.target.closest(".bdrag");if(!h)return;var row=h.closest(".prow[data-oid]");if(!row)return;
+  e.preventDefault();try{h.setPointerCapture(e.pointerId)}catch(x){}
+  dr={row:row,h:h,id:e.pointerId,y:e.clientY};row.classList.add("bdragging");
+});
+document.addEventListener("pointermove",function(e){
+  if(!dr||e.pointerId!==dr.id)return;e.preventDefault();var row=dr.row;
+  row.style.transform="translateY("+(e.clientY-dr.y)+"px)";
+  var r=row.getBoundingClientRect(),mid=r.top+r.height/2,cont=row.parentNode,others=rows(cont,row),ref=null;
+  for(var i=0;i<others.length;i++){var o=others[i].getBoundingClientRect();if(o.top+o.height/2>mid){ref=others[i];break}}
+  var want=ref||(others.length?others[others.length-1].nextSibling:null);
+  if(want!==row.nextSibling&&want!==row){
+    var v0=r.top;cont.insertBefore(row,want);row.style.transform="none";
+    var l1=row.getBoundingClientRect().top;dr.y=e.clientY-(v0-l1);row.style.transform="translateY("+(e.clientY-dr.y)+"px)";
+  }
+},{passive:false});
+function end(e){
+  if(!dr||(e&&e.pointerId!==dr.id))return;var row=dr.row,cont=row.parentNode;dr=null;
+  row.style.transform="";row.classList.remove("bdragging");
+  var ord=rows(cont,null).map(function(r){return r.dataset.oid}),bn=budNote(1);
+  if(JSON.stringify(ord)!==JSON.stringify(bn.ord||[])){bn.ord=ord;bn.upd=Date.now();save();sync()}
+  renderFin();
+}
+document.addEventListener("pointerup",end);document.addEventListener("pointercancel",end);
+})();
 function budCusParse(v){v=(v||"").trim();if(!v)return null;var m=v.match(/^(.*\S)\s+(\S+)$/),a=m?plAmt(m[2]):0;return a?{n:m[1].trim().slice(0,40),v:a}:{n:v.slice(0,40),v:0}}
 document.addEventListener("click",function(e){
   var bb=e.target.closest("[data-bud]");if(!bb)return;
