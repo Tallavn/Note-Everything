@@ -2406,7 +2406,7 @@ function setPending(id){pending=id;try{if(id==null)localStorage.removeItem("pend
 var MAPRE=/https?:\/\/(www\.)?(google\.[a-z.]+\/maps|maps\.app\.goo\.gl|goo\.gl\/maps)[^\s]*/i;
 function attach(id,txt){
   var m=(txt||"").match(MAPRE),n=notes.find(function(x){return x.id==id});
-  if(m&&n){n.link=m[0];if(n.streetSrc!=="c")geoClear(n);if(typeof geoTried2!=="undefined")delete geoTried2[n.id+":c"];n.upd=Date.now();if(pending==id)setPending(null);save();render();sync();return true}
+  if(m&&n){n.link=m[0];geoClear(n);if(typeof geoTried2!=="undefined")delete geoTried2[n.id+":c"];n.upd=Date.now();if(pending==id)setPending(null);save();render();sync();return true}
   return false;
 }
 function pasteInto(id,manual){
@@ -4344,7 +4344,7 @@ function geoClear(x){delete x.street;delete x.streetSrc;if(x.areaGeo){x.area="";
 function geoNeed(x){
   if(x.addr)return 0;
   if(x.del||!(tagHas(x.cat,"l")||x.link||MAPRE.test(x.text||""))||!(x.text||"").trim())return 0;
-  if(coords(x))return(x.streetSrc==="c"||geoTried2[x.id+":c"])?0:"c";
+  if(coords(x)){if(x.geoC&&x.geoC!==coords(x).join(","))return"c";return(x.streetSrc==="c"||geoTried2[x.id+":c"])?0:"c"}
   if(x.link||MAPRE.test(x.text||""))return 0;   /* có link nhưng không có toạ độ (link rút gọn): không đoán theo tên nữa vì dễ sai */
   return(x.street||geoTried2[x.id+":n"])?0:"n";
 }
@@ -4374,7 +4374,7 @@ function geoFill(){
     /* toạ độ từ link là nguồn chính xác nhất: ghi đè quận/đường cũ (kể cả loại đoán theo tên) */
     if(d&&(c||!n.area)){n.area=d;n.areaGeo=1;ch=true}
     if(d&&/Hồ Chí Minh/i.test((a.city||"")+(a.state||"")))n.prov="HCM";
-    if(st){n.street=st;n.streetSrc=src;ch=true}
+    if(c)n.geoC=c.join(",");if(st){n.street=st;n.streetSrc=src;ch=true}
     else if(c&&n.street){delete n.street;n.streetSrc="c";ch=true}
     if(ch){n.upd=Date.now();save();sync();renderNotes()}
   }).catch(function(){}).then(function(){setTimeout(function(){geoBusy=false;geoFill()},1200)});
