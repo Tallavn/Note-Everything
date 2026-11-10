@@ -1651,6 +1651,121 @@ main #notesView{height:calc(94dvh / var(--z,1) - 110px)}
 .plmini .plm-t span{white-space:nowrap;font-size:var(--fs-xs);color:var(--muted)}
 .plmini.dim{opacity:.55}.plmini .pbar{margin-top:8px}
 }
+
+/* ===== PC: thanh nhập dưới đáy dùng chung cho Ghi chú / Chi tiêu / Dự án =====
+   Luôn hiện sẵn, gọn một hàng; mở rộng khi đang gõ hoặc có ảnh đính kèm. Mobile giữ nguyên. */
+@media (min-width:1000px) and (pointer:fine){
+:root{--dk-l:calc(var(--desk-left) + var(--sbw) + var(--desk-pad));--dk-r:calc(var(--desk-right) + var(--desk-pad));--dk-b:calc(var(--desk-bottom) + 30px);--dk-max:720px}
+html body .fab,html body .fablock{display:none!important}
+html body.composing:not(.editing) .cbd,html body.cout:not(.editing) .cbd,html body.psheet .cbd,html body.pout .cbd{display:none!important}
+
+/* --- vỏ chung --- */
+html body:not(.gym) main #notesView>.box,
+html body[data-dock="fin"] #finSheet.sheet>.box,
+html body:not(.gym) main #planView .plbar{
+  box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:flex-end;gap:6px 8px;
+  padding:8px;margin:0 auto!important;width:100%;max-width:var(--dk-max);
+  background:var(--surface);border:0;border-radius:28px;
+  box-shadow:0 0 0 1px var(--line),0 16px 44px -16px rgba(0,0,0,.30);
+  -webkit-backdrop-filter:none;backdrop-filter:none;animation:none;transition:box-shadow .15s}
+html body:not(.gym) main #notesView>.box:focus-within,
+html body[data-dock="fin"] #finSheet.sheet>.box:focus-within,
+html body:not(.gym) main #planView .plbar:focus-within{
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 55%,var(--line)),0 18px 48px -16px rgba(0,0,0,.34)}
+
+/* --- vị trí: ghim đáy, căn giữa vùng nội dung --- */
+html body:not(.gym) main #notesView>.box,
+html body:not(.gym) main #planView .plbar{
+  position:fixed;left:var(--dk-l);right:var(--dk-r);width:auto;bottom:var(--dk-b);transform:none;z-index:61}
+html body[data-dock="fin"] #finView #finSheet.sheet{
+  display:block!important;position:fixed;inset:auto var(--dk-r) var(--dk-b) var(--dk-l);
+  padding:0;background:none;-webkit-backdrop-filter:none;backdrop-filter:none;
+  pointer-events:none;z-index:61;overflow:visible}
+html body[data-dock="fin"] #finSheet.sheet>.box{pointer-events:auto}
+html body:not(.gym) main #notesView #in-msg:not(:empty){
+  position:fixed;left:var(--dk-l);right:var(--dk-r);max-width:var(--dk-max);margin:0 auto!important;
+  bottom:calc(var(--desk-bottom) + 8px);text-align:center;pointer-events:none;z-index:61}
+
+/* chừa chỗ cuối trang để thanh không che nội dung */
+html body main #notesView #list{padding-bottom:120px}
+html body .ne-detail{padding-bottom:120px}
+html body main #finView,html body main #planView{padding-bottom:110px}
+
+/* --- khung gõ (Ghi chú + Chi tiêu) --- */
+html body:not(.gym) main #notesView>.box>.row,
+html body[data-dock="fin"] #finSheet>.box>.row{display:contents}
+html body[data-dock="fin"] #finSheet>.box>.shead{display:none}
+html body:not(.gym) main #notesView>.box .cpane,
+html body[data-dock="fin"] #finSheet>.box .cpane{
+  order:4;flex:1 1 0;min-width:0;margin:0;padding:6px 14px;background:var(--fill);
+  border-radius:22px;box-shadow:none}
+html body:not(.gym) main #notesView>.box .cpane:focus-within,
+html body[data-dock="fin"] #finSheet>.box .cpane:focus-within{box-shadow:none}
+html body main #notesView>.box .cpane #in,
+html body #finSheet>.box .cpane #fin-in{
+  width:100%!important;min-height:0!important;max-height:140px;margin:0!important;padding:6px 0!important;
+  border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;
+  font-size:14px;line-height:1.5;resize:none;field-sizing:content}
+html body main #notesView>.box .cpane .nlw.s,
+html body #finSheet>.box .cpane .nlw.s{margin:4px 0 0!important;padding:0;border-top:1px solid var(--line)}
+html body main #notesView>.box .cpane .nlw.s textarea,
+html body #finSheet>.box .cpane .nlw.s textarea{min-height:0!important;padding:8px 0 4px!important;font-size:13px;border-top:0!important;field-sizing:content}
+
+/* nút camera / quét chữ / ngày ở hai bên ô gõ */
+html body:not(.gym) main #notesView>.box>.row>.cam{order:2;flex:none;width:36px;height:36px;margin-bottom:2px}
+html body[data-dock="fin"] #finSheet>.box>.row>span:first-child{order:2;flex:none;align-items:flex-end;margin-bottom:2px}
+html body[data-dock="fin"] #finSheet>.box>.row>span:last-child{order:5;flex:none;display:inline-flex;gap:6px;margin-bottom:2px}
+html body main #notesView>.box #add,
+html body #finSheet>.box #fin-add,
+html body #finSheet>.box #fin-debt .add{
+  height:36px;padding:0 18px;border-radius:999px;font-size:var(--fs-sm,13px)!important;
+  color:var(--accent-ink)!important;background:var(--accent)!important;width:auto!important;min-width:0}
+html body #finSheet>.box #fin-debt .add.alt{background:transparent!important;color:var(--accent)!important;box-shadow:inset 0 0 0 1px var(--accent)}
+html body main #notesView>.box>.row>#add{order:5;flex:none;margin-bottom:2px;display:none}
+html body main #notesView>.box:has(#in:not(:placeholder-shown),.thumbs:not(:empty))>.row>#add{display:inline-flex;align-items:center;justify-content:center}
+html body[data-dock="fin"] #finSheet>.box:has(#fin-in:placeholder-shown):not(:has(.thumbs:not(:empty)))>.row>span:last-child{display:none!important}
+
+/* dòng phụ: gợi ý, tag, ảnh, thông báo */
+html body:not(.gym) main #notesView>.box>.row>.nh{order:0;flex:1 1 100%;margin:2px 8px 0!important;font-size:11px}
+html body main #notesView .inrow>#inTags{order:1;flex:1 1 100%;display:flex;flex-wrap:wrap;gap:6px;margin:0 4px}
+html body main #notesView>.box>.thumbs,html body #finSheet>.box>.thumbs{order:7;flex:1 1 100%;margin:0 4px}
+html body main #notesView>.box>.insug{order:8;flex:1 1 100%;margin:0 4px}
+html body #finSheet>.box>.pick{order:6;flex:1 1 100%;margin:0 4px}
+html body #finSheet>.box>#fin-rate-row{order:8;flex:1 1 100%;margin:0 4px!important}
+html body #finSheet>.box>#fin-msg{order:9;flex:1 1 100%;margin:0 8px!important}
+html body main #notesView>.box>.thumbs:empty,html body #finSheet>.box>.thumbs:empty,
+html body main #notesView>.box>.insug:empty,html body main #notesView .inrow>#inTags:empty{display:none}
+
+/* gọn một hàng khi chưa gõ: ẩn phần mở rộng */
+html body:not(.gym) main #notesView>.box:not(:is(:focus-within,:has(#in:not(:placeholder-shown),.thumbs:not(:empty)))) :is(.nh,#inTags,.nlw.s,.insug),
+html body[data-dock="fin"] #finSheet>.box:not(:is(:focus-within,:has(#fin-in:not(:placeholder-shown),.thumbs:not(:empty)))) :is(#fin-date,.nlw.s,#fin-cats,#fin-rate-row){display:none!important}
+
+/* --- Dự án: một ô nhập, Enter để tạo --- */
+html body:not(.gym) main #planView .plbar{flex-wrap:nowrap;align-items:center}
+html body:not(.gym) main #planView .plbar .pin{
+  flex:1;min-width:0;height:40px;padding:0 16px;border:0!important;border-radius:22px;
+  background:var(--fill)!important;box-shadow:none!important;-webkit-backdrop-filter:none;backdrop-filter:none;font-size:14px}
+html body:not(.gym) main #planView .plbar::after{content:"Enter để tạo";display:none;padding:0 12px 0 4px;font-size:11px;color:var(--muted);white-space:nowrap}
+html body:not(.gym) main #planView .plbar:has(.pin:not(:placeholder-shown))::after{display:block}
+}
+
+/* ===== PC: ảnh lớn trong khung đọc ghi chú (kiểu C) =====
+   Ảnh đầu to, các ảnh còn lại chia cột theo số lượng. Màn hình ≥1600px: chữ bên trái, ảnh bên phải. */
+@media (min-width:1000px) and (pointer:fine){
+html body .ne-detail .thumbs{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-top:22px}
+html body .ne-detail .thumbs .thumb{width:100%;height:auto;aspect-ratio:1;border-radius:14px;object-fit:cover;grid-column:span 3}
+html body .ne-detail .thumbs .thumb:first-child,
+html body .ne-detail .thumbs .thumb:nth-child(2):last-child{grid-column:1/-1;aspect-ratio:16/10}
+html body .ne-detail .thumbs:has(.thumb:nth-child(4):last-child) .thumb:not(:first-child),
+html body .ne-detail .thumbs:has(.thumb:nth-child(6):last-child) .thumb:nth-child(n+4),
+html body .ne-detail .thumbs:has(.thumb:nth-child(7)) .thumb:not(:first-child){grid-column:span 2}
+}
+@media (min-width:1600px) and (pointer:fine){
+html body .ne-detail h2{max-width:none}
+html body .ne-detail>.nmain:has(.thumbs){max-width:none;display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);grid-template-rows:auto auto auto 1fr;column-gap:32px;align-items:start}
+html body .ne-detail>.nmain:has(.thumbs)>*{grid-column:1}
+html body .ne-detail>.nmain:has(.thumbs)>.thumbs{grid-column:2;grid-row:1/-1;margin-top:0}
+}
 </style>
 </head>
 <body>
@@ -5975,6 +6090,42 @@ new MutationObserver(all).observe(document.body,{childList:true,subtree:true});a
  list.addEventListener('click',function(e){if(!mq.matches||e.target.closest('a,button,input,textarea,select,label'))return;var card=e.target.closest('.note.swcard');if(!card)return;e.preventDefault();e.stopPropagation();selected=card.dataset.id;paint()},true);
  list.addEventListener('keydown',function(e){if(!mq.matches||!e.target.matches('.note.swcard')||!['Enter',' '].includes(e.key))return;e.preventDefault();e.stopPropagation();selected=e.target.dataset.id;paint()},true);
  new MutationObserver(paint).observe(list,{childList:true,subtree:true,characterData:true});mq.addEventListener('change',paint);paint();
+})();
+</script>
+
+<script>
+/* PC: thanh nhập Chi tiêu luôn hiện sẵn ở đáy (Ghi chú và Dự án đã có sẵn trong DOM, chỉ cần CSS). */
+(function(){
+  var mq=matchMedia('(min-width:1000px) and (pointer:fine)'),tries=0;
+  function sync(){
+    var b=document.body,sh=document.getElementById('finSheet'),d='';
+    if(mq.matches&&!b.classList.contains('gym')){
+      if(tab==='notes')d='notes';else if(tab==='plan')d='plan';else if(tab==='fin'&&sub!=='bud')d='fin';
+    }
+    if(d)b.setAttribute('data-dock',d);else b.removeAttribute('data-dock');
+    if(!sh)return;
+    if(d==='fin'){
+      if(sh.hidden&&typeof openSheet==='function'){
+        sh.setAttribute('data-dk','1');openSheet();
+        var a=document.activeElement;if(a&&a!==document.body&&sh.contains(a))a.blur();
+      }
+    }else if(!sh.hidden&&sh.getAttribute('data-dk')){sh.hidden=true;sh.removeAttribute('data-dk')}
+  }
+  function patch(){
+    if(typeof renderFin!=='function'||typeof setTab!=='function'||typeof closeSheet!=='function'){
+      if(++tries<150)setTimeout(patch,100);return}
+    var rf=renderFin;renderFin=function(){var r=rf.apply(this,arguments);try{sync()}catch(e){}return r};
+    var st=setTab;setTab=function(){var r=st.apply(this,arguments);try{sync()}catch(e){}return r};
+    var cs=closeSheet;closeSheet=function(){if(document.body.getAttribute('data-dock')==='fin')return;return cs.apply(this,arguments)};
+    try{sync()}catch(e){}
+  }
+  document.addEventListener('keydown',function(e){
+    if(e.key!=='Escape'||!document.body.hasAttribute('data-dock'))return;
+    var a=document.activeElement;
+    if(a&&a.closest&&a.closest('#notesView>.box,#finSheet,#planView .plbar'))a.blur();
+  });
+  if(mq.addEventListener)mq.addEventListener('change',function(){try{sync()}catch(e){}});
+  patch();
 })();
 </script>
 
