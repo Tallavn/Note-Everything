@@ -14002,19 +14002,21 @@ document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!$i("impShe
       el=el.parentNode}
     return{hard:false,sc:sc}}
   function go(dx){
+    if(document.querySelector(".lb"))return; /* Vuốt trong trình xem ảnh không đổi tab bên dưới. */
     if(dx>0&&!eL)return;if(dx<0&&!eR)return;
     if(dx<0&&tab==="notes")setTab("fin");
     else if(dx<0&&tab==="fin")setTab("plan");
     else if(dx>0&&tab==="plan")setTab("fin");
     else if(dx>0&&tab==="fin")setTab("notes")}
   document.addEventListener("touchstart",function(e){
-    if(e.touches.length!==1){ok=false;return}
+    if(e.touches.length!==1||document.querySelector(".lb")){ok=false;return}
     var t=e.touches[0];sx=t.clientX;sy=t.clientY;st=Date.now();
     var r=scan(e.target);
     ok=!r.hard&&!document.body.classList.contains("gym")&&!document.querySelector(".sheet:not([hidden])")&&!document.body.classList.contains("psheet")&&!document.querySelector(".edit");  /* form Sửa đang mở (ghi chú/chi tiêu/chi nhánh): tắt hẳn vuốt đổi tab, kể cả chạm vào chỗ trống hay nút trong form */
     if(r.sc){eL=r.sc.scrollLeft<=2;eR=r.sc.scrollLeft>=r.sc.scrollWidth-r.sc.clientWidth-2}else{eL=eR=true}},{passive:true});
   document.addEventListener("touchmove",function(e){
     if(!ok)return;
+    if(document.querySelector(".lb")){ok=false;return}
     if(document.body.classList.contains("fabmove")||document.getElementById("list").classList.contains("reorder")){ok=false;return}  /* đang dời nút + hoặc kéo thả nhóm tag */
     var t=e.touches[0],dx=t.clientX-sx,dy=t.clientY-sy;
     if(Math.abs(dy)>45&&Math.abs(dy)>Math.abs(dx)){ok=false;return}       /* đang cuộn dọc */
@@ -14023,6 +14025,7 @@ document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!$i("impShe
     if(!ok)return;ok=false;
     var t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;
     if(Math.abs(dx)>=60&&Math.abs(dx)>Math.abs(dy)*1.3&&Date.now()-st<1200)go(dx)},{passive:true});
+  document.addEventListener("touchcancel",function(){ok=false},{passive:true});
 })();
 
 /* Khi bàn phím đang mở: chạm ra ngoài vùng nhập CHỈ hạ bàn phím, không kích hoạt gì bên dưới (kể cả ô Tìm kiếm) */
