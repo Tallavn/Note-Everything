@@ -2654,7 +2654,7 @@ function priceTag(x){
 }
 var userPos=null,posMsg="";
 function coords(x){
-  var t=(x.link||"")+" "+(x.text||""),m=t.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/)||t.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/)||t.match(/[?&](?:q|ll|query|destination)=(-?\d+\.\d+)(?:,|%2C)(-?\d+\.\d+)/i);
+  var t=(x.link||"")+" "+(x.text||""),isPl=/\/maps\/place\//i.test(t),m=t.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/)||(isPl?null:t.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/))||t.match(/[?&](?:q|ll|query|destination)=(-?\d+\.\d+)(?:,|%2C)(-?\d+\.\d+)/i);
   return m?[parseFloat(m[1]),parseFloat(m[2])]:null;
 }
 function distKm(a,b){var r=Math.PI/180,dl=(b[0]-a[0])*r,dg=(b[1]-a[1])*r,h=Math.sin(dl/2)*Math.sin(dl/2)+Math.cos(a[0]*r)*Math.cos(b[0]*r)*Math.sin(dg/2)*Math.sin(dg/2);return 12742*Math.asin(Math.sqrt(h))}
@@ -2726,9 +2726,9 @@ function shortAddr(x){
   if(x.link){var pm=x.link.match(/\/maps\/place\/([^\/@?]+)/)||x.link.match(/[?&](?:q|query)=([^&]+)/);if(pm){try{var parts=decodeURIComponent(pm[1].replace(/\+/g," ")).split(",").map(function(z){return z.trim()}).filter(Boolean);
     if(parts.length>=4){if(!a&&/^\d/.test(parts[1]))a=parts[1];lkArea=parts[parts.length-2].replace(/^(Quận|Huyện|Thị xã|Phường|Xã)\s+/i,"")}
     }catch(e){}}}
-  if(x.street&&!m)a=x.street; /* tên đường tra được (OSM) ưu tiên hơn tên quán rút từ link; địa chỉ người dùng tự gõ vẫn được ưu tiên nhất */
-  if(!a&&!x.area&&!areaKey(x.text||"")){var hm=(x.text||"").replace(/https?:\/\/\S+/g,"").match(/^(.*?)\s+(?:HN|Hà Nội|HCM|TPHCM|Sài Gòn)\s*$/iu);if(hm){var ww=hm[1].trim().split(/\s+/);if(ww.length>=3)a=ww.slice(-2).join(" ")}}
-  var ak=areaKey((x.text||"")+" "+(x.area||"")),ar=x.area||(ak?AREAS[ak]:"")||lkArea,b=[a,ar].filter(Boolean).join(", "),p=prov(x);if(!p&&ak)p=HCMK.indexOf(ak)>-1?"HCM":"HN";if(!p)p="HN";return b?(p?b+" - "+p:b):p;
+  if(x.street&&x.streetSrc==="c"&&coords(x)&&!m)a=x.street; /* tên đường tra được (OSM) ưu tiên hơn tên quán rút từ link; địa chỉ người dùng tự gõ vẫn được ưu tiên nhất */
+  var xa=(x.areaGeo&&!coords(x))?"":(x.area||"");if(!a&&!xa&&!areaKey(x.text||"")){var hm=(x.text||"").replace(/https?:\/\/\S+/g,"").match(/^(.*?)\s+(?:HN|Hà Nội|HCM|TPHCM|Sài Gòn)\s*$/iu);if(hm){var ww=hm[1].trim().split(/\s+/);if(ww.length>=3)a=ww.slice(-2).join(" ")}}
+  var ak=areaKey((x.text||"")+" "+xa),ar=xa||(ak?AREAS[ak]:"")||lkArea,b=[a,ar].filter(Boolean).join(", "),p=prov(x);if(!p&&ak)p=HCMK.indexOf(ak)>-1?"HCM":"HN";if(!p)p="HN";return b?(p?b+" - "+p:b):p;
 }
 function nw(w){return norm(w).replace(/[^a-z0-9]+/g,"")}
 function stripAddr(x){
@@ -4304,7 +4304,7 @@ function saveEdit(id){
 var RESOLVE_URL="https://maplink.locbh1223.workers.dev";
 var SHORTRE=/https?:\/\/(?:maps\.app\.goo\.gl|goo\.gl\/maps)\/[^\s]+/i,expBusy=false,expTried={};
 function placeOf(x){var m=((x.link||"")+" "+(x.text||"")).match(/https?:\/\/(?:www\.)?google\.[a-z.]+\/maps\/place\/[^\s]+/i);return m?m[0]:""}
-function lnkOf(x){return shortOf(x)||placeOf(x)}
+function lnkOf(x){return shortOf(x)}
 function shortOf(x){var m=((x.link||"")+" "+(x.text||"")).match(SHORTRE);return m?m[0].replace(/^http:/,"https:"):""}
 /* Gỡ link bọc kiểu consent.google.com/...?continue=<link thật> (Worker ở một số vùng bị Google đẩy qua trang đồng ý cookie) */
 function unwrapMaps(u){var s=u||"";for(var i=0;i<3;i++){var m=s.match(/[?&](?:continue|url|q)=(https?(?:%3A|:)[^&]+)/i);if(m&&/consent\.|[?&]continue=/i.test(s)){try{s=decodeURIComponent(m[1])}catch(e){break}}else break}return s}
@@ -4326,6 +4326,7 @@ function expandFill(){
     if(n.del)return;
     u=unwrapMaps(u);
     if(SHORTRE.test(u)&&!coordsIn(u)){throw new Error("Worker trả lại đúng link rút gọn (chưa theo redirect)")}
+    if(!coordsIn(u)&&/\/maps\/place\//i.test(u)){expTried[key]=3;n.link=u.replace(/@-?\d+\.\d+,-?\d+\.\d+,[\d.]+z\/?/,"");geoClear(n);n.upd=Date.now();save();sync();render();return} /* link quán không có toạ độ: vẫn giữ link bung ra để lấy quận/đường từ chữ trong link */
     if(!coordsIn(u)){expTried[key]=3;throw new Error("Link bung ra không có toạ độ: "+u.replace(/^https?:\/\//,"").slice(0,60))}
     n.link=u;geoClear(n);delete geoTried2[n.id+":c"];n.upd=Date.now();save();sync();render();
   }).catch(function(e){
@@ -4354,7 +4355,7 @@ function geoNeed(x){
 function geoFill(){
   expandFill();
   var fx=false;
-  vis().forEach(function(x){if(((x.street&&x.streetSrc!=="c")||(x.areaGeo&&!x.geoC))&&!coords(x)){geoClear(x);x.upd=Date.now();fx=true}});
+  vis().forEach(function(x){if((x.street||x.areaGeo)&&!coords(x)){geoClear(x);x.upd=Date.now();fx=true}});
   if(fx){save();sync();renderNotes()}
   if(geoBusy||!navigator.onLine)return;
   var n=vis().find(function(x){return geoNeed(x)});
