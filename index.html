@@ -16234,12 +16234,15 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
 <script>
 /* Card-arrival motion from Library.ps1: same keyframes, timing, easing and stagger. */
 (function(){
+  var layoutReady=false;
+  var ready=document.fonts?document.fonts.ready:Promise.resolve();
+  ready.then(function(){requestAnimationFrame(function(){requestAnimationFrame(function(){layoutReady=true;document.dispatchEvent(new Event('ne-list-layout-ready'))})})});
   [{id:'list',selector:'.swrap',ownScroll:true},
    {id:'finBody',selector:'.swrap,.tmg'},
    {id:'planView',selector:'.plmini,.pc'}].forEach(function(config){
   var list=document.getElementById(config.id);if(!list)return;
   var desktop=matchMedia('(min-width:1000px) and (pointer:fine)'),reduce=matchMedia('(prefers-reduced-motion:reduce)');
-  var observed=new WeakSet(),revealed=new Set(),scheduled=false;
+  var observed=new WeakSet(),revealed=new Set(),scheduled=false,firstBatch=true;
   function enabled(){return desktop.matches&&!reduce.matches}
   function key(card){return card.matches('.plmini')?'mini:'+card.dataset.plsel:card.matches('.pc')?'plan:'+card.dataset.pc:card.dataset.tmg?'group:'+card.dataset.tmg:card.dataset.id}
   function arrive(card){
@@ -16248,13 +16251,16 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
     card.classList.add('ne-library-arrival');
   }
   var observer=typeof IntersectionObserver==='undefined'?null:new IntersectionObserver(function(entries){
-    entries.forEach(function(entry){if(entry.isIntersecting){arrive(entry.target);observer.unobserve(entry.target)}});
+    var entering=entries.filter(function(entry){return entry.isIntersecting&&entry.target.isConnected});
+    if(!entering.length)return;
+    entering.forEach(function(entry,index){entry.target.style.setProperty('--card-delay',(firstBatch?0:Math.min(index,5)*50)+'ms');arrive(entry.target);observer.unobserve(entry.target)});
+    firstBatch=false;
   },{root:config.ownScroll?list:document.querySelector('main'),rootMargin:"0px 0px 60px 0px",threshold:0});
   function scan(){
-    scheduled=false;if(!enabled())return;
+    scheduled=false;if(!enabled()||!layoutReady)return;
     list.querySelectorAll(config.selector).forEach(function(card,index){
       if(observed.has(card)||(key(card)&&revealed.has(key(card))))return;
-      observed.add(card);card.style.setProperty('--card-delay',(index%6)*50+'ms');
+      observed.add(card);card.style.setProperty('--card-delay','0ms');
       if(observer)observer.observe(card);else arrive(card);
     });
   }
@@ -16266,6 +16272,7 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
   }
   if(desktop.addEventListener)desktop.addEventListener('change',change);
   if(reduce.addEventListener)reduce.addEventListener('change',change);
+  document.addEventListener('ne-list-layout-ready',scan,{once:true});
   scan();
   });
 })();
