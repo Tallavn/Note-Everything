@@ -16270,6 +16270,50 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
   });
 })();
 </script>
+<style id="ne-composer-content-gap">
+  @media (min-width:1000px) and (pointer:fine) {
+    html body:not(.gym) main:has(#finView:not([hidden]),#planView:not([hidden])) { overflow:hidden!important }
+    html body:not(.gym) main #finView#finView,
+    html body:not(.gym) main #planView#planView {
+      height:var(--ne-content-height,calc(94vh - 190px))!important;min-height:0;
+      overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;
+      align-content:start;padding-bottom:18px;scroll-padding-bottom:18px;
+    }
+    html body:not(.gym) main #notesView#notesView#notesView {
+      height:var(--ne-content-height,calc(94vh - 190px))!important;
+      grid-template-rows:48px minmax(0,1fr)!important;min-height:0;
+    }
+  }
+</style>
+<script>
+/* Each desktop scroll area ends 18px above its composer, including when tools expand. */
+(function(){
+  var mq=matchMedia('(min-width:1000px) and (pointer:fine)'),pending=0;
+  var main=document.querySelector('main'),views=['notesView','finView','planView'];
+  function measure(){
+    pending=0;if(!mq.matches||document.body.classList.contains('gym'))return;
+    var view=views.map(function(id){return document.getElementById(id)}).find(function(el){return el&&!el.hidden});
+    if(!view)return;
+    var composer=view.id==='notesView'?view.querySelector(':scope>.box'):view.id==='finView'?document.querySelector('#finSheet>.box'):view.querySelector('.plbar');
+    var zoom=parseFloat(getComputedStyle(document.body).zoom)||1;
+    var vr=view.getBoundingClientRect(),bottom=main.getBoundingClientRect().bottom-24*zoom;
+    if(composer&&composer.getBoundingClientRect().height&&getComputedStyle(composer).position!=='static')bottom=Math.min(bottom,composer.getBoundingClientRect().top-18*zoom);
+    /* finSheet's box is relative inside its fixed sheet. */
+    if(view.id==='finView'&&document.body.dataset.dock==='fin'&&composer)bottom=Math.min(bottom,composer.getBoundingClientRect().top-18*zoom);
+    var height=Math.max(80,(bottom-vr.top)/zoom),old=parseFloat(view.style.getPropertyValue('--ne-content-height'));
+    if(!isFinite(old)||Math.abs(old-height)>.5)view.style.setProperty('--ne-content-height',height+'px');
+  }
+  function schedule(){if(!pending)pending=requestAnimationFrame(measure)}
+  var ro=new ResizeObserver(schedule);
+  [document.querySelector('#notesView>.box'),document.querySelector('#finSheet>.box'),main].forEach(function(el){if(el)ro.observe(el)});
+  var plan=document.getElementById('planView');
+  new MutationObserver(function(){var bar=plan.querySelector('.plbar');if(bar)ro.observe(bar);schedule()}).observe(plan,{childList:true});
+  new MutationObserver(function(){if(mq.matches)main.scrollTop=0;schedule()}).observe(document.body,{attributes:true,attributeFilter:['data-dock','class','style']});
+  views.forEach(function(id){new MutationObserver(schedule).observe(document.getElementById(id),{attributes:true,attributeFilter:['hidden']})});
+  window.addEventListener('resize',schedule);if(mq.addEventListener)mq.addEventListener('change',schedule);
+  schedule();
+})();
+</script>
 </body>
 
 </html>
