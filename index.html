@@ -16134,7 +16134,7 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
 })();
 </script>
 <style id="ne-option-five">
-  .ne-quick-tools { display:none }
+  .ne-quick-tools,.ne-tools-reveal { display:none }
   @media (min-width:1000px) and (pointer:fine) {
     html body[data-dock="fin"] #finView #finSheet#finSheet#finSheet.sheet {
       height:auto!important;bottom:calc(var(--dk-b) + 35px)!important;
@@ -16142,6 +16142,10 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
     html body #notesView#notesView#notesView>.box,
     html body[data-dock="fin"] #finSheet#finSheet#finSheet>.box {
       align-content:flex-start;align-items:center;row-gap:0!important;border-radius:25px!important;
+    }
+    html body #notesView#notesView#notesView>.box::before,
+    html body[data-dock="fin"] #finSheet#finSheet#finSheet>.box::before {
+      border-radius:inherit!important;
     }
     html body #notesView#notesView#notesView>.box .cpane,
     html body[data-dock="fin"] #finSheet#finSheet#finSheet>.box .cpane {
@@ -16161,10 +16165,10 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
       display:none!important;
     }
     html body #notesView#notesView#notesView>.box.ne-tags #inTags {
-      display:block!important;order:21;flex-basis:100%;padding:8px 4px 2px!important;margin:0;border:0;
+      display:block!important;order:21;flex-basis:100%;padding:8px 6px 2px!important;margin:0;border:0;
     }
     html body[data-dock="fin"] #finSheet#finSheet#finSheet>.box.ne-tags #fin-cats:not([hidden]) {
-      display:flex!important;order:21;flex-basis:100%;padding:8px 4px!important;
+      display:flex!important;order:21;flex-basis:100%;padding:8px 6px!important;
     }
     html body #notesView#notesView#notesView>.box.ne-detail .cpane>.nlw.s,
     html body[data-dock="fin"] #finSheet#finSheet#finSheet>.box.ne-detail .cpane>.nlw.s {
@@ -16174,10 +16178,22 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
     html body[data-dock="fin"] #finSheet#finSheet#finSheet>.box.ne-more #fin-rate-row:not([hidden]) { display:flex!important;order:22 }
     html body #notesView#notesView#notesView>.box .ne-quick-tools,
     html body[data-dock="fin"] #finSheet#finSheet#finSheet>.box .ne-quick-tools {
-      order:20;flex:1 0 100%;align-items:center;gap:6px;flex-wrap:wrap;padding:5px 4px 0;
+      display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:7px 6px 2px;
+      opacity:0;transform:translateY(5px);transition:opacity .2s ease,transform .3s cubic-bezier(.22,1,.36,1);
+    }
+    html body #notesView#notesView#notesView>.box .ne-tools-reveal,
+    html body[data-dock="fin"] #finSheet#finSheet#finSheet>.box .ne-tools-reveal {
+      display:grid;grid-template-rows:0fr;order:20;flex:1 0 100%;
+      transition:grid-template-rows .32s cubic-bezier(.22,1,.36,1);visibility:hidden;
+      transition-property:grid-template-rows,visibility;transition-duration:.32s,0s;transition-delay:0s,.32s;
+    }
+    .ne-tools-clip { min-height:0;overflow:hidden }
+    html body #notesView#notesView#notesView>.box.ne-active .ne-tools-reveal,
+    html body[data-dock="fin"] #finSheet#finSheet#finSheet>.box.ne-active .ne-tools-reveal {
+      grid-template-rows:1fr;visibility:visible;transition-delay:0s,0s;
     }
     html body #notesView#notesView#notesView>.box.ne-active .ne-quick-tools,
-    html body[data-dock="fin"] #finSheet#finSheet#finSheet>.box.ne-active .ne-quick-tools { display:flex }
+    html body[data-dock="fin"] #finSheet#finSheet#finSheet>.box.ne-active .ne-quick-tools { opacity:1;transform:none }
     .ne-quick-tools button {
       border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--muted);
       font:inherit;font-size:var(--fs-xs);padding:5px 10px;line-height:1.4;
@@ -16185,6 +16201,9 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
     .ne-quick-tools button[aria-expanded="true"] { color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent) }
     html body #notesView#notesView#notesView>.box #ph-in,
     html body[data-dock="fin"] #finSheet#finSheet#finSheet>.box #ph-fin { order:23 }
+  }
+  @media (min-width:1000px) and (pointer:fine) and (prefers-reduced-motion:reduce) {
+    .ne-tools-reveal,.ne-quick-tools { transition:none!important }
   }
 </style>
 <script>
@@ -16200,13 +16219,16 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
     var choices=[['tags','# Chọn tag',c.tags],['detail','＋ Ghi chú thêm',c.detail]];
     if(c.fin)choices.push(['date','Ngày','fin-date'],['more','Lãi suất / hạn trả','fin-rate-row']);
     choices.forEach(function(o){var b=document.createElement('button');b.type='button';b.textContent=o[1];b.dataset.nePart=o[0];b.setAttribute('aria-expanded','false');b.setAttribute('aria-controls',o[2]);tools.appendChild(b)});
-    box.appendChild(tools);
+    var reveal=document.createElement('div'),clip=document.createElement('div');
+    reveal.className='ne-tools-reveal';clip.className='ne-tools-clip';
+    clip.appendChild(tools);reveal.appendChild(clip);box.appendChild(reveal);
     function refresh(){
       if(!mq.matches){box.classList.remove('ne-active');return}
       if(box._sp){box._sp.cancel();box._sp=null}
       if(document.getElementById(c.detail).value.trim())box.classList.add('ne-detail');
       var active=box.contains(document.activeElement)||!!input.value.trim()||!!document.getElementById(c.detail).value.trim()||!!box.querySelector('.thumb');
       box.classList.toggle('ne-active',active);
+      if(mq.matches)reveal.inert=!active;else reveal.inert=true;
       if(!active){['tags','detail','date','more'].forEach(function(k){box.classList.remove('ne-'+k)})}
       Array.prototype.forEach.call(tools.children,function(b){b.setAttribute('aria-expanded',box.classList.contains('ne-'+b.dataset.nePart)?'true':'false');if(b.dataset.nePart==='more')b.hidden=sub!=='debt'});
     }
