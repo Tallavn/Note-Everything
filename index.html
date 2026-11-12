@@ -16245,7 +16245,7 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
   }
   var observer=typeof IntersectionObserver==='undefined'?null:new IntersectionObserver(function(entries){
     entries.forEach(function(entry){if(entry.isIntersecting){arrive(entry.target);observer.unobserve(entry.target)}});
-  },{root:list,rootMargin:"0px 0px 120px 0px",threshold:0});
+  },{root:list,rootMargin:"0px 0px 60px 0px",threshold:0});
   function scan(){
     scheduled=false;if(!enabled())return;
     list.querySelectorAll('.swrap').forEach(function(card,index){
