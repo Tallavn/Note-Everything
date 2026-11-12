@@ -15778,14 +15778,14 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
       html:root body[data-dock="fin"] #finSheet.sheet>.box,
       html:root body:not(.gym) main #planView .plbar {
         border-radius: 999px !important;
-        box-shadow: 0 0 0 1px var(--line) !important;
+        box-shadow: 0 0 0 1px var(--line), 0 10px 28px -10px rgba(0, 0, 0, .28), 0 2px 8px -2px rgba(0, 0, 0, .10) !important;
         transition: border-radius .15s, box-shadow .15s
       }
 
       html:root body:not(.gym) main #notesView>.box:focus-within,
       html:root body[data-dock="fin"] #finSheet.sheet>.box:focus-within,
       html:root body:not(.gym) main #planView .plbar:focus-within {
-        box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 55%, var(--line)) !important
+        box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 55%, var(--line)), 0 14px 34px -10px rgba(0, 0, 0, .32), 0 2px 8px -2px rgba(0, 0, 0, .10) !important
       }
 
       html:root body:not(.gym) main #notesView>.box:is(:focus-within, :has(#in:not(:placeholder-shown), .thumbs:not(:empty))),
