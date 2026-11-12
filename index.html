@@ -16255,13 +16255,10 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
   }
   var root=config.ownScroll?list:document.getElementById(config.id==='finBody'?'finView':'planView');
   var observer=typeof IntersectionObserver==='undefined'?null:new IntersectionObserver(function(entries){
-    entries.forEach(function(entry){
-      if(!entry.isIntersecting&&!entry.target.classList.contains('ne-library-arrival'))timeline.delete(key(entry.target)||entry.target);
-    });
     nextStart=Math.min(nextStart,performance.now()+150);
     entries.filter(function(entry){return entry.isIntersecting&&entry.target.isConnected})
       .sort(function(a,b){return a.target===b.target?0:a.target.compareDocumentPosition(b.target)&Node.DOCUMENT_POSITION_FOLLOWING?-1:1})
-      .forEach(function(entry){arrive(entry.target)});
+      .forEach(function(entry){arrive(entry.target);observer.unobserve(entry.target)});
   },{root:root,rootMargin:'0px',threshold:.05});
   function scan(){
     scheduled=false;if(!enabled()||!layoutReady)return;
@@ -16274,8 +16271,6 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
   list.addEventListener('animationend',function(e){
     if(e.animationName!=='neLibraryArrival')return;
     var card=e.target;card.classList.remove('ne-library-arrival');
-    var r=card.getBoundingClientRect(),bounds=root.getBoundingClientRect();
-    if(r.bottom<=bounds.top||r.top>=bounds.bottom)timeline.delete(key(card)||card);
   });
   function change(){
     if(!enabled()){if(observer)observer.disconnect();observed=new WeakSet();list.querySelectorAll('.ne-library-arrival').forEach(function(card){card.classList.remove('ne-library-arrival')})}
