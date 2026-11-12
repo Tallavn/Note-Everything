@@ -15978,19 +15978,19 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
       html:root:root:root body:not(.gym) main #notesView>.box { background-image: none !important; box-shadow: 0 0 0 1px var(--line), calc(sin(var(--aur)) * 8px) calc(cos(var(--aur)) * 3.5px) 16px -1px rgba(255,170,60,0), calc(sin(var(--aur) + 120deg) * 8px) calc(cos(var(--aur) + 120deg) * 3.5px) 16px -1px rgba(255,110,90,0), calc(sin(var(--aur) + 240deg) * 8px) calc(cos(var(--aur) + 240deg) * 3.5px) 16px -1px rgba(120,140,255,0), 0 16px 44px -16px rgba(0,0,0,.30) !important; animation: aurSpin 4.5s linear infinite paused;
         transition: transform .55s cubic-bezier(.22,1,.36,1), box-shadow .8s cubic-bezier(.22,1,.36,1), border-radius .18s ease !important }
       html:root:root:root body:not(.gym) main #notesView>.box::after { content: none !important }
-      html:root:root:root body:not(.gym) main #notesView>.box::before { content: ""; position: absolute; inset: -2px; padding: 2px; border-radius: 30px; z-index: 3; pointer-events: none; opacity: 0;
+      html:root:root:root body:not(.gym) main #notesView>.box::before { content: ""; position: absolute; inset: -1px; padding: 1px; border-radius: 29px; z-index: 3; pointer-events: none; opacity: 0;
         background: conic-gradient(from var(--aur),rgba(255,170,60,0),rgba(255,170,60,1),rgba(255,110,90,1),rgba(120,140,255,.9),rgba(255,170,60,0) 70%); -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0); transition: opacity .7s cubic-bezier(.22,1,.36,1) }
       html:root:root:root body:not(.gym) main #notesView>.box:focus-within { box-shadow: 0 0 0 1px var(--line), calc(sin(var(--aur)) * 8px) calc(cos(var(--aur)) * 3.5px) 16px -1px rgba(255,170,60,0.55), calc(sin(var(--aur) + 120deg) * 8px) calc(cos(var(--aur) + 120deg) * 3.5px) 16px -1px rgba(255,110,90,0.55), calc(sin(var(--aur) + 240deg) * 8px) calc(cos(var(--aur) + 240deg) * 3.5px) 16px -1px rgba(120,140,255,0.55), 0 16px 44px -16px rgba(0,0,0,.30) !important; animation-play-state: running }
       html:root:root:root body:not(.gym) main #notesView>.box:focus-within::before { opacity: 1 }
       html:root:root:root body[data-dock="fin"] #finSheet.sheet>.box { background-image: none !important; box-shadow: 0 0 0 1px var(--line), calc(sin(var(--aur)) * 8px) calc(cos(var(--aur)) * 3.5px) 16px -1px rgba(255,170,60,0), calc(sin(var(--aur) + 120deg) * 8px) calc(cos(var(--aur) + 120deg) * 3.5px) 16px -1px rgba(255,110,90,0), calc(sin(var(--aur) + 240deg) * 8px) calc(cos(var(--aur) + 240deg) * 3.5px) 16px -1px rgba(120,140,255,0), 0 16px 44px -16px rgba(0,0,0,.30) !important; animation: aurSpin 4.5s linear infinite paused;
         transition: transform .55s cubic-bezier(.22,1,.36,1), box-shadow .8s cubic-bezier(.22,1,.36,1), border-radius .18s ease !important }
       html:root:root:root body[data-dock="fin"] #finSheet.sheet>.box::after { content: none !important }
-      html:root:root:root body[data-dock="fin"] #finSheet.sheet>.box::before { content: ""; position: absolute; inset: -2px; padding: 2px; border-radius: 30px; z-index: 3; pointer-events: none; opacity: 0;
+      html:root:root:root body[data-dock="fin"] #finSheet.sheet>.box::before { content: ""; position: absolute; inset: -1px; padding: 1px; border-radius: 29px; z-index: 3; pointer-events: none; opacity: 0;
         background: conic-gradient(from var(--aur),rgba(255,170,60,0),rgba(255,170,60,1),rgba(255,110,90,1),rgba(120,140,255,.9),rgba(255,170,60,0) 70%); -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0); transition: opacity .7s cubic-bezier(.22,1,.36,1) }
       html:root:root:root body[data-dock="fin"] #finSheet.sheet>.box:focus-within { box-shadow: 0 0 0 1px var(--line), calc(sin(var(--aur)) * 8px) calc(cos(var(--aur)) * 3.5px) 16px -1px rgba(255,170,60,0.55), calc(sin(var(--aur) + 120deg) * 8px) calc(cos(var(--aur) + 120deg) * 3.5px) 16px -1px rgba(255,110,90,0.55), calc(sin(var(--aur) + 240deg) * 8px) calc(cos(var(--aur) + 240deg) * 3.5px) 16px -1px rgba(120,140,255,0.55), 0 16px 44px -16px rgba(0,0,0,.30) !important; animation-play-state: running }
       html:root:root:root body[data-dock="fin"] #finSheet.sheet>.box:focus-within::before { opacity: 1 }
       html:root:root:root body:not(.gym) main #planView .plbar { background-image: none !important; animation: aurSpin 4.5s linear infinite paused }
-      html:root:root:root body:not(.gym) main #planView .plbar::before { inset: -2px; padding: 2px; border-radius: 30px; z-index: 3; opacity: 0; background: conic-gradient(from var(--aur),rgba(255,170,60,0),rgba(255,170,60,1),rgba(255,110,90,1),rgba(120,140,255,.9),rgba(255,170,60,0) 70%); transition: opacity .7s cubic-bezier(.22,1,.36,1) }
+      html:root:root:root body:not(.gym) main #planView .plbar::before { inset: -1px; padding: 1px; border-radius: 29px; z-index: 3; opacity: 0; background: conic-gradient(from var(--aur),rgba(255,170,60,0),rgba(255,170,60,1),rgba(255,110,90,1),rgba(120,140,255,.9),rgba(255,170,60,0) 70%); transition: opacity .7s cubic-bezier(.22,1,.36,1) }
       html:root:root:root body:not(.gym) main #planView .plbar:focus-within { animation-play-state: running }
       html:root:root:root body:not(.gym) main #planView .plbar:focus-within::before { opacity: 1 }
     }
@@ -16008,7 +16008,7 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
     @media (max-width:700px), (pointer:coarse) {
       body.composing #notesView>.box { animation: aurIn .45s cubic-bezier(.22,1,.36,1) both }
       body.cout #notesView>.box { animation-duration: .22s }
-      #notesView>.box::before { content: ""; position: absolute; inset: -2px; padding: 2px; border-radius: 32px; z-index: -1; pointer-events: none; opacity: 0;
+      #notesView>.box::before { content: ""; position: absolute; inset: -1px; padding: 1px; border-radius: 31px; z-index: -1; pointer-events: none; opacity: 0;
         background: conic-gradient(from var(--aur),rgba(255,170,60,0),rgba(255,170,60,1),rgba(255,110,90,1),rgba(120,140,255,.9),rgba(255,170,60,0) 70%); -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0); animation: aurSpin 4.5s linear infinite; transition: opacity .7s cubic-bezier(.22,1,.36,1) }
       #notesView>.box:focus-within::before { opacity: 1 }
     }
@@ -16034,6 +16034,26 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
         -webkit-mask-image: linear-gradient(to top, #000 0%, #000 45%, rgba(0,0,0,.6) 70%, transparent 100%) !important;
         mask-image: linear-gradient(to top, #000 0%, #000 45%, rgba(0,0,0,.6) 70%, transparent 100%) !important
 }
+    }
+  
+    /* ===== Mica fade v2: blur nhiều tầng (nhẹ ở trên, nặng sát đáy) + chút sáng, thấy rõ chữ bị nhòe thay vì phủ trắng phẳng ===== */
+    @media (min-width:1000px) and (pointer:fine) {
+      html:root body:not(.gym):not(#_)::before {
+        content: "" !important; display: block !important; position: fixed !important; top: auto !important;
+        left: calc(var(--desk-left) + var(--sbw)) !important; right: calc(var(--desk-right) + 12px) !important;
+        bottom: var(--desk-bottom) !important; height: 210px !important; border-radius: 0 0 26px 0 !important;
+        z-index: 30 !important; pointer-events: none !important; opacity: 1 !important; transform: none !important;
+        background: linear-gradient(to top, color-mix(in srgb, var(--surface) 0%, transparent) 0%, color-mix(in srgb, var(--surface) 0%, transparent) 50%, transparent 100%) !important;
+        -webkit-backdrop-filter: blur(5px) saturate(1.15) !important; backdrop-filter: blur(5px) saturate(1.15) !important;
+        -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,.9) 0%, rgba(0,0,0,.7) 45%, transparent 100%) !important; mask-image: linear-gradient(to top, rgba(0,0,0,.9) 0%, rgba(0,0,0,.7) 45%, transparent 100%) !important }
+      html:root body:not(.gym):not(#_)::after {
+        content: "" !important; display: block !important; position: fixed !important; top: auto !important;
+        left: calc(var(--desk-left) + var(--sbw)) !important; right: calc(var(--desk-right) + 12px) !important;
+        bottom: var(--desk-bottom) !important; height: 120px !important; border-radius: 0 0 26px 0 !important;
+        z-index: 30 !important; pointer-events: none !important; opacity: 1 !important; transform: none !important;
+        background: linear-gradient(to top, color-mix(in srgb, var(--surface) 62%, transparent) 0%, color-mix(in srgb, var(--surface) 24%, transparent) 50%, transparent 100%) !important;
+        -webkit-backdrop-filter: blur(26px) saturate(1.5) !important; backdrop-filter: blur(26px) saturate(1.5) !important;
+        -webkit-mask-image: linear-gradient(to top, #000 0%, #000 35%, rgba(0,0,0,.55) 70%, transparent 100%) !important; mask-image: linear-gradient(to top, #000 0%, #000 35%, rgba(0,0,0,.55) 70%, transparent 100%) !important }
     }
   </style>
 <script>
