@@ -16222,39 +16222,43 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
     to { opacity:1;transform:translateY(0) scale(1);clip-path:inset(0 round 0) }
   }
   @media (min-width:1000px) and (pointer:fine) {
-    #list .ne-library-arrival {
+    :is(#list,#finBody,#planView) .ne-library-arrival {
       animation:neLibraryArrival .75s cubic-bezier(.16,1,.3,1) both;
       animation-delay:var(--card-delay,0ms);
     }
   }
   @media (prefers-reduced-motion:reduce) {
-    #list .ne-library-arrival { animation:none!important }
+    :is(#list,#finBody,#planView) .ne-library-arrival { animation:none!important }
   }
 </style>
 <script>
 /* Card-arrival motion from Library.ps1: same keyframes, timing, easing and stagger. */
 (function(){
-  var list=document.getElementById('list');if(!list)return;
+  [{id:'list',selector:'.swrap',ownScroll:true},
+   {id:'finBody',selector:'.swrap,.tmg'},
+   {id:'planView',selector:'.plmini,.pc'}].forEach(function(config){
+  var list=document.getElementById(config.id);if(!list)return;
   var desktop=matchMedia('(min-width:1000px) and (pointer:fine)'),reduce=matchMedia('(prefers-reduced-motion:reduce)');
   var observed=new WeakSet(),revealed=new Set(),scheduled=false;
   function enabled(){return desktop.matches&&!reduce.matches}
+  function key(card){return card.matches('.plmini')?'mini:'+card.dataset.plsel:card.matches('.pc')?'plan:'+card.dataset.pc:card.dataset.tmg?'group:'+card.dataset.tmg:card.dataset.id}
   function arrive(card){
     if(!enabled()||!card.isConnected)return;
-    var id=card.dataset.id;if(id&&revealed.has(id))return;if(id)revealed.add(id);
+    var id=key(card);if(id&&revealed.has(id))return;if(id)revealed.add(id);
     card.classList.add('ne-library-arrival');
   }
   var observer=typeof IntersectionObserver==='undefined'?null:new IntersectionObserver(function(entries){
     entries.forEach(function(entry){if(entry.isIntersecting){arrive(entry.target);observer.unobserve(entry.target)}});
-  },{root:list,rootMargin:"0px 0px 60px 0px",threshold:0});
+  },{root:config.ownScroll?list:document.querySelector('main'),rootMargin:"0px 0px 60px 0px",threshold:0});
   function scan(){
     scheduled=false;if(!enabled())return;
-    list.querySelectorAll('.swrap').forEach(function(card,index){
-      if(observed.has(card)||(card.dataset.id&&revealed.has(card.dataset.id)))return;
+    list.querySelectorAll(config.selector).forEach(function(card,index){
+      if(observed.has(card)||(key(card)&&revealed.has(key(card))))return;
       observed.add(card);card.style.setProperty('--card-delay',(index%6)*50+'ms');
       if(observer)observer.observe(card);else arrive(card);
     });
   }
-  new MutationObserver(function(){if(!scheduled){scheduled=true;requestAnimationFrame(scan)}}).observe(list,{childList:true});
+  new MutationObserver(function(){if(!scheduled){scheduled=true;requestAnimationFrame(scan)}}).observe(list,{childList:true,subtree:true});
   list.addEventListener('animationend',function(e){if(e.animationName==='neLibraryArrival')e.target.classList.remove('ne-library-arrival')});
   function change(){
     if(!enabled()){if(observer)observer.disconnect();observed=new WeakSet();list.querySelectorAll('.ne-library-arrival').forEach(function(card){card.classList.remove('ne-library-arrival')})}
@@ -16263,6 +16267,7 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
   if(desktop.addEventListener)desktop.addEventListener('change',change);
   if(reduce.addEventListener)reduce.addEventListener('change',change);
   scan();
+  });
 })();
 </script>
 </body>
