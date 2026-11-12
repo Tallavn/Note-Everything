@@ -9811,7 +9811,7 @@
       :root {
         --dk-l: calc(var(--desk-left) + var(--sbw) + var(--desk-pad));
         --dk-r: calc(var(--desk-right) + var(--desk-pad));
-        --dk-b: calc(var(--desk-bottom) + 30px);
+        --dk-b: calc(var(--desk-bottom) - 24px);
         --dk-max: 720px
       }
 
@@ -9853,7 +9853,7 @@
       html body:not(.gym) main #notesView>.box:focus-within,
       html body[data-dock="fin"] #finSheet.sheet>.box:focus-within,
       html body:not(.gym) main #planView .plbar:focus-within {
-        box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 55%, var(--line)), 0 18px 48px -16px rgba(0, 0, 0, .34)
+        box-shadow: 0 0 0 1px var(--line), 0 18px 48px -16px rgba(0, 0, 0, .34)
       }
 
       /* --- vị trí: ghim đáy, căn giữa vùng nội dung --- */
@@ -13463,7 +13463,7 @@ function plDownload(p){
 }
 function renderPlan(){
   var el=$i("planView"),ps=plList().sort(function(a,b){var d=planOn(b)-planOn(a);if(d)return d;return(a.date||"9")<(b.date||"9")?-1:1});
-  var h='<div class="plbar" style="display:flex;gap:8px;margin-bottom:14px"><input class="pin" id="pl-new" data-plk="new" placeholder="Tạo dự án: đà lạt 3 ngày 5tr, hoặc chỉ gõ tên" aria-label="Tạo dự án" autocomplete="off" enterkeyhint="done"></div>';
+  var h='<div class="plbar" style="display:flex;gap:8px;margin-bottom:14px"><input class="pin" id="pl-new" data-plk="new" placeholder="Tạo dự án: đà lạt 3 ngày 5tr, hoặc chỉ gõ tên" aria-label="Tạo dự án" autocomplete="off" enterkeyhint="done"><i class="spg" aria-hidden="true"></i></div>';
   h+='<div class="plimp" style="display:flex;justify-content:flex-end;margin:-4px 0 10px"><button type="button" class="lnk" data-imp="open" style="padding:4px 0">Nhập lịch trình</button></div>';
   if(!ps.length&&!PLD.matches)h+='<div class="empty">Chưa có dự án. Gõ tên và ngân sách ở trên, ví dụ: đà lạt 3 ngày 5tr.</div>';
   function planCard(p){
@@ -15777,15 +15777,18 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
       html:root body:not(.gym) main #notesView>.box,
       html:root body[data-dock="fin"] #finSheet.sheet>.box,
       html:root body:not(.gym) main #planView .plbar {
-        border-radius: 999px !important;
+        /* Sửa giật: trước đây thu gọn = 999px, mở rộng = 24px. Nếu transition 999px→24px thì bán kính thực tế bị kẹp ở nửa chiều cao
+           (~26px) suốt gần hết thời gian chuyển, rồi bị "bật" ở cuối. Dùng 28px (>= nửa chiều cao thanh thu gọn ~51px
+           nên vẫn ra hình viên thuốc) để chuyển 28px→24px mượt liên tục. */
+        border-radius: 28px !important;
         box-shadow: 0 0 0 1px var(--line), 0 10px 28px -10px rgba(0, 0, 0, .14), 0 2px 8px -2px rgba(0, 0, 0, .05) !important;
-        transition: border-radius .15s, box-shadow .15s
+        transition: border-radius .18s cubic-bezier(.2, .8, .2, 1), box-shadow .18s
       }
 
       html:root body:not(.gym) main #notesView>.box:focus-within,
       html:root body[data-dock="fin"] #finSheet.sheet>.box:focus-within,
       html:root body:not(.gym) main #planView .plbar:focus-within {
-        box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 55%, var(--line)), 0 14px 34px -10px rgba(0, 0, 0, .16), 0 2px 8px -2px rgba(0, 0, 0, .05) !important
+        box-shadow: 0 0 0 1px var(--line), 0 14px 34px -10px rgba(0, 0, 0, .16), 0 2px 8px -2px rgba(0, 0, 0, .05) !important
       }
 
       html:root body:not(.gym) main #notesView>.box:is(:focus-within, :has(#in:not(:placeholder-shown), .thumbs:not(:empty))),
@@ -15833,8 +15836,215 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
         height: 32px;
         margin-bottom: 0
       }
+
+      /* ===== Thanh nhập Ghi chú nghỉ ở thấp, căn ngang với nút Cài đặt (giống Chi tiêu / Dự án) =====
+         Ghim đáy như hai tab kia. Khi mở rộng thì phần phụ (gợi ý, tag, ghi chú thêm, ảnh) mọc LÊN trên dòng gõ
+         để dòng gõ đứng yên ở đáy, không tràn khỏi màn hình. */
+      html:root body:not(.gym) main #notesView>.box {
+        position: fixed !important;
+        left: var(--dk-l) !important;
+        right: var(--dk-r) !important;
+        bottom: calc(var(--dk-b) + 35px) !important;
+        width: auto !important;
+        max-width: none !important;
+        margin: 0 !important;
+        z-index: 61
+      }
+
+      html:root body:not(.gym) main #notesView>.box>.row>.nh {
+        order: -4
+      }
+
+      html:root body:not(.gym) main #notesView>.box #inTags {
+        order: -3
+      }
+
+      html:root body:not(.gym) main #notesView>.box>.insug {
+        order: -2
+      }
+
+      html:root body:not(.gym) main #notesView>.box>.thumbs {
+        order: -1
+      }
+
+      html:root body:not(.gym) main #notesView>.box .cpane {
+        display: flex;
+        flex-direction: column-reverse
+      }
+
+      html:root body:not(.gym) main #notesView>.box .cpane .nlw.s {
+        border-top: 0;
+        border-bottom: 1px solid var(--line)
+      }
+
+      html:root body:not(.gym) main #notesView #in-msg:not(:empty) {
+        bottom: calc(var(--dk-b) + 93px)
+      }
+    }
+    /* ===== PC: thanh nhập kiểu Spotlight (Ghi chú / Chi tiêu / Dự án dùng chung) =====
+       Chỉ khi rê chuột lúc thanh đang thu gọn (đã bung/đang gõ thì tắt hết hiệu ứng rê chuột): thanh nổi nhẹ + ánh sáng accent bám theo con trỏ trên viền và nền, bóng sáng nhỏ bên dưới.
+       Chỉ animate transform/opacity (và --sp). Lớp .sp-hot do JS cuối trang bật khi con trỏ ở trong thanh (kể cả 12px phía dưới,
+       để thanh nổi lên không làm mất hover → khỏi giật). Mode nghỉ giữ nguyên vị trí, vẫn căn ngang với chữ Cài đặt. */
+    @property --sp {
+      syntax: "<number>";
+      inherits: true;
+      initial-value: 0
+    }
+
+    @media (min-width:1000px) and (pointer:fine) {
+      :is(html:root body:not(.gym) main #notesView>.box,
+      html:root body[data-dock="fin"] #finSheet.sheet>.box,
+      html:root body:not(.gym) main #planView .plbar) {
+        --sp: 0;
+        --spe: cubic-bezier(.22, 1, .36, 1);
+        transform-origin: 50% 100%;
+        background-image: radial-gradient(280px circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--accent) calc(var(--sp) * 20%), transparent), transparent 65%) !important;
+        transition: transform .55s var(--spe), --sp .5s var(--spe), border-radius .18s cubic-bezier(.2, .8, .2, 1), box-shadow .18s !important;
+        will-change: transform
+      }
+
+      html:root body[data-dock="fin"] #finSheet.sheet>.box {
+        position: relative
+      }
+
+      html:root body:not(.gym) main #notesView>.box.sp-hot:not(:focus-within):not(:has(#in:not(:placeholder-shown), .thumbs:not(:empty))),
+      html:root body[data-dock="fin"] #finSheet.sheet>.box.sp-hot:not(:focus-within):not(:has(#fin-in:not(:placeholder-shown), .thumbs:not(:empty))),
+      html:root body:not(.gym) main #planView .plbar.sp-hot:not(:focus-within) {
+        --sp: 1;
+        transform: translate3d(0, -4px, 0) scale(1.01) !important
+      }
+
+      /* viền sáng bám theo con trỏ */
+      :is(html:root body:not(.gym) main #notesView>.box,
+      html:root body[data-dock="fin"] #finSheet.sheet>.box,
+      html:root body:not(.gym) main #planView .plbar)::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        padding: 1.5px;
+        z-index: 3;
+        pointer-events: none;
+        opacity: var(--sp);
+        background: radial-gradient(200px circle at var(--mx, 50%) var(--my, 50%), var(--accent), transparent 70%);
+        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor;
+        mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0)
+      }
+
+      /* bóng sáng nhỏ ngay dưới thanh */
+      :is(html:root body:not(.gym) main #notesView>.box,
+      html:root body[data-dock="fin"] #finSheet.sheet>.box)::after,
+      html:root body:not(.gym) main #planView .plbar .spg {
+        content: "";
+        position: absolute;
+        left: 12%;
+        right: 12%;
+        top: 100%;
+        height: 22px;
+        margin-top: -3px;
+        z-index: -1;
+        pointer-events: none;
+        opacity: var(--sp);
+        background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 40%, transparent), transparent)
+      }
+
+      html:root body:not(.gym) main #planView .plbar .spg {
+        display: block
+      }
+    }
+
+    @media (min-width:1000px) and (pointer:fine) and (prefers-reduced-motion:reduce) {
+      :is(html:root body:not(.gym) main #notesView>.box,
+      html:root body[data-dock="fin"] #finSheet.sheet>.box,
+      html:root body:not(.gym) main #planView .plbar) {
+        transition: none !important
+      }
+
+      :is(html:root body:not(.gym) main #notesView>.box,
+      html:root body[data-dock="fin"] #finSheet.sheet>.box,
+      html:root body:not(.gym) main #planView .plbar):is(.sp-hot, :focus-within) {
+        transform: none !important
+      }
     }
   </style>
+<script>
+/* Spotlight cho thanh nhập (PC): theo dõi con trỏ, làm mượt bằng lerp, bật .sp-hot khi con trỏ ở trong thanh (+12px phía dưới) */
+(function(){
+  var mq=window.matchMedia("(min-width:1000px) and (pointer:fine)");
+  var SEL="#notesView>.box,#finSheet.sheet>.box,#planView .plbar";
+  var st=new WeakMap();
+  function S(el){var s=st.get(el);if(!s){s={x:.5,y:.5,tx:.5,ty:.5,raf:0};st.set(el,s)}return s}
+  function loop(el){
+    var s=S(el);s.x+=(s.tx-s.x)*.18;s.y+=(s.ty-s.y)*.18;
+    el.style.setProperty("--mx",(s.x*100).toFixed(2)+"%");el.style.setProperty("--my",(s.y*100).toFixed(2)+"%");
+    if(Math.abs(s.tx-s.x)>.002||Math.abs(s.ty-s.y)>.002)s.raf=requestAnimationFrame(function(){loop(el)});else s.raf=0
+  }
+  function off(){Array.prototype.forEach.call(document.querySelectorAll(".sp-hot"),function(e){e.classList.remove("sp-hot")})}
+  document.addEventListener("pointermove",function(e){
+    if(!mq.matches||e.pointerType==="touch")return;
+    var els=document.querySelectorAll(SEL);
+    for(var i=0;i<els.length;i++){
+      var el=els[i],r=el.getBoundingClientRect();
+      if(!r.width||!r.height){el.classList.remove("sp-hot");continue}
+      var inside=el.contains(e.target)||(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top-6&&e.clientY<=r.bottom+12&&!(e.target.closest&&e.target.closest(".sheet:not(#finSheet),.psh,#tagSheet,[role=dialog],.menu")));
+      el.classList.toggle("sp-hot",!!inside);
+      if(inside){
+        var s=S(el);s.tx=Math.min(1,Math.max(0,(e.clientX-r.left)/r.width));s.ty=Math.min(1,Math.max(0,(e.clientY-r.top)/r.height));
+        if(!s.raf)s.raf=requestAnimationFrame((function(x){return function(){loop(x)}})(el))
+      }
+    }
+  },{passive:true});
+  document.documentElement.addEventListener("mouseleave",off);
+  window.addEventListener("blur",off);
+})();
+</script>
+<script>
+/* Bung/thu mượt cho thanh nhập Ghi chú (mọc lên trên) và Chi tiêu (mọc xuống dưới): animate chiều cao thật bằng WAAPI.
+   Dòng gõ đứng yên, phần phụ lộ dần ra. Chiều cao thu gọn được ghi nhớ khi thanh đang nghỉ. */
+(function(){
+  var NOTE="#notesView>.box",FIN="#finSheet.sheet>.box",SEL=NOTE+","+FIN;
+  var mq=window.matchMedia("(min-width:1000px) and (pointer:fine)");
+  var rm=window.matchMedia("(prefers-reduced-motion:reduce)");
+  var EASE="cubic-bezier(.22,1,.36,1)",DUR=520;
+  function box(t){return t&&t.closest?t.closest(SEL):null}
+  function up(el){return el.matches(NOTE)}
+  function run(el,a,b){
+    if(el._sp&&el._sp.cancel)el._sp.cancel();
+    var al=up(el)?"flex-end":"flex-start";
+    el._sp=el.animate([{height:a+"px",overflow:"hidden",alignContent:al},{height:b+"px",overflow:"hidden",alignContent:al}],{duration:DUR,easing:EASE});
+    el._sp.onfinish=el._sp.oncancel=function(){el._sp=null}
+  }
+  function rest(el){ if(el.dataset.exp!=="1"&&el.offsetHeight>0)el.dataset.h0=el.offsetHeight }
+  document.addEventListener("pointerdown",function(e){var el=box(e.target);if(el&&mq.matches&&!el.contains(document.activeElement))rest(el)},true);
+  document.addEventListener("pointermove",function(e){var el=box(e.target);if(el&&mq.matches)rest(el)},{passive:true});
+  document.addEventListener("focusin",function(e){
+    var el=box(e.target);if(!el||!mq.matches||rm.matches||el.dataset.exp==="1")return;
+    var h0=parseFloat(el.dataset.h0)||51,h1=el.offsetHeight;
+    el.dataset.exp="1";el._hx=h1;
+    if(h1>h0+4)run(el,h0,h1)
+  });
+  /* nhớ chiều cao lúc đang bung (kể cả khi đang gõ làm ô cao lên), để thu lại biết xuất phát từ đâu */
+  if(window.ResizeObserver){
+    var ro=new ResizeObserver(function(l){l.forEach(function(x){var el=x.target;if(el.dataset.exp==="1"&&!el._sp&&el.matches(":focus-within"))el._hx=el.offsetHeight})});
+    var seen=new WeakSet();
+    document.addEventListener("focusin",function(e){var el=box(e.target);if(el&&!seen.has(el)){seen.add(el);ro.observe(el)}});
+  }
+  document.addEventListener("focusout",function(e){
+    var el=box(e.target);if(!el||!mq.matches||rm.matches||el.contains(e.relatedTarget))return;
+    var a=Math.max(el._hx||0,el.offsetHeight);
+    function done(){
+      if(el.matches(":focus-within"))return false;
+      var b=el.offsetHeight,h0=parseFloat(el.dataset.h0)||51;
+      if(b<=h0+4)el.dataset.exp="0";
+      if(b<a-4){run(el,a,b);return true}
+      return false
+    }
+    /* thu ngay trong sự kiện (trước khi vẽ khung hình đã thu gọn) để khỏi nháy; nếu trình duyệt chưa thu layout thì kiểm lại sau */
+    if(!done())setTimeout(done,0)
+  });
+})();
+</script>
 </body>
 
 </html>
