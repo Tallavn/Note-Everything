@@ -15967,6 +15967,52 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
         transform: none !important
       }
     }
+  
+    /* ===== Aurora ring (concept 2) thay Spotlight ở thanh nhập (Ghi chú / Chi tiêu / Dự án) =====
+       Viền màu xoay (::before) + quầng sáng xoay làm bằng box-shadow có tọa độ theo --aur (sin/cos) nên mờ dần tự nhiên ra ngoài.
+       Đặt SAU khối Spotlight, selector mạnh hơn để ghi đè. Bung/thu giữ nguyên bản WAAPI bên dưới. */
+    @property --aur { syntax: "<angle>"; inherits: true; initial-value: 0deg }
+    @keyframes aurSpin { to { --aur: 360deg } }
+    @keyframes aurIn { from { opacity: 0; transform: translate3d(0,18px,0) scale(.97) } to { opacity: 1; transform: none } }
+    @media (min-width:1000px) and (pointer:fine) {
+      html:root:root:root body:not(.gym) main #notesView>.box { background-image: none !important; box-shadow: 0 0 0 1px var(--line), calc(sin(var(--aur)) * 16px) calc(cos(var(--aur)) * 7px) 32px -2px rgba(255,170,60,0), calc(sin(var(--aur) + 120deg) * 16px) calc(cos(var(--aur) + 120deg) * 7px) 32px -2px rgba(255,110,90,0), calc(sin(var(--aur) + 240deg) * 16px) calc(cos(var(--aur) + 240deg) * 7px) 32px -2px rgba(120,140,255,0), 0 16px 44px -16px rgba(0,0,0,.30) !important; animation: aurSpin 4.5s linear infinite paused;
+        transition: transform .55s cubic-bezier(.22,1,.36,1), box-shadow .8s cubic-bezier(.22,1,.36,1), border-radius .18s ease !important }
+      html:root:root:root body:not(.gym) main #notesView>.box::after { content: none !important }
+      html:root:root:root body:not(.gym) main #notesView>.box::before { content: ""; position: absolute; inset: -2px; padding: 2px; border-radius: 30px; z-index: 3; pointer-events: none; opacity: 0;
+        background: conic-gradient(from var(--aur),rgba(255,170,60,0),rgba(255,170,60,1),rgba(255,110,90,1),rgba(120,140,255,.9),rgba(255,170,60,0) 70%); -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0); transition: opacity .7s cubic-bezier(.22,1,.36,1) }
+      html:root:root:root body:not(.gym) main #notesView>.box:focus-within { box-shadow: 0 0 0 1px var(--line), calc(sin(var(--aur)) * 16px) calc(cos(var(--aur)) * 7px) 32px -2px rgba(255,170,60,0.55), calc(sin(var(--aur) + 120deg) * 16px) calc(cos(var(--aur) + 120deg) * 7px) 32px -2px rgba(255,110,90,0.55), calc(sin(var(--aur) + 240deg) * 16px) calc(cos(var(--aur) + 240deg) * 7px) 32px -2px rgba(120,140,255,0.55), 0 16px 44px -16px rgba(0,0,0,.30) !important; animation-play-state: running }
+      html:root:root:root body:not(.gym) main #notesView>.box:focus-within::before { opacity: 1 }
+      html:root:root:root body[data-dock="fin"] #finSheet.sheet>.box { background-image: none !important; box-shadow: 0 0 0 1px var(--line), calc(sin(var(--aur)) * 16px) calc(cos(var(--aur)) * 7px) 32px -2px rgba(255,170,60,0), calc(sin(var(--aur) + 120deg) * 16px) calc(cos(var(--aur) + 120deg) * 7px) 32px -2px rgba(255,110,90,0), calc(sin(var(--aur) + 240deg) * 16px) calc(cos(var(--aur) + 240deg) * 7px) 32px -2px rgba(120,140,255,0), 0 16px 44px -16px rgba(0,0,0,.30) !important; animation: aurSpin 4.5s linear infinite paused;
+        transition: transform .55s cubic-bezier(.22,1,.36,1), box-shadow .8s cubic-bezier(.22,1,.36,1), border-radius .18s ease !important }
+      html:root:root:root body[data-dock="fin"] #finSheet.sheet>.box::after { content: none !important }
+      html:root:root:root body[data-dock="fin"] #finSheet.sheet>.box::before { content: ""; position: absolute; inset: -2px; padding: 2px; border-radius: 30px; z-index: 3; pointer-events: none; opacity: 0;
+        background: conic-gradient(from var(--aur),rgba(255,170,60,0),rgba(255,170,60,1),rgba(255,110,90,1),rgba(120,140,255,.9),rgba(255,170,60,0) 70%); -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0); transition: opacity .7s cubic-bezier(.22,1,.36,1) }
+      html:root:root:root body[data-dock="fin"] #finSheet.sheet>.box:focus-within { box-shadow: 0 0 0 1px var(--line), calc(sin(var(--aur)) * 16px) calc(cos(var(--aur)) * 7px) 32px -2px rgba(255,170,60,0.55), calc(sin(var(--aur) + 120deg) * 16px) calc(cos(var(--aur) + 120deg) * 7px) 32px -2px rgba(255,110,90,0.55), calc(sin(var(--aur) + 240deg) * 16px) calc(cos(var(--aur) + 240deg) * 7px) 32px -2px rgba(120,140,255,0.55), 0 16px 44px -16px rgba(0,0,0,.30) !important; animation-play-state: running }
+      html:root:root:root body[data-dock="fin"] #finSheet.sheet>.box:focus-within::before { opacity: 1 }
+      html:root:root:root body:not(.gym) main #planView .plbar { background-image: none !important; animation: aurSpin 4.5s linear infinite paused }
+      html:root:root:root body:not(.gym) main #planView .plbar::before { inset: -2px; padding: 2px; border-radius: 30px; z-index: 3; opacity: 0; background: conic-gradient(from var(--aur),rgba(255,170,60,0),rgba(255,170,60,1),rgba(255,110,90,1),rgba(120,140,255,.9),rgba(255,170,60,0) 70%); transition: opacity .7s cubic-bezier(.22,1,.36,1) }
+      html:root:root:root body:not(.gym) main #planView .plbar:focus-within { animation-play-state: running }
+      html:root:root:root body:not(.gym) main #planView .plbar:focus-within::before { opacity: 1 }
+    }
+    @media (min-width:1000px) and (pointer:fine) and (hover:hover) {
+      html:root:root:root body:not(.gym) main #notesView>.box:hover { box-shadow: 0 0 0 1px var(--line), calc(sin(var(--aur)) * 16px) calc(cos(var(--aur)) * 7px) 32px -2px rgba(255,170,60,0.4), calc(sin(var(--aur) + 120deg) * 16px) calc(cos(var(--aur) + 120deg) * 7px) 32px -2px rgba(255,110,90,0.4), calc(sin(var(--aur) + 240deg) * 16px) calc(cos(var(--aur) + 240deg) * 7px) 32px -2px rgba(120,140,255,0.4), 0 16px 44px -16px rgba(0,0,0,.30) !important; animation-play-state: running }
+      html:root:root:root body:not(.gym) main #notesView>.box:focus-within:hover { box-shadow: 0 0 0 1px var(--line), calc(sin(var(--aur)) * 16px) calc(cos(var(--aur)) * 7px) 32px -2px rgba(255,170,60,0.55), calc(sin(var(--aur) + 120deg) * 16px) calc(cos(var(--aur) + 120deg) * 7px) 32px -2px rgba(255,110,90,0.55), calc(sin(var(--aur) + 240deg) * 16px) calc(cos(var(--aur) + 240deg) * 7px) 32px -2px rgba(120,140,255,0.55), 0 16px 44px -16px rgba(0,0,0,.30) !important }
+      html:root:root:root body:not(.gym) main #notesView>.box:hover::before { opacity: 1 }
+      html:root:root:root body[data-dock="fin"] #finSheet.sheet>.box:hover { box-shadow: 0 0 0 1px var(--line), calc(sin(var(--aur)) * 16px) calc(cos(var(--aur)) * 7px) 32px -2px rgba(255,170,60,0.4), calc(sin(var(--aur) + 120deg) * 16px) calc(cos(var(--aur) + 120deg) * 7px) 32px -2px rgba(255,110,90,0.4), calc(sin(var(--aur) + 240deg) * 16px) calc(cos(var(--aur) + 240deg) * 7px) 32px -2px rgba(120,140,255,0.4), 0 16px 44px -16px rgba(0,0,0,.30) !important; animation-play-state: running }
+      html:root:root:root body[data-dock="fin"] #finSheet.sheet>.box:focus-within:hover { box-shadow: 0 0 0 1px var(--line), calc(sin(var(--aur)) * 16px) calc(cos(var(--aur)) * 7px) 32px -2px rgba(255,170,60,0.55), calc(sin(var(--aur) + 120deg) * 16px) calc(cos(var(--aur) + 120deg) * 7px) 32px -2px rgba(255,110,90,0.55), calc(sin(var(--aur) + 240deg) * 16px) calc(cos(var(--aur) + 240deg) * 7px) 32px -2px rgba(120,140,255,0.55), 0 16px 44px -16px rgba(0,0,0,.30) !important }
+      html:root:root:root body[data-dock="fin"] #finSheet.sheet>.box:hover::before { opacity: 1 }
+      html:root:root:root body:not(.gym) main #planView .plbar:hover { animation-play-state: running }
+      html:root:root:root body:not(.gym) main #planView .plbar:hover::before { opacity: 1 }
+    }
+    /* điện thoại: khung hiện lên mượt + viền aurora khi gõ */
+    @media (max-width:700px), (pointer:coarse) {
+      body.composing #notesView>.box { animation: aurIn .45s cubic-bezier(.22,1,.36,1) both }
+      body.cout #notesView>.box { animation-duration: .22s }
+      #notesView>.box::before { content: ""; position: absolute; inset: -2px; padding: 2px; border-radius: 32px; z-index: -1; pointer-events: none; opacity: 0;
+        background: conic-gradient(from var(--aur),rgba(255,170,60,0),rgba(255,170,60,1),rgba(255,110,90,1),rgba(120,140,255,.9),rgba(255,170,60,0) 70%); -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0); animation: aurSpin 4.5s linear infinite; transition: opacity .7s cubic-bezier(.22,1,.36,1) }
+      #notesView>.box:focus-within::before { opacity: 1 }
+    }
+    @media (prefers-reduced-motion:reduce) { [class], [class]::before { animation: none !important } }
   </style>
 <script>
 /* Spotlight cho thanh nhập (PC): theo dõi con trỏ, làm mượt bằng lerp, bật .sp-hot khi con trỏ ở trong thanh (+12px phía dưới) */
