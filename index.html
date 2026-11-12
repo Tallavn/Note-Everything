@@ -16242,32 +16242,25 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
    {id:'planView',selector:'.plmini,.pc'}].forEach(function(config){
   var list=document.getElementById(config.id);if(!list)return;
   var desktop=matchMedia('(min-width:1000px) and (pointer:fine)'),reduce=matchMedia('(prefers-reduced-motion:reduce)');
-  var observed=new WeakSet(),revealed=new Set(),scheduled=false,firstBatch=true;
+  var observed=new WeakSet(),timeline=new Map(),scheduled=false,nextStart=0;
   function enabled(){return desktop.matches&&!reduce.matches}
   function key(card){return card.matches('.plmini')?'mini:'+card.dataset.plsel:card.matches('.pc')?'plan:'+card.dataset.pc:card.dataset.tmg?'group:'+card.dataset.tmg:card.dataset.id}
-  function arrive(card){
-    if(!enabled()||!card.isConnected)return;
-    var id=key(card);if(id&&revealed.has(id))return;if(id)revealed.add(id);
-    card.classList.add('ne-library-arrival');
-  }
-  var observer=typeof IntersectionObserver==='undefined'?null:new IntersectionObserver(function(entries){
-    var entering=entries.filter(function(entry){return entry.isIntersecting&&entry.target.isConnected});
-    if(!entering.length)return;
-    entering.forEach(function(entry,index){entry.target.style.setProperty('--card-delay',(firstBatch?0:Math.min(index,5)*50)+'ms');arrive(entry.target);observer.unobserve(entry.target)});
-    firstBatch=false;
-  },{root:config.ownScroll?list:document.querySelector('main'),rootMargin:"0px 0px 60px 0px",threshold:0});
   function scan(){
     scheduled=false;if(!enabled()||!layoutReady)return;
-    list.querySelectorAll(config.selector).forEach(function(card,index){
-      if(observed.has(card)||(key(card)&&revealed.has(key(card))))return;
-      observed.add(card);card.style.setProperty('--card-delay','0ms');
-      if(observer)observer.observe(card);else arrive(card);
+    var now=performance.now();
+    list.querySelectorAll(config.selector).forEach(function(card){
+      if(observed.has(card))return;observed.add(card);
+      var id=key(card)||card,start=timeline.get(id);
+      if(start===undefined){start=Math.max(now,nextStart);timeline.set(id,start);nextStart=start+50}
+      if(now>=start+750)return;
+      card.style.setProperty('--card-delay',(start-now)+'ms');
+      card.classList.add('ne-library-arrival');
     });
   }
   new MutationObserver(function(){if(!scheduled){scheduled=true;requestAnimationFrame(scan)}}).observe(list,{childList:true,subtree:true});
   list.addEventListener('animationend',function(e){if(e.animationName==='neLibraryArrival')e.target.classList.remove('ne-library-arrival')});
   function change(){
-    if(!enabled()){if(observer)observer.disconnect();observed=new WeakSet();list.querySelectorAll('.ne-library-arrival').forEach(function(card){card.classList.remove('ne-library-arrival')})}
+    if(!enabled()){observed=new WeakSet();list.querySelectorAll('.ne-library-arrival').forEach(function(card){card.classList.remove('ne-library-arrival')})}
     else scan();
   }
   if(desktop.addEventListener)desktop.addEventListener('change',change);
