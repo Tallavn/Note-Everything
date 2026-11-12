@@ -15773,6 +15773,55 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
         height: 34px
       }
 
+      /* ===== Kiểu 1: viền mảnh, liền khối (không ô xám bên trong) ===== */
+      html:root body:not(.gym) main #notesView>.box,
+      html:root body[data-dock="fin"] #finSheet.sheet>.box,
+      html:root body:not(.gym) main #planView .plbar {
+        border-radius: 999px !important;
+        box-shadow: 0 0 0 1px var(--line) !important;
+        transition: border-radius .15s, box-shadow .15s
+      }
+
+      html:root body:not(.gym) main #notesView>.box:focus-within,
+      html:root body[data-dock="fin"] #finSheet.sheet>.box:focus-within,
+      html:root body:not(.gym) main #planView .plbar:focus-within {
+        box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 55%, var(--line)) !important
+      }
+
+      html:root body:not(.gym) main #notesView>.box:is(:focus-within, :has(#in:not(:placeholder-shown), .thumbs:not(:empty))),
+      html:root body[data-dock="fin"] #finSheet.sheet>.box:is(:focus-within, :has(#fin-in:not(:placeholder-shown), .thumbs:not(:empty))) {
+        border-radius: 24px !important
+      }
+
+      html:root body:not(.gym) main #notesView>.box .cpane,
+      html:root body[data-dock="fin"] #finSheet>.box .cpane {
+        background: transparent !important;
+        padding: 0 6px !important
+      }
+
+      html:root body:not(.gym) main #notesView>.box>.row>.cam,
+      html:root body[data-dock="fin"] #finSheet>.box>.row>span:first-child .cam {
+        background: transparent !important
+      }
+
+      html:root body:not(.gym) main #planView .plbar .pin {
+        background: transparent !important;
+        padding: 0 12px !important
+      }
+
+      /* Đồng bộ độ dài thanh nhập giữa các tab: Chi tiêu và Dự án dài bằng Ghi chú */
+      html:root body[data-dock="fin"] #finSheet.sheet>.box,
+      html:root body:not(.gym) main #planView .plbar {
+        max-width: none !important;
+        width: 100% !important
+      }
+
+      html:root body:not(.gym) main #planView .plbar {
+        left: var(--dk-l) !important;
+        right: var(--dk-r) !important;
+        width: auto !important
+      }
+
       html:root body:not(.gym) main #notesView>.box>.row>:is(.cam, .add) {
         align-self: flex-start;
         margin-top: 1px;
