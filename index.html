@@ -11007,7 +11007,7 @@ function setGroupOrder(vk){
     var h=e.target.closest&&e.target.closest(".cgrp");
     if(!h||!h.dataset.gk||drag||L.classList.contains("reorder")||Date.now()-(window.__cgDrag||0)<700)return;
     if(!window.cgCol)window.cgCol={};
-    var k=h.dataset.gk,nv=((window.cgCol[k]|0)+1)%3;if(nv)window.cgCol[k]=nv;else delete window.cgCol[k];
+    var k=h.dataset.gk,cur=window.cgCol[k]|0,nv=matchMedia('(min-width:1000px) and (pointer:fine)').matches?(cur===1?0:1):(cur+1)%3;if(nv)window.cgCol[k]=nv;else delete window.cgCol[k];
     try{localStorage.setItem("cgcol",JSON.stringify(window.cgCol))}catch(x){}
     renderNotes()});
 })();
@@ -11976,7 +11976,7 @@ function renderNotes(){
     var head="";
     if(grouped){var dk=dayStart(x.ts||0);if(dk!==lastDay){lastDay=dk;head='<div class="dgrp">'+dayLabelN(x.ts||0)+'</div>'}}
     if(sortBy==="area"){var al=areaLabel(x);if(al!==lastArea){lastArea=al;head='<div class="dgrp">'+esc(al)+'</div>'}}
-    if(filter==="all"&&bycat){var gk=CATS[x.cat]?x.cat:"other";var cv=window.cgCol[gk]|0,isCol=cv===1&&!q,noImg=cv===2;if(gk!==lastCat){head='<div class="cgrp'+(cv===1?' col':cv===2?' mid':'')+'" data-gk="'+gk+'" role="button" aria-expanded="'+(cv!==1)+'" style="color:var(--c-'+CATS[gk].c+')"><i style="background:var(--c-'+CATS[gk].c+')"></i>'+esc(CATS[gk].n)+'<b>'+cnt[gk]+'</b>'+cgIco(cv)+'</div>'}lastCat=gk;if(editing==x.id)return head+'<div class="note">'+editForm(x)+'</div>';if(isCol)return head;window.__noImg=noImg;var nc=noteCard(x,grouped);window.__noImg=false;return head+nc}
+    if(filter==="all"&&bycat){var gk=CATS[x.cat]?x.cat:"other";var cv=window.cgCol[gk]|0;if(cv===2&&matchMedia('(min-width:1000px) and (pointer:fine)').matches)cv=0;var isCol=cv===1&&!q,noImg=cv===2;if(gk!==lastCat){head='<div class="cgrp'+(cv===1?' col':cv===2?' mid':'')+'" data-gk="'+gk+'" role="button" aria-expanded="'+(cv!==1)+'" style="color:var(--c-'+CATS[gk].c+')"><i style="background:var(--c-'+CATS[gk].c+')"></i>'+esc(CATS[gk].n)+'<b>'+cnt[gk]+'</b>'+cgIco(cv)+'</div>'}lastCat=gk;if(editing==x.id)return head+'<div class="note">'+editForm(x)+'</div>';if(isCol)return head;window.__noImg=noImg;var nc=noteCard(x,grouped);window.__noImg=false;return head+nc}
     if(!head&&lastCat!==null&&x.cat!==lastCat)head='<div class="tgap"></div>';
     lastCat=x.cat;
     if(editing==x.id)return head+'<div class="note">'+editForm(x)+'</div>';
@@ -15611,6 +15611,182 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
     })();
   </script>
 
+
+  <style id="ne-fix-desktop">
+    @media (min-width:1000px) and (pointer:fine) {
+
+      /* Panel đã đóng thì dòng đã chọn trở về giống dòng thường (không bôi đen nữa) */
+      html:root body main #notesView:not(.ne-open) #list .swrap.ne-selected>.note.swcard {
+        background: transparent;
+        color: var(--ink);
+        border-color: var(--line);
+        box-shadow: none
+      }
+
+      html:root body main #notesView:not(.ne-open) #list .swrap.ne-selected>.note.swcard:hover {
+        background: color-mix(in srgb, var(--ink) 4%, transparent)
+      }
+
+      html:root body main #notesView:not(.ne-open) #list .ne-selected .hint {
+        color: var(--muted)
+      }
+
+      /* Thanh nhập ở đáy: thấp xuống ~38px bằng các tab */
+      html:root body:not(.gym) main #notesView>.box .cpane {
+        padding: 0 14px;
+        border-radius: 19px
+      }
+
+      html:root body main #notesView>.box .cpane #in {
+        padding: 6px 0 !important;
+        line-height: 22px;
+        display: block;
+        vertical-align: top
+      }
+
+      html:root body:not(.gym) main #notesView>.box .cpane {
+        min-height: 34px;
+        box-sizing: border-box
+      }
+
+      html:root body:not(.gym) main #notesView>.box {
+        padding-top: 4px !important;
+        padding-bottom: 4px !important
+      }
+
+      /* Click vào thanh nhập: dòng gõ đứng yên, phần phụ (tag, ghi chú thêm) mọc xuống phía dưới */
+      html:root body:not(.gym) main #notesView {
+        grid-template-rows: 48px minmax(0, 1fr) 50px !important
+      }
+
+      html:root body:not(.gym) main #notesView>.box {
+        align-self: start;
+        height: auto
+      }
+
+      html:root body:not(.gym) main #notesView>.box :is(.nh, #inTags) {
+        order: 9
+      }
+
+      /* thu gọn phần mọc xuống để vừa khoảng trống dưới thanh */
+      html:root body:not(.gym) main #notesView>.box #inTags {
+        padding-top: 0;
+        padding-bottom: 2px;
+        min-height: 0
+      }
+
+      html:root body:not(.gym) main #notesView>.box #inTags .chip,
+      html:root body:not(.gym) main #notesView>.box #inTags button {
+        min-height: 0;
+        height: 26px;
+        padding-top: 0;
+        padding-bottom: 0
+      }
+
+      html:root body:not(.gym) main #notesView>.box .cpane .nlw.s textarea {
+        padding: 3px 0 !important;
+        margin: 0 !important
+      }
+
+      html:root body:not(.gym) main #notesView>.box .cpane .nlw.s {
+        margin: 0 !important
+      }
+
+      html:root body:not(.gym) main #notesView>.box {
+        row-gap: 0 !important;
+        padding-bottom: 3px !important
+      }
+
+      /* ===== Chi tiêu + Dự án: cùng kiểu với Ghi chú (thấp, dòng gõ đứng yên, phần phụ mọc xuống) ===== */
+      html:root body[data-dock="fin"] #finView #finSheet.sheet {
+        height: 104px !important;
+        bottom: calc(var(--dk-b) - 28px) !important
+      }
+
+      html:root body[data-dock="fin"] #finSheet.sheet>.box {
+        align-self: start;
+        height: auto;
+        padding: 4px 8px 3px !important;
+        row-gap: 0 !important
+      }
+
+      html:root body[data-dock="fin"] #finSheet>.box .cpane {
+        min-height: 34px;
+        box-sizing: border-box;
+        padding: 0 14px !important;
+        border-radius: 19px
+      }
+
+      html:root body[data-dock="fin"] #finSheet>.box .cpane #fin-in {
+        padding: 6px 0 !important;
+        line-height: 22px;
+        display: block;
+        vertical-align: top
+      }
+
+      html:root body[data-dock="fin"] #finSheet>.box .cpane .nlw.s {
+        margin: 0 !important
+      }
+
+      html:root body[data-dock="fin"] #finSheet>.box .cpane .nlw.s textarea {
+        padding: 3px 0 !important;
+        margin: 0 !important
+      }
+
+      html:root body[data-dock="fin"] #finSheet>.box>.row>span:first-child {
+        align-self: flex-start;
+        margin-top: 1px;
+        margin-bottom: 0
+      }
+
+      html:root body[data-dock="fin"] #finSheet>.box>.row>span:first-child .cam {
+        width: 32px;
+        height: 32px
+      }
+
+      html:root body[data-dock="fin"] #finSheet>.box>.row>span:last-child {
+        align-self: flex-start;
+        margin-bottom: 0
+      }
+
+      html:root body[data-dock="fin"] #finSheet>.box>.pick {
+        margin-top: 2px
+      }
+
+      html:root body[data-dock="fin"] #finSheet>.box>.pick :is(.tag, .ftag, .ghost) {
+        height: 26px !important;
+        min-height: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important
+      }
+
+      html:root body[data-dock="fin"] #finSheet>.box>.pick {
+        padding: 0 4px !important;
+        overflow-y: hidden
+      }
+
+      html:root body:not(.gym) main #planView .plbar {
+        bottom: calc(var(--dk-b) + 35px) !important;
+        padding: 4px 8px 3px !important
+      }
+
+      html:root body:not(.gym) main #planView .plbar .pin {
+        height: 34px
+      }
+
+      html:root body:not(.gym) main #notesView>.box>.row>:is(.cam, .add) {
+        align-self: flex-start;
+        margin-top: 1px;
+        margin-bottom: 0
+      }
+
+      html:root body:not(.gym) main #notesView>.box>.row>.cam {
+        width: 32px;
+        height: 32px;
+        margin-bottom: 0
+      }
+    }
+  </style>
 </body>
 
 </html>
