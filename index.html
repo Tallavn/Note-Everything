@@ -16013,6 +16013,28 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
       #notesView>.box:focus-within::before { opacity: 1 }
     }
     @media (prefers-reduced-motion:reduce) { [class], [class]::before { animation: none !important } }
+  
+    /* ===== PC: lớp fade kiểu mica che phần đáy danh sách, nằm dưới thanh nhập =====
+       Mờ dần (blur tăng dần về phía đáy) + phủ màu nền khung trắng, để nội dung cuộn xuống không bị cắt cụt sau thanh nhập. */
+    @media (min-width:1000px) and (pointer:fine) {
+      html:root body:not(.gym):not(#_)::after {
+        content: "" !important;
+        display: block !important;
+        position: fixed !important;
+        left: calc(var(--desk-left) + var(--sbw)) !important;
+        right: calc(var(--desk-right) + 12px) !important;
+        bottom: var(--desk-bottom) !important;
+        height: 150px !important;
+        border-radius: 0 0 26px 0 !important;
+        z-index: 30 !important;
+        pointer-events: none !important;
+        background: linear-gradient(to top, var(--surface) 0%, color-mix(in srgb, var(--surface) 88%, transparent) 38%, color-mix(in srgb, var(--surface) 40%, transparent) 70%, transparent 100%) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+        backdrop-filter: blur(8px) !important;
+        -webkit-mask-image: linear-gradient(to top, #000 0%, #000 45%, rgba(0,0,0,.6) 70%, transparent 100%) !important;
+        mask-image: linear-gradient(to top, #000 0%, #000 45%, rgba(0,0,0,.6) 70%, transparent 100%) !important
+}
+    }
   </style>
 <script>
 /* Spotlight cho thanh nhập (PC): theo dõi con trỏ, làm mượt bằng lerp, bật .sp-hot khi con trỏ ở trong thanh (+12px phía dưới) */
