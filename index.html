@@ -12404,11 +12404,11 @@ document.addEventListener("click",function(e){
   var v=b.dataset.fincat;finCat=(v&&finCat===v)?"":v;renderFinCats();
   var fi=document.getElementById("fin-in");try{fi.focus({preventScroll:true})}catch(x){}
 },true);
-function openSheet(){finCat="";renderFinCats();
+function openSheet(options){finCat="";renderFinCats();
   var sh=document.getElementById("finSheet");
   document.getElementById("sheet-title").textContent=sub==="debt"?"Thêm khoản nợ":"Thêm thu chi";
   document.getElementById("fin-date").value=today();
-  document.getElementById("fin-note").value="";document.getElementById("fin-rate").value="";document.getElementById("fin-per").value="m";document.getElementById("fin-due").value="";finImgs=[];renderPend("fin");defMsg();kbPrep(true);sh.hidden=false;var fi=document.getElementById("fin-in");try{fi.focus({preventScroll:true})}catch(e){fi.focus()}
+  document.getElementById("fin-note").value="";document.getElementById("fin-rate").value="";document.getElementById("fin-per").value="m";document.getElementById("fin-due").value="";finImgs=[];renderPend("fin");defMsg();var focusInput=!options||options.focus!==false;if(focusInput)kbPrep(true);sh.hidden=false;if(focusInput){var fi=document.getElementById("fin-in");try{fi.focus({preventScroll:true})}catch(e){fi.focus()}}
 }
 function closeSheet(){var a=document.activeElement;if(a&&a.blur&&document.getElementById("finSheet").contains(a))a.blur();document.getElementById("finSheet").hidden=true}
 /* "trả Tuấn Anh 500k" / "thu Nam 200k": trừ vào khoản nợ đang mở thay vì tạo khoản mới */
@@ -15071,8 +15071,7 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
         if (!sh) return;
         if (d === 'fin') {
           if (sh.hidden && typeof openSheet === 'function') {
-            sh.setAttribute('data-dk', '1'); openSheet();
-            var a = document.activeElement; if (a && a !== document.body && sh.contains(a)) a.blur();
+            sh.setAttribute('data-dk', '1'); openSheet({ focus: false });
           }
         } else if (!sh.hidden && sh.getAttribute('data-dk')) { sh.hidden = true; sh.removeAttribute('data-dk') }
       }
