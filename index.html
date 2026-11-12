@@ -15650,13 +15650,12 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
       }
 
       html:root body:not(.gym) main #notesView>.box {
-        padding-top: 4px !important;
-        padding-bottom: 4px !important
+        padding: 9px 12px 8px !important
       }
 
       /* Click vào thanh nhập: dòng gõ đứng yên, phần phụ (tag, ghi chú thêm) mọc xuống phía dưới */
       html:root body:not(.gym) main #notesView {
-        grid-template-rows: 48px minmax(0, 1fr) 50px !important
+        grid-template-rows: 48px minmax(0, 1fr) 60px !important
       }
 
       html:root body:not(.gym) main #notesView>.box {
@@ -15694,19 +15693,19 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
 
       html:root body:not(.gym) main #notesView>.box {
         row-gap: 0 !important;
-        padding-bottom: 3px !important
+        padding: 9px 12px 8px !important
       }
 
       /* ===== Chi tiêu + Dự án: cùng kiểu với Ghi chú (thấp, dòng gõ đứng yên, phần phụ mọc xuống) ===== */
       html:root body[data-dock="fin"] #finView #finSheet.sheet {
-        height: 104px !important;
+        height: 114px !important;
         bottom: calc(var(--dk-b) - 28px) !important
       }
 
       html:root body[data-dock="fin"] #finSheet.sheet>.box {
         align-self: start;
         height: auto;
-        padding: 4px 8px 3px !important;
+        padding: 9px 12px 8px !important;
         row-gap: 0 !important
       }
 
@@ -15767,7 +15766,7 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
 
       html:root body:not(.gym) main #planView .plbar {
         bottom: calc(var(--dk-b) + 35px) !important;
-        padding: 4px 8px 3px !important
+        padding: 9px 12px 8px !important
       }
 
       html:root body:not(.gym) main #planView .plbar .pin {
