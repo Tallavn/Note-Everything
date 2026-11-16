@@ -9703,6 +9703,53 @@
       opacity: .35
     }
 
+    #finBody .txw.txsel .swcard {
+      box-shadow: inset 0 0 0 2px var(--accent);
+      background: color-mix(in srgb, var(--accent) 10%, var(--surface))
+    }
+
+    .txbar {
+      position: fixed;
+      top: calc(12px + env(safe-area-inset-top, 0px));
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9000;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 8px 6px 16px;
+      border-radius: 999px;
+      background: var(--ink);
+      color: var(--bg);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, .25);
+      font-size: var(--fs-sm);
+      font-weight: 600;
+      white-space: nowrap
+    }
+
+    .txbar[hidden] {
+      display: none
+    }
+
+    .txbar .txn {
+      margin-right: 6px
+    }
+
+    .txbar button {
+      border: 0;
+      border-radius: 999px;
+      padding: 7px 14px;
+      font: inherit;
+      cursor: pointer;
+      background: color-mix(in srgb, var(--bg) 18%, transparent);
+      color: inherit
+    }
+
+    .txbar button.txdel {
+      background: var(--bad);
+      color: #fff
+    }
+
     #finBody .txdrop {
       outline: 2px solid var(--accent);
       outline-offset: -2px;
@@ -12945,7 +12992,7 @@ function renderFin(){
   var rr=document.getElementById("fin-rate-row");rr.hidden=sub!=="debt";rr.style.display=sub==="debt"?"flex":"none";
   document.getElementById("fin-in").placeholder=sub==="debt"?"500k Nam tiền ăn":"45k phở bò · 1tr2 tiền điện · +15tr lương";
   if(sub==="bud")renderBud(top,body);else if(sub==="debt")renderDebt(top,body);else renderTx(top,body);
-  renderFinCats();updDue();
+  renderFinCats();updDue();if(window.txSelApply)window.txSelApply();
 }
 var composerSeen=true,userTouched=false;
 var MQM=window.matchMedia("(max-width:700px),(pointer:coarse)");
@@ -14665,9 +14712,11 @@ new MutationObserver(function(ms){ms.forEach(function(m){
 })();
 
 
-/* Kéo thả giao dịch: giữ (chuột: kéo luôn; cảm ứng: giữ ~0,4 giây) rồi kéo vào cụm ngày hoặc cụm tag cần chuyển tới */
+/* Chọn nhiều + kéo thả giao dịch: giữ lâu một dòng để chọn (vào chế độ chọn nhiều), chạm thêm dòng khác để chọn tiếp,
+   rồi kéo một dòng đã chọn vào cụm ngày / cụm tag để chuyển cả nhóm. Chuột: kéo là chuyển luôn; Ctrl/Shift + bấm cũng chọn được. */
 (function(){
-  var dr=null,sup=0,ghost=null,raf=0,lastY=0;
+  var dr=null,sup=0,ghost=null,raf=0,lastY=0,sel={},bar=null;
+  function selIds(){return Object.keys(sel).filter(function(k){var x=findFin(k);return x&&!x.del})}
   function row(el){return el&&el.closest?el.closest("#finBody .txw[data-id]"):null}
   function scroller(el){while(el&&el!==document.body&&el.nodeType===1){var cs=getComputedStyle(el);if(/(auto|scroll)/.test(cs.overflowY)&&el.scrollHeight>el.clientHeight+2)return el;el=el.parentElement}return document.scrollingElement||document.documentElement}
   function hit(x,y){
@@ -14682,22 +14731,40 @@ new MutationObserver(function(ms){ms.forEach(function(m){
     if(!t)return null;var nd=t.day||x.day,nc=x.cat;
     if(t.gk){var i=t.gk.indexOf(":");if(t.gk.slice(0,i)===x.t)nc=t.gk.slice(i+1)}
     return(nd===x.day&&nc===x.cat)?null:{day:nd,cat:nc}}
+  function planAll(ids,t){var any=false,res={};ids.forEach(function(id){var x=findFin(id),p=x&&plan(x,t);if(p){res[id]=p;any=true}});return any?res:null}
   function clr(){Array.prototype.forEach.call(document.querySelectorAll("#finBody .txdrop"),function(e){e.classList.remove("txdrop")})}
+  /* hiện trạng chọn: tô dòng, thanh "Đã chọn N" */
+  function apply(){
+    var ids=selIds(),cur={};ids.forEach(function(k){cur[k]=1});sel=cur;
+    if(ids.length&&typeof sub!=="undefined"&&sub!=="tx"){sel={};ids=[]}
+    Array.prototype.forEach.call(document.querySelectorAll("#finBody .txw[data-id]"),function(r){r.classList.toggle("txsel",!!sel[r.dataset.id])});
+    var n=ids.length;document.body.classList.toggle("txselmode",n>0);
+    if(n){
+      if(!bar){bar=document.createElement("div");bar.id="txbar";bar.className="txbar";bar.setAttribute("role","toolbar");
+        bar.innerHTML='<span class="txn"></span><button type="button" data-txs="del" class="txdel">Xóa</button><button type="button" data-txs="clr">Bỏ chọn</button>';document.body.appendChild(bar)}
+      bar.querySelector(".txn").textContent="Đã chọn "+n+" khoản";bar.hidden=false}
+    else if(bar)bar.hidden=true}
+  window.txSelApply=apply;
+  function toggle(id){if(sel[id])delete sel[id];else sel[id]=1;apply()}
+  function hold(){
+    if(!dr||dr.on||dr.held)return;dr.held=true;
+    if(!sel[dr.id])sel[dr.id]=1;apply();dr.row.classList.remove("txpress");
+    try{if(navigator.vibrate)navigator.vibrate(14)}catch(e){}}
   function begin(){
     if(!dr||dr.on)return;dr.on=true;clearTimeout(dr.tm);
     var x=findFin(dr.id);if(!x){end(true);return}
-    document.body.classList.add("txdrag");dr.row.classList.remove("txpress");dr.row.classList.add("txdragging");
+    var all=selIds();dr.ids=(sel[dr.id]&&all.length>1)?all:[dr.id];
+    document.body.classList.add("txdrag");dr.row.classList.remove("txpress");
+    dr.ids.forEach(function(id){var r=document.querySelector('#finBody .txw[data-id="'+id+'"]');if(r)r.classList.add("txdragging")});
     try{window.getSelection().removeAllRanges()}catch(e){}
     ghost=document.createElement("div");ghost.className="txghost";
-    ghost.innerHTML="<span>"+esc(x.desc||"")+"</span><span>"+(x.t==="in"?"+":"")+money(x.amt)+"</span>";
+    ghost.innerHTML=dr.ids.length>1?"<span>"+dr.ids.length+" khoản</span><span></span>":"<span>"+esc(x.desc||"")+"</span><span>"+(x.t==="in"?"+":"")+money(x.amt)+"</span>";
     document.body.appendChild(ghost);move(dr.x,dr.y);
-    try{if(navigator.vibrate)navigator.vibrate(12)}catch(e){}
     dr.sc=scroller(document.getElementById("finBody"));loop()}
   function move(cx,cy){
     dr.x=cx;dr.y=cy;lastY=cy;
     if(ghost)ghost.style.transform="translate3d("+(cx+14)+"px,"+(cy+10)+"px,0)";
-    clr();var x=findFin(dr.id),t=hit(cx,cy),p=x&&plan(x,t);
-    dr.p=p;if(p&&t)t.el.classList.add("txdrop")}
+    clr();var t=hit(cx,cy);dr.p=planAll(dr.ids,t);if(dr.p&&t)t.el.classList.add("txdrop")}
   function loop(){
     if(!dr||!dr.on)return;
     var sc=dr.sc,doc=sc===document.scrollingElement||sc===document.documentElement,
@@ -14707,37 +14774,55 @@ new MutationObserver(function(ms){ms.forEach(function(m){
     raf=requestAnimationFrame(loop)}
   function end(cancel){
     if(!dr)return;var d=dr;dr=null;clearTimeout(d.tm);cancelAnimationFrame(raf);clr();
-    d.row.classList.remove("txpress","txdragging");document.body.classList.remove("txdrag");
+    d.row.classList.remove("txpress");document.body.classList.remove("txdrag");
+    Array.prototype.forEach.call(document.querySelectorAll("#finBody .txdragging"),function(r){r.classList.remove("txdragging")});
     if(ghost){ghost.remove();ghost=null}
-    if(!d.on)return;
+    if(!d.on){if(d.held)sup=Date.now()+450;return}
     sup=Date.now()+450;
-    var x=findFin(d.id);if(cancel||!x||!d.p)return;
-    var p=d.p,sn=snapOf([x]),parts=[];
-    if(p.day!==x.day)parts.push(dayLabel(p.day));
-    if(p.cat!==x.cat)parts.push(catName({t:x.t,cat:p.cat}));
-    x.day=p.day;x.cat=p.cat;x.upd=Date.now();swipedId=null;touch();
-    setUndo("Đã chuyển “"+(x.desc||"khoản này")+"” sang "+parts.join(" · "),sn)}
+    if(cancel||!d.p)return;
+    var ch=d.ids.map(findFin).filter(function(x){return x&&d.p[x.id]});if(!ch.length)return;
+    var sn=snapOf(ch),pd={},pc={},now=Date.now();
+    ch.forEach(function(x){var p=d.p[x.id];
+      if(p.day!==x.day)pd[p.day]=1;
+      if(p.cat!==x.cat)pc[catName({t:x.t,cat:p.cat})]=1;
+      x.day=p.day;x.cat=p.cat;x.upd=now});
+    var parts=Object.keys(pd).sort().map(dayLabel).concat(Object.keys(pc));
+    sel={};swipedId=null;touch();
+    setUndo(ch.length>1?"Đã chuyển "+ch.length+" khoản sang "+parts.join(" · "):"Đã chuyển “"+(ch[0].desc||"khoản này")+"” sang "+parts.join(" · "),sn)}
   document.addEventListener("pointerdown",function(e){
     if(dr||(e.pointerType==="mouse"&&e.button!==0))return;
     var r=row(e.target);if(!r||e.target.closest("button,a,input,textarea,select,img,.swact"))return;
     if(!e.target.closest(".swcard")||r.classList.contains("swiped"))return;
     var id=r.dataset.id;if(editing==id)return;
-    dr={id:id,row:r,x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,pid:e.pointerType,on:false,p:null};
-    if(e.pointerType!=="mouse"){r.classList.add("txpress");dr.tm=setTimeout(begin,400)}},true);
+    dr={id:id,row:r,x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,pid:e.pointerType,on:false,held:false,p:null,ids:[id]};
+    if(e.pointerType!=="mouse")r.classList.add("txpress");
+    dr.tm=setTimeout(hold,sel[id]?220:450)},true);
   document.addEventListener("pointermove",function(e){
-    if(!dr)return;var dx=e.clientX-dr.sx,dy=e.clientY-dr.sy;
+    if(!dr)return;var mv=Math.abs(e.clientX-dr.sx)+Math.abs(e.clientY-dr.sy);
     if(!dr.on){
-      if(dr.pid==="mouse"){if(Math.abs(dx)+Math.abs(dy)>6)begin()}
-      else if(Math.abs(dx)+Math.abs(dy)>10){clearTimeout(dr.tm);dr.row.classList.remove("txpress");dr=null;return}
+      if(dr.pid==="mouse"){if(mv>6){clearTimeout(dr.tm);begin()}}
+      else if(dr.held){if(mv>10)begin()}
+      else if(mv>10){clearTimeout(dr.tm);dr.row.classList.remove("txpress");dr=null;return}
       if(!dr||!dr.on)return}
     e.preventDefault();move(e.clientX,e.clientY)},{passive:false});
   document.addEventListener("pointerup",function(){end(false)});
   document.addEventListener("pointercancel",function(){if(dr&&dr.on&&dr.pid!=="mouse")return;end(true)});
-  document.addEventListener("keydown",function(e){if(e.key==="Escape")end(true)});
-  document.addEventListener("touchmove",function(e){if(dr&&dr.on&&e.cancelable)e.preventDefault()},{passive:false});
+  document.addEventListener("keydown",function(e){if(e.key!=="Escape")return;if(dr)end(true);else if(selIds().length){sel={};apply()}});
+  document.addEventListener("touchmove",function(e){if(dr&&(dr.on||dr.held)&&e.cancelable)e.preventDefault()},{passive:false});
   document.addEventListener("contextmenu",function(e){if(dr&&dr.pid!=="mouse"&&row(e.target))e.preventDefault()});
   document.addEventListener("dragstart",function(e){if(dr&&row(e.target))e.preventDefault()},true);
-  document.addEventListener("click",function(e){if(Date.now()<sup){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation()}},true);
+  /* chạm / bấm: đang ở chế độ chọn (hoặc giữ Ctrl/Shift) thì chọn - bỏ chọn dòng thay vì mở Sửa/Xóa */
+  document.addEventListener("click",function(e){
+    if(Date.now()<sup){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();return}
+    var r=row(e.target);
+    if(r&&!e.target.closest(".swact")&&(selIds().length||e.ctrlKey||e.metaKey||e.shiftKey)){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();toggle(r.dataset.id)}},true);
+  document.addEventListener("click",function(e){
+    var b=e.target.closest&&e.target.closest("#txbar [data-txs]");if(!b)return;
+    if(b.dataset.txs==="clr"){sel={};apply();return}
+    var ch=selIds().map(findFin);if(!ch.length)return;
+    var sn=snapOf(ch),now=Date.now();
+    ch.forEach(function(x){x.del=true;x.desc="";x.amt=0;x.upd=now});
+    sel={};swipedId=null;touch();setUndo("Đã xóa "+ch.length+" khoản",sn)});
 })();
 
 /* Xếp theo tag (Thu chi) + chạm tên mục ở Ngân sách để nhảy về nhóm tag đó */
