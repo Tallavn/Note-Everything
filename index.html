@@ -9695,6 +9695,29 @@
       color: var(--gc)
     }
 
+    .dh.dhx.tagsec .tsn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .dh.dhx.tagsec .tsi {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      flex: none;
+      border-radius: 9px;
+      font-style: normal;
+      color: var(--gc);
+      background: color-mix(in srgb, var(--gc) 14%, transparent)
+    }
+
+    .dh.dhx.tagsec .tsi svg {
+      display: block
+    }
+
     .tgc .tmg {
       display: flex;
       align-items: center;
@@ -12513,6 +12536,8 @@ function guessCat(desc,inc){
 }
 function catIdx(x){var l=x.t==="in"?INC:OUT,i;for(i=0;i<l.length;i++)if(l[i].k===x.cat)return i;return l.length-1}
 function catName(x){return(x.t==="in"?INC:OUT)[catIdx(x)].n}
+var FIN_IC={an:"bat",di:"xe",sam:"gio",hd:"hoadon",gt:"phim",sk:"kham",date:"tim",khac:"the",luong:"tien",thuong:"qua",thukhac:"vi"};
+function finIcon(x){return icSvg(FIN_IC[x.cat]||"the",18)}
 function catColor(x){return x.t==="in"?"var(--good)":"var(--k"+catIdx(x)+")"}
 var ICO={an:'<path d="M7 3v8M4 3v5a3 3 0 0 0 6 0V3M7 11v10"/><path d="M17 21V3c-2.5 1.5-4 4.5-4 8h4"/>',
 di:'<path d="M3 17v-4l2-6h14l2 6v4z"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/>',
@@ -12812,7 +12837,7 @@ function renderTx(top,body){
       var arr2=tg[gk].sort(function(a,b){return a.day<b.day?1:(a.day>b.day?-1:(b.ts||0)-(a.ts||0))}),sm=0;
       arr2.forEach(function(y){sm+=y.amt});
       var x0=arr2[0];
-      h+='<div class="dh dhx tagsec'+(tagFocus===gk?' tagfocus':'')+'" data-tagsec="'+gk+'" style="--gc:'+catColor(x0)+'"><span>'+esc(catName(x0))+'</span><span>'+(x0.t==="in"?"+":"")+money(sm)+' · '+arr2.length+'</span></div><div class="tgc"><div class="tgg one" style="--gc:'+catColor(x0)+';padding-left:0">'+tagRowsHtml(gk,arr2)+'</div></div>'});
+      h+='<div class="dh dhx tagsec'+(tagFocus===gk?' tagfocus':'')+'" data-tagsec="'+gk+'" style="--gc:'+catColor(x0)+'"><span class="tsn"><i class="tsi">'+finIcon(x0)+'</i>'+esc(catName(x0))+'</span><span>'+(x0.t==="in"?"+":"")+money(sm)+' · '+arr2.length+'</span></div><div class="tgc"><div class="tgg one" style="--gc:'+catColor(x0)+';padding-left:0">'+tagRowsHtml(gk,arr2)+'</div></div>'});
   }
   else{
     var g={};items.forEach(function(x){(g[x.day]=g[x.day]||[]).push(x)});
