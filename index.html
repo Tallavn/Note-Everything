@@ -10522,6 +10522,19 @@ html body main #notesView #list .swrap>.note.swcard>.nmain{flex:1 1 0;min-width:
 #icSheet .icgh{font-size:var(--fs-xs);font-weight:700;color:var(--muted);letter-spacing:.02em;margin:10px 2px 0}
 #icSheet .icgh:first-child{margin-top:0}
 </style>
+<style id="ghim-css">
+/* Ghim ghi chú / chi tiêu */
+.swact{width:192px}
+.swact .sw-pin{flex:0 0 60px;background:var(--c-amber-bg);color:var(--c-amber);pointer-events:auto}
+.ghim-b{display:inline-flex;align-items:center;vertical-align:-2px;margin-right:5px;color:var(--c-amber)}
+.ghim-b svg{width:13px;height:13px;fill:currentColor}
+.dgrp.ghim-hd{display:flex;align-items:center;gap:6px;color:var(--c-amber)}
+.dgrp.ghim-hd svg{width:14px;height:14px;fill:currentColor}
+.dgrp.ghim-hd b{font-weight:500;color:var(--muted)}
+.dh.dhx.ghim-hd span:first-child{color:var(--c-amber);display:inline-flex;align-items:center;gap:6px}
+.dh.dhx.ghim-hd svg{width:16px;height:16px;fill:currentColor}
+.hidecat .ghimd .cattag{display:inline-block}
+</style>
 </head>
 
 <body>
@@ -11704,6 +11717,9 @@ var IC_EDIT='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-w
 var IC_DEL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v5M14 11v5"/></svg>';
 var IC_TEL='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>';
 var IC_PIN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="10" r="2.6"/></svg>';
+var IC_PUSH='<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4h6l-1 6 3 3v2H7v-2l3-3-1-6Z"/><path d="M12 15v6" fill="none"/></svg>';
+var GHIM_B='<span class="ghim-b" title="Đã ghim" aria-label="Đã ghim">'+IC_PUSH+'</span>';
+function ghimBtn(x){var t=x.pin?"Bỏ ghim":"Ghim";return'<button type="button" class="sw-pin" data-ghim="'+x.id+'" aria-label="'+t+'">'+IC_PUSH+'<span>'+t+'</span></button>'}
 function dayStart(ts){var d=new Date(ts);return new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()}
 function dayDiff(ts){return Math.round((dayStart(Date.now())-dayStart(ts))/864e5)}
 function hm(ts){var d=new Date(ts);return("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2)}
@@ -12170,9 +12186,9 @@ document.addEventListener("input",function(e){if(e.target&&e.target.id==="icQ")i
 document.addEventListener("keydown",function(e){var s=document.getElementById("icSheet");if(s&&!s.hidden&&e.key==="Escape"){e.preventDefault();e.stopPropagation();icShut()}},true);
 function noteCard(x,grouped){
   var c=CATS[x.cat]||CATS.other,open=swipedId==x.id,mem=tagHas(x.cat,"t"),done=mem&&!!x.done,ml=mapLink(x),has=x.link||MAPRE.test(x.text),ts=x.ts||0,h;
-  h='<div class="swrap'+(open?' swiped':'')+'" data-id="'+x.id+'"><div class="swact"><button type="button" class="sw-edit" data-edit="'+x.id+'" aria-label="Sửa ghi chú">'+IC_EDIT+'<span>Sửa</span></button><button type="button" class="sw-del" data-del="'+x.id+'" aria-label="Xóa ghi chú">'+IC_DEL+'<span>Xóa</span></button></div>';
+  h='<div class="swrap'+(open?' swiped':'')+(x.pin?' ghimd':'')+'" data-id="'+x.id+'"><div class="swact"><button type="button" class="sw-edit" data-edit="'+x.id+'" aria-label="Sửa ghi chú">'+IC_EDIT+'<span>Sửa</span></button>'+ghimBtn(x)+'<button type="button" class="sw-del" data-del="'+x.id+'" aria-label="Xóa ghi chú">'+IC_DEL+'<span>Xóa</span></button></div>';
   h+='<div class="note swcard acts-row cat-'+c.c+(done?' done':'')+'" data-id="'+x.id+'" role="button" tabindex="0" aria-expanded="'+open+'">'+icBtn(x,c,1);
-  h+='<div class="nmain"><div class="txt hasic'+(open?' open':'')+'">'+icBtn(x,c)+'<span class="tw">'+linkify(ml?stripAddr(x):x.text)+'</span></div>'+(x.note?'<div class="hint" style="margin:4px 0 0;white-space:pre-wrap;word-break:break-word">'+esc(x.note)+'</div>':'')+'<div class="meta"><button class="tag cattag" data-pick="'+x.id+'" title="Bấm để chọn loại" style="background:var(--c-'+c.c+'-bg);color:var(--c-'+c.c+')">'+c.n+'</button>';
+  h+='<div class="nmain"><div class="txt hasic'+(open?' open':'')+'">'+icBtn(x,c)+'<span class="tw">'+linkify(ml?stripAddr(x):x.text)+'</span></div>'+(x.note?'<div class="hint" style="margin:4px 0 0;white-space:pre-wrap;word-break:break-word">'+esc(x.note)+'</div>':'')+'<div class="meta">'+(x.pin?GHIM_B:'')+'<button class="tag cattag" data-pick="'+x.id+'" title="Bấm để chọn loại" style="background:var(--c-'+c.c+'-bg);color:var(--c-'+c.c+')">'+c.n+'</button>';
   if(ml){var ad=compactAddr(shortAddr(x)),lb=(has?'Mở bản đồ':'Tìm trên bản đồ')+(ad?': '+ad:'');h+='<a class="pin'+(has?'':' ghost')+'" data-pend="'+(has?'':x.id)+'" href="'+esc(ml.u)+'" target="_blank" rel="noopener noreferrer" aria-label="'+esc(lb)+'" title="'+esc(lb)+'">'+IC_PIN+(ad?'<span>'+esc(ad)+'</span>':'')+'</a>'}
   var tl=(!x.fin&&(ml||tagHas(x.cat,"l")))?telOf(x):"";if(tl)h+='<a class="tel" href="tel:'+tl+'" aria-label="Gọi '+telFmt(tl)+'" title="Gọi '+telFmt(tl)+'">'+IC_TEL+'<span>'+telFmt(tl)+'</span></a>';
   if(x.score>0)h+='<span class="rt" style="--c:'+scCol(x.score)+'" title="Điểm '+scTxt(x.score)+'/10" aria-label="'+scTxt(x.score)+' điểm trên 10">'+scTxt(x.score)+'</span>';
@@ -12283,13 +12299,16 @@ function renderNotes(){
   if(filter==="all"&&bycat){
     var ord=function(x){var i=KEYS.indexOf(x.cat);return i<0?KEYS.length:i};
     list=list.map(function(x,i){return{x:x,i:i}}).sort(function(a,b){return(ord(a.x)-ord(b.x))||(a.i-b.i)}).map(function(o){return o.x});
-    list.forEach(function(x){var k=CATS[x.cat]?x.cat:"other";cnt[k]=(cnt[k]||0)+1});
+    list.forEach(function(x){if(x.pin)return;var k=CATS[x.cat]?x.cat:"other";cnt[k]=(cnt[k]||0)+1});
     gks=KEYS.filter(function(k){return cnt[k]});
   }
+  var pinList=list.filter(function(x){return x.pin}),pinHd=false;
+  if(pinList.length)list=pinList.concat(list.filter(function(x){return !x.pin}));
   var grouped=false,lastDay=null,lastArea=null,lastCat=null;
   if(!window.cgCol){window.cgCol={};try{window.cgCol=JSON.parse(localStorage.getItem("cgcol")||"{}")||{}}catch(e){}}
   L.innerHTML=list.map(function(x){
     var head="";
+    if(x.pin){if(!pinHd){pinHd=true;head='<div class="dgrp ghim-hd">'+IC_PUSH+'<span>Đã ghim</span><b>'+pinList.length+'</b></div>'}lastCat=null;if(editing==x.id)return head+'<div class="note">'+editForm(x)+'</div>';return head+noteCard(x,grouped)}
     if(grouped){var dk=dayStart(x.ts||0);if(dk!==lastDay){lastDay=dk;head='<div class="dgrp">'+dayLabelN(x.ts||0)+'</div>'}}
     if(sortBy==="area"){var al=areaLabel(x);if(al!==lastArea){lastArea=al;head='<div class="dgrp">'+esc(al)+'</div>'}}
     if(filter==="all"&&bycat){var gk=CATS[x.cat]?x.cat:"other";var cv=window.cgCol[gk]|0;if(cv===2&&matchMedia('(min-width:1000px) and (pointer:fine)').matches)cv=0;var isCol=cv===1&&!q,noImg=cv===2;if(gk!==lastCat){head='<div class="cgrp'+(cv===1?' col':cv===2?' mid':'')+'" data-gk="'+gk+'" role="button" aria-expanded="'+(cv!==1)+'" style="color:var(--c-'+CATS[gk].c+')"><i style="background:var(--c-'+CATS[gk].c+')"></i>'+esc(CATS[gk].n)+'<b>'+cnt[gk]+'</b>'+cgIco(cv)+'</div>'}lastCat=gk;if(editing==x.id)return head+'<div class="note">'+editForm(x)+'</div>';if(isCol)return head;window.__noImg=noImg;var nc=noteCard(x,grouped);window.__noImg=false;return head+nc}
@@ -12928,7 +12947,7 @@ function tagRowsHtml(gk,arr){
 function txRowHtml(x,dl){
   if(editing==x.id)return'<div class="tx" style="display:block">'+editForm(x)+'</div>';
   var sw=swipedId==x.id;
-  return'<div class="swrap txw'+(sw?' swiped':'')+'" data-id="'+x.id+'"><div class="swact"><button type="button" class="sw-edit" data-edit="'+x.id+'" aria-label="Sửa giao dịch">'+IC_EDIT+'<span>Sửa</span></button><button type="button" class="sw-del" data-fdel="'+x.id+'" aria-label="Xóa giao dịch">'+IC_DEL+'<span>Xóa</span></button></div><div class="tx swcard" data-id="'+x.id+'" role="button" tabindex="0" aria-expanded="'+sw+'"><div><div class="tdesc">'+(dl?'<span class="hint" style="margin:0 8px 0 0;font-weight:400">'+dl+'</span>':'')+esc(x.desc||"")+'</div>'+(x.note?'<div class="hint" style="margin:2px 0;white-space:pre-wrap;word-break:break-word">'+esc(x.note)+'</div>':'')+imgStrip(x)+'</div><div class="tamt '+(x.t==="in"?"good":"bad")+'">'+(x.t==="in"?"+":"")+money(x.amt)+'</div></div></div>';
+  return'<div class="swrap txw'+(sw?' swiped':'')+'" data-id="'+x.id+'"><div class="swact"><button type="button" class="sw-edit" data-edit="'+x.id+'" aria-label="Sửa giao dịch">'+IC_EDIT+'<span>Sửa</span></button>'+ghimBtn(x)+'<button type="button" class="sw-del" data-fdel="'+x.id+'" aria-label="Xóa giao dịch">'+IC_DEL+'<span>Xóa</span></button></div><div class="tx swcard" data-id="'+x.id+'" role="button" tabindex="0" aria-expanded="'+sw+'"><div><div class="tdesc">'+(x.pin?GHIM_B:'')+(dl?'<span class="hint" style="margin:0 8px 0 0;font-weight:400">'+dl+'</span>':'')+esc(x.desc||"")+'</div>'+(x.note?'<div class="hint" style="margin:2px 0;white-space:pre-wrap;word-break:break-word">'+esc(x.note)+'</div>':'')+imgStrip(x)+'</div><div class="tamt '+(x.t==="in"?"good":"bad")+'">'+(x.t==="in"?"+":"")+money(x.amt)+'</div></div></div>';
 }
 function renderTx(top,body){
   var key=mkey(ym.y,ym.m),ms=monthSum(ym.y,ym.m),bl=balance(),days=new Date(ym.y,ym.m,0).getDate(),dueAll=recDue(),po=0,pi=0,td0=today();
@@ -12962,8 +12981,10 @@ function renderTx(top,body){
   if(all.length)h+='<div class="tagbar"><button type="button" class="chip" data-tagmode="1" aria-pressed="'+tagMode+'">Xếp theo tag</button></div>';
   var items=all.filter(function(x){return(!fcat||(x.t==="out"&&x.cat===fcat))&&(!fday||x.day===fday)});
   if(fcat)h+='<div class="hint" style="margin:0 2px 4px">Đang lọc mục '+esc((OUT.filter(function(c){return c.k===fcat})[0]||{n:""}).n)+'. Bấm lại mục đó để bỏ lọc.</div>';
+  var gPin=fins().filter(function(x){return x.k==="tx"&&x.pin&&x.day&&(!fcat||(x.t==="out"&&x.cat===fcat))&&(!fday||x.day===fday)}).sort(function(a,b){return a.day<b.day?1:(a.day>b.day?-1:(b.ts||0)-(a.ts||0))});
+  if(gPin.length)h+='<div class="dh dhx ghim-hd"><span>'+IC_PUSH+'Đã ghim</span><span>'+gPin.length+'</span></div><div class="tgc"><div class="tgg one" style="--gc:var(--c-amber);padding-left:0">'+gPin.map(function(y){var d2=y.day.split("-");return txRowHtml(y,(+d2[2])+"/"+(+d2[1]))}).join("")+'</div></div>';
   var dueH=(key===td0.slice(0,7)&&!fcat&&(!fday||fday===td0))?dueRowsHtml():"",dueShown=false;
-  if(dueH&&!items.some(function(x){return x.day===td0})){h+='<div class="dh dhx"><span>'+dayLabel(td0)+'</span><span></span></div>'+dueH;dueH="";dueShown=true}
+  if(dueH&&!items.some(function(x){return x.day===td0&&!x.pin})){h+='<div class="dh dhx"><span>'+dayLabel(td0)+'</span><span></span></div>'+dueH;dueH="";dueShown=true}
   if(!items.length){if(!dueShown)h+='<div class="empty">'+(all.length?"Không có giao dịch nào khớp.":"Tháng này chưa có giao dịch. Bấm nút + để thêm.")+'</div>'}
   else if(tagMode){
     if(dueH){h+='<div class="dh dhx"><span>Đến hạn</span><span></span></div>'+dueH;dueH="";dueShown=true}
@@ -12973,14 +12994,16 @@ function renderTx(top,body){
     to.forEach(function(gk){
       var arr2=tg[gk].sort(function(a,b){return a.day<b.day?1:(a.day>b.day?-1:(b.ts||0)-(a.ts||0))}),sm=0;
       arr2.forEach(function(y){sm+=y.amt});
+      var arr2up=arr2.filter(function(y){return !y.pin});if(!arr2up.length)return;
       var x0=arr2[0];
-      h+='<div class="dh dhx tagsec'+(tagFocus===gk?' tagfocus':'')+'" data-tagsec="'+gk+'" style="--gc:'+catColor(x0)+'"><span class="tsn"><i class="tsi">'+finIcon(x0)+'</i>'+esc(catName(x0))+'</span><span>'+(x0.t==="in"?"+":"")+money(sm)+' · '+arr2.length+'</span></div><div class="tgc"><div class="tgg one" data-dgk="'+gk+'" style="--gc:'+catColor(x0)+';padding-left:0">'+tagRowsHtml(gk,arr2)+'</div></div>'});
+      h+='<div class="dh dhx tagsec'+(tagFocus===gk?' tagfocus':'')+'" data-tagsec="'+gk+'" style="--gc:'+catColor(x0)+'"><span class="tsn"><i class="tsi">'+finIcon(x0)+'</i>'+esc(catName(x0))+'</span><span>'+(x0.t==="in"?"+":"")+money(sm)+' · '+arr2.length+'</span></div><div class="tgc"><div class="tgg one" data-dgk="'+gk+'" style="--gc:'+catColor(x0)+';padding-left:0">'+tagRowsHtml(gk,arr2up)+'</div></div>'});
   }
   else{
     var g={};items.forEach(function(x){(g[x.day]=g[x.day]||[]).push(x)});
     Object.keys(g).sort().reverse().forEach(function(day){
       var arr=g[day].sort(function(a,b){return b.ts-a.ts}),ds=0;
       arr.forEach(function(x){if(x.t==="out")ds+=x.amt});
+      var arrUp=arr.filter(function(x){return !x.pin});if(!arrUp.length)return;arr=arrUp;
       h+='<div class="dh dhx" data-dday="'+day+'"><span>'+dayLabel(day)+'</span><span>'+(ds?money(ds):"")+'</span></div>';
       if(day===td0&&dueH){h+=dueH;dueH="";dueShown=true}
       var gm={},go=[];
@@ -12996,7 +13019,7 @@ function renderTx(top,body){
         if(xg!==lastG){if(lastG!=="")h+='</div>';lastG=xg;var gs=0,gn=0;gm[xg].forEach(function(y){gn++;gs+=y.amt});h+='<div class="tgg" data-dday="'+day+'" data-dgk="'+xg+'" style="--gc:'+catColor(x)+'"><div class="tgh">'+catIco(x)+'<span>'+esc(catName(x))+'</span></div>'}
         if(editing==x.id){h+='<div class="tx" style="display:block">'+editForm(x)+'</div>';return}
         var sw=swipedId==x.id,one=false;
-        h+='<div class="swrap txw'+(sw?' swiped':'')+'" data-id="'+x.id+'"><div class="swact"><button type="button" class="sw-edit" data-edit="'+x.id+'" aria-label="Sửa giao dịch">'+IC_EDIT+'<span>Sửa</span></button><button type="button" class="sw-del" data-fdel="'+x.id+'" aria-label="Xóa giao dịch">'+IC_DEL+'<span>Xóa</span></button></div><div class="tx swcard" data-id="'+x.id+'" role="button" tabindex="0" aria-expanded="'+sw+'"><div>'+(one?'<div class="tsl">'+catIco(x)+'<div><div class="tdesc">'+esc(x.desc||"")+'</div><div class="tcat">'+esc(catName(x))+'</div></div></div>':'<div class="tdesc">'+esc(x.desc||"")+'</div>')+(x.note?'<div class="hint" style="margin:2px 0;white-space:pre-wrap;word-break:break-word">'+esc(x.note)+'</div>':'')+imgStrip(x)+'</div><div class="tamt '+(x.t==="in"?"good":"bad")+'">'+(x.t==="in"?"+":"")+money(x.amt)+'</div>'+'</div></div>';
+        h+='<div class="swrap txw'+(sw?' swiped':'')+'" data-id="'+x.id+'"><div class="swact"><button type="button" class="sw-edit" data-edit="'+x.id+'" aria-label="Sửa giao dịch">'+IC_EDIT+'<span>Sửa</span></button>'+ghimBtn(x)+'<button type="button" class="sw-del" data-fdel="'+x.id+'" aria-label="Xóa giao dịch">'+IC_DEL+'<span>Xóa</span></button></div><div class="tx swcard" data-id="'+x.id+'" role="button" tabindex="0" aria-expanded="'+sw+'"><div>'+(one?'<div class="tsl">'+catIco(x)+'<div><div class="tdesc">'+esc(x.desc||"")+'</div><div class="tcat">'+esc(catName(x))+'</div></div></div>':'<div class="tdesc">'+esc(x.desc||"")+'</div>')+(x.note?'<div class="hint" style="margin:2px 0;white-space:pre-wrap;word-break:break-word">'+esc(x.note)+'</div>':'')+imgStrip(x)+'</div><div class="tamt '+(x.t==="in"?"good":"bad")+'">'+(x.t==="in"?"+":"")+money(x.amt)+'</div>'+'</div></div>';
       });
       if(lastT!=="")h+=(lastG!==""?'</div>':'')+'</div>';
     });
@@ -14878,6 +14901,16 @@ document.addEventListener("keydown",function(e){if(e.key!=="Enter"&&e.key!==" ")
 /* Dự án (màn rộng): chọn dự án ở cột trái, chi tiết ở bên phải */
 document.addEventListener("click",function(e){var b=e.target.closest&&e.target.closest("[data-plsel]");if(!b)return;plSel=+b.dataset.plsel||b.dataset.plsel;renderPlan()});
 if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan")renderPlan()});
+
+/* Ghim ghi chú / chi tiêu: nút Ghim trong thao tác vuốt (và nút trong khung đọc trên máy tính). x.pin=1 khi đang ghim; bỏ ghim thì xóa khóa. */
+document.addEventListener("click",function(e){
+  var b=e.target.closest("[data-ghim]");if(!b)return;
+  var x=notes.find(function(n){return n.id==b.dataset.ghim});if(!x)return;
+  if(x.pin)delete x.pin;else x.pin=1;
+  x.upd=Date.now();swipedId=null;
+  if(x.fin)touch();else{save();render();sync()}
+  toast(x.pin?"Đã ghim":"Đã bỏ ghim");
+});
 </script>
   <script>
     /* Kéo xuống ở đầu trang để làm mới (thay cho cơ chế của trình duyệt) */
@@ -15533,7 +15566,7 @@ if(PLD.addEventListener)PLD.addEventListener("change",function(){if(tab==="plan"
         var meta = content.querySelector('.meta'); if (meta) content.insertBefore(meta, content.firstChild); detail.appendChild(content);
         var check = card.querySelector('.ck'); if (check) { var completion = check.cloneNode(true), completionText = document.createElement('span'); completionText.textContent = check.getAttribute('aria-checked') === 'true' ? 'Đã hoàn thành' : 'Đánh dấu hoàn thành'; completion.appendChild(completionText); detail.appendChild(completion) }
         var actions = document.createElement('div'); actions.className = 'ne-detail-actions';
-        [['Sửa ghi chú', 'edit'], ['Xóa', 'del']].forEach(function (a) { var b = document.createElement('button'); b.type = 'button'; b.textContent = a[0]; b.dataset[a[1]] = selected; actions.appendChild(b) }); toolbar.appendChild(actions);
+        [['Sửa ghi chú', 'edit'], [card.parentElement.classList.contains('ghimd') ? 'Bỏ ghim' : 'Ghim', 'ghim'], ['Xóa', 'del']].forEach(function (a) { var b = document.createElement('button'); b.type = 'button'; b.textContent = a[0]; b.dataset[a[1]] = selected; actions.appendChild(b) }); toolbar.appendChild(actions);
       }
       list.addEventListener('click', function (e) { if (!mq.matches || e.target.closest('a,button,input,textarea,select,label')) return; var card = e.target.closest('.note.swcard'); if (!card) return; e.preventDefault(); e.stopPropagation(); selected = card.dataset.id; paint() }, true);
       list.addEventListener('keydown', function (e) { if (!mq.matches || !e.target.matches('.note.swcard') || !['Enter', ' '].includes(e.key)) return; e.preventDefault(); e.stopPropagation(); selected = e.target.dataset.id; paint() }, true);
