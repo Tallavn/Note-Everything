@@ -13869,13 +13869,20 @@ document.addEventListener("click",function(e){
 document.addEventListener("visibilitychange",function(){if(!document.hidden)recRun()});
 function renderBud(top,body){
   var key=mkey(ym.y,ym.m),b=budNote(),lim=(b&&b.lim)||{},inc=(b&&b.inc)||0,sp={},tot=0,L=0;
-  fins().forEach(function(x){if(x.k==="tx"&&x.t==="out"&&x.day&&x.day.indexOf(key)===0){sp[x.cat]=(sp[x.cat]||0)+x.amt;tot+=x.amt}});
+  var sd=Math.min(28,Math.max(1,(b&&+b.sd)||1)),ps=ym.y+"-"+p2(ym.m)+"-"+p2(sd),nmo=ym.m===12?1:ym.m+1,nyr=ym.m===12?ym.y+1:ym.y,pe=nyr+"-"+p2(nmo)+"-"+p2(sd),csp={};
+  var cus0=(b&&Array.isArray(b.cus))?b.cus:[],cky=cus0.map(function(c){var f=norm(c.n||"").replace(/\s+/g," ").trim(),g=f.replace(/^(tien|phi|khoan|chi)\s+/,"").trim();return{id:c.id,f:" "+f+" ",g:g&&g!==f?" "+g+" ":""}});
+  fins().forEach(function(x){if(x.k==="tx"&&x.t==="out"&&x.day&&x.day>=ps&&x.day<pe){
+    var tn=norm((x.desc||"")+" "+(x.note||"")).replace(/\s+/g," "),hit=null;
+    for(var ci=0;ci<cky.length;ci++){if(cky[ci].f.trim()&&(tn.indexOf(cky[ci].f)>-1||(cky[ci].g&&tn.indexOf(cky[ci].g)>-1))){hit=cky[ci];break}}
+    if(hit)csp[hit.id]=(csp[hit.id]||0)+x.amt;else sp[x.cat]=(sp[x.cat]||0)+x.amt;
+    tot+=x.amt}});
   var hid=(b&&Array.isArray(b.hid))?b.hid:[],off=(b&&Array.isArray(b.off))?b.off:[];OUT.forEach(function(c){if(hid.indexOf(c.k)<0&&off.indexOf(c.k)<0)L+=lim[c.k]||0});
   var cus=(b&&Array.isArray(b.cus))?b.cus:[];cus.forEach(function(c){if(off.indexOf("c"+c.id)<0)L+=c.v||0});
   top.innerHTML='<div class="mnav"><button data-mo="-1" aria-label="Tháng trước">‹</button><b>Tháng '+ym.m+'/'+ym.y+'</b><button data-mo="1" aria-label="Tháng sau">›</button></div>';
   var keep=inc-L,q;
   q=L?tot/L:0;
-  var h='<div class="pc"><div class="prt"><span>Thu dự kiến</span><input class="plim" data-plc="inc" value="'+(inc?numStr(inc):"")+'" placeholder="0" aria-label="Thu dự kiến"></div><div class="prt" style="margin-top:6px"><span>Tổng hạn mức</span><b>'+money(L)+'</b></div>'+
+  var sdo="";for(var si=1;si<=28;si++)sdo+='<option value="'+si+'"'+(si===sd?' selected':'')+'>'+si+'</option>';
+  var h='<div class="pc"><div class="prt"><span>Tháng bắt đầu từ ngày</span><select data-plc="sd" aria-label="Ngày bắt đầu tháng" style="flex:none;width:80px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:var(--r-sm);padding:6px 6px 6px 10px;font:inherit;font-size:var(--fs-xs)">'+sdo+'</select></div>'+(sd>1?'<div class="pm" style="margin:2px 0 6px">Kỳ này: '+sd+'/'+ym.m+' – '+(sd-1)+'/'+nmo+'</div>':'<div style="height:6px"></div>')+'<div class="prt"><span>Thu dự kiến</span><input class="plim" data-plc="inc" value="'+(inc?numStr(inc):"")+'" placeholder="0" aria-label="Thu dự kiến"></div><div class="prt" style="margin-top:6px"><span>Tổng hạn mức</span><b>'+money(L)+'</b></div>'+
     (inc&&L?'<div class="prt" style="margin-top:6px"><span>Dự kiến để dành</span><b class="'+(keep<0?'bad':'good')+'">'+(keep<0?"-":"")+money(keep)+'</b></div>':'')+
     (L?'<div class="pbar '+plBc(q)+'"><i style="width:'+Math.min(100,Math.round(q*100))+'%"></i></div><div class="pm" style="margin-top:6px">Đã chi '+money(tot)+' / '+money(L)+'</div>':'')+'</div><div class="pc">';
   var all=OUT.filter(function(c){return hid.indexOf(c.k)<0}).map(function(c){return{id:c.k,n:c.n,std:1,c:c}}).concat(cus.map(function(c){return{id:"c"+c.id,n:c.n,c:c}})),ord=(b&&b.ord)||[];
@@ -13886,11 +13893,11 @@ function renderBud(top,body){
     if(it.std){var c=it.c,l=lim[c.k]||0,s=sp[c.k]||0,q2=l?s/l:0;
       h+='<div class="prow" data-oid="'+it.id+'" style="cursor:pointer;'+(on?'':'opacity:.45;filter:grayscale(1);')+'" title="Chạm vào vùng trống để '+(on?'tắt':'bật')+'"><div class="prt"><span><button type="button" class="bnm" data-budgo="'+c.k+'" title="Xem các khoản chi của mục này">'+tg+c.n+'</button></span><input class="plim" data-plc="lim" data-k="'+c.k+'" value="'+(l?numStr(l):"")+'" placeholder="hạn mức" aria-label="Hạn mức '+c.n+'"></div><div class="prt pm" style="margin-top:2px"><span>Đã chi '+money(s)+'</span><span>'+
       (l?(q2>1?'<span class="po">vượt '+money(s-l)+'</span>':'<span class="'+(q2>=.85?'pw':'')+'">còn '+money(l-s)+'</span>'):'')+' <button type="button" class="lnk" style="padding:0" data-bud="sdel" data-k="'+c.k+'">Xóa</button>'+arrows+'</span></div>'+(l?'<div class="pbar '+plBc(q2)+'" style="margin-top:6px"><i style="width:'+Math.min(100,Math.round(q2*100))+'%"></i></div>':'')+'</div>'}
-    else{var c2=it.c;
-      h+='<div class="prow" data-oid="'+it.id+'" style="cursor:pointer;'+(on?'':'opacity:.45;filter:grayscale(1);')+'" title="Chạm vào vùng trống để '+(on?'tắt':'bật')+'"><div class="prt"><span>'+tg+esc(c2.n)+'</span><input class="plim" data-plc="cus" data-cid="'+c2.id+'" value="'+(c2.v?numStr(c2.v):"")+'" placeholder="số tiền" aria-label="Số tiền '+esc(c2.n)+'"></div><div class="prt pm" style="margin-top:2px"><span>Khoản phải chi</span><span><button type="button" class="lnk" style="padding:0" data-bud="cedit" data-cid="'+c2.id+'">Sửa tên</button> · <button type="button" class="lnk" style="padding:0" data-bud="cdel" data-cid="'+c2.id+'">Xóa</button>'+arrows+'</span></div></div>'}
+    else{var c2=it.c,cs2=csp[c2.id]||0,cv=c2.v||0,q3=cv?cs2/cv:0,cst=cv?(q3>1?'<span class="po">vượt '+money(cs2-cv)+'</span>':'<span class="'+(q3>=.85?'pw':'')+'">còn '+money(cv-cs2)+'</span>')+' · ':'';
+      h+='<div class="prow" data-oid="'+it.id+'" style="cursor:pointer;'+(on?'':'opacity:.45;filter:grayscale(1);')+'" title="Chạm vào vùng trống để '+(on?'tắt':'bật')+'"><div class="prt"><span>'+tg+esc(c2.n)+'</span><input class="plim" data-plc="cus" data-cid="'+c2.id+'" value="'+(c2.v?numStr(c2.v):"")+'" placeholder="số tiền" aria-label="Số tiền '+esc(c2.n)+'"></div><div class="prt pm" style="margin-top:2px"><span>'+(cs2?'Đã chi '+money(cs2):'Khoản phải chi')+'</span><span>'+cst+'<button type="button" class="lnk" style="padding:0" data-bud="cedit" data-cid="'+c2.id+'">Sửa tên</button> · <button type="button" class="lnk" style="padding:0" data-bud="cdel" data-cid="'+c2.id+'">Xóa</button>'+arrows+'</span></div>'+(cv?'<div class="pbar '+plBc(q3)+'" style="margin-top:6px"><i style="width:'+Math.min(100,Math.round(q3*100))+'%"></i></div>':'')+'</div>'}
   });
   h+='<div class="prow"><button type="button" class="lnk" style="padding:0" data-bud="cadd">+ Thêm khoản phải chi</button>'+(hid.length?' &nbsp;·&nbsp; <button type="button" class="lnk" style="padding:0" data-bud="srestore">Khôi phục '+hid.length+' mục đã xóa</button>':'')+'</div>';
-  body.innerHTML=h+'</div><div class="hint">Gõ 2tr hoặc 800k vào ô hạn mức. Số đã chi lấy tự động từ các khoản chi trong tháng. Chạm vào vùng trống của một mục để tắt hoặc bật. Chạm vào tên mục để xem các khoản chi của mục đó.</div>'}
+  body.innerHTML=h+'</div><div class="hint">Gõ 2tr hoặc 800k vào ô hạn mức. Số đã chi lấy tự động từ các khoản chi trong tháng. Chạm vào vùng trống của một mục để tắt hoặc bật. Chạm vào tên mục để xem các khoản chi của mục đó. Khoản phải chi (ví dụ “Tiền trọ”) tự tính các khoản chi trong Chi tiêu có tên khớp với tên khoản đó. Đổi “Tháng bắt đầu từ ngày” nếu kỳ ngân sách của bạn không bắt đầu từ mùng 1.</div>'}
 (function(){var dr=null;
 function rows(c,ex){return Array.prototype.filter.call(c.children,function(r){return r!==ex&&r.dataset&&r.dataset.oid})}
 document.addEventListener("pointerdown",function(e){
@@ -13981,6 +13988,7 @@ document.addEventListener("click",function(e){
   plFold[c.dataset.pc]=!fd;try{localStorage.setItem("ghichu_planfold",JSON.stringify(plFold))}catch(x){}renderPlan()});
 document.addEventListener("change",function(e){
   var t=e.target,c=t.dataset&&t.dataset.plc;if(!c)return;
+  if(c==="sd"){var b9=budNote(1);b9.sd=Math.min(28,Math.max(1,+t.value||1));b9.upd=Date.now();save();renderFin();sync();return}
   if(c==="cus"){var b0=budNote(1),it0=(b0.cus||[]).find(function(x){return x.id==t.dataset.cid});if(it0){it0.v=plAmt(t.value);b0.upd=Date.now();save();renderFin();sync()}return}
   if(c==="lim"||c==="inc"){var b=budNote(1),v=plAmt(t.value);if(c==="inc")b.inc=v;else{b.lim=b.lim||{};b.lim[t.dataset.k]=v}b.upd=Date.now();save();renderFin();sync();return}
   var p=findFin(t.dataset.pid);if(!p)return;
