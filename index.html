@@ -10369,6 +10369,16 @@
 <style id="icCss">
 .txt.hasic{display:flex;align-items:flex-start;gap:9px}
 .txt.hasic .tw{flex:1;min-width:0;white-space:inherit;word-break:break-word}
+.nic-g{display:none}
+@media (min-width:1000px) and (pointer:fine){
+.swcard .nic-g{display:flex;align-items:center;justify-content:center;align-self:stretch;flex:none;width:44px;min-height:0;margin:0 2px 0 -9px;padding:0;border:0;border-right:1px solid var(--line);border-radius:0;background:none;box-shadow:none;cursor:pointer;font:inherit}
+.swcard .nic-g svg{width:22px;height:22px;display:block}
+.swcard .nic-g.dflt{opacity:.5}
+.swcard .nic-g:hover{background:color-mix(in srgb,currentColor 10%,transparent);opacity:1}
+.txt .nic.nic-i{display:none}
+html body main #notesView #list .swrap>.note.swcard{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+html body main #notesView #list .swrap>.note.swcard>.nmain{flex:1 1 0;min-width:0}
+}
 .txt .nic{flex:none;display:flex;align-items:center;justify-content:center;width:22px;height:1.5em;min-height:0;margin:0;padding:0;border:0;background:none;box-shadow:none;cursor:pointer;border-radius:6px;font:inherit}
 .txt .nic.dflt{opacity:.5}
 .txt .nic:hover{background:color-mix(in srgb,currentColor 14%,transparent);opacity:1}
@@ -11967,10 +11977,10 @@ var IC_RULES=[
 var IC_DEF={food:"dao",mem:"chuong",idea:"den",todo:"ds",other:"ghichu"};
 function icAuto(x){var raw=String(x.text||"").toLowerCase(),s=norm(raw),rain=/m[ưứừửữự]a/.test(raw),i;for(i=0;i<IC_RULES.length;i++){if(rain&&IC_RULES[i][0]==="gio")continue;if(IC_RULES[i][1].test(s))return IC_RULES[i][0]}return ""}
 function icSvg(k,sz){var a=IC_MAP[k];if(!a)return"";return '<svg viewBox="0 0 24 24" width="'+sz+'" height="'+sz+'" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+a[2]+'</svg>'}
-function icBtn(x,c){
+function icBtn(x,c,g){
   var m=x.ic&&IC_MAP[x.ic]?x.ic:"",au=m?"":icAuto(x),k=m||au,dflt=false;
   if(!k){k=IC_DEF[x.cat]||"the";dflt=true}
-  return '<button type="button" class="nic'+(dflt?' dflt':'')+'" data-ic="'+x.id+'" aria-label="Đổi icon: '+esc(IC_MAP[k][1].split(" ")[0]===""?k:IC_MAP[k][1])+'" title="Bấm để đổi icon" style="color:var(--c-'+c.c+')">'+icSvg(k,20)+'</button>';
+  return '<button type="button" class="nic '+(g?'nic-g':'nic-i')+(dflt?' dflt':'')+'" data-ic="'+x.id+'" aria-label="Đổi icon: '+esc(IC_MAP[k][1].split(" ")[0]===""?k:IC_MAP[k][1])+'" title="Bấm để đổi icon" style="color:var(--c-'+c.c+')">'+icSvg(k,20)+'</button>';
 }
 var icId=null;
 function icNote(){return notes.find(function(x){return x.id==icId})}
@@ -12003,7 +12013,7 @@ document.addEventListener("keydown",function(e){var s=document.getElementById("i
 function noteCard(x,grouped){
   var c=CATS[x.cat]||CATS.other,open=swipedId==x.id,mem=tagHas(x.cat,"t"),done=mem&&!!x.done,ml=mapLink(x),has=x.link||MAPRE.test(x.text),ts=x.ts||0,h;
   h='<div class="swrap'+(open?' swiped':'')+'" data-id="'+x.id+'"><div class="swact"><button type="button" class="sw-edit" data-edit="'+x.id+'" aria-label="Sửa ghi chú">'+IC_EDIT+'<span>Sửa</span></button><button type="button" class="sw-del" data-del="'+x.id+'" aria-label="Xóa ghi chú">'+IC_DEL+'<span>Xóa</span></button></div>';
-  h+='<div class="note swcard acts-row cat-'+c.c+(done?' done':'')+'" data-id="'+x.id+'" role="button" tabindex="0" aria-expanded="'+open+'">';
+  h+='<div class="note swcard acts-row cat-'+c.c+(done?' done':'')+'" data-id="'+x.id+'" role="button" tabindex="0" aria-expanded="'+open+'">'+icBtn(x,c,1);
   h+='<div class="nmain"><div class="txt hasic'+(open?' open':'')+'">'+icBtn(x,c)+'<span class="tw">'+linkify(ml?stripAddr(x):x.text)+'</span></div>'+(x.note?'<div class="hint" style="margin:4px 0 0;white-space:pre-wrap;word-break:break-word">'+esc(x.note)+'</div>':'')+'<div class="meta"><button class="tag cattag" data-pick="'+x.id+'" title="Bấm để chọn loại" style="background:var(--c-'+c.c+'-bg);color:var(--c-'+c.c+')">'+c.n+'</button>';
   if(ml){var ad=compactAddr(shortAddr(x)),lb=(has?'Mở bản đồ':'Tìm trên bản đồ')+(ad?': '+ad:'');h+='<a class="pin'+(has?'':' ghost')+'" data-pend="'+(has?'':x.id)+'" href="'+esc(ml.u)+'" target="_blank" rel="noopener noreferrer" aria-label="'+esc(lb)+'" title="'+esc(lb)+'">'+IC_PIN+(ad?'<span>'+esc(ad)+'</span>':'')+'</a>'}
   var tl=(!x.fin&&(ml||tagHas(x.cat,"l")))?telOf(x):"";if(tl)h+='<a class="tel" href="tel:'+tl+'" aria-label="Gọi '+telFmt(tl)+'" title="Gọi '+telFmt(tl)+'">'+IC_TEL+'<span>'+telFmt(tl)+'</span></a>';
