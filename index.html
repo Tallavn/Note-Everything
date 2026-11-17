@@ -14876,7 +14876,9 @@ new MutationObserver(function(ms){ms.forEach(function(m){
   document.addEventListener("click",function(e){
     if(Date.now()<sup){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();return}
     var r=row(e.target);
-    if(r&&!e.target.closest(".swact")&&(selIds().length||e.ctrlKey||e.metaKey||e.shiftKey)){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();toggle(r.dataset.id)}},true);
+    if(r&&!e.target.closest(".swact")&&(selIds().length||e.ctrlKey||e.metaKey||e.shiftKey)){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();toggle(r.dataset.id);return}
+    /* chạm vào chỗ trống (không phải dòng, thanh chọn, nút/ô nhập, pop-up) khi đang chọn nhiều -> hủy chọn */
+    if(!r&&selIds().length&&!e.target.closest("#txbar,button,a,input,textarea,select,label,[data-tmg],[data-tagmode],[data-budgo],.sheet,.camsheet,.camlive,.lb")){sel={};apply()}},true);
   document.addEventListener("click",function(e){
     var b=e.target.closest&&e.target.closest("#txbar [data-txs]");if(!b)return;
     if(b.dataset.txs==="clr"){sel={};apply();return}
@@ -14967,6 +14969,7 @@ document.addEventListener("click",function(e){
         Array.prototype.forEach.call(document.querySelectorAll(".sheet:not([hidden]),.camsheet,.camlive,.lb"), function (el) { out.push(el) });
         if (document.querySelector(".edit") || b.contains("editing")) out.push("edit");
         if (b.contains("psheet")) out.push("psheet");
+        if (b.contains("txselmode")) out.push("txsel"); /* đang chọn nhiều khoản: Back = hủy chọn */
         return out;
       }
       function done() { busy = false; if (pending) { pending = false; sync() } }
@@ -14987,6 +14990,7 @@ document.addEventListener("click",function(e){
         var cbd = document.getElementById("cbd");
         if (t === "edit") { var c = document.querySelector("[data-ecancel]"); if (c) c.click(); else if (cbd && document.body.classList.contains("editing")) cbd.click(); return }
         if (t === "psheet") { if (cbd) cbd.click(); return }
+        if (t === "txsel") { var tc = document.querySelector('#txbar [data-txs="clr"]'); if (tc) tc.click(); else document.body.classList.remove("txselmode"); return }
         if (t.classList.contains("sheet")) { var x = t.querySelector(".shead .x"); if (x) x.click(); else t.hidden = true; return }
         if (t.classList.contains("lb")) { t.remove(); return }
         if (t.classList.contains("camsheet")) { var cx = t.querySelector(".cs-x,.cs-bd"); if (cx) cx.click(); else t.remove(); return }
