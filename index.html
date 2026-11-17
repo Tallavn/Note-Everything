@@ -16765,9 +16765,12 @@ document.addEventListener("click",function(e){
       animation:neLibraryArrival .75s cubic-bezier(.16,1,.3,1) both;
       animation-delay:var(--card-delay,0ms);
     }
+    /* Thẻ mới vẽ ra nhưng chưa tới lượt animation: ẩn trước để F5 không bị hiện rồi nháy mất */
+    :is(#list,#finBody,#planView) .ne-arrive-wait { opacity:0!important }
   }
   @media (prefers-reduced-motion:reduce) {
     :is(#list,#finBody,#planView) .ne-library-arrival { animation:none!important }
+    :is(#list,#finBody,#planView) .ne-arrive-wait { opacity:1!important }
   }
 </style>
 <script>
@@ -16775,7 +16778,9 @@ document.addEventListener("click",function(e){
 (function(){
   var layoutReady=false;
   var ready=document.fonts?document.fonts.ready:Promise.resolve();
-  ready.then(function(){requestAnimationFrame(function(){requestAnimationFrame(function(){layoutReady=true;document.dispatchEvent(new Event('ne-list-layout-ready'))})})});
+  function goReady(){if(layoutReady)return;layoutReady=true;document.dispatchEvent(new Event('ne-list-layout-ready'))}
+  ready.then(function(){requestAnimationFrame(function(){requestAnimationFrame(goReady)})});
+  setTimeout(goReady,1500); /* font treo thì vẫn chạy, không để thẻ ẩn mãi */
   [{id:'list',selector:'.swrap',ownScroll:true},
    {id:'finBody',selector:'.swrap,.tmg'},
    {id:'planView',selector:'.plmini,.pc'}].forEach(function(config){
@@ -16785,12 +16790,24 @@ document.addEventListener("click",function(e){
   function enabled(){return desktop.matches&&!reduce.matches}
   function key(card){return card.matches('.plmini')?'mini:'+card.dataset.plsel:card.matches('.pc')?'plan:'+card.dataset.pc:card.dataset.tmg?'group:'+card.dataset.tmg:card.dataset.id}
   function arrive(card){
-    if(!enabled()||!card.isConnected)return;
+    if(!enabled()||!card.isConnected){card.classList.remove('ne-arrive-wait');return}
     var now=performance.now(),id=key(card)||card,start=timeline.get(id);
     if(start===undefined){start=Math.max(now,nextStart);timeline.set(id,start);nextStart=start+50}
-    if(now>=start+750)return;
+    if(now>=start+750){card.classList.remove('ne-arrive-wait');return}
     card.style.setProperty('--card-delay',(start-now)+'ms');
-    card.classList.add('ne-library-arrival');
+    card.classList.add('ne-library-arrival');card.classList.remove('ne-arrive-wait');
+  }
+  /* Đánh dấu ẩn NGAY khi thẻ được chèn (MutationObserver chạy trước khi trình duyệt vẽ).
+     Thẻ đã animation xong trước đó (vẽ lại khi render) thì không ẩn. */
+  function hold(card){
+    if(!enabled()||observed.has(card))return;
+    var s=timeline.get(key(card)||card);if(s!==undefined&&performance.now()>=s+750)return;
+    card.classList.add('ne-arrive-wait');
+  }
+  function holdIn(node){
+    if(node.nodeType!==1)return;
+    if(node.matches(config.selector))hold(node);
+    node.querySelectorAll(config.selector).forEach(hold);
   }
   var root=config.ownScroll?list:document.getElementById(config.id==='finBody'?'finView':'planView');
   var observer=typeof IntersectionObserver==='undefined'?null:new IntersectionObserver(function(entries){
@@ -16806,13 +16823,16 @@ document.addEventListener("click",function(e){
       if(observer)observer.observe(card);else arrive(card);
     });
   }
-  new MutationObserver(function(){if(!scheduled){scheduled=true;requestAnimationFrame(scan)}}).observe(list,{childList:true,subtree:true});
+  new MutationObserver(function(recs){
+    if(enabled())recs.forEach(function(r){r.addedNodes.forEach(holdIn)});
+    if(!scheduled){scheduled=true;requestAnimationFrame(scan)}}).observe(list,{childList:true,subtree:true});
+  holdIn(list);
   list.addEventListener('animationend',function(e){
     if(e.animationName!=='neLibraryArrival')return;
     var card=e.target;card.classList.remove('ne-library-arrival');
   });
   function change(){
-    if(!enabled()){if(observer)observer.disconnect();observed=new WeakSet();list.querySelectorAll('.ne-library-arrival').forEach(function(card){card.classList.remove('ne-library-arrival')})}
+    if(!enabled()){if(observer)observer.disconnect();observed=new WeakSet();list.querySelectorAll('.ne-library-arrival,.ne-arrive-wait').forEach(function(card){card.classList.remove('ne-library-arrival','ne-arrive-wait')})}
     else scan();
   }
   if(desktop.addEventListener)desktop.addEventListener('change',change);
