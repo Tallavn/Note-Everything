@@ -11007,6 +11007,8 @@ html body main #notesView #list .swrap>.note.swcard>.nmain{flex:1 1 0;min-width:
     Ảnh đã gắn hiện ở mọi thẻ qua imgStrip(x); bấm ảnh mở lightbox (handler capture ở khối "ẢNH").
  4c) TÍNH NĂNG THEO TAG: tagHas(cat,"l"|"c"|"t"|"d") = Địa điểm / Camera / Tick / Hạn chót. Tag gốc cố định trong BASEF (food=lc, mem=t, todo=d);
     tag tự tạo lưu st.list[i].f (chuỗi chữ cái, tạo/sửa trong tagSheetOpen). KHÔNG so sánh cat==="food"/"mem"/"todo" để bật tính năng nữa, dùng tagHas.
+ 4d) THU hay CHI khi không gõ +/-: finDir() (đọc chú thích ngay trên hàm) chạy TRƯỚC givenInc/kwDir, dùng ở cả autoFin và parseLine.
+    So khớp CÓ DẤU ("chợ" khác "cho"). Thêm từ: sửa mảng FD (cụm nhiều chữ viết cách nhau bằng dấu cách).
  5) Sau mỗi lần sửa: tách <script> chạy `node --check` để bắt lỗi cú pháp (file 1 khối, rất dễ vỡ).
 ========================================================================================== */
 var CATS={food:{n:"Quán ăn",c:"food"},mem:{n:"Cần nhớ",c:"mem"},idea:{n:"Ý tưởng",c:"idea"},todo:{n:"Việc cần làm",c:"todo"},other:{n:"Khác",c:"other"}};
@@ -11581,7 +11583,80 @@ function strongAmt(tok){
   if(sg&&/^\d+$/.test(t)){p=parseTok(t);return p?p.v:0}
   return 0;
 }
-function givenInc(tk,i){var a=i>0?bare(tk[i-1]):"",b=i>1?bare(tk[i-2]):"";return a==="cho"||(b==="cho"&&(a==="minh"||a==="toi"||a==="em"))}
+/* So khớp CÓ DẤU ("chợ" không phải "cho", nên "đi chợ 100k" không thành khoản thu) */
+function rawW(w){return String(w||"").normalize("NFC").toLowerCase().replace(/[^\p{L}\p{N}]/gu,"")}
+function givenInc(tk,i){var a=i>0?rawW(tk[i-1]):"",b=i>1?rawW(tk[i-2]):"";return a==="cho"||(b==="cho"&&(a==="mình"||a==="minh"||a==="tôi"||a==="toi"||a==="em"))}
+/* ===== Đoán THU (+) hay CHI (-) theo ngữ cảnh câu: AI đưa tiền cho AI =====
+   Dùng khi không gõ dấu +/-. Trả "in" / "out" / "" (không chắc -> để givenInc + từ khóa người dùng (kwDir) quyết, mặc định là chi).
+   Tách câu thành cụm (so khớp CÓ DẤU, ưu tiên cụm dài): người khác (mẹ, sếp, khách, tên viết hoa = @), mình (mình/tôi),
+   người mơ hồ (em/con/cháu/anh/chị: có thể là mình hoặc người khác), động từ ĐƯA (cho, chuyển, trả...), DANH-ĐỘNG từ
+   (lương, thưởng, lì xì, ứng...), động từ LẤY (lấy, xin, nhận, thu, bán...), "được", trạng từ (đã, vừa...).
+   Luật (động từ đầu tiên quyết định):
+   - "bị trừ/phạt/mất...", "đánh rơi" -> chi.  - "được (mẹ) cho/thưởng/trả..." -> thu.
+   - ĐƯA: người khác làm (mẹ cho, khách trả, Hùng ck) -> thu, trừ khi đưa cho người khác nữa; mình/không chủ ngữ (cho mẹ, trả tiền nhà) -> chi,
+     trừ khi đưa cho mình (chuyển cho mình) -> thu. Người mơ hồ làm (anh cho 200k) -> thu, nhưng (em cho mẹ) -> chi.
+   - DANH-ĐỘNG: thưởng tết / lương / lì xì / sếp thưởng -> thu; lì xì cho cháu / thưởng cho nhân viên -> chi.
+   - LẤY: người khác lấy/xin (mẹ lấy 100k) -> chi; mình lấy/xin CỦA/TỪ/ĐƯỢC ai (xin được của mẹ, lấy của mẹ, xin mẹ) -> thu;
+     nhận/thu/bán/pass/thanh lý -> thu ("lấy hàng", "xin visa" không có nguồn tiền -> bỏ qua).
+   - Còn từ thu nhập (hoa hồng, hoàn tiền, tiền lãi, học bổng...) -> thu. */
+var FD=(function(){function L(s){return s.split("|").map(function(p){return p.split(" ")})}
+  return[
+  ["loss",L("bị trừ|bị phạt|bị mất|bị trộm|bị lấy|bị móc|bị lừa|bị cắt|bị thu|bị cướp|bị giật|bị ăn cắp|bi tru|bi phat|bi mat|bi lua|mất|đánh rơi|làm rơi|rơi mất|rơi")],
+  ["give",L("chuyển khoản|chuyen khoan|chuyển tiền|cho|tặng|biếu|bieu|chuyển|chuyen|ck|bank|gửi|gui|đưa|trả lại|trả|boa|tip|hỗ trợ|ho tro|bù|đền|bồi thường|góp|ủng hộ|ung ho|quyên góp|cúng|nộp|đóng|mừng|bao")],
+  ["noun",L("lì xì|li xi|lixi|mừng tuổi|thưởng|tiền thưởng|hoàn tiền|hoan tien|hoàn lại|hoàn|ứng|ứng lương|lương|luong|trả lương")],
+  ["take",L("lấy|lay|xin|cầm|đòi|nhận|thu|bán|pass|thanh lý|thanh ly")],
+  ["got",L("được|duoc|đc|dc")],
+  ["self",L("mình|minh|tôi|toi|tao|tớ|tui|bọn mình|chúng tôi|chúng mình|bản thân")],
+  ["other",L("bố mẹ|ba mẹ|bo me|ông bà|mẹ|me|má|mạ|bố|ba|bà|ông|cô|chú|bác|bac|dì|cậu|mợ|thím|dượng|bạn|bạn bè|sếp|sep|công ty|cong ty|cty|khách hàng|khách|khach|vợ|chồng|ny|người yêu|nguoi yeu|bồ|đồng nghiệp|dong nghiep|hàng xóm|nội|ngoại|nhà|họ|quỹ|ngân hàng|shop|người ta|nó|thằng|crush|cụ|thầy|giáo viên|chủ nhà|nhân viên|nv|thợ|giúp việc|trai|gái|ai")],
+  ["amb",L("em|con|cháu|chau|anh|chị")],
+  ["adv",L("đã|vừa|vừa mới|mới|lại|có|thì|cũng|sẽ|hay|hôm nay|hôm qua|nay|lén|tự|vẫn|luôn")],
+  ["inc",L("hoa hồng|hoa hong|cashback|refund|tiền lãi|tien lai|lãi|cổ tức|co tuc|trúng|trúng số|doanh thu|thu nhập|thu nhap|tiền công|tien cong|ting ting|tiền về|tien ve|học bổng|hoc bong|trợ cấp|tro cap|phụ cấp|phu cap|bonus|salary|freelance|kiếm được|kiem duoc|nhặt được|nhat duoc|lụm được|tiền cọc về")]
+  ]})();
+var FD_SRC=" của cua từ tu được duoc đc dc lại lai tiền tien về ve ";
+function finDir(tk,idx){
+  var T=[],C=[],U=[],i,p;
+  for(i=0;i<tk.length;i++){
+    if(i===idx){T.push("#");C.push(false);continue}
+    var o=String(tk[i]).normalize("NFC").replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu,"");if(!o||o==="+"||o==="-")continue;
+    T.push(o.toLowerCase());C.push(o.charAt(0)!==o.charAt(0).toLowerCase())}
+  for(i=0;i<T.length;){
+    if(T[i]==="#"){U.push({k:"amt",w:"#",n:1});i++;continue}
+    var best=null;
+    FD.forEach(function(g){g[1].forEach(function(ph){if(ph.length>T.length-i||(best&&ph.length<=best.n))return;for(var j=0;j<ph.length;j++)if(T[i+j]!==ph[j])return;best={k:g[0],w:ph.join(" "),n:ph.length}})});
+    /* chữ viết hoa không có trong danh sách = tên người (đầu câu thì chỉ khi ngay sau là động từ) */
+    if(!best)best={k:C[i]?(i>0?"other":"cap0"):"x",w:T[i],n:1};
+    U.push(best);i+=best.n}
+  if(U[0]&&U[0].k==="cap0")U[0].k=(U[1]&&/^(give|noun|take)$/.test(U[1].k))?"other":"x";
+  if(U.some(function(u){return u.k==="loss"}))return"out";
+  function isP(u){return u&&/^(other|self|amb)$/.test(u.k)}
+  function grp(a){var t="";a.forEach(function(u){if(u.k==="other")t="o";else if(u.k==="self"&&t!=="o")t="s";else if(u.k==="amb"&&!t)t="a"});return t}
+  for(p=0;p<U.length;p++){
+    var u=U[p];if(!/^(give|noun|take)$/.test(u.k))continue;
+    var j=p-1,a=[];while(j>=0&&U[j].k==="adv")j--;while(isP(U[j])){a.push(U[j]);j--}while(j>=0&&U[j].k==="adv")j--;
+    if(j>=0&&U[j].k==="got"&&u.w!=="bán")return"in";
+    var S=grp(a),k=p+1,b=[],cho=false;while(k<U.length&&(U[k].k==="adv"||(U[k].k==="give"&&U[k].w==="cho"))){if(U[k].w==="cho")cho=true;k++}while(isP(U[k])){b.push(U[k]);k++}
+    var R=grp(b),n1=U[p+1],res="";
+    if(u.k==="noun"&&!cho&&R!=="s")R=""; /* "hoàn tiền Shopee", "lương Cty": tên phía sau không phải người nhận; "lì xì CHO cháu" mới là */
+    if(u.k==="give"){
+      if(S==="o")res=R==="o"?"":"in";
+      else if(S==="a")res=R==="s"?"in":(R==="o"||R==="a")?"out":"in";
+      else res=R==="s"?"in":"out";
+    }else if(u.k==="noun"){
+      if(u.w==="trả lương")res=S==="o"&&R!=="o"?"in":"out";
+      else if(S==="o"||S==="a")res=R==="o"?"":"in";
+      else res=(R==="o"||R==="a")?"out":"in";
+    }else if(/^(nhận|thu|bán|pass|thanh lý|thanh ly)$/.test(u.w)){
+      if(u.w==="thu"&&n1&&/^(dọn|xếp|âm|hoạch|gom|hút|nhỏ|hồi|gọn)$/.test(n1.w))res="";
+      else res=S==="o"?"out":"in";
+    }else if(S==="o")res="out";
+    else{
+      var src=n1&&(n1.k==="amt"||n1.k==="got"||isP(n1)||FD_SRC.indexOf(" "+n1.w+" ")>-1);
+      res=src&&!(u.w==="đòi"&&n1.k!=="got")?"in":"";
+    }
+    if(res)return res;
+  }
+  return U.some(function(u){return u.k==="inc"})?"in":"";
+}
 function bare(w){return norm(w).trim().replace(/[^a-z0-9]/g,"")}
 /* Chỉ coi là nợ khi gõ đúng "vay", "nợ", "mượn" (có dấu). Gõ không dấu "no"/"muon" thì chỉ tính khi đứng đầu câu, để "ăn no", "muốn" không bị nhầm */
 function debtWord(w,first){var t=String(w).normalize("NFC").toLowerCase().replace(/[;:!?.,]+$/,"");return t==="vay"||t==="nợ"||t==="mượn"||(!!first&&(t==="no"||t==="muon"))}
@@ -11608,8 +11683,7 @@ function autoFin(raw){
     return{kind:"debt",obj:{id:now,fin:1,k:"debt",dir:dir,amt:v,paid:0,desc:desc||"",day:day,ts:now,upd:now}};
   }
   var inc=sign==="+";
-  if(!sign&&givenInc(tk,idx))inc=true;
-  if(!sign){var kd2=kwDir(words);if(kd2)inc=kd2==="in"}
+  if(!sign){var fd=finDir(tk,idx);if(fd)inc=fd==="in";else{if(givenInc(tk,idx))inc=true;var kd2=kwDir(words);if(kd2)inc=kd2==="in"}}
   var d=rest.join(" "),o={id:now,fin:1,k:"tx",t:inc?"in":"out",amt:v,desc:d,day:day,ts:now,upd:now};
   o.cat=guessCat(d,inc);if(!o.desc)o.desc=catName(o);
   return{kind:"tx",obj:o};
@@ -12724,9 +12798,10 @@ function parseLine(raw){
   tok=tk[best];p=parseTok(tok.replace(/^[+\-=]/,""));
   if(!p||p.v<=0)return null;
   var inc=tok.charAt(0)==="+"||(best>0&&tk[best-1]==="+");
-  if(!inc&&tok.charAt(0)!=="-"&&!(best>0&&tk[best-1]==="-")&&givenInc(tk,best))inc=true;
   var rest=tk.filter(function(_,j){return j!==best&&!(j===best-1&&tk[j]==="+")});
-  if(tok.charAt(0)!=="+"&&tok.charAt(0)!=="-"&&!(best>0&&(tk[best-1]==="+"||tk[best-1]==="-"))){var kd=kwDir(rest.map(bare).filter(Boolean));if(kd)inc=kd==="in"}
+  if(tok.charAt(0)!=="+"&&tok.charAt(0)!=="-"&&!(best>0&&(tk[best-1]==="+"||tk[best-1]==="-"))){
+    var fd=finDir(tk,best);if(fd)inc=fd==="in";
+    else{if(givenInc(tk,best))inc=true;var kd=kwDir(rest.map(bare).filter(Boolean));if(kd)inc=kd==="in"}}
   return{amt:p.v,inc:inc,desc:rest.join(" ")};
 }
 function guessCat(desc,inc){
