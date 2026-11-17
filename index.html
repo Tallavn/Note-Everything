@@ -3146,8 +3146,9 @@
       box-shadow: var(--shadow)
     }
 
+    /* Dùng filter thay cho opacity: hiệu ứng vào trang/đổi tab animate opacity lên 1 nên đè mất độ xám, F5 xong một lúc mới xám */
     .pc.off {
-      opacity: .6
+      filter: opacity(.6)
     }
 
     .pc.pcf,
@@ -9945,7 +9946,7 @@
       }
 
       .plmini.dim {
-        opacity: .55
+        filter: opacity(.55)
       }
 
       .plmini .pbar {
