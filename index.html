@@ -17088,6 +17088,398 @@ document.addEventListener("click",function(e){
   html:root[data-skin="kinh"] body .sheet > .box { border-radius: 24px 24px 0 0 !important }
   html:root[data-skin="kinh"] body .fbtn { background: rgba(255, 255, 255, .8) !important; border: 1px solid var(--k-edge) !important; box-shadow: var(--k-shadow) !important }
 </style>
+<style id="ne-sidebar-tree">
+  /* ===== Sidebar phân cấp (kiểu Acti) + thang chữ theo tỷ lệ — chỉ bản PC (>=1000px + chuột) =====
+     Gốc cố định: --ne-b = chữ mục sidebar (13px, đúng cỡ tab sidebar hiện tại). Mọi cỡ khác = gốc x tỷ lệ đo từ ảnh:
+       tiêu đề trang 1.48 | tiêu đề thẻ 1.41 | thương hiệu 1.35 | tiêu đề khối 1.03 | mục sidebar 1.00
+       chữ giao diện/nút 0.90 | chữ phụ 0.82 | nhãn nhỏ 0.76
+     Muốn chữ to/nhỏ cả hệ: chỉ sửa --ne-b. Điện thoại giữ nguyên. */
+  #neNav { display: none }
+
+  @media (min-width:1000px) and (pointer:fine) {
+    :root {
+      --ne-b: 13px;
+      --ne-t-title: calc(var(--ne-b) * 1.48);
+      --ne-t-card: calc(var(--ne-b) * 1.41);
+      --ne-t-brand: calc(var(--ne-b) * 1.35);
+      --ne-t-head: calc(var(--ne-b) * 1.03);
+      --ne-t-item: var(--ne-b);
+      --ne-t-ui: calc(var(--ne-b) * .9);
+      --ne-t-sub: calc(var(--ne-b) * .82);
+      --ne-t-micro: calc(var(--ne-b) * .76);
+      --fs-xs: var(--ne-t-ui);
+      --fs-sm: var(--ne-t-item)
+    }
+
+    /* Tab + chip tag cũ vẫn là nguồn xử lý, chỉ ẩn đi; sidebar mới bấm thay chúng */
+    html body .tabs,
+    html body main #notesView .frow #filters {
+      position: fixed !important;
+      left: -9999px !important;
+      top: 0 !important;
+      width: 1px !important;
+      height: 1px !important;
+      min-height: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+      visibility: hidden !important;
+      pointer-events: none !important
+    }
+
+    body.gym #neNav { display: none !important }
+
+    #neNav {
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      z-index: 27;
+      left: calc(var(--desk-left) + 16px);
+      top: calc(var(--desk-top) + 100px);
+      bottom: calc(var(--desk-bottom) + 58px);
+      width: calc(var(--sbw) - 32px);
+      font-size: var(--ne-t-item);
+      line-height: 1.3
+    }
+
+    #neNav .ne-scroll {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      padding-bottom: 8px
+    }
+
+    #neNav .ne-foot { flex: none; padding-top: 2px }
+
+    /* nhãn nhóm (Chính / Tag / Hỗ trợ) */
+    #neNav .ne-lbl {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+      margin: 0;
+      padding: 14px 10px 6px;
+      border: 0;
+      background: none;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: var(--ne-t-sub);
+      font-weight: 500;
+      line-height: 1.2;
+      text-align: left;
+      text-transform: none;
+      letter-spacing: 0
+    }
+
+    #neNav .ne-scroll>.ne-lbl:first-child { padding-top: 2px }
+    #neNav .ne-lbl.tog { cursor: pointer }
+    #neNav .ne-lbl.tog:hover { color: var(--ink) }
+
+    #neNav .ne-chev {
+      width: 12px;
+      height: 12px;
+      flex: none;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: transform .18s ease
+    }
+
+    #neNav .ne-lbl .ne-chev { margin-left: auto }
+    #neNav [aria-expanded="false"] .ne-chev { transform: rotate(-90deg) }
+
+    /* mục: cùng một cỡ chữ ở mọi cấp (như ảnh) */
+    #neNav .ne-it {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      height: 34px;
+      margin: 0 0 2px;
+      padding: 0 10px;
+      border: 0;
+      border-radius: 9px;
+      background: none;
+      box-shadow: none;
+      color: var(--ink);
+      font-family: inherit;
+      font-size: var(--ne-t-item);
+      font-weight: 500;
+      text-align: left;
+      white-space: nowrap;
+      cursor: pointer
+    }
+
+    #neNav .ne-it:hover { background: color-mix(in srgb, var(--ink) 5%, transparent) }
+
+    #neNav .ne-it[aria-current="true"] {
+      background: color-mix(in srgb, var(--ink) 8%, transparent);
+      font-weight: 700
+    }
+
+    #neNav .ne-it:focus-visible,
+    #neNav .ne-lbl:focus-visible,
+    #neNav .ne-exp:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px }
+
+    #neNav .ne-it.has-exp { padding-right: 32px }
+
+    #neNav .ne-ic {
+      flex: none;
+      width: 16px;
+      height: 16px;
+      display: inline-grid;
+      place-items: center;
+      opacity: .85
+    }
+
+    #neNav .ne-ic svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.9;
+      stroke-linecap: round;
+      stroke-linejoin: round
+    }
+
+    #neNav .ne-dot {
+      display: block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--c, var(--muted))
+    }
+
+    #neNav .ne-ring {
+      display: block;
+      box-sizing: border-box;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 2px solid var(--muted)
+    }
+
+    #neNav .ne-tx { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis }
+
+    #neNav .ne-n {
+      flex: none;
+      margin-left: auto;
+      color: var(--muted);
+      font-size: var(--ne-t-sub);
+      font-weight: 500;
+      font-variant-numeric: tabular-nums
+    }
+
+    #neNav .ne-bd {
+      flex: none;
+      margin-left: auto;
+      min-width: 16px;
+      height: 16px;
+      padding: 0 5px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 99px;
+      background: var(--accent);
+      color: var(--accent-ink);
+      font-size: var(--ne-t-micro);
+      font-style: normal;
+      font-weight: 600
+    }
+
+    #neNav .ne-row { position: relative }
+
+    #neNav .ne-exp {
+      position: absolute;
+      right: 4px;
+      top: 5px;
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 7px;
+      background: none;
+      color: var(--muted);
+      cursor: pointer
+    }
+
+    #neNav .ne-exp:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 6%, transparent) }
+    #neNav .ne-row .ne-bd { margin-right: 22px }
+
+    /* cấp con: thụt vào + đường dẫn dọc */
+    #neNav .ne-kids {
+      margin: 0 0 4px 17px;
+      padding-left: 8px;
+      border-left: 1px solid var(--line)
+    }
+
+    #neNav .ne-kids .ne-it { height: 30px }
+    #neNav .ne-add { color: var(--muted) }
+    #neNav .ne-add:hover { color: var(--ink) }
+
+    /* nút Cài đặt cũ = mục cuối nhóm Hỗ trợ, cùng cỡ chữ gốc */
+    .setw {
+      left: calc(var(--desk-left) + 16px) !important;
+      width: calc(var(--sbw) - 32px) !important
+    }
+
+    #setBtn {
+      height: 34px !important;
+      padding: 0 10px !important;
+      border-radius: 9px !important
+    }
+
+    #setBtn::before {
+      font-size: var(--ne-t-item) !important;
+      font-weight: 500 !important;
+      color: var(--ink)
+    }
+
+    /* áp thang chữ cho phần nội dung */
+    .hdr .hsearch .search,
+    .hdr .hsearch .search:focus,
+    .hdr .hsearch .search.has { font-size: var(--ne-t-item) !important }
+
+    html:root[data-skin] body .dh { font-size: var(--ne-t-sub) !important }
+
+    /* tiêu đề trang 1.48 | tiêu đề nhóm 1.03 | tên thẻ 1.00 | chữ phụ trong thẻ 0.90 (cao hơn 0.82 trong ảnh cho dễ đọc tiếng Việt có dấu) */
+    html body main #notesView .ne-list-head h2 { font-size: var(--ne-t-title) !important }
+    html body main #notesView #list>.cgrp { font-size: var(--ne-t-head) !important }
+    html body main #notesView #list>.cgrp>b { font-size: var(--ne-t-ui) !important }
+    html body main #notesView #list .tw { font-size: var(--ne-t-item) !important }
+    html body main #notesView #list .hint,
+    html body main #notesView #list .pin { font-size: var(--ne-t-ui) !important }
+
+    .ne-detail h2 {
+      font-size: var(--ne-t-title) !important;
+      letter-spacing: -.3px
+    }
+  }
+</style>
+<script>
+/* Sidebar phân cấp: dựng lại từ tab / chip tag / tab con có sẵn và bấm hộ chúng (không đụng logic cũ). */
+(function () {
+  var tabs = document.querySelector('.tabs');
+  if (!tabs || document.getElementById('neNav')) return;
+  var mq = matchMedia('(min-width:1000px) and (pointer:fine)');
+  var nav = document.createElement('nav');
+  nav.id = 'neNav'; nav.setAttribute('aria-label', 'Điều hướng');
+  tabs.parentNode.insertBefore(nav, tabs.nextSibling);
+  var colOpen = true, finOpen;
+  var P = {
+    notes: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>',
+    fin: '<path d="M4 7h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M4 7l12-3v3M16 13.5h.01"/>',
+    plan: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    sync: '<path d="M21 12a9 9 0 0 1-15.5 6.2M3 12a9 9 0 0 1 15.5-6.2M18.5 2v4h-4M5.5 22v-4h4"/>',
+    data: '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/>'
+  };
+  var CH = '<svg class="ne-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+  function ico(k) { return '<span class="ne-ic"><svg viewBox="0 0 24 24" aria-hidden="true">' + P[k] + '</svg></span>' }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c] }) }
+  function pressed(el) { return el && el.getAttribute('aria-pressed') === 'true' }
+  function txt(el) { var c = el.cloneNode(true); [].forEach.call(c.querySelectorAll('.tbadge'), function (b) { b.remove() }); return c.textContent.replace(/\s+/g, ' ').trim() }
+  function badge(el) { var b = el.querySelector('.tbadge'); return b && !b.hidden ? b.textContent.trim() : '' }
+  function find(sel, attr, val) { var l = document.querySelectorAll(sel); for (var i = 0; i < l.length; i++) if (l[i].getAttribute(attr) === val) return l[i]; return null }
+  function color(c, k) {
+    try { if (window.CATS && CATS[k] && CATS[k].c) return 'var(--c-' + CATS[k].c + ')' } catch (e) { }
+    try { var bg = getComputedStyle(c, '::before').backgroundColor; if (bg && bg !== 'rgba(0, 0, 0, 0)') return bg } catch (e) { }
+    return 'var(--muted)';
+  }
+
+  function build() {
+    if (!mq.matches) return;
+    var sc = nav.querySelector('.ne-scroll'), st = sc ? sc.scrollTop : 0;
+    var fo = document.activeElement, fk = fo && nav.contains(fo) ? (fo.getAttribute('data-go') || fo.getAttribute('data-tog')) : null;
+    var tb = [].slice.call(tabs.querySelectorAll('[data-tab]')), act = 'notes';
+    tb.forEach(function (b) { if (pressed(b)) act = b.getAttribute('data-tab') });
+    var allChip = find('#filters [data-f]', 'data-f', 'all'), allOn = !allChip || pressed(allChip), allCnt = '';
+    if (allChip) { var am = allChip.textContent.replace(/\s+/g, ' ').trim().match(/\((\d+)\)\s*$/); if (am) allCnt = am[1] }
+    var h = '<div class="ne-scroll"><div class="ne-lbl">Chính</div>';
+    tb.forEach(function (b) {
+      var k = b.getAttribute('data-tab'), lab = txt(b), bt = badge(b), on = act === k && (k !== 'notes' || allOn);
+      if (k === 'fin') {
+        var subs = [].slice.call(document.querySelectorAll('#finView .seg [data-sub]'));
+        var ex = finOpen === undefined ? on : finOpen;
+        h += '<div class="ne-row"><button type="button" class="ne-it has-exp" data-go="tab:fin"' + (on && !(ex && subs.length) ? ' aria-current="true"' : '') + '>' + ico('fin') + '<span class="ne-tx">' + esc(lab) + '</span>' + (bt ? '<i class="ne-bd">' + esc(bt) + '</i>' : '') + '</button>' +
+          '<button type="button" class="ne-exp" data-tog="fin" aria-expanded="' + ex + '" aria-label="Mở rộng ' + esc(lab) + '">' + CH + '</button></div>';
+        if (ex && subs.length) {
+          h += '<div class="ne-kids">';
+          subs.forEach(function (s) {
+            var sb = badge(s);
+            h += '<button type="button" class="ne-it" data-go="sub:' + esc(s.getAttribute('data-sub')) + '"' + (on && pressed(s) ? ' aria-current="true"' : '') + '><span class="ne-tx">' + esc(txt(s)) + '</span>' + (sb ? '<i class="ne-bd">' + esc(sb) + '</i>' : '') + '</button>';
+          });
+          h += '</div>';
+        }
+      } else {
+        h += '<button type="button" class="ne-it" data-go="tab:' + esc(k) + '"' + (on ? ' aria-current="true"' : '') + '>' + ico(P[k] ? k : 'notes') + '<span class="ne-tx">' + esc(lab) + '</span>' + (k === 'notes' && allCnt ? '<span class="ne-n">' + allCnt + '</span>' : '') + (bt ? '<i class="ne-bd">' + esc(bt) + '</i>' : '') + '</button>';
+      }
+    });
+    h += '<button type="button" class="ne-lbl tog" data-tog="col" aria-expanded="' + colOpen + '">Tag' + CH + '</button>';
+    if (colOpen) {
+      [].forEach.call(document.querySelectorAll('#filters .chip'), function (c) {
+        if (c.hasAttribute('data-addtag')) { h += '<button type="button" class="ne-it ne-add" data-go="add">' + ico('plus') + '<span class="ne-tx">Thêm tag</span></button>'; return }
+        var k = c.getAttribute('data-f'); if (k === null || k === 'all') return;
+        var raw = c.textContent.replace(/\s+/g, ' ').trim(), m = raw.match(/^(.*?)\s*\((\d+)\)$/), name = m ? m[1] : raw, cnt = m ? m[2] : '';
+        var on = act === 'notes' && pressed(c);
+        var ic = k === 'all' ? '<span class="ne-ic"><i class="ne-ring"></i></span>' : '<span class="ne-ic"><i class="ne-dot" style="--c:' + color(c, k) + '"></i></span>';
+        h += '<button type="button" class="ne-it" data-go="f:' + esc(k) + '"' + (on ? ' aria-current="true"' : '') + '>' + ic + '<span class="ne-tx">' + esc(name) + '</span>' + (cnt ? '<span class="ne-n">' + cnt + '</span>' : '') + '</button>';
+      });
+    }
+    h += '</div><div class="ne-foot"><div class="ne-lbl">Hỗ trợ</div>' +
+      '<button type="button" class="ne-it" data-go="menu:syncmenu">' + ico('sync') + '<span class="ne-tx">Đồng bộ</span></button>' +
+      '<button type="button" class="ne-it" data-go="menu:datamenu">' + ico('data') + '<span class="ne-tx">Dữ liệu</span></button></div>';
+    nav.innerHTML = h;
+    var s2 = nav.querySelector('.ne-scroll'); if (s2) s2.scrollTop = st;
+    if (fk) { var all = nav.querySelectorAll('[data-go],[data-tog]'); for (var i = 0; i < all.length; i++) if ((all[i].getAttribute('data-go') || all[i].getAttribute('data-tog')) === fk) { all[i].focus(); break } }
+  }
+
+  function goTab(t) { var c = tabs.querySelector('[data-tab="' + t + '"]'); if (c && !pressed(c)) c.click() }
+
+  nav.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-tog]');
+    if (t) { var w = t.getAttribute('data-tog'); if (w === 'col') colOpen = !colOpen; else { var cur = nav.querySelector('[data-tog="fin"]'); finOpen = !(cur && cur.getAttribute('aria-expanded') === 'true') } build(); return }
+    var b = e.target.closest('[data-go]'); if (!b) return;
+    var g = b.getAttribute('data-go'), i = g.indexOf(':'), k = i < 0 ? g : g.slice(0, i), v = i < 0 ? '' : g.slice(i + 1);
+    if (k === 'tab') {
+      if (v === 'fin') finOpen = true;
+      goTab(v);
+      if (v === 'notes') { var ac = find('#filters [data-f]', 'data-f', 'all'); if (ac && !pressed(ac)) ac.click() }
+      build();
+    } else if (k === 'sub') {
+      finOpen = true; goTab('fin');
+      var s = find('#finView .seg [data-sub]', 'data-sub', v); if (s && !pressed(s)) s.click();
+      build();
+    } else if (k === 'f') {
+      goTab('notes');
+      var c = find('#filters [data-f]', 'data-f', v); if (c) c.click();
+    } else if (k === 'add') {
+      goTab('notes');
+      var a = document.querySelector('#filters [data-addtag]'); if (a) a.click();
+    } else if (k === 'menu') {
+      var sm = document.getElementById('setMenu'), btn = document.getElementById('setBtn');
+      if (sm && sm.hidden && btn) btn.click();
+      var d = document.getElementById(v); if (d) d.open = true;
+    }
+  });
+
+  var pend = 0;
+  function schedule() { if (!pend) pend = requestAnimationFrame(function () { pend = 0; build() }) }
+  var mo = new MutationObserver(schedule);
+  mo.observe(tabs, { subtree: true, attributes: true, childList: true, characterData: true });
+  var f = document.getElementById('filters');
+  if (f) mo.observe(f, { subtree: true, attributes: true, attributeFilter: ['aria-pressed'], childList: true, characterData: true });
+  var seg = document.querySelector('#finView .seg');
+  if (seg) mo.observe(seg, { subtree: true, attributes: true, childList: true, characterData: true });
+  if (mq.addEventListener) mq.addEventListener('change', schedule);
+  window.addEventListener('load', schedule);
+  build();
+})();
+</script>
 </body>
 
 </html>
