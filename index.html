@@ -8,7 +8,7 @@
   <title>NoteEverything</title>
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#0f6b5c">
-  <script>try { var _s = localStorage.getItem("ghichu_skin"), _k = { vo: ["light", "#f6f3ea"], cham: ["light", "#f1f2f4"], phodem: ["dark", "#141414"], than: ["dark", "#000000"] }; if (_k[_s]) { var _r = document.documentElement; _r.dataset.skin = _s; _r.dataset.theme = _k[_s][0]; document.querySelector('meta[name="theme-color"]').setAttribute("content", _k[_s][1]) } } catch (e) { }</script>
+  <script>try { var _s = localStorage.getItem("ghichu_skin"); if (_s === null) _s = "kinh"; var _k = { vo: ["light", "#f6f3ea"], cham: ["light", "#f1f2f4"], phodem: ["dark", "#141414"], than: ["dark", "#000000"], kinh: ["light", "#e6eaf5"] }; if (_k[_s]) { var _r = document.documentElement; _r.dataset.skin = _s; _r.dataset.theme = _k[_s][0]; document.querySelector('meta[name="theme-color"]').setAttribute("content", _k[_s][1]) } } catch (e) { }</script>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="NoteEverything">
@@ -10534,6 +10534,9 @@ html body main #notesView #list .swrap>.note.swcard>.nmain{flex:1 1 0;min-width:
 .dgrp.ghim-hd b{font-weight:500;color:var(--muted)}
 .dh.dhx.ghim-hd span:first-child{color:var(--c-amber);display:inline-flex;align-items:center;gap:6px}
 .dh.dhx.ghim-hd svg{width:16px;height:16px;fill:currentColor}
+.dh .dhpin{display:inline-flex;align-items:center;gap:1px;color:var(--c-amber);margin-right:6px;vertical-align:-2px;font-style:normal;cursor:help}
+.dh .dhpin svg{width:14px;height:14px;fill:currentColor}
+.dh .dhpin b{font-size:11px;font-weight:700}
 .hidecat .ghimd .cattag{display:inline-block}
 </style>
 </head>
@@ -10563,7 +10566,7 @@ html body main #notesView #list .swrap>.note.swcard>.nmain{flex:1 1 0;min-width:
             <div class="sm-row"><span>Ngôn ngữ</span><span class="zc nolang"><button type="button" id="lgVi">Tiếng
                   Việt</button><button type="button" id="lgEn">English</button></span></div>
             <div class="sm-row themes"><span>Màu sắc</span><span class="zc" id="skinBtns"><button type="button"
-                  data-skin="">Mặc định</button><button type="button" data-skin="vo">Vở</button><button type="button"
+                  data-skin="kinh">Mặc định</button><button type="button" data-skin="vo">Vở</button><button type="button"
                   data-skin="cham">Chàm</button><button type="button" data-skin="phodem">Phố đêm</button><button
                   type="button" data-skin="than">Than</button></span></div><button type="button" class="sm-btn"
               id="theme">Đổi giao diện</button><button type="button" class="sm-btn" id="copy">Sao chép tất cả</button>
@@ -13125,8 +13128,11 @@ function renderTx(top,body){
     Object.keys(g).sort().reverse().forEach(function(day){
       var arr=g[day].sort(function(a,b){return b.ts-a.ts}),ds=0;
       arr.forEach(function(x){if(x.t==="out")ds+=x.amt});
-      var arrUp=arr.filter(function(x){return !x.pin});if(!arrUp.length)return;arr=arrUp;
-      h+='<div class="dh dhx" data-dday="'+day+'"><span>'+dayLabel(day)+'</span><span>'+(ds?money(ds):"")+'</span></div>';
+      var arrUp=arr.filter(function(x){return !x.pin});if(!arrUp.length)return;
+      /* Tổng ngày tính cả khoản ĐÃ GHIM (nằm ở mục "Đã ghim" trên đầu) -> hiện icon ghim cạnh tổng để biết vì sao lệch với các dòng bên dưới */
+      var npin=arr.length-arrUp.length,pinS=0;arr.forEach(function(x){if(x.pin&&x.t==="out")pinS+=x.amt});arr=arrUp;
+      var pinB=npin?'<i class="dhpin" title="Gồm '+npin+' khoản đã ghim'+(pinS?" ("+money(pinS)+")":"")+', xem ở mục Đã ghim" aria-label="Gồm '+npin+' khoản đã ghim">'+IC_PUSH+(npin>1?'<b>'+npin+'</b>':"")+'</i>':"";
+      h+='<div class="dh dhx" data-dday="'+day+'"><span>'+dayLabel(day)+'</span><span>'+pinB+(ds?money(ds):"")+'</span></div>';
       if(day===td0&&dueH){h+=dueH;dueH="";dueShown=true}
       var gm={},go=[];
       arr.forEach(function(x){var gk=x.t+":"+x.cat;if(!gm[gk]){gm[gk]=[];go.push(gk)}gm[gk].push(x)});
@@ -14675,14 +14681,14 @@ setZ(Z);
   document.addEventListener("visibilitychange",back);
 })();
 (function(){
-var SK={vo:["light","#f6f3ea"],cham:["light","#f1f2f4"],phodem:["dark","#141414"],than:["dark","#000000"]},r=document.documentElement,btns=document.querySelectorAll("#skinBtns button"),cur="";
-try{cur=localStorage.getItem("ghichu_skin")||""}catch(e){}
+var SK={vo:["light","#f6f3ea"],cham:["light","#f1f2f4"],phodem:["dark","#141414"],than:["dark","#000000"],kinh:["light","#e6eaf5"]},r=document.documentElement,btns=document.querySelectorAll("#skinBtns button"),cur="";
+cur="kinh";try{var _g=localStorage.getItem("ghichu_skin");if(_g!==null)cur=_g}catch(e){}
 if(!SK[cur])cur="";
 function mark(){Array.prototype.forEach.call(btns,function(b){b.setAttribute("aria-pressed",b.getAttribute("data-skin")===cur)})}
 function apply(k,save){cur=SK[k]?k:"";
   if(cur){r.dataset.skin=cur;r.dataset.theme=SK[cur][0]}else{delete r.dataset.skin;delete r.dataset.theme}
   var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute("content",cur?SK[cur][1]:"#0f6b5c");
-  if(save){try{if(cur)localStorage.setItem("ghichu_skin",cur);else localStorage.removeItem("ghichu_skin")}catch(e){}}
+  if(save){try{localStorage.setItem("ghichu_skin",cur||"0")}catch(e){}}
   mark()}
 Array.prototype.forEach.call(btns,function(b){b.addEventListener("click",function(){apply(b.getAttribute("data-skin"),true)})});
 var tb=document.getElementById("theme");
@@ -17008,6 +17014,80 @@ document.addEventListener("click",function(e){
   schedule();
 })();
 </script>
+<style id="skin-kinh">
+  /* ===== Giao diện mặc định "Kính chàm" (nút Mặc định ở Cài đặt → Màu sắc; bấm Đổi giao diện thì về giao diện sáng/tối cũ): bảng màu skin Chàm, nền xanh xám nhạt, màu nhấn chàm (nút + chàm sang hồng), thẻ trắng viền sáng bóng mềm,
+     tab/chip dạng pill, tiêu đề nhóm in hoa nhỏ. Khoảng cách theo lưới 8: lề 16, đệm thẻ 14-16, giữa thẻ 8, giữa khối 24.
+     Thẻ dùng nền ĐẶC (không trong suốt) vì phía sau thẻ có nút Sửa/Ghim/Xóa hiện khi vuốt. ===== */
+  :root[data-skin="kinh"] {
+    --bg: #eef1f7; --surface: #ffffff; --ink: #14161f; --muted: #5b6070; --line: #d8dbe2;
+    --accent: #1f3a8a; --accent-ink: #fff;
+    --k-card: linear-gradient(180deg, #ffffff 0%, #f8f9fc 100%);
+    --k-edge: rgba(255, 255, 255, .95);
+    --k-shadow: 0 1px 2px rgba(20, 30, 70, .05), 0 6px 20px rgba(31, 58, 138, .09);
+    --k-bar: rgba(236, 240, 248, .82);
+    --k-good: #1f8a4c; --k-bad: #d03b52;
+  }
+  html:root[data-skin="kinh"] body {
+    background: linear-gradient(180deg, #dbe2f4 0px, #e8ecf6 220px, #f1f3f8 520px, #f4f5f8 100%) fixed !important;
+  }
+  /* Thanh tab trên cùng + tab con Chi tiêu: một khay kính, mục đang chọn là pill đỏ gạch */
+  html:root[data-skin="kinh"] body .tabs, html:root[data-skin="kinh"] body .seg {
+    background: rgba(255, 255, 255, .55) !important; border: 1px solid var(--k-edge) !important; border-radius: 999px !important;
+    padding: 4px !important; box-shadow: var(--k-shadow) !important; -webkit-backdrop-filter: blur(14px) saturate(1.3); backdrop-filter: blur(14px) saturate(1.3);
+  }
+  html:root[data-skin="kinh"] body .tabs .chip, html:root[data-skin="kinh"] body .seg .chip {
+    border-radius: 999px !important; border: 0 !important; background: transparent !important; color: var(--muted) !important; font-weight: 600 !important; box-shadow: none !important;
+  }
+  html:root[data-skin="kinh"] body .tabs .chip[aria-pressed="true"], html:root[data-skin="kinh"] body .seg .chip[aria-pressed="true"] {
+    background: linear-gradient(180deg, #2d4fae, #1f3a8a) !important; color: #fff !important; box-shadow: 0 4px 12px rgba(31, 58, 138, .3) !important;
+  }
+  /* Thẻ ghi chú / giao dịch / ví / thanh tháng */
+  html:root[data-skin="kinh"] body #list .swrap, html:root[data-skin="kinh"] body #finBody .swrap { margin-bottom: 8px !important; border-radius: 18px !important }
+  html:root[data-skin="kinh"] body .swcard, html:root[data-skin="kinh"] body .wallet, html:root[data-skin="kinh"] body .note,
+  html:root[data-skin="kinh"] body .pc, html:root[data-skin="kinh"] body .plmini {
+    background: var(--k-card) !important; border: 1px solid var(--k-edge) !important; border-radius: 18px !important; box-shadow: var(--k-shadow) !important;
+  }
+  html:root[data-skin="kinh"] body #list .swcard { padding: 14px 16px !important }
+  /* Nhóm giao dịch theo ngày: CẢ KHUNG là một thẻ, các dòng bên trong phẳng (không lồng thẻ) */
+  html:root[data-skin="kinh"] body .tgc { background: #fff !important; border: 1px solid var(--k-edge) !important; border-radius: 18px !important; box-shadow: var(--k-shadow) !important }
+  html:root[data-skin="kinh"] body .tgc .swrap { margin: 0 !important; border-radius: 0 !important }
+  html:root[data-skin="kinh"] body .tgc .swcard { background: #fff !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important }
+  html:root[data-skin="kinh"] body .tgc .swrap + .swrap .swcard { border-top: 1px solid #eceef4 !important }
+  /* Số tiền: chi màu chữ thường, thu xanh lá (như mẫu: chỉ tô màu cho tiền vào và trạng thái) */
+  html:root[data-skin="kinh"] body .tamt.bad { color: var(--ink) !important }
+  html:root[data-skin="kinh"] body .wallet { padding: 18px !important; border-radius: 22px !important }
+  html:root[data-skin="kinh"] body .wallet .good, html:root[data-skin="kinh"] body .good { color: var(--k-good) !important }
+  html:root[data-skin="kinh"] body .wallet .bad, html:root[data-skin="kinh"] body .bad { color: var(--k-bad) !important }
+  html:root[data-skin="kinh"] body .mnav button {
+    background: rgba(255, 255, 255, .8) !important; border: 1px solid var(--k-edge) !important; border-radius: 999px !important; box-shadow: var(--k-shadow) !important;
+  }
+  /* Tiêu đề nhóm (Quán ăn, Cần nhớ...) + tiêu đề ngày: chữ IN HOA nhỏ giãn chữ, khoảng 24 trên, 10 dưới */
+  html:root[data-skin="kinh"] body .cgrp {
+    text-transform: uppercase; font-size: 11.5px !important; letter-spacing: .09em !important; font-weight: 700 !important; margin: 24px 6px 10px !important;
+  }
+  html:root[data-skin="kinh"] body #list > .cgrp:first-child { margin-top: 8px !important }
+  html:root[data-skin="kinh"] body .dh {
+    text-transform: uppercase; font-size: 11.5px !important; letter-spacing: .08em; color: var(--muted) !important; margin-top: 22px !important;
+  }
+  html:root[data-skin="kinh"] body .dh b, html:root[data-skin="kinh"] body .dh span:last-child { color: var(--ink); letter-spacing: 0; text-transform: none; font-size: 14px }
+  /* Chip lọc dưới đáy + chip địa chỉ */
+  html:root[data-skin="kinh"] body #filters .chip, html:root[data-skin="kinh"] body .frow .chip {
+    border-radius: 999px !important; background: rgba(255, 255, 255, .85) !important; border: 1px solid #d8dbe2 !important; color: var(--ink) !important; font-weight: 500 !important;
+  }
+  html:root[data-skin="kinh"] body #filters .chip[aria-pressed="true"] {
+    background: linear-gradient(180deg, #2d4fae, #1f3a8a) !important; border-color: transparent !important; color: #fff !important; box-shadow: 0 4px 12px rgba(31, 58, 138, .25) !important;
+  }
+  html:root[data-skin="kinh"] body .frow { background: linear-gradient(180deg, rgba(244, 245, 248, 0), rgba(244, 245, 248, .92) 40%) !important }
+  html:root[data-skin="kinh"] body a.pin { background: rgba(31, 58, 138, .07) !important; border-color: rgba(31, 58, 138, .16) !important; color: #1f3a8a !important; border-radius: 999px !important }
+  /* Nút tròn nổi (+) */
+  html:root[data-skin="kinh"] body .fab {
+    background: linear-gradient(135deg, #1f3a8a 0%, #1f3a8a 62%, #e5486a 130%) !important; box-shadow: 0 8px 22px rgba(31, 58, 138, .32), inset 0 1px 0 rgba(255, 255, 255, .25) !important;
+  }
+  /* Nút chính trong form/sheet */
+  html:root[data-skin="kinh"] body button.ok, html:root[data-skin="kinh"] body .sheet .ok { border-radius: 999px !important }
+  html:root[data-skin="kinh"] body .sheet > .box { border-radius: 24px 24px 0 0 !important }
+  html:root[data-skin="kinh"] body .fbtn { background: rgba(255, 255, 255, .8) !important; border: 1px solid var(--k-edge) !important; box-shadow: var(--k-shadow) !important }
+</style>
 </body>
 
 </html>
