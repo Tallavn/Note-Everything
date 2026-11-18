@@ -17087,21 +17087,6 @@ document.addEventListener("click",function(e){
   html:root[data-skin="kinh"] body button.ok, html:root[data-skin="kinh"] body .sheet .ok { border-radius: 999px !important }
   html:root[data-skin="kinh"] body .sheet > .box { border-radius: 24px 24px 0 0 !important }
   html:root[data-skin="kinh"] body .fbtn { background: rgba(255, 255, 255, .8) !important; border: 1px solid var(--k-edge) !important; box-shadow: var(--k-shadow) !important }
-  /* Điện thoại: đầu trang (logo, tìm, cài đặt) + hàng tab gộp thành MỘT thanh kính mờ liền khối khi cuộn.
-     .hdr dính top:0, .tabs dính ngay dưới (JS dock() đặt top = chiều cao .hdr). Dải nền phía sau khay tab là .tabs::before
-     (kéo lên 14px lấp khe margin của .hdr, tràn ra 2 lề 16px), cùng màu kính với .hdr nên nhìn như một khối. */
-  @media (max-width: 999.98px), (pointer: coarse) {
-    html:root[data-skin="kinh"] body .hdr {
-      background: var(--k-bar) !important; -webkit-backdrop-filter: blur(18px) saturate(1.4); backdrop-filter: blur(18px) saturate(1.4);
-      box-shadow: none !important;
-    }
-    html:root[data-skin="kinh"] body .tabs { isolation: isolate; overflow: visible !important }
-    html:root[data-skin="kinh"] body .tabs::before {
-      content: ""; position: absolute; z-index: -1; left: -17px; right: -17px; top: -15px; bottom: -10px; pointer-events: none;
-      background: var(--k-bar); -webkit-backdrop-filter: blur(18px) saturate(1.4); backdrop-filter: blur(18px) saturate(1.4);
-      border-bottom: 1px solid rgba(31, 58, 138, .08); box-shadow: 0 8px 18px -10px rgba(20, 30, 70, .18);
-    }
-  }
 </style>
 </body>
 
