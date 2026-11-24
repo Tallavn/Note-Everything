@@ -52,6 +52,8 @@
   const scope = 'https://www.googleapis.com/auth/drive.readonly';
   const api = 'https://www.googleapis.com/drive/v3/files';
   let accessToken = '';
+  let tokenClientId = '';
+  let tokenExpiresAt = 0;
   let settingsUrl = '';
   let syncedSettings = '';
   let folderId = '';
@@ -112,7 +114,11 @@
       cache: 'no-store',
       signal
     });
-    if (response.status === 401) throw new Error('Phiên Google đã hết hạn. Bấm Mở thư mục để kết nối lại.');
+    if (response.status === 401) {
+      accessToken = '';
+      tokenExpiresAt = 0;
+      throw new Error('Phiên Google đã hết hạn. Bấm Mở thư mục để kết nối lại.');
+    }
     if (response.status === 403) throw new Error('Google từ chối truy cập. Kiểm tra Drive API và quyền của tài khoản.');
     if (response.status === 404) throw new Error('Tệp hoặc thư mục không còn truy cập được.');
     if (!response.ok) throw new Error('Không đọc được dữ liệu từ Drive (' + response.status + ').');
@@ -199,6 +205,21 @@
       status.textContent = 'Kiểm tra lại OAuth Client ID và link hoặc mã thư mục.';
       return;
     }
+    const openFolder = () => {
+      folderId = selectedFolder;
+      nextPage = '';
+      photos.replaceChildren();
+      more.hidden = true;
+      try {
+        localStorage.setItem('drivePhotosClient', clientId);
+        localStorage.setItem('drivePhotosFolder', selectedFolder);
+      } catch {}
+      listPhotos('', clientId);
+    };
+    if (accessToken && tokenClientId === clientId && Date.now() < tokenExpiresAt) {
+      openFolder();
+      return;
+    }
     authorize.disabled = true;
     more.disabled = true;
     status.textContent = 'Đang chờ cấp quyền Google…';
@@ -228,15 +249,9 @@
             return authError('missing_scope', 'Hãy chọn quyền đọc Google Drive trong cửa sổ cấp quyền.');
           }
           accessToken = response.access_token;
-          folderId = selectedFolder;
-          nextPage = '';
-          photos.replaceChildren();
-          more.hidden = true;
-          try {
-            localStorage.setItem('drivePhotosClient', clientId);
-            localStorage.setItem('drivePhotosFolder', selectedFolder);
-          } catch {}
-          listPhotos('', clientId);
+          tokenClientId = clientId;
+          tokenExpiresAt = Date.now() + Math.max(0, Number(response.expires_in) - 30) * 1000;
+          openFolder();
         }
       }).requestAccessToken();
     } catch (error) {
