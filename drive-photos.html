@@ -57,7 +57,11 @@ dialog{width:min(92vw,72rem);max-height:92vh;border:1px solid var(--ln);border-r
 dialog::backdrop{background:rgba(0,0,0,.75)}
 dialog .dh{display:flex;justify-content:space-between;align-items:center;gap:8px}
 dialog form{margin:0}dialog button{border:0;background:var(--ac);color:var(--bg);border-radius:999px;padding:7px 16px;font-weight:600}
-dialog img{display:block;max-width:100%;max-height:74vh;object-fit:contain;margin:10px auto 0;border-radius:10px}
+dialog{width:min(96vw,80rem)}
+.zw{margin-top:10px;max-height:74vh;overflow:auto;border-radius:10px;touch-action:pan-x pan-y pinch-zoom;overscroll-behavior:contain}
+.zw img{display:block;max-width:100%;max-height:74vh;object-fit:contain;margin:0 auto;cursor:zoom-in;-webkit-user-drag:none}
+.zw.full img{max-width:none;max-height:none;margin:0;cursor:grab}.zw.full.drag img{cursor:grabbing}
+.dh .zb{margin-left:auto;margin-right:12px}
 dialog .fn{font-size:12px;color:var(--mu);overflow-wrap:anywhere;margin:8px 0 0}
 #more{display:block;margin:10px auto;border:1px solid var(--ln);background:var(--sf);border-radius:999px;padding:7px 16px}
 button:disabled{opacity:.5;cursor:default}
@@ -86,9 +90,9 @@ button:disabled{opacity:.5;cursor:default}
 </div></section>
 <main id="feed" aria-live="polite"></main>
 <dialog id="viewer" aria-label="Ảnh gốc">
-  <div class="dh"><form method="dialog"><button>Đóng</button></form><a id="dl" href="#" style="color:var(--ac);font-size:13px">Tải về</a></div>
+  <div class="dh"><form method="dialog"><button>Đóng</button></form><button type="button" id="zoomBtn" class="zb">Xem cỡ gốc</button><a id="dl" href="#" style="color:var(--ac);font-size:13px">Tải về</a></div>
   <p id="photo-status" role="status" class="mu"></p>
-  <img id="original" alt="">
+  <div class="zw" id="zw"><img id="original" alt=""></div>
   <p class="fn" id="fname"></p>
 </dialog>
 <script>
@@ -217,10 +221,20 @@ feed.addEventListener('click',e=>{
   if(e.target.id==='more'){listPhotos(nextPage);return}
   const im=e.target.closest('img.t');if(im)showPhoto(S.map[im.dataset.id])});
 async function showPhoto(file){
-  const my=++viewToken;photoStatus.textContent='Đang tải ảnh gốc…';original.removeAttribute('src');original.alt='';fname.textContent=file.name;dl.hidden=true;viewer.showModal();
+  setZoom(false);const my=++viewToken;photoStatus.textContent='Đang tải ảnh gốc…';original.removeAttribute('src');original.alt='';fname.textContent=file.name;dl.hidden=true;viewer.showModal();
   try{const u=await blob(file);if(my!==viewToken)return;original.alt=file.name;original.src=u;dl.href=u;dl.download=file.name;dl.hidden=false;await original.decode().catch(()=>{});if(my===viewToken)photoStatus.textContent=''}
   catch(error){if(my===viewToken)photoStatus.textContent=error.message}}
-viewer.addEventListener('close',()=>{viewToken++;original.removeAttribute('src');original.alt=''});
+/* Phóng to ảnh: bấm ảnh hoặc nút để xem cỡ gốc 1:1; khi đã phóng thì kéo (chuột/ngón tay) để di chuyển, bấm lại để thu về vừa khung */
+const zw=byId('zw'),zb=byId('zoomBtn');let moved=false,pan=null;
+function setZoom(on,fx=.5,fy=.5){zw.classList.toggle('full',on);zb.textContent=on?'Vừa khung':'Xem cỡ gốc';
+  if(on){zw.scrollLeft=fx*zw.scrollWidth-zw.clientWidth/2;zw.scrollTop=fy*zw.scrollHeight-zw.clientHeight/2}else{zw.scrollLeft=0;zw.scrollTop=0}}
+zb.onclick=()=>setZoom(!zw.classList.contains('full'));
+original.addEventListener('click',e=>{if(moved){moved=false;return}if(!original.src)return;
+  const on=zw.classList.contains('full');setZoom(!on,e.offsetX/original.clientWidth,e.offsetY/original.clientHeight)});
+zw.addEventListener('pointerdown',e=>{if(!zw.classList.contains('full')||e.pointerType==='touch')return;pan={x:e.clientX,y:e.clientY,l:zw.scrollLeft,t:zw.scrollTop};moved=false;zw.setPointerCapture(e.pointerId);zw.classList.add('drag')});
+zw.addEventListener('pointermove',e=>{if(!pan)return;const dx=e.clientX-pan.x,dy=e.clientY-pan.y;if(Math.abs(dx)+Math.abs(dy)>4)moved=true;zw.scrollLeft=pan.l-dx;zw.scrollTop=pan.t-dy});
+const endPan=()=>{pan=null;zw.classList.remove('drag')};zw.addEventListener('pointerup',endPan);zw.addEventListener('pointercancel',endPan);
+viewer.addEventListener('close',()=>{setZoom(false);viewToken++;original.removeAttribute('src');original.alt=''});
 function updStatus(prefix){const d=new Date();stat.textContent=(prefix||S.files.size+' ảnh')+' · cập nhật '+p2(d.getHours())+':'+p2(d.getMinutes())}
 async function listPhotos(pageToken='',configurationClient='',silent=false){
   authorize.disabled=true;
