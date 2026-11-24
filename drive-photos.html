@@ -269,6 +269,7 @@ function connect(silent){
         if(response.error)return authError(response.error,response.error_description||'Google từ chối cấp quyền.');
         if(!response.access_token||!oauth.hasGrantedAllScopes(response,scope))return authError('missing_scope','Hãy chọn quyền đọc Google Drive trong cửa sổ cấp quyền.');
         accessToken=response.access_token;tokenClientId=clientId;tokenExpiresAt=Date.now()+Math.max(0,Number(response.expires_in)-30)*1000;silentFailed=false;
+        try{localStorage.setItem('drivePhotosTok',JSON.stringify({t:accessToken,exp:tokenExpiresAt,cid:clientId}))}catch{}
         /* nhớ email để lần sau Google tự chọn đúng tài khoản */
         if(!hint)fetch('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)',{headers:{Authorization:'Bearer '+accessToken}}).then(r=>r.json()).then(u=>{if(u?.user?.emailAddress)localStorage.setItem('drivePhotosHint',u.user.emailAddress)}).catch(()=>{});
         /* gia hạn token khi đang xem: giữ nguyên danh sách ảnh, chỉ làm mới */
@@ -285,8 +286,7 @@ byId('rf').onclick=()=>{if(!folderId||!accessToken||Date.now()>=tokenExpiresAt)c
 setInterval(()=>{const n=byId('nx');if(n)n.textContent=nextText({label:n.dataset.l,ts:+n.dataset.ts})},3e4);
 /* Tự làm mới mỗi 5 phút khi phiên còn hạn; hết hạn thì chỉ cập nhật trạng thái Chờ / Không có ảnh */
 setInterval(()=>{if(document.hidden||!folderId)return;
-  if(accessToken&&Date.now()<tokenExpiresAt)listPhotos('','',true);else if(!silentFailed)connect(true);else{render();stat.textContent='Phiên Google đã hết hạn. Bấm làm mới để kết nối lại.'}},3e5);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden&&folderId&&!silentFailed&&(!accessToken||Date.now()>=tokenExpiresAt))connect(true)});
+  if(accessToken&&Date.now()<tokenExpiresAt)listPhotos('','',true);else{render();stat.textContent='Phiên Google hết hạn (1 giờ). Bấm làm mới để nối lại.'}},3e5);
 modeUI();
 const googleScript=document.createElement('script');
 googleScript.src='https://accounts.google.com/gsi/client';
@@ -298,6 +298,7 @@ googleScript.onload=async()=>{
     stat.textContent=loaded?'Đã nhận cấu hình từ NoteEverything. Bấm Mở thư mục để xem.':'Kết nối bằng tài khoản Google có quyền xem thư mục.';
   }catch{stat.textContent='Chưa đọc được cấu hình đồng bộ. Bạn vẫn có thể kết nối bằng hai ô trên.'}
   authorize.disabled=false;
+  try{const k=JSON.parse(localStorage.getItem('drivePhotosTok')||'null');if(k&&k.t&&k.cid===client.value.trim()&&Date.now()<k.exp){accessToken=k.t;tokenClientId=k.cid;tokenExpiresAt=k.exp}}catch{}
   if(client.value&&folder.value){byId('cfgp').hidden=true;connect(true)}   // đã có cấu hình: tự vào, không cần bấm
 };
 googleScript.onerror=()=>{stat.textContent='Không tải được đăng nhập Google. Kiểm tra kết nối rồi tải lại trang.'};
