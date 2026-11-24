@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="theme-color" content="#0f6b5c">
-<title>Ảnh ghép trên Google Drive · NoteEverything</title>
+<title>Arknights Log · NoteEverything</title>
 <style>
 :root{--bg:#eef2f0;--sf:#fff;--ink:#14231e;--mu:#5d6f68;--ln:#d5ddd9;--ac:#0f6b5c;--acs:#dff1ec;--bad:#c0392b;--bads:#fbe3e0;--warn:#b7791f;--warns:#fdf0d5}
 @media(prefers-color-scheme:dark){:root{--bg:#0e1714;--sf:#172420;--ink:#e6f0ec;--mu:#93a9a1;--ln:#2a3b36;--ac:#4fd1b5;--acs:#1c3a33;--bad:#ff8a7a;--bads:#3b2326;--warn:#f2c14e;--warns:#3a3220;color-scheme:dark}}
@@ -66,7 +66,7 @@ button:disabled{opacity:.5;cursor:default}
 <body>
 <div class="bar"><div class="wrap">
   <a class="back" href="./index.html">← NoteEverything</a>
-  <div class="hrow"><h1>Ảnh ghép</h1>
+  <div class="hrow"><h1>Arknights Log</h1>
     <div class="acts">
       <button class="ib" id="rf" type="button" aria-label="Làm mới" title="Làm mới"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/></svg></button>
       <button class="ib" id="cf" type="button" aria-label="Thư mục và đăng nhập" title="Thư mục và đăng nhập"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></button>
@@ -176,7 +176,7 @@ function dayLabel(ts){const d=new Date(ts),n=new Date(),k=Math.round((new Date(n
   return(k===0?'Hôm nay':k===1?'Hôm qua':['Chủ nhật','Thứ hai','Thứ ba','Thứ tư','Thứ năm','Thứ sáu','Thứ bảy'][d.getDay()])+' · '+p2(d.getDate())+'/'+p2(d.getMonth()+1)}
 const MSG={ok:'Đã ghép xong, không có bất thường',bad:'Có cảnh báo, hãy xem ảnh',miss:'Không nhận được ảnh ở khung này',pend:'Chưa tới giờ'},PT={ok:'Bình thường',bad:'Cảnh báo',miss:'Không có ảnh'};
 const pill=e=>'<span class="pill '+e.st+'">'+(e.st==='pend'?'Chờ '+e.label:PT[e.st])+'</span>';
-function img(e){const f=e.p.f;S.map[f.id]=f;return'<img class="t" data-id="'+esc(f.id)+'" alt="Ảnh ghép '+e.label+'">'}
+function img(e){const f=e.p.f;S.map[f.id]=f;return'<img class="t" data-id="'+esc(f.id)+'" alt="Arknights Log '+e.label+'">'}
 const more=e=>e.n>1?' <span class="mu">· '+e.n+' ảnh, hiện ảnh mới nhất</span>':'';
 function until(ts){const m=Math.max(0,Math.round((ts-Date.now())/6e4)),h=Math.floor(m/60);return m<1?'sắp tới':'còn '+(h?h+' giờ ':'')+p2(m%60)+' phút'}
 const nextText=e=>'Chờ ảnh khung '+e.label+' ('+until(e.ts)+')';
