@@ -53,17 +53,12 @@ img.t{display:block;width:100%;height:auto;min-height:110px;object-fit:contain;b
 .lb button{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:12px;width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.18);color:#fff;font-size:22px}
 .why{margin:2px 4px 8px;padding:0;list-style:none;font-size:13px}.why li{margin:3px 0;padding-left:16px;position:relative}.why li::before{content:"⚠";position:absolute;left:0;color:var(--bad);font-size:11px;top:2px}.why li.w::before{color:var(--warn)}.why li.n{color:var(--mu)}.why li.n::before{content:"•"}
 @media(prefers-reduced-motion:no-preference){.sp{animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}}
-dialog{width:min(92vw,72rem);max-height:92vh;border:1px solid var(--ln);border-radius:16px;background:var(--sf);color:var(--ink);padding:12px}
-dialog::backdrop{background:rgba(0,0,0,.75)}
-dialog .dh{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
-dialog form{margin:0}dialog button{border:0;background:var(--ac);color:var(--bg);border-radius:999px;padding:7px 16px;font-weight:600}
-dialog{width:min(96vw,80rem)}
-.zw{margin-top:10px;max-height:74vh;overflow:auto;border-radius:10px;touch-action:pan-x pan-y pinch-zoom;overscroll-behavior:contain}
-.zw img{display:block;max-width:100%;max-height:74vh;object-fit:contain;margin:0 auto;cursor:zoom-in;-webkit-user-drag:none}
-.zw.full img{max-width:none;max-height:none;margin:0;cursor:grab}.zw.full.drag img{cursor:grabbing}
-.dh .zb{display:inline-block;flex:none;margin-left:auto;margin-right:12px;visibility:visible;opacity:1;white-space:nowrap}
-dialog #dl{flex:none;white-space:nowrap}
-dialog .fn{font-size:12px;color:var(--mu);overflow-wrap:anywhere;margin:8px 0 0}
+dialog#viewer{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;max-width:none;max-height:none;margin:0;padding:0;border:0;background:transparent;overflow:hidden;color:#fff}
+dialog#viewer[open]{display:flex;align-items:center;justify-content:center}
+dialog#viewer::backdrop{background:rgba(0,0,0,.92)}
+#original{display:block;max-width:100vw;max-height:100vh;max-height:100dvh;object-fit:contain;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-user-drag:none;will-change:transform}
+#photo-status{position:absolute;left:0;right:0;bottom:calc(16px + env(safe-area-inset-bottom,0px));text-align:center;color:#fff;margin:0;pointer-events:none}
+#photo-status:empty{display:none}
 #more{display:block;margin:10px auto;border:1px solid var(--ln);background:var(--sf);border-radius:999px;padding:7px 16px}
 button:disabled{opacity:.5;cursor:default}
 </style>
@@ -91,15 +86,13 @@ button:disabled{opacity:.5;cursor:default}
 </div></section>
 <main id="feed" aria-live="polite"></main>
 <dialog id="viewer" aria-label="Ảnh gốc">
-  <div class="dh"><form method="dialog"><button>Đóng</button></form><button type="button" id="zoomBtn" class="zb">Xem cỡ gốc</button><a id="dl" href="#" style="color:var(--ac);font-size:13px">Tải về</a></div>
+  <img id="original" alt="" draggable="false">
   <p id="photo-status" role="status" class="mu"></p>
-  <div class="zw" id="zw"><img id="original" alt=""></div>
-  <p class="fn" id="fname"></p>
 </dialog>
 <script>
 const byId=id=>document.getElementById(id);
 const form=byId('connect'),client=byId('client'),folder=byId('folder'),authorize=byId('authorize'),stat=byId('status'),feed=byId('feed');
-const viewer=byId('viewer'),original=byId('original'),photoStatus=byId('photo-status'),dl=byId('dl'),fname=byId('fname');
+const viewer=byId('viewer'),original=byId('original'),photoStatus=byId('photo-status');
 const scope='https://www.googleapis.com/auth/drive.readonly',api='https://www.googleapis.com/drive/v3/files';
 const SL=[0,5,8,13,16,21],GRACE=30*6e4,TOL=90*6e4,DAYS=14;
 let accessToken='',tokenClientId='',tokenExpiresAt=0,settingsUrl='',syncedSettings='',folderId='',nextPage='',loadingMore=false,viewToken=0;
@@ -222,25 +215,50 @@ feed.addEventListener('click',e=>{
   if(e.target.id==='more'){listPhotos(nextPage);return}
   const im=e.target.closest('img.t');if(im)showPhoto(S.map[im.dataset.id])});
 async function showPhoto(file){
-  setZoom(false);const my=++viewToken;photoStatus.textContent='Đang tải ảnh gốc…';original.removeAttribute('src');original.alt='';fname.textContent=file.name;dl.hidden=true;viewer.showModal();
-  try{const u=await blob(file);if(my!==viewToken)return;original.alt=file.name;original.src=u;dl.href=u;dl.download=file.name;dl.hidden=false;await original.decode().catch(()=>{});if(my===viewToken)photoStatus.textContent=''}
+  setZoom();const my=++viewToken;photoStatus.textContent='Đang tải ảnh gốc…';original.removeAttribute('src');original.alt='';viewer.showModal();
+  try{const u=await blob(file);if(my!==viewToken)return;original.alt=file.name;original.src=u;await original.decode().catch(()=>{});if(my===viewToken)photoStatus.textContent=''}
   catch(error){if(my===viewToken)photoStatus.textContent=error.message}}
-/* Phóng to ảnh: bấm ảnh hoặc nút để xem cỡ gốc 1:1; khi đã phóng thì kéo (chuột/ngón tay) để di chuyển, bấm lại để thu về vừa khung */
-const zw=byId('zw'),zb=byId('zoomBtn');let moved=false,pan=null;
-function setZoom(on,fx=.5,fy=.5){zw.classList.toggle('full',on);zb.textContent=on?'Vừa khung':'Xem cỡ gốc';
-  if(on){zw.scrollLeft=fx*zw.scrollWidth-zw.clientWidth/2;zw.scrollTop=fy*zw.scrollHeight-zw.clientHeight/2}else{zw.scrollLeft=0;zw.scrollTop=0}}
-zb.onclick=()=>setZoom(!zw.classList.contains('full'));
-original.addEventListener('click',e=>{if(moved){moved=false;return}if(!original.src)return;
-  const on=zw.classList.contains('full');setZoom(!on,e.offsetX/original.clientWidth,e.offsetY/original.clientHeight)});
-zw.addEventListener('pointerdown',e=>{if(!zw.classList.contains('full')||e.pointerType==='touch')return;pan={x:e.clientX,y:e.clientY,l:zw.scrollLeft,t:zw.scrollTop};moved=false;zw.setPointerCapture(e.pointerId);zw.classList.add('drag')});
-zw.addEventListener('pointermove',e=>{if(!pan)return;const dx=e.clientX-pan.x,dy=e.clientY-pan.y;if(Math.abs(dx)+Math.abs(dy)>4)moved=true;zw.scrollLeft=pan.l-dx;zw.scrollTop=pan.t-dy});
-const endPan=()=>{pan=null;zw.classList.remove('drag')};zw.addEventListener('pointerup',endPan);zw.addEventListener('pointercancel',endPan);
-/* Bấm ra ngoài khung (vào phần nền tối) thì đóng; click không lọt xuống trang bên dưới */
+/* Chỉ hiện ảnh. Zoom bằng 2 ngón (pinch), lăn chuột, hoặc chạm đúp; kéo để di chuyển khi đã phóng; bấm ra ngoài ảnh để đóng */
+let sc=1,tx=0,ty=0,lastTap=0,moved=false,gest=null;const pts=new Map();
+const MAXZ=8;
+function apply(){original.style.transform=sc===1&&!tx&&!ty?'':'translate('+tx+'px,'+ty+'px) scale('+sc+')'}
+function clampPan(){
+  const bx=Math.max(0,(original.clientWidth*sc-innerWidth)/2),by=Math.max(0,(original.clientHeight*sc-innerHeight)/2);
+  tx=Math.min(bx,Math.max(-bx,tx));ty=Math.min(by,Math.max(-by,ty));if(sc<=1){tx=0;ty=0}}
+function setZoom(){sc=1;tx=0;ty=0;pts.clear();gest=null;apply()}
+/* fx,fy: điểm giữ cố định, tính từ tâm màn hình */
+function zoomAt(ns,fx,fy){ns=Math.min(MAXZ,Math.max(1,ns));tx=fx-(fx-tx)*(ns/sc);ty=fy-(fy-ty)*(ns/sc);sc=ns;clampPan();apply()}
+const rel=(x,y)=>({x:x-innerWidth/2,y:y-innerHeight/2});
+function startGest(){
+  const [a,b]=[...pts.values()];
+  gest=pts.size>=2?{d:Math.hypot(a.x-b.x,a.y-b.y)||1,sc,mx:(a.x+b.x)/2,my:(a.y+b.y)/2,tx,ty}:{sc,mx:a.x,my:a.y,tx,ty}}
+original.addEventListener('pointerdown',e=>{
+  pts.set(e.pointerId,{x:e.clientX,y:e.clientY});try{original.setPointerCapture(e.pointerId)}catch{}
+  moved=false;startGest()});
+original.addEventListener('pointermove',e=>{
+  if(!pts.has(e.pointerId))return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});if(!gest)return;
+  const v=[...pts.values()];
+  if(v.length>=2){
+    const [a,b]=v,d=Math.hypot(a.x-b.x,a.y-b.y),mx=(a.x+b.x)/2,my=(a.y+b.y)/2,ns=Math.min(MAXZ,Math.max(1,gest.sc*d/gest.d)),f=rel(gest.mx,gest.my);
+    /* zoom quanh điểm giữa 2 ngón lúc bắt đầu, rồi cộng phần 2 ngón trượt đi */
+    tx=f.x-(f.x-gest.tx)*(ns/gest.sc)+(mx-gest.mx);ty=f.y-(f.y-gest.ty)*(ns/gest.sc)+(my-gest.my);sc=ns;moved=true;clampPan();apply()}
+  else if(sc>1){
+    const a=v[0],dx=a.x-gest.mx,dy=a.y-gest.my;if(Math.abs(dx)+Math.abs(dy)>4)moved=true;
+    tx=gest.tx+dx;ty=gest.ty+dy;clampPan();apply()}
+  else if(Math.abs(v[0].x-gest.mx)+Math.abs(v[0].y-gest.my)>6)moved=true});
+const endPtr=e=>{
+  if(!pts.has(e.pointerId))return;pts.delete(e.pointerId);
+  if(pts.size)startGest();else{
+    gest=null;
+    if(e.type==='pointerup'&&!moved){const t=Date.now();
+      if(t-lastTap<300){lastTap=0;const f=rel(e.clientX,e.clientY);zoomAt(sc>1?1:2.5,f.x,f.y)}else lastTap=t}}};
+original.addEventListener('pointerup',endPtr);original.addEventListener('pointercancel',endPtr);
+original.addEventListener('wheel',e=>{e.preventDefault();const f=rel(e.clientX,e.clientY);zoomAt(sc*Math.exp(-e.deltaY*.0015),f.x,f.y)},{passive:false});
+/* Bấm vào nền tối (ngoài ảnh) thì đóng; click không lọt xuống trang bên dưới */
 let downOut=false;
-const outside=e=>{const r=viewer.getBoundingClientRect();return e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom};
-viewer.addEventListener('pointerdown',e=>{downOut=e.target===viewer&&outside(e)});
-viewer.addEventListener('click',e=>{if(e.target===viewer&&downOut&&outside(e)){e.preventDefault();e.stopPropagation();viewer.close()}downOut=false});
-viewer.addEventListener('close',()=>{setZoom(false);viewToken++;original.removeAttribute('src');original.alt=''});
+viewer.addEventListener('pointerdown',e=>{downOut=e.target===viewer});
+viewer.addEventListener('click',e=>{if(e.target===viewer&&downOut){e.preventDefault();e.stopPropagation();viewer.close()}downOut=false});
+viewer.addEventListener('close',()=>{setZoom();viewToken++;original.removeAttribute('src');original.alt='';photoStatus.textContent=''});
 function updStatus(prefix){const d=new Date();stat.textContent=(prefix||S.files.size+' ảnh')+' · cập nhật '+p2(d.getHours())+':'+p2(d.getMinutes())}
 async function listPhotos(pageToken='',configurationClient='',silent=false){
   authorize.disabled=true;
