@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="vi">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ảnh ghép trên Google Drive · NoteEverything</title>
+<style>
+  :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
+  body { max-width: 52rem; margin: 2rem auto; padding: 0 1rem; }
+  label, input { display: block; }
+  label { margin: 1rem 0; }
+  input { width: 100%; box-sizing: border-box; }
+  input, button { font: inherit; padding: .55rem; }
+  button { cursor: pointer; }
+  li { margin: .45rem 0; overflow-wrap: anywhere; }
+  dialog { width: min(90vw, 72rem); box-sizing: border-box; }
+  dialog img { display: block; max-width: 100%; max-height: 78vh; object-fit: contain; margin: .75rem auto 0; }
+</style>
+<main>
+  <a href="./index.html">← NoteEverything</a>
+  <h1>Ảnh ghép trên Google Drive</h1>
+  <form id="connect">
+    <label>Google OAuth Client ID
+      <input id="client" required autocomplete="off" placeholder="…apps.googleusercontent.com">
+    </label>
+    <label>Link hoặc mã thư mục Drive
+      <input id="folder" required autocomplete="off" placeholder="https://drive.google.com/drive/folders/…">
+    </label>
+    <button id="authorize" disabled>Mở thư mục</button>
+  </form>
+  <p id="status" role="status">Đang tải đăng nhập Google…</p>
+  <ul id="photos"></ul>
+  <button id="more" type="button" hidden>Xem thêm</button>
+  <dialog id="viewer" aria-label="Ảnh gốc">
+    <form method="dialog"><button>Đóng</button></form>
+    <p id="photo-status" role="status"></p>
+    <img id="original" alt="">
+  </dialog>
+</main>
+<script>
+  const byId = id => document.getElementById(id);
+  const form = byId('connect');
+  const client = byId('client');
+  const folder = byId('folder');
+  const authorize = byId('authorize');
+  const status = byId('status');
+  const photos = byId('photos');
+  const more = byId('more');
+  const viewer = byId('viewer');
+  const original = byId('original');
+  const photoStatus = byId('photo-status');
+  const scope = 'https://www.googleapis.com/auth/drive.readonly';
+  const api = 'https://www.googleapis.com/drive/v3/files';
+  let accessToken = '';
+  let folderId = '';
+  let nextPage = '';
+  let imageRequest;
+  let imageUrl;
+
+  try {
+    client.value = localStorage.getItem('drivePhotosClient') || '';
+    folder.value = localStorage.getItem('drivePhotosFolder') || '';
+  } catch {}
+
+  function parseFolder(value) {
+    const input = value.trim();
+    const link = /^https:\/\/drive\.google\.com\/drive\/(?:u\/\d+\/)?folders\/([\w-]+)(?:[/?#]|$)/i.exec(input);
+    return link?.[1] || (/^[\w-]+$/.test(input) ? input : '');
+  }
+
+  async function drive(path, params, signal) {
+    const response = await fetch(api + path + '?' + new URLSearchParams(params), {
+      headers: { Authorization: 'Bearer ' + accessToken },
+      cache: 'no-store',
+      signal
+    });
+    if (response.status === 401) throw new Error('Phiên Google đã hết hạn. Bấm Mở thư mục để kết nối lại.');
+    if (response.status === 403) throw new Error('Google từ chối truy cập. Kiểm tra Drive API và quyền của tài khoản.');
+    if (response.status === 404) throw new Error('Tệp hoặc thư mục không còn truy cập được.');
+    if (!response.ok) throw new Error('Không đọc được dữ liệu từ Drive (' + response.status + ').');
+    return response;
+  }
+
+  async function listPhotos(pageToken = '') {
+    more.disabled = true;
+    authorize.disabled = true;
+    status.textContent = 'Đang đọc thư mục…';
+    try {
+      if (!pageToken) {
+        const response = await drive('/' + encodeURIComponent(folderId), { fields: 'mimeType,trashed' });
+        const entry = await response.json();
+        if (entry.trashed || entry.mimeType !== 'application/vnd.google-apps.folder') {
+          throw new Error('Hãy chọn một thư mục Drive đang hoạt động.');
+        }
+      }
+      const params = {
+        q: "'" + folderId + "' in parents and trashed = false and mimeType contains 'image/'",
+        fields: 'nextPageToken,files(id,name)',
+        orderBy: 'createdTime desc',
+        pageSize: '50'
+      };
+      if (pageToken) params.pageToken = pageToken;
+      const response = await drive('', params);
+      const data = await response.json();
+      for (const file of data.files || []) {
+        const item = document.createElement('li');
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = file.name;
+        button.addEventListener('click', () => showPhoto(file));
+        item.append(button);
+        photos.append(item);
+      }
+      nextPage = data.nextPageToken || '';
+      more.hidden = !nextPage;
+      status.textContent = photos.children.length
+        ? 'Chọn tên ảnh để xem bản gốc.'
+        : nextPage ? 'Bấm Xem thêm để đọc trang tiếp theo.' : 'Thư mục này chưa có ảnh.';
+    } catch (error) {
+      status.textContent = error.message;
+    } finally {
+      authorize.disabled = false;
+      more.disabled = false;
+    }
+  }
+
+  async function showPhoto(file) {
+    const request = new AbortController();
+    imageRequest = request;
+    photoStatus.textContent = 'Đang tải ảnh gốc…';
+    viewer.showModal();
+    try {
+      const response = await drive('/' + encodeURIComponent(file.id), { alt: 'media' }, request.signal);
+      const blob = await response.blob();
+      if (request.signal.aborted) return;
+      if (!blob.type.startsWith('image/')) throw new Error('Drive không trả về tệp ảnh.');
+      imageUrl = URL.createObjectURL(blob);
+      original.alt = file.name;
+      original.src = imageUrl;
+      await original.decode();
+      if (!request.signal.aborted) photoStatus.textContent = '';
+    } catch (error) {
+      if (!request.signal.aborted) photoStatus.textContent = error.message;
+    }
+  }
+
+  viewer.addEventListener('close', () => {
+    imageRequest?.abort();
+    original.removeAttribute('src');
+    original.alt = '';
+    if (imageUrl) URL.revokeObjectURL(imageUrl);
+    imageUrl = null;
+  });
+  more.addEventListener('click', () => listPhotos(nextPage));
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    const selectedFolder = parseFolder(folder.value);
+    const clientId = client.value.trim();
+    if (!selectedFolder || !/^[\w-]+\.apps\.googleusercontent\.com$/.test(clientId)) {
+      status.textContent = 'Kiểm tra lại OAuth Client ID và link hoặc mã thư mục.';
+      return;
+    }
+    authorize.disabled = true;
+    more.disabled = true;
+    status.textContent = 'Đang chờ cấp quyền Google…';
+    const authError = () => {
+      authorize.disabled = false;
+      more.disabled = false;
+      status.textContent = 'Chưa cấp được quyền Google. Kiểm tra cấu hình OAuth hoặc thử mở lại cửa sổ đăng nhập.';
+    };
+    try {
+      const oauth = google.accounts.oauth2;
+      oauth.initTokenClient({
+        client_id: clientId,
+        scope,
+        error_callback: authError,
+        callback: response => {
+          if (!response.access_token || !oauth.hasGrantedAllScopes(response, scope)) return authError();
+          accessToken = response.access_token;
+          folderId = selectedFolder;
+          nextPage = '';
+          photos.replaceChildren();
+          more.hidden = true;
+          try {
+            localStorage.setItem('drivePhotosClient', clientId);
+            localStorage.setItem('drivePhotosFolder', selectedFolder);
+          } catch {}
+          listPhotos();
+        }
+      }).requestAccessToken();
+    } catch {
+      authError();
+    }
+  });
+
+  const googleScript = document.createElement('script');
+  googleScript.src = 'https://accounts.google.com/gsi/client';
+  googleScript.onload = () => {
+    authorize.disabled = false;
+    status.textContent = 'Kết nối bằng tài khoản Google có quyền xem thư mục.';
+  };
+  googleScript.onerror = () => {
+    status.textContent = 'Không tải được đăng nhập Google. Kiểm tra kết nối rồi tải lại trang.';
+  };
+  document.head.append(googleScript);
+</script>
+</html>
