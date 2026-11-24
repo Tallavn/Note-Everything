@@ -158,6 +158,8 @@ function parse(f){const m=/^ghep_(\d{4})(\d\d)(\d\d)_(\d\d)(\d\d)(\d\d)((?:_[^_.
   if(bad&&!d.length)d.push({c:'n',t:'Ảnh này chưa ghi chi tiết cảnh báo, mở ảnh để xem băng đỏ ở đầu ảnh'});
   return{f,ts:new Date(+m[1],m[2]-1,+m[3],+m[4],+m[5],+m[6]).getTime(),bad,d}}
 const why=e=>e.p&&e.p.d.length?'<ul class="why">'+e.p.d.map(x=>'<li class="'+x.c+'">'+esc(x.t)+'</li>').join('')+'</ul>':'';
+/* Khung cố định giữ nhãn HH:00; khi có ảnh thì nhãn đổi thành giờ thực của ảnh (lấy từ tên file) */
+const hm=ts=>{const d=new Date(ts);return p2(d.getHours())+':'+p2(d.getMinutes())};
 function build(files,now){
   const P=files.map(parse).filter(Boolean).sort((a,b)=>a.ts-b.ts),slots={},extra=[],E=[];
   P.forEach(p=>{let best=null;const d=new Date(p.ts);
