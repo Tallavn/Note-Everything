@@ -10592,7 +10592,36 @@ body>.dv-btn.dvmv .dv-ic{border-radius:16px;transform:scale(1.06)}
 @media (prefers-reduced-motion:reduce){#dvPanel,#dvPanel.open,.dv-ic,.dv-btn::before{transition:none}}
 </style>
 </head>
+<script id="ne-paste-image">
+/* Ctrl+V dán ảnh vào ô nhập: Ghi chú, Chi tiêu/Nợ, form Sửa */
+(function () {
+  document.addEventListener("paste", function (e) {
+    var t = e.target;
+    if (!t || !t.closest) return;
+    var ctx = "";
+    if (t.closest(".edit")) ctx = "edit";
+    else if (t.closest("#finSheet")) ctx = "fin";
+    else if (t.closest("#notesView>.box")) ctx = "in";
+    if (!ctx) return;
 
+    var cd = e.clipboardData;
+    if (!cd || !cd.items) return;
+    var files = [];
+    Array.prototype.forEach.call(cd.items, function (it) {
+      if (it.kind === "file" && /^image\//.test(it.type)) {
+        var f = it.getAsFile();
+        if (f) files.push(f);
+      }
+    });
+    if (!files.length) return;                 // không có ảnh: để dán chữ như bình thường
+
+    if (!cd.getData("text/plain")) e.preventDefault(); // chỉ có ảnh thì không chèn gì vào ô chữ
+    camCtx = ctx;                              // biến toàn cục có sẵn của app
+    procPics(files);                           // hàm có sẵn: thu nhỏ, kiểm tra tối đa 3 ảnh, hiện thumbnail
+  }, true);
+})();
+</script>
+  
 <body>
   <div class="cbd" id="cbd"></div>
   <main>
