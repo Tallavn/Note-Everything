@@ -55,12 +55,14 @@ img.t{display:block;width:100%;height:auto;min-height:110px;object-fit:contain;b
 @media(prefers-reduced-motion:no-preference){.sp{animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}}
 dialog{width:min(92vw,72rem);max-height:92vh;border:1px solid var(--ln);border-radius:16px;background:var(--sf);color:var(--ink);padding:12px}
 dialog::backdrop{background:rgba(0,0,0,.75)}
-dialog .dh{display:flex;justify-content:space-between;align-items:center;gap:8px}
+dialog .dh{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 dialog form{margin:0}dialog button{border:0;background:var(--ac);color:var(--bg);border-radius:999px;padding:7px 16px;font-weight:600}
 dialog{width:min(96vw,80rem)}
-.zw{margin-top:10px;height:74vh;overflow:hidden;border-radius:10px;display:flex;align-items:center;justify-content:center;touch-action:none;overscroll-behavior:contain;user-select:none;-webkit-user-select:none}
-.zw img{display:block;max-width:100%;max-height:100%;object-fit:contain;-webkit-user-drag:none;will-change:transform;transform-origin:50% 50%}
-.zw.zoomed{cursor:grab}
+.zw{margin-top:10px;max-height:74vh;overflow:auto;border-radius:10px;touch-action:pan-x pan-y pinch-zoom;overscroll-behavior:contain}
+.zw img{display:block;max-width:100%;max-height:74vh;object-fit:contain;margin:0 auto;cursor:zoom-in;-webkit-user-drag:none}
+.zw.full img{max-width:none;max-height:none;margin:0;cursor:grab}.zw.full.drag img{cursor:grabbing}
+.dh .zb{display:inline-block;flex:none;margin-left:auto;margin-right:12px;visibility:visible;opacity:1;white-space:nowrap}
+dialog #dl{flex:none;white-space:nowrap}
 dialog .fn{font-size:12px;color:var(--mu);overflow-wrap:anywhere;margin:8px 0 0}
 #more{display:block;margin:10px auto;border:1px solid var(--ln);background:var(--sf);border-radius:999px;padding:7px 16px}
 button:disabled{opacity:.5;cursor:default}
@@ -89,7 +91,7 @@ button:disabled{opacity:.5;cursor:default}
 </div></section>
 <main id="feed" aria-live="polite"></main>
 <dialog id="viewer" aria-label="Ảnh gốc">
-  <div class="dh"><form method="dialog"><button>Đóng</button></form><a id="dl" href="#" style="color:var(--ac);font-size:13px">Tải về</a></div>
+  <div class="dh"><form method="dialog"><button>Đóng</button></form><button type="button" id="zoomBtn" class="zb">Xem cỡ gốc</button><a id="dl" href="#" style="color:var(--ac);font-size:13px">Tải về</a></div>
   <p id="photo-status" role="status" class="mu"></p>
   <div class="zw" id="zw"><img id="original" alt=""></div>
   <p class="fn" id="fname"></p>
@@ -223,40 +225,22 @@ async function showPhoto(file){
   setZoom(false);const my=++viewToken;photoStatus.textContent='Đang tải ảnh gốc…';original.removeAttribute('src');original.alt='';fname.textContent=file.name;dl.hidden=true;viewer.showModal();
   try{const u=await blob(file);if(my!==viewToken)return;original.alt=file.name;original.src=u;dl.href=u;dl.download=file.name;dl.hidden=false;await original.decode().catch(()=>{});if(my===viewToken)photoStatus.textContent=''}
   catch(error){if(my===viewToken)photoStatus.textContent=error.message}}
-/* Xem ảnh: zoom 2 ngón / lăn chuột / chạm đúp; kéo để di chuyển khi đã phóng; bấm ra ngoài ảnh để đóng */
-const zw=byId('zw');let S=1,TX=0,TY=0,pinch=null,panP=null,movedG=false,lastTap=0;const pts=new Map();
-function apply(anim){original.style.transition=anim?'transform .2s ease':'none';
-  original.style.transform=(S>1.001||TX||TY)?`translate3d(${TX}px,${TY}px,0) scale(${S})`:'';zw.classList.toggle('zoomed',S>1.001)}
-function setZoom(){S=1;TX=TY=0;pts.clear();pinch=null;panP=null;apply(false)}
-function clampT(){const w=original.offsetWidth*S,h=original.offsetHeight*S,mx=Math.max(0,(w-zw.clientWidth)/2),my=Math.max(0,(h-zw.clientHeight)/2);
-  TX=Math.max(-mx,Math.min(mx,TX));TY=Math.max(-my,Math.min(my,TY))}
-function zoomAt(mx,my,ns){const r=original.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
-  ns=Math.max(1,Math.min(6,ns));const ux=(mx-cx)/S,uy=(my-cy)/S;TX+=mx-ux*ns-cx;TY+=my-uy*ns-cy;S=ns;
-  if(S<=1.001){S=1;TX=TY=0}else clampT()}
-const hasImg=()=>!!original.getAttribute('src');
-zw.addEventListener('pointerdown',e=>{if(!hasImg())return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});try{zw.setPointerCapture(e.pointerId)}catch(_){}
-  if(pts.size>=2){const [a,b]=[...pts.values()];pinch={d0:Math.hypot(a.x-b.x,a.y-b.y)||1,s0:S,mx:(a.x+b.x)/2,my:(a.y+b.y)/2};panP=null;movedG=true;return}
-  movedG=false;if(S>1)panP={x:e.clientX,y:e.clientY}});
-zw.addEventListener('pointermove',e=>{if(pts.has(e.pointerId))pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  if(pinch&&pts.size>=2){const [a,b]=[...pts.values()],m={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
-    zoomAt(pinch.mx,pinch.my,pinch.s0*Math.hypot(a.x-b.x,a.y-b.y)/pinch.d0);TX+=m.x-pinch.mx;TY+=m.y-pinch.my;if(S>1)clampT();
-    pinch.mx=m.x;pinch.my=m.y;apply(false);movedG=true;return}
-  if(panP){const dx=e.clientX-panP.x,dy=e.clientY-panP.y;if(Math.abs(dx)+Math.abs(dy)>2)movedG=true;
-    TX+=dx;TY+=dy;clampT();panP.x=e.clientX;panP.y=e.clientY;apply(false)}});
-const endP=e=>{pts.delete(e.pointerId);
-  if(pinch){if(pts.size<2){pinch=null;if(S<=1.05){S=1;TX=TY=0;apply(true)}const r=[...pts.values()][0];if(r&&S>1)panP={x:r.x,y:r.y}}return}
-  if(panP){panP=null;if(S<=1.001){S=1;TX=TY=0;apply(true)}}};
-zw.addEventListener('pointerup',endP);zw.addEventListener('pointercancel',endP);
-zw.addEventListener('wheel',e=>{if(!hasImg())return;e.preventDefault();zoomAt(e.clientX,e.clientY,S*(e.deltaY<0?1.2:1/1.2));apply(false)},{passive:false});
-function inPhoto(x,y){if(!hasImg())return false;const r=original.getBoundingClientRect(),z=zw.getBoundingClientRect();
-  return x>=Math.max(r.left,z.left)&&x<=Math.min(r.right,z.right)&&y>=Math.max(r.top,z.top)&&y<=Math.min(r.bottom,z.bottom)}
-viewer.addEventListener('click',e=>{
-  if(e.target.closest('button,a'))return;
-  if(movedG){movedG=false;return}
-  if(inPhoto(e.clientX,e.clientY)){const t=Date.now();
-    if(t-lastTap<300){lastTap=0;if(S>1){S=1;TX=TY=0}else zoomAt(e.clientX,e.clientY,2.5);apply(true)}else lastTap=t;return}
-  viewer.close()});
-viewer.addEventListener('close',()=>{setZoom();viewToken++;original.removeAttribute('src');original.alt=''});
+/* Phóng to ảnh: bấm ảnh hoặc nút để xem cỡ gốc 1:1; khi đã phóng thì kéo (chuột/ngón tay) để di chuyển, bấm lại để thu về vừa khung */
+const zw=byId('zw'),zb=byId('zoomBtn');let moved=false,pan=null;
+function setZoom(on,fx=.5,fy=.5){zw.classList.toggle('full',on);zb.textContent=on?'Vừa khung':'Xem cỡ gốc';
+  if(on){zw.scrollLeft=fx*zw.scrollWidth-zw.clientWidth/2;zw.scrollTop=fy*zw.scrollHeight-zw.clientHeight/2}else{zw.scrollLeft=0;zw.scrollTop=0}}
+zb.onclick=()=>setZoom(!zw.classList.contains('full'));
+original.addEventListener('click',e=>{if(moved){moved=false;return}if(!original.src)return;
+  const on=zw.classList.contains('full');setZoom(!on,e.offsetX/original.clientWidth,e.offsetY/original.clientHeight)});
+zw.addEventListener('pointerdown',e=>{if(!zw.classList.contains('full')||e.pointerType==='touch')return;pan={x:e.clientX,y:e.clientY,l:zw.scrollLeft,t:zw.scrollTop};moved=false;zw.setPointerCapture(e.pointerId);zw.classList.add('drag')});
+zw.addEventListener('pointermove',e=>{if(!pan)return;const dx=e.clientX-pan.x,dy=e.clientY-pan.y;if(Math.abs(dx)+Math.abs(dy)>4)moved=true;zw.scrollLeft=pan.l-dx;zw.scrollTop=pan.t-dy});
+const endPan=()=>{pan=null;zw.classList.remove('drag')};zw.addEventListener('pointerup',endPan);zw.addEventListener('pointercancel',endPan);
+/* Bấm ra ngoài khung (vào phần nền tối) thì đóng; click không lọt xuống trang bên dưới */
+let downOut=false;
+const outside=e=>{const r=viewer.getBoundingClientRect();return e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom};
+viewer.addEventListener('pointerdown',e=>{downOut=e.target===viewer&&outside(e)});
+viewer.addEventListener('click',e=>{if(e.target===viewer&&downOut&&outside(e)){e.preventDefault();e.stopPropagation();viewer.close()}downOut=false});
+viewer.addEventListener('close',()=>{setZoom(false);viewToken++;original.removeAttribute('src');original.alt=''});
 function updStatus(prefix){const d=new Date();stat.textContent=(prefix||S.files.size+' ảnh')+' · cập nhật '+p2(d.getHours())+':'+p2(d.getMinutes())}
 async function listPhotos(pageToken='',configurationClient='',silent=false){
   authorize.disabled=true;
