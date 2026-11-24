@@ -162,19 +162,30 @@
     authorize.disabled = true;
     more.disabled = true;
     status.textContent = 'Đang chờ cấp quyền Google…';
-    const authError = () => {
+    const authError = (code, message) => {
       authorize.disabled = false;
       more.disabled = false;
-      status.textContent = 'Chưa cấp được quyền Google. Kiểm tra cấu hình OAuth hoặc thử mở lại cửa sổ đăng nhập.';
+      status.textContent = message + ' (' + code + ')';
     };
     try {
       const oauth = google.accounts.oauth2;
       oauth.initTokenClient({
         client_id: clientId,
         scope,
-        error_callback: authError,
+        error_callback: error => {
+          const messages = {
+            popup_failed_to_open: 'Không mở được cửa sổ Google. Hãy cho phép cửa sổ bật lên trên trang này rồi thử lại.',
+            popup_closed: 'Cửa sổ Google đã đóng trước khi cấp quyền. Mở lại và hoàn tất các bước trong cửa sổ đó.'
+          };
+          authError(error.type || 'unknown', messages[error.type] || 'Cửa sổ đăng nhập Google gặp lỗi.');
+        },
         callback: response => {
-          if (!response.access_token || !oauth.hasGrantedAllScopes(response, scope)) return authError();
+          if (response.error) {
+            return authError(response.error, response.error_description || 'Google từ chối cấp quyền.');
+          }
+          if (!response.access_token || !oauth.hasGrantedAllScopes(response, scope)) {
+            return authError('missing_scope', 'Hãy chọn quyền đọc Google Drive trong cửa sổ cấp quyền.');
+          }
           accessToken = response.access_token;
           folderId = selectedFolder;
           nextPage = '';
@@ -188,7 +199,7 @@
         }
       }).requestAccessToken();
     } catch {
-      authError();
+      authError('oauth_init_failed', 'Không khởi tạo được đăng nhập Google. Hãy tải lại trang và thử lại.');
     }
   });
 
