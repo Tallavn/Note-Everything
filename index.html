@@ -14619,21 +14619,21 @@ document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!$i("impShe
       el=el.parentNode}
     return{hard:false,sc:sc}}
   function go(dx){
-    if(document.querySelector(".lb"))return; /* Vuốt trong trình xem ảnh không đổi tab bên dưới. */
+    if(document.querySelector(".lb,#dvPanel.open"))return; /* Vuốt trong trình xem ảnh không đổi tab bên dưới. */
     if(dx>0&&!eL)return;if(dx<0&&!eR)return;
     if(dx<0&&tab==="notes")setTab("fin");
     else if(dx<0&&tab==="fin")setTab("plan");
     else if(dx>0&&tab==="plan")setTab("fin");
     else if(dx>0&&tab==="fin")setTab("notes")}
   document.addEventListener("touchstart",function(e){
-    if(e.touches.length!==1||document.querySelector(".lb")){ok=false;return}
+    if(e.touches.length!==1||document.querySelector(".lb,#dvPanel.open")){ok=false;return}
     var t=e.touches[0];sx=t.clientX;sy=t.clientY;st=Date.now();
     var r=scan(e.target);
     ok=!r.hard&&!document.body.classList.contains("gym")&&!document.querySelector(".sheet:not([hidden])")&&!document.body.classList.contains("psheet")&&!document.querySelector(".edit");  /* form Sửa đang mở (ghi chú/chi tiêu/chi nhánh): tắt hẳn vuốt đổi tab, kể cả chạm vào chỗ trống hay nút trong form */
     if(r.sc){eL=r.sc.scrollLeft<=2;eR=r.sc.scrollLeft>=r.sc.scrollWidth-r.sc.clientWidth-2}else{eL=eR=true}},{passive:true});
   document.addEventListener("touchmove",function(e){
     if(!ok)return;
-    if(document.querySelector(".lb")){ok=false;return}
+    if(document.querySelector(".lb,#dvPanel.open")){ok=false;return}
     if(document.body.classList.contains("fabmove")||document.body.classList.contains("txdrag")||document.getElementById("list").classList.contains("reorder")){ok=false;return}  /* đang dời nút + hoặc kéo thả nhóm tag */
     var t=e.touches[0],dx=t.clientX-sx,dy=t.clientY-sy;
     if(Math.abs(dy)>45&&Math.abs(dy)>Math.abs(dx)){ok=false;return}       /* đang cuộn dọc */
@@ -15150,7 +15150,7 @@ document.addEventListener("click",function(e){
       function blocked(t) {
         var b = document.body.classList;
         if (b.contains("composing") || b.contains("editing") || b.contains("psheet") || b.contains("fabmove") || b.contains("pout") || b.contains("cout")) return true;
-        if (document.querySelector(".sheet:not([hidden]),.edit,.camsheet,.camlive,.lb")) return true;
+        if (document.querySelector(".sheet:not([hidden]),.edit,.camsheet,.camlive,.lb,#dvPanel.open")) return true;
         var l = document.getElementById("list"); if (l && l.classList.contains("reorder")) return true;
         var a = document.activeElement; if (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return true;
         while (t && t !== document.body && t.nodeType === 1) {
@@ -15191,7 +15191,7 @@ document.addEventListener("click",function(e){
       var depth = 0, busy = false, pending = false, order = [], ok = true, tm = 0;
       function tokens() {
         var out = [], b = document.body.classList;
-        Array.prototype.forEach.call(document.querySelectorAll(".sheet:not([hidden]),.camsheet,.camlive,.lb"), function (el) { out.push(el) });
+        Array.prototype.forEach.call(document.querySelectorAll(".sheet:not([hidden]),.camsheet,.camlive,.lb,#dvPanel.open"), function (el) { out.push(el) });
         if (document.querySelector(".edit") || b.contains("editing")) out.push("edit");
         if (b.contains("psheet")) out.push("psheet");
         if (b.contains("txselmode")) out.push("txsel"); /* đang chọn nhiều khoản: Back = hủy chọn */
@@ -15216,6 +15216,7 @@ document.addEventListener("click",function(e){
         if (t === "edit") { var c = document.querySelector("[data-ecancel]"); if (c) c.click(); else if (cbd && document.body.classList.contains("editing")) cbd.click(); return }
         if (t === "psheet") { if (cbd) cbd.click(); return }
         if (t === "txsel") { var tc = document.querySelector('#txbar [data-txs="clr"]'); if (tc) tc.click(); else document.body.classList.remove("txselmode"); return }
+        if (t.id === "dvPanel") { var dx = t.querySelector("#dvX"); if (dx) dx.click(); else t.classList.remove("open"); return }
         if (t.classList.contains("sheet")) { var x = t.querySelector(".shead .x"); if (x) x.click(); else t.hidden = true; return }
         if (t.classList.contains("lb")) { t.remove(); return }
         if (t.classList.contains("camsheet")) { var cx = t.querySelector(".cs-x,.cs-bd"); if (cx) cx.click(); else t.remove(); return }
