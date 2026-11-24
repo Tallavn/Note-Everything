@@ -10539,6 +10539,42 @@ html body main #notesView #list .swrap>.note.swcard>.nmain{flex:1 1 0;min-width:
 .dh .dhpin b{font-size:11px;font-weight:700}
 .hidecat .ghimd .cattag{display:inline-block}
 </style>
+<style id="dvCss">
+/* Nút kiểu Discord: hình tròn -> bo vuông khi hover/mở */
+.dv-btn{position:fixed;right:16px;bottom:16px;z-index:60;width:50px;height:50px;padding:0;border:0;background:none;color:var(--ink);cursor:pointer;-webkit-tap-highlight-color:transparent;filter:drop-shadow(0 4px 10px rgba(0,0,0,.3))}
+.dv-ic{flex:none;width:100%;height:100%;display:grid;place-items:center;border-radius:50%;background:var(--accent);color:var(--accent-ink);transition:border-radius .18s ease,transform .12s ease}
+.dv-ic svg{width:22px;height:22px}
+.dv-btn:hover .dv-ic,.dv-btn[aria-expanded="true"] .dv-ic{border-radius:16px}
+.dv-btn:active .dv-ic{transform:scale(.94)}
+.dv-btn[aria-expanded="true"]{display:none}
+.dv-btn:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:50%}
+/* Điện thoại: nằm trong thanh trên, cạnh nút Cài đặt */
+.hr>.dv-btn{position:static;width:38px;height:38px;filter:none;z-index:auto}
+.hr>.dv-btn .dv-ic{border-radius:12px}
+.hr>.dv-btn .dv-ic svg{width:19px;height:19px}
+.hr>.dv-btn[aria-expanded="true"]{display:block}
+
+/* Khung chat pop-up (PC) / toàn màn hình (điện thoại) */
+#dvPanel{position:fixed;z-index:90;display:flex;flex-direction:column;background:var(--surface);color:var(--ink);overflow:hidden;
+  inset:0;border-radius:0;opacity:0;visibility:hidden;transform:translateY(16px);
+  transition:opacity .18s ease,transform .18s ease,visibility 0s linear .18s}
+#dvPanel.open{opacity:1;visibility:visible;transform:none;transition:opacity .18s ease,transform .18s ease}
+#dvPanel .dv-h{flex:none;display:flex;align-items:center;gap:10px;padding:10px 12px;padding-top:calc(10px + env(safe-area-inset-top,0px));border-bottom:1px solid var(--line);background:var(--surface)}
+#dvPanel .dv-h .dv-ic{width:32px;height:32px;border-radius:12px;flex:none}
+#dvPanel .dv-h .dv-ic svg{width:16px;height:16px}
+#dvPanel .dv-t{flex:1;min-width:0;font-weight:600;font-size:var(--fs-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#dvPanel .dv-x{flex:none;width:32px;height:32px;display:grid;place-items:center;border:0;border-radius:50%;background:none;color:var(--muted);cursor:pointer}
+#dvPanel .dv-x:hover{background:var(--bg);color:var(--ink)}
+#dvPanel .dv-x svg{width:18px;height:18px}
+#dvPanel iframe{flex:1;width:100%;border:0;background:var(--surface);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (min-width:701px) and (pointer:fine){
+  #dvPanel{inset:auto;right:20px;bottom:20px;width:min(420px,calc(100vw / var(--z,1) - 40px));height:min(680px,calc(100dvh / var(--z,1) - 40px));
+    border-radius:18px;border:1px solid var(--line);box-shadow:0 18px 50px rgba(0,0,0,.28);transform-origin:100% 100%;transform:translateY(12px) scale(.96)}
+  #dvPanel .dv-h{padding-top:10px}
+  #dvPanel iframe{padding-bottom:0}
+}
+@media (prefers-reduced-motion:reduce){#dvPanel,#dvPanel.open,.dv-ic,.dv-btn::before{transition:none}}
+</style>
 </head>
 
 <body>
@@ -10559,7 +10595,7 @@ html body main #notesView #list .swrap>.note.swcard>.nmain{flex:1 1 0;min-width:
                 d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
             </svg></button>
           <div class="smenu" id="setMenu" hidden>
-            <div class="sm-row"><a href="./drive-photos.html">Ảnh ghép trên Google Drive</a></div>
+            
             <div class="sm-row"><span>Cỡ giao diện</span><span class="zc"><button type="button" id="zDn"
                   aria-label="Giảm cỡ giao diện">−</button><button type="button" id="zVal"
                   title="Về 100%">100%</button><button type="button" id="zUp"
@@ -17479,6 +17515,34 @@ document.addEventListener("click",function(e){
   if (mq.addEventListener) mq.addEventListener('change', schedule);
   window.addEventListener('load', schedule);
   build();
+})();
+</script>
+<button type="button" class="dv-btn" id="dvBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="dvPanel" aria-label="Ảnh ghép trên Google Drive" title="Ảnh ghép trên Google Drive"><span class="dv-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="5" rx="2"/><rect x="13" y="10" width="8" height="11" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/></svg></span></button>
+<div id="dvPanel" role="dialog" aria-modal="false" aria-label="Ảnh ghép trên Google Drive" aria-hidden="true">
+  <div class="dv-h"><span class="dv-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="5" rx="2"/><rect x="13" y="10" width="8" height="11" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/></svg></span><span class="dv-t">Ảnh ghép trên Google Drive</span><button type="button" class="dv-x" id="dvX" aria-label="Đóng" title="Đóng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <iframe id="dvFrame" title="Ảnh ghép trên Google Drive" loading="lazy" allow="clipboard-write; fullscreen"></iframe>
+</div>
+<script>
+(function(){
+var b=document.getElementById("dvBtn"),p=document.getElementById("dvPanel"),f=document.getElementById("dvFrame"),x=document.getElementById("dvX");
+if(!b||!p||!f||!x)return;
+var loaded=false;
+var mq=window.matchMedia("(min-width:701px) and (pointer:fine)");
+function place(){var hr=document.querySelector(".hr");
+  if(!mq.matches&&hr){var sw=hr.querySelector(".setw");if(b.parentNode!==hr)hr.insertBefore(b,sw||null)}
+  else if(b.parentNode!==document.body)document.body.appendChild(b)}
+place();(mq.addEventListener?mq.addEventListener("change",place):mq.addListener(place));
+function setMenuClosed(){var sm=document.getElementById("setMenu"),sb=document.getElementById("setBtn");if(sm&&!sm.hidden&&sb)sb.click()}
+function openP(){
+  setMenuClosed();
+  if(!loaded){f.src="./drive-photos.html";loaded=true;
+    f.addEventListener("load",function(){try{f.contentWindow.addEventListener("keydown",function(e){if(e.key==="Escape")closeP()})}catch(e){}})}
+  p.classList.add("open");p.setAttribute("aria-hidden","false");b.setAttribute("aria-expanded","true");
+}
+function closeP(){p.classList.remove("open");p.setAttribute("aria-hidden","true");b.setAttribute("aria-expanded","false")}
+b.addEventListener("click",function(){p.classList.contains("open")?closeP():openP()});
+x.addEventListener("click",closeP);
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&p.classList.contains("open"))closeP()});
 })();
 </script>
 </body>
