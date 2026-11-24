@@ -2,6 +2,7 @@
 <html lang="vi">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Ảnh ghép trên Google Drive · NoteEverything</title>
 <style>
   :root { color-scheme: light dark; font: 16px system-ui, sans-serif; }
@@ -168,7 +169,8 @@
       status.textContent = message + ' (' + code + ')';
     };
     try {
-      const oauth = google.accounts.oauth2;
+      const oauth = window.google?.accounts?.oauth2;
+      if (!oauth?.initTokenClient) throw new Error('Thư viện Google Identity Services chưa sẵn sàng.');
       oauth.initTokenClient({
         client_id: clientId,
         scope,
@@ -198,14 +200,18 @@
           listPhotos();
         }
       }).requestAccessToken();
-    } catch {
-      authError('oauth_init_failed', 'Không khởi tạo được đăng nhập Google. Hãy tải lại trang và thử lại.');
+    } catch (error) {
+      authError('oauth_init_failed', error.message || 'Không khởi tạo được đăng nhập Google.');
     }
   });
 
   const googleScript = document.createElement('script');
   googleScript.src = 'https://accounts.google.com/gsi/client';
   googleScript.onload = () => {
+    if (!window.google?.accounts?.oauth2?.initTokenClient) {
+      status.textContent = 'Trình duyệt chưa tải được chức năng đăng nhập Google. Thử mở bằng Chrome hoặc tắt chặn theo dõi cho trang này.';
+      return;
+    }
     authorize.disabled = false;
     status.textContent = 'Kết nối bằng tài khoản Google có quyền xem thư mục.';
   };
