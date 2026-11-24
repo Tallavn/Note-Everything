@@ -56,7 +56,7 @@ img.t{display:block;width:100%;height:auto;min-height:110px;object-fit:contain;b
 dialog#viewer{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;max-width:none;max-height:none;margin:0;padding:0;border:0;background:transparent;overflow:hidden;color:#fff}
 dialog#viewer[open]{display:flex;align-items:center;justify-content:center}
 dialog#viewer::backdrop{background:rgba(0,0,0,.92)}
-#original{display:block;max-width:100vw;max-height:100vh;max-height:100dvh;object-fit:contain;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-user-drag:none;will-change:transform}
+#original{display:block;max-width:100vw;max-height:84vh;max-height:84dvh;margin:0 0 14vh;object-fit:contain;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-user-drag:none;will-change:transform}
 #photo-status{position:absolute;left:0;right:0;bottom:calc(16px + env(safe-area-inset-bottom,0px));text-align:center;color:#fff;margin:0;pointer-events:none}
 #photo-status:empty{display:none}
 #more{display:block;margin:10px auto;border:1px solid var(--ln);background:var(--sf);border-radius:999px;padding:7px 16px}
@@ -228,7 +228,7 @@ function clampPan(){
 function setZoom(){sc=1;tx=0;ty=0;pts.clear();gest=null;apply()}
 /* fx,fy: điểm giữ cố định, tính từ tâm màn hình */
 function zoomAt(ns,fx,fy){ns=Math.min(MAXZ,Math.max(1,ns));tx=fx-(fx-tx)*(ns/sc);ty=fy-(fy-ty)*(ns/sc);sc=ns;clampPan();apply()}
-const rel=(x,y)=>({x:x-innerWidth/2,y:y-innerHeight/2});
+const rel=(x,y)=>({x:x-(original.offsetLeft+original.offsetWidth/2),y:y-(original.offsetTop+original.offsetHeight/2)});
 function startGest(){
   const [a,b]=[...pts.values()];
   gest=pts.size>=2?{d:Math.hypot(a.x-b.x,a.y-b.y)||1,sc,mx:(a.x+b.x)/2,my:(a.y+b.y)/2,tx,ty}:{sc,mx:a.x,my:a.y,tx,ty}}
