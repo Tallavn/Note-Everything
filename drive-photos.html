@@ -52,6 +52,8 @@
   const scope = 'https://www.googleapis.com/auth/drive.readonly';
   const api = 'https://www.googleapis.com/drive/v3/files';
   let accessToken = '';
+  let settingsUrl = '';
+  let syncedSettings = '';
   let folderId = '';
   let nextPage = '';
   let imageRequest;
@@ -60,12 +62,48 @@
   try {
     client.value = localStorage.getItem('drivePhotosClient') || '';
     folder.value = localStorage.getItem('drivePhotosFolder') || '';
+    const syncCode = localStorage.getItem('ghichu_code') || '';
+    if (/^[\w-]{8,}$/.test(syncCode)) {
+      settingsUrl = 'https://note-everything-65971-default-rtdb.asia-southeast1.firebasedatabase.app/ghichu/'
+        + encodeURIComponent(syncCode) + '/drivePhotos.json';
+    }
   } catch {}
 
   function parseFolder(value) {
     const input = value.trim();
     const link = /^https:\/\/drive\.google\.com\/drive\/(?:u\/\d+\/)?folders\/([\w-]+)(?:[/?#]|$)/i.exec(input);
     return link?.[1] || (/^[\w-]+$/.test(input) ? input : '');
+  }
+
+  async function loadSettings() {
+    if (!settingsUrl) return false;
+    const response = await fetch(settingsUrl, { cache: 'no-store', signal: AbortSignal.timeout(5000) });
+    if (!response.ok) throw new Error('Không đọc được cấu hình đồng bộ.');
+    const value = await response.json();
+    if (typeof value !== 'string') return false;
+    const [clientId, folderId] = value.split(' ');
+    if (!/^[\w-]+\.apps\.googleusercontent\.com$/.test(clientId) || !/^[\w-]+$/.test(folderId)) return false;
+    client.value = clientId;
+    folder.value = folderId;
+    syncedSettings = value;
+    return true;
+  }
+
+  async function saveSettings(clientId, folderId) {
+    const value = clientId + ' ' + folderId;
+    if (!settingsUrl || syncedSettings === value) return;
+    try {
+      const response = await fetch(settingsUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(value),
+        signal: AbortSignal.timeout(5000)
+      });
+      if (!response.ok) throw new Error('Không lưu được cấu hình.');
+      syncedSettings = value;
+    } catch {
+      status.textContent += ' Chưa lưu được cấu hình cho các máy khác.';
+    }
   }
 
   async function drive(path, params, signal) {
@@ -81,7 +119,7 @@
     return response;
   }
 
-  async function listPhotos(pageToken = '') {
+  async function listPhotos(pageToken = '', configurationClient = '') {
     more.disabled = true;
     authorize.disabled = true;
     status.textContent = 'Đang đọc thư mục…';
@@ -116,6 +154,7 @@
       status.textContent = photos.children.length
         ? 'Chọn tên ảnh để xem bản gốc.'
         : nextPage ? 'Bấm Xem thêm để đọc trang tiếp theo.' : 'Thư mục này chưa có ảnh.';
+      if (configurationClient) await saveSettings(configurationClient, folderId);
     } catch (error) {
       status.textContent = error.message;
     } finally {
@@ -197,7 +236,7 @@
             localStorage.setItem('drivePhotosClient', clientId);
             localStorage.setItem('drivePhotosFolder', selectedFolder);
           } catch {}
-          listPhotos();
+          listPhotos('', clientId);
         }
       }).requestAccessToken();
     } catch (error) {
@@ -207,13 +246,21 @@
 
   const googleScript = document.createElement('script');
   googleScript.src = 'https://accounts.google.com/gsi/client';
-  googleScript.onload = () => {
+  googleScript.onload = async () => {
     if (!window.google?.accounts?.oauth2?.initTokenClient) {
       status.textContent = 'Trình duyệt chưa tải được chức năng đăng nhập Google. Thử mở bằng Chrome hoặc tắt chặn theo dõi cho trang này.';
       return;
     }
+    try {
+      if (settingsUrl) status.textContent = 'Đang lấy cấu hình từ NoteEverything…';
+      const loaded = await loadSettings();
+      status.textContent = loaded
+        ? 'Đã nhận cấu hình từ NoteEverything. Bấm Mở thư mục để xem.'
+        : 'Kết nối bằng tài khoản Google có quyền xem thư mục.';
+    } catch {
+      status.textContent = 'Chưa đọc được cấu hình đồng bộ. Bạn vẫn có thể kết nối bằng hai ô trên.';
+    }
     authorize.disabled = false;
-    status.textContent = 'Kết nối bằng tài khoản Google có quyền xem thư mục.';
   };
   googleScript.onerror = () => {
     status.textContent = 'Không tải được đăng nhập Google. Kiểm tra kết nối rồi tải lại trang.';
