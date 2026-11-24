@@ -10547,6 +10547,9 @@ html body main #notesView #list .swrap>.note.swcard>.nmain{flex:1 1 0;min-width:
 .dv-btn:hover .dv-ic,.dv-btn[aria-expanded="true"] .dv-ic{border-radius:16px}
 .dv-btn:active .dv-ic{transform:scale(.94)}
 .dv-btn[aria-expanded="true"]{display:none}
+body>.dv-btn{cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none}
+body>.dv-btn.dvmv{cursor:grabbing}
+body>.dv-btn.dvmv .dv-ic{border-radius:16px;transform:scale(1.06)}
 .dv-btn:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:50%}
 /* Điện thoại: nằm trong thanh trên, cạnh nút Cài đặt */
 .hr>.dv-btn{position:static;width:38px;height:38px;filter:none;z-index:auto}
@@ -10567,12 +10570,25 @@ html body main #notesView #list .swrap>.note.swcard>.nmain{flex:1 1 0;min-width:
 #dvPanel .dv-x:hover{background:var(--bg);color:var(--ink)}
 #dvPanel .dv-x svg{width:18px;height:18px}
 #dvPanel iframe{flex:1;width:100%;border:0;background:var(--surface);padding-bottom:env(safe-area-inset-bottom,0px)}
+#dvPanel .dv-m,#dvPanel .dv-rz{display:none}
 @media (min-width:701px) and (pointer:fine){
-  #dvPanel{inset:auto;right:20px;bottom:20px;width:min(420px,calc(100vw / var(--z,1) - 40px));height:min(680px,calc(100dvh / var(--z,1) - 40px));
+  #dvPanel{inset:auto;right:20px;bottom:20px;width:min(var(--dvw,420px),calc(100vw / var(--z,1) - 40px));height:min(var(--dvh,680px),calc(100dvh / var(--z,1) - 40px));
     border-radius:18px;border:1px solid var(--line);box-shadow:0 18px 50px rgba(0,0,0,.28);transform-origin:100% 100%;transform:translateY(12px) scale(.96)}
   #dvPanel .dv-h{padding-top:10px}
+  #dvPanel .dv-m{display:grid}
+  #dvPanel .dv-rz{display:block;position:absolute;z-index:3;touch-action:none}
+  #dvPanel .dv-rz.l{left:0;top:14px;bottom:0;width:7px;cursor:ew-resize}
+  #dvPanel .dv-rz.t{top:0;left:14px;right:0;height:7px;cursor:ns-resize}
+  #dvPanel .dv-rz.tl{top:0;left:0;width:14px;height:14px;cursor:nwse-resize}
+  #dvPanel.max{inset:0;width:auto;height:auto;border-radius:0;border:0;box-shadow:none;transform-origin:50% 50%}
+  #dvPanel.max .dv-rz{display:none}
   #dvPanel iframe{padding-bottom:0}
 }
+#dvPanel .dv-m .i2{display:none}
+#dvPanel.max .dv-m .i1{display:none}
+#dvPanel.max .dv-m .i2{display:block}
+#dvPanel.dvdrag iframe{pointer-events:none}
+#dvPanel.dvdrag{user-select:none}
 @media (prefers-reduced-motion:reduce){#dvPanel,#dvPanel.open,.dv-ic,.dv-btn::before{transition:none}}
 </style>
 </head>
@@ -17519,7 +17535,8 @@ document.addEventListener("click",function(e){
 </script>
 <button type="button" class="dv-btn" id="dvBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="dvPanel" aria-label="Ảnh ghép trên Google Drive" title="Ảnh ghép trên Google Drive"><span class="dv-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="5" rx="2"/><rect x="13" y="10" width="8" height="11" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/></svg></span></button>
 <div id="dvPanel" role="dialog" aria-modal="false" aria-label="Ảnh ghép trên Google Drive" aria-hidden="true">
-  <div class="dv-h"><span class="dv-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="5" rx="2"/><rect x="13" y="10" width="8" height="11" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/></svg></span><span class="dv-t">Ảnh ghép trên Google Drive</span><button type="button" class="dv-x" id="dvX" aria-label="Đóng" title="Đóng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="dv-h"><span class="dv-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="5" rx="2"/><rect x="13" y="10" width="8" height="11" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/></svg></span><span class="dv-t">Ảnh ghép trên Google Drive</span><button type="button" class="dv-x dv-m" id="dvM" aria-label="Toàn màn hình" title="Toàn màn hình"><svg class="i1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><svg class="i2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg></button><button type="button" class="dv-x" id="dvX" aria-label="Đóng" title="Đóng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <i class="dv-rz t" data-e="t"></i><i class="dv-rz l" data-e="l"></i><i class="dv-rz tl" data-e="tl"></i>
   <iframe id="dvFrame" title="Ảnh ghép trên Google Drive" loading="lazy" allow="clipboard-write; fullscreen"></iframe>
 </div>
 <script>
@@ -17540,9 +17557,75 @@ function openP(){
   p.classList.add("open");p.setAttribute("aria-hidden","false");b.setAttribute("aria-expanded","true");
 }
 function closeP(){p.classList.remove("open");p.setAttribute("aria-hidden","true");b.setAttribute("aria-expanded","false")}
-b.addEventListener("click",function(){p.classList.contains("open")?closeP():openP()});
+var moved=false;
+b.addEventListener("click",function(){if(moved){moved=false;return}p.classList.contains("open")?closeP():openP()});
+
+/* Giữ chuột kéo nút sang vị trí khác (PC) - lưu vị trí tính từ mép phải/dưới */
+var PK="dv_pos";
+function clampPos(){
+  if(b.parentNode!==document.body||!b.style.right)return;
+  var r=b.getBoundingClientRect(),k=r.width/b.offsetWidth||1;
+  var mr=(window.innerWidth-r.width)/k,mb2=(window.innerHeight-r.height)/k;
+  b.style.right=Math.max(0,Math.min(mr,parseFloat(b.style.right)))+"px";
+  b.style.bottom=Math.max(0,Math.min(mb2,parseFloat(b.style.bottom)))+"px"}
+try{var sp=JSON.parse(localStorage.getItem(PK)||"null");if(sp){b.style.right=sp.r+"px";b.style.bottom=sp.b+"px";clampPos()}}catch(e){}
+window.addEventListener("resize",clampPos);
+b.addEventListener("pointerdown",function(e){
+  if(e.button!==0||b.parentNode!==document.body||!mq.matches)return;
+  var r=b.getBoundingClientRect(),k=r.width/b.offsetWidth||1,sx=e.clientX,sy=e.clientY,drag=false;
+  moved=false;
+  try{b.setPointerCapture(e.pointerId)}catch(_){}
+  function mv(ev){
+    var dx=ev.clientX-sx,dy=ev.clientY-sy;
+    if(!drag){if(Math.abs(dx)<5&&Math.abs(dy)<5)return;drag=true;moved=true;b.classList.add("dvmv")}
+    var nr=r.right+dx,nb=r.bottom+dy;
+    var R=(window.innerWidth-nr)/k,B=(window.innerHeight-nb)/k;
+    b.style.right=Math.max(0,Math.min((window.innerWidth-r.width)/k,R))+"px";
+    b.style.bottom=Math.max(0,Math.min((window.innerHeight-r.height)/k,B))+"px"}
+  function up(){
+    b.removeEventListener("pointermove",mv);b.removeEventListener("pointerup",up);b.removeEventListener("pointercancel",up);
+    b.classList.remove("dvmv");
+    if(drag){try{localStorage.setItem(PK,JSON.stringify({r:parseFloat(b.style.right),b:parseFloat(b.style.bottom)}))}catch(_){}
+      setTimeout(function(){moved=false},0)}}
+  b.addEventListener("pointermove",mv);b.addEventListener("pointerup",up);b.addEventListener("pointercancel",up)});
 x.addEventListener("click",closeP);
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&p.classList.contains("open"))closeP()});
+
+/* Đóng khi bấm ra ngoài bảng (chỉ chế độ bảng nổi trên PC) */
+function isFloat(){return mq.matches&&!p.classList.contains("max")}
+document.addEventListener("pointerdown",function(e){
+  if(!p.classList.contains("open")||!isFloat())return;
+  if(p.contains(e.target)||b.contains(e.target))return;
+  closeP()},true);
+/* Đóng khi chuyển sang tab/cửa sổ khác */
+document.addEventListener("visibilitychange",function(){if(document.hidden&&p.classList.contains("open")&&isFloat())closeP()});
+
+/* Toàn màn hình */
+var mb=document.getElementById("dvM");
+function setMax(v){p.classList.toggle("max",v);mb.setAttribute("aria-label",v?"Thu nhỏ":"Toàn màn hình");mb.title=mb.getAttribute("aria-label")}
+mb.addEventListener("click",function(){setMax(!p.classList.contains("max"))});
+mq.addEventListener&&mq.addEventListener("change",function(){setMax(false)});
+
+/* Kéo mép để đổi kích thước (bảng neo ở góc dưới phải -> kéo mép trái / mép trên / góc trái-trên) */
+var KEY="dv_size";
+function applySize(w,h){if(w)p.style.setProperty("--dvw",w+"px");if(h)p.style.setProperty("--dvh",h+"px")}
+try{var sv=JSON.parse(localStorage.getItem(KEY)||"null");if(sv)applySize(sv.w,sv.h)}catch(e){}
+Array.prototype.forEach.call(p.querySelectorAll(".dv-rz"),function(h){
+  h.addEventListener("pointerdown",function(e){
+    if(e.button!==0)return;e.preventDefault();
+    var r=p.getBoundingClientRect(),k=r.width/p.offsetWidth||1,d=h.dataset.e;
+    var maxW=(window.innerWidth-24)/k,maxH=(window.innerHeight-24)/k;
+    p.classList.add("dvdrag");try{h.setPointerCapture(e.pointerId)}catch(_){}
+    function mv(ev){
+      var w=p.offsetWidth,hh=p.offsetHeight;
+      if(d==="l"||d==="tl")w=(r.right-ev.clientX)/k;
+      if(d==="t"||d==="tl")hh=(r.bottom-ev.clientY)/k;
+      w=Math.max(320,Math.min(maxW,w));hh=Math.max(360,Math.min(maxH,hh));
+      applySize(d==="t"?0:w,d==="l"?0:hh)}
+    function up(){p.classList.remove("dvdrag");h.removeEventListener("pointermove",mv);h.removeEventListener("pointerup",up);h.removeEventListener("pointercancel",up);
+      try{localStorage.setItem(KEY,JSON.stringify({w:p.offsetWidth,h:p.offsetHeight}))}catch(_){}}
+    h.addEventListener("pointermove",mv);h.addEventListener("pointerup",up);h.addEventListener("pointercancel",up)})
+});
 })();
 </script>
 </body>
