@@ -244,38 +244,50 @@ async function listPhotos(pageToken='',configurationClient='',silent=false){
   }catch(error){loadingMore=false;stat.textContent=error.message;if(pageToken)render(false,false)}
   finally{authorize.disabled=false}
 }
-form.addEventListener('submit',event=>{
-  event.preventDefault();
+let silentFailed=false;
+/* Kết nối Google. silent=true: tự đăng nhập lại không hỏi (dùng quyền đã cấp trước đó); nếu Google đòi tương tác thì hiện form để bấm 1 lần */
+function connect(silent){
   const selectedFolder=parseFolder(folder.value),clientId=client.value.trim();
-  if(!selectedFolder||!/^[\w-]+\.apps\.googleusercontent\.com$/.test(clientId)){stat.textContent='Kiểm tra lại OAuth Client ID và link hoặc mã thư mục.';return}
+  if(!selectedFolder||!/^[\w-]+\.apps\.googleusercontent\.com$/.test(clientId)){byId('cfgp').hidden=false;stat.textContent='Kiểm tra lại OAuth Client ID và link hoặc mã thư mục.';return}
   const openFolder=()=>{
     folderId=selectedFolder;nextPage='';S.files.clear();Object.values(S.imgs).forEach(p=>p.then(URL.revokeObjectURL,()=>{}));S.imgs={};S.did=false;
     try{localStorage.setItem('drivePhotosClient',clientId);localStorage.setItem('drivePhotosFolder',selectedFolder)}catch{}
     listPhotos('',clientId);
   };
   if(accessToken&&tokenClientId===clientId&&Date.now()<tokenExpiresAt){openFolder();return}
-  authorize.disabled=true;stat.textContent='Đang chờ cấp quyền Google…';
-  const authError=(code,message)=>{authorize.disabled=false;stat.textContent=message+' ('+code+')'};
+  authorize.disabled=true;stat.textContent=silent?'Đang tự đăng nhập Google…':'Đang chờ cấp quyền Google…';
+  const authError=(code,message)=>{authorize.disabled=false;byId('cfgp').hidden=false;
+    if(silent){silentFailed=true;stat.textContent='Google cần bạn xác nhận lại. Bấm Mở thư mục một lần, lần sau sẽ tự vào.'}
+    else stat.textContent=message+' ('+code+')'};
+  let hint='';try{hint=localStorage.getItem('drivePhotosHint')||''}catch{}
   try{
     const oauth=window.google?.accounts?.oauth2;
     if(!oauth?.initTokenClient)throw new Error('Thư viện Google Identity Services chưa sẵn sàng.');
-    oauth.initTokenClient({client_id:clientId,scope,
+    const cfg={client_id:clientId,scope,
       error_callback:error=>{const messages={popup_failed_to_open:'Không mở được cửa sổ Google. Hãy cho phép cửa sổ bật lên trên trang này rồi thử lại.',popup_closed:'Cửa sổ Google đã đóng trước khi cấp quyền. Mở lại và hoàn tất các bước trong cửa sổ đó.'};
         authError(error.type||'unknown',messages[error.type]||'Cửa sổ đăng nhập Google gặp lỗi.')},
       callback:response=>{
         if(response.error)return authError(response.error,response.error_description||'Google từ chối cấp quyền.');
         if(!response.access_token||!oauth.hasGrantedAllScopes(response,scope))return authError('missing_scope','Hãy chọn quyền đọc Google Drive trong cửa sổ cấp quyền.');
-        accessToken=response.access_token;tokenClientId=clientId;tokenExpiresAt=Date.now()+Math.max(0,Number(response.expires_in)-30)*1000;openFolder()}
-    }).requestAccessToken();
+        accessToken=response.access_token;tokenClientId=clientId;tokenExpiresAt=Date.now()+Math.max(0,Number(response.expires_in)-30)*1000;silentFailed=false;
+        /* nhớ email để lần sau Google tự chọn đúng tài khoản */
+        if(!hint)fetch('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)',{headers:{Authorization:'Bearer '+accessToken}}).then(r=>r.json()).then(u=>{if(u?.user?.emailAddress)localStorage.setItem('drivePhotosHint',u.user.emailAddress)}).catch(()=>{});
+        /* gia hạn token khi đang xem: giữ nguyên danh sách ảnh, chỉ làm mới */
+        if(folderId===selectedFolder&&S.files.size){authorize.disabled=false;listPhotos('','',true)}else openFolder();
+      }};
+    if(hint)cfg.hint=hint;
+    oauth.initTokenClient(cfg).requestAccessToken(silent?{prompt:''}:{});
   }catch(error){authError('oauth_init_failed',error.message||'Không khởi tạo được đăng nhập Google.')}
-});
+}
+form.addEventListener('submit',event=>{event.preventDefault();connect(false)});
 byId('md').onclick=()=>{S.mode=S.mode==='tl'?'chat':'tl';try{localStorage.setItem('drivePhotosMode',S.mode)}catch{}modeUI();render(true)};
 byId('cf').onclick=()=>{const c=byId('cfgp');c.hidden=!c.hidden};
-byId('rf').onclick=()=>{if(!folderId||!accessToken||Date.now()>=tokenExpiresAt)form.requestSubmit();else listPhotos('','',true)};
+byId('rf').onclick=()=>{if(!folderId||!accessToken||Date.now()>=tokenExpiresAt)connect(false);else listPhotos('','',true)};
 setInterval(()=>{const n=byId('nx');if(n)n.textContent=nextText({label:n.dataset.l,ts:+n.dataset.ts})},3e4);
 /* Tự làm mới mỗi 5 phút khi phiên còn hạn; hết hạn thì chỉ cập nhật trạng thái Chờ / Không có ảnh */
 setInterval(()=>{if(document.hidden||!folderId)return;
-  if(accessToken&&Date.now()<tokenExpiresAt)listPhotos('','',true);else{render();stat.textContent='Phiên Google đã hết hạn. Bấm làm mới để kết nối lại.'}},3e5);
+  if(accessToken&&Date.now()<tokenExpiresAt)listPhotos('','',true);else if(!silentFailed)connect(true);else{render();stat.textContent='Phiên Google đã hết hạn. Bấm làm mới để kết nối lại.'}},3e5);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&folderId&&!silentFailed&&(!accessToken||Date.now()>=tokenExpiresAt))connect(true)});
 modeUI();
 const googleScript=document.createElement('script');
 googleScript.src='https://accounts.google.com/gsi/client';
@@ -287,6 +299,7 @@ googleScript.onload=async()=>{
     stat.textContent=loaded?'Đã nhận cấu hình từ NoteEverything. Bấm Mở thư mục để xem.':'Kết nối bằng tài khoản Google có quyền xem thư mục.';
   }catch{stat.textContent='Chưa đọc được cấu hình đồng bộ. Bạn vẫn có thể kết nối bằng hai ô trên.'}
   authorize.disabled=false;
+  if(client.value&&folder.value){byId('cfgp').hidden=true;connect(true)}   // đã có cấu hình: tự vào, không cần bấm
 };
 googleScript.onerror=()=>{stat.textContent='Không tải được đăng nhập Google. Kiểm tra kết nối rồi tải lại trang.'};
 document.head.append(googleScript);
