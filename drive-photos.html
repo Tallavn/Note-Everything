@@ -215,7 +215,7 @@ feed.addEventListener('click',e=>{
   if(e.target.id==='more'){listPhotos(nextPage);return}
   const im=e.target.closest('img.t');if(im)showPhoto(S.map[im.dataset.id])});
 async function showPhoto(file){
-  setZoom();const my=++viewToken;photoStatus.textContent='Đang tải ảnh gốc…';original.removeAttribute('src');original.alt='';viewer.showModal();
+  setZoom();const my=++viewToken;photoStatus.textContent='Đang tải ảnh gốc…';original.removeAttribute('src');original.alt='';try{if(history.state?.dp!=='view')history.pushState({dp:'view'},'')}catch{}viewer.showModal();
   try{const u=await blob(file);if(my!==viewToken)return;original.alt=file.name;original.src=u;await original.decode().catch(()=>{});if(my===viewToken)photoStatus.textContent=''}
   catch(error){if(my===viewToken)photoStatus.textContent=error.message}}
 /* Chỉ hiện ảnh. Zoom bằng 2 ngón (pinch), lăn chuột, hoặc chạm đúp; kéo để di chuyển khi đã phóng; bấm ra ngoài ảnh để đóng */
@@ -258,7 +258,13 @@ original.addEventListener('wheel',e=>{e.preventDefault();const f=rel(e.clientX,e
 let downOut=false;
 viewer.addEventListener('pointerdown',e=>{downOut=e.target===viewer});
 viewer.addEventListener('click',e=>{if(e.target===viewer&&downOut){e.preventDefault();e.stopPropagation();viewer.close()}downOut=false});
-viewer.addEventListener('close',()=>{setZoom();viewToken++;original.removeAttribute('src');original.alt='';photoStatus.textContent=''});
+viewer.addEventListener('close',()=>{try{if(history.state?.dp==='view')history.back()}catch{}setZoom();viewToken++;original.removeAttribute('src');original.alt='';photoStatus.textContent=''});
+/* Vuốt/nút Quay lại: đang xem ảnh thì chỉ đóng ảnh; ở màn hình chính thì về trang trước (NoteEverything), không thoát app */
+try{if(history.state?.dp!=='page'&&history.state?.dp!=='view'){history.replaceState({dp:'base'},'');history.pushState({dp:'page'},'')}}catch{}
+window.addEventListener('popstate',e=>{
+  const d=e.state?.dp;
+  if(viewer.open){viewer.close();return}
+  if(d==='base'){if(document.referrer)history.back();else location.replace('./index.html')}});
 function updStatus(prefix){const d=new Date();stat.textContent=(prefix||S.files.size+' ảnh')+' · cập nhật '+p2(d.getHours())+':'+p2(d.getMinutes())}
 async function listPhotos(pageToken='',configurationClient='',silent=false){
   authorize.disabled=true;
