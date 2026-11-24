@@ -33,10 +33,10 @@ h1{margin:0;font-size:19px}
 .day{text-align:center;color:var(--mu);font-size:12px;margin:18px 0 8px}
 .pill{display:inline-block;font-size:11px;font-weight:600;border-radius:999px;padding:1px 9px;white-space:nowrap}
 .pill.ok{background:var(--acs);color:var(--ac)}.pill.bad{background:var(--bads);color:var(--bad)}.pill.miss{background:var(--warns);color:var(--warn)}.pill.pend{background:var(--ln);color:var(--mu)}
-img.t{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;cursor:zoom-in;background:var(--ln)}
+img.t{display:block;width:100%;height:auto;min-height:110px;object-fit:contain;border-radius:10px;cursor:zoom-in;background:var(--ln)}
 .row{display:flex;gap:8px;margin:8px 0;align-items:flex-end}
 .av{flex:none;width:30px;height:30px;border-radius:50%;background:var(--ac);color:var(--bg);display:grid;place-items:center;font-size:14px}
-.bub{background:var(--sf);border:1px solid var(--ln);border-radius:16px 16px 16px 4px;padding:8px;max-width:86%;min-width:0}
+.bub{background:var(--sf);border:1px solid var(--ln);border-radius:16px 16px 16px 4px;padding:8px;max-width:calc(100% - 40px);min-width:0}
 .bub .tx{padding:2px 4px 6px;font-size:14px}.bub .tm{padding:4px 4px 0;text-align:right}
 .bub.dash{border-style:dashed;background:transparent;color:var(--mu)}
 .tl{margin-left:10px;padding-left:20px;border-left:2px solid var(--ln)}
@@ -45,7 +45,7 @@ img.t{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:1
 .it.bad::before{background:var(--bad)}.it.miss::before{background:var(--warn)}.it.pend::before{background:var(--bg);border:2px solid var(--ln)}
 .hd{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:4px;font-size:14px}
 .card{display:flex;gap:10px;background:var(--sf);border:1px solid var(--ln);border-radius:12px;padding:6px;align-items:center}
-.card img.t{width:72px;flex:none;border-radius:8px}
+.card img.t{width:96px;min-height:0;aspect-ratio:5/3;flex:none;border-radius:8px}
 .card p{margin:0;font-size:13px;min-width:0}.card .nm{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .lb{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;gap:10px}
 .lb img{max-width:100%;max-height:78vh;border-radius:10px;object-fit:contain}
