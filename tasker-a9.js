@@ -28,9 +28,10 @@
     const button = event.target.closest("button[data-tasker-slot]");
     if (!button || button.disabled) return;
     const slot = button.dataset.taskerSlot;
+    const stopping = slot === "stop";
     const secret = encode.encode(pair);
     updateButtons(true);
-    status.textContent = "Đang gửi lệnh " + slot + "…";
+    status.textContent = stopping ? "Đang gửi lệnh dừng A9…" : "Đang gửi lệnh " + slot + "…";
     try {
       const channel = hex(await crypto.subtle.digest("SHA-256", secret));
       const key = await crypto.subtle.importKey("raw", secret, {name: "HMAC", hash: "SHA-256"}, false, ["sign"]);
@@ -40,7 +41,8 @@
       const etag = previous.headers.get("ETag");
       const pending = await previous.json();
       const sentAt = Date.now();
-      if (pending && pending.sentAt > sentAt - ttl && pending.sentAt <= sentAt + 10000) {
+      if (pending && pending.sentAt > sentAt - ttl && pending.sentAt <= sentAt + 10000
+        && (!stopping || pending.slot === "stop")) {
         throw new Error("Điện thoại đang có một lệnh chờ.");
       }
       if (!etag) throw new Error("Không xác nhận được trạng thái hàng chờ.");
@@ -54,7 +56,7 @@
       });
       if (response.status === 412) throw new Error("Kênh vừa thay đổi. Bấm lại để gửi.");
       if (!response.ok) throw new Error("Không ghi được lệnh Tasker.");
-      status.textContent = "Đã gửi lệnh " + slot + ". Đang chờ điện thoại nhận.";
+      status.textContent = "Đã gửi lệnh " + (stopping ? "dừng A9" : slot) + ". Đang chờ điện thoại nhận.";
     } catch (error) {
       status.textContent = error.message || "Gửi lệnh thất bại.";
     } finally {
