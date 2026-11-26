@@ -10640,6 +10640,23 @@ body>.dv-btn.dvmv .dv-ic{border-radius:16px;transform:scale(1.06)}
                 d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
             </svg></button>
           <div class="smenu" id="setMenu" hidden>
+            <div class="sm-row">
+              <details id="tasker-panel">
+                <summary>Chạy A9 trên điện thoại</summary>
+                <div aria-label="Ca A9" role="group" style="display:flex;gap:.4rem;flex-wrap:wrap;margin:.5rem 0">
+                  <button type="button" data-tasker-slot="0h" disabled>0h</button>
+                  <button type="button" data-tasker-slot="5h" disabled>5h</button>
+                  <button type="button" data-tasker-slot="8h" disabled>8h</button>
+                  <button type="button" data-tasker-slot="16h" disabled>16h</button>
+                </div>
+                <form id="tasker-pair" style="margin:.5rem 0">
+                  <label for="tasker-key">Mã ghép Tasker</label>
+                  <input id="tasker-key" type="password" required autocomplete="off" pattern="[a-fA-F0-9]{64}" style="width:100%;max-width:14rem">
+                  <button type="submit">Ghép điện thoại</button>
+                </form>
+                <div id="tasker-status" role="status"></div>
+              </details>
+            </div>
             
             <div class="sm-row"><span>Cỡ giao diện</span><span class="zc"><button type="button" id="zDn"
                   aria-label="Giảm cỡ giao diện">−</button><button type="button" id="zVal"
@@ -17702,6 +17719,7 @@ Array.prototype.forEach.call(p.querySelectorAll(".dv-rz"),function(h){
 });
 })();
 </script>
+  <script src="./tasker-a9.js" defer></script>
 </body>
 
 </html>
