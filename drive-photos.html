@@ -104,12 +104,12 @@ button:disabled{opacity:.5;cursor:default}
     <p id="remove-name" class="mu"></p>
     <label for="remove-mode">Cách xóa</label>
     <select id="remove-mode">
-      <option value="trash">Chuyển vào Thùng rác</option>
-      <option value="archive">Xóa vĩnh viễn ảnh, giữ thông tin ca</option>
+      <option value="archive" selected>Xóa vĩnh viễn ảnh, giữ thông tin ca</option>
       <option value="delete">Xóa vĩnh viễn ảnh và thông tin ca</option>
+      <option value="trash">Chuyển vào Thùng rác</option>
     </select>
     <p id="remove-status" class="mu" role="status"></p>
-    <div class="photo-actions"><button class="log-action" id="remove-cancel" type="button">Hủy</button><button class="log-action" id="remove-confirm" type="submit">Chuyển vào Thùng rác</button></div>
+    <div class="photo-actions"><button class="log-action" id="remove-cancel" type="button">Hủy</button><button class="log-action" id="remove-confirm" type="submit">Xóa vĩnh viễn</button></div>
   </form>
 </dialog>
 <dialog id="viewer" aria-label="Ảnh gốc">
@@ -363,7 +363,7 @@ function updateRemove(){
 }
 function openRemove(file){
   if(!file||removing)return;
-  removeFile=file;removeMode.value='trash';byId('remove-name').textContent=file.name;updateRemove();removeDialog.showModal();
+  removeFile=file;removeMode.selectedIndex=0;byId('remove-name').textContent=file.name;updateRemove();removeDialog.showModal();
 }
 removeMode.onchange=updateRemove;
 byId('remove-cancel').onclick=()=>removeDialog.close();
