@@ -62,6 +62,16 @@ dialog#viewer::backdrop{background:rgba(0,0,0,.92)}
 #photo-status:empty{display:none}
 #more{display:block;margin:10px auto;border:1px solid var(--ln);background:var(--sf);border-radius:999px;padding:7px 16px}
 button:disabled{opacity:.5;cursor:default}
+.log-tools{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:4px}
+.log-action{border:1px solid var(--ln);border-radius:8px;background:var(--sf);padding:4px 9px}
+#stability{max-width:560px;margin:10px auto;padding:0 14px}
+.chart-row{display:grid;grid-template-columns:3em 1fr;gap:6px;align-items:center;margin:8px 0}
+.chart-bar{height:10px;display:flex;overflow:hidden;border-radius:6px;background:var(--ln)}
+.chart-bar .ok{background:var(--ac)}.chart-bar .bad{background:var(--bad)}.chart-bar .miss{background:var(--warn)}
+.photo-actions{display:flex;justify-content:flex-end;gap:8px;align-items:center;padding-top:4px}
+#remove-photo{width:min(440px,calc(100% - 28px));border:1px solid var(--ln);border-radius:16px;background:var(--sf);color:var(--ink)}
+#remove-photo::backdrop{background:#0009}
+#remove-photo select{width:100%;font:inherit}
 </style>
 </head>
 <body>
@@ -75,7 +85,9 @@ button:disabled{opacity:.5;cursor:default}
     </div>
   </div>
   <div id="status" class="mu" role="status">Đang tải đăng nhập Google…</div>
+  <div class="log-tools"><button class="log-action" id="stability-toggle" type="button" aria-expanded="false" aria-controls="stability">Ổn định</button><span class="mu" id="quota"></span></div>
 </div></div>
+<section id="stability" hidden aria-label="Biểu đồ độ ổn định"></section>
 <section id="cfgp"><div class="box">
   <form id="connect">
     <label for="client">Google OAuth Client ID</label>
@@ -86,6 +98,20 @@ button:disabled{opacity:.5;cursor:default}
   </form>
 </div></section>
 <main id="feed" aria-live="polite"></main>
+<dialog id="remove-photo" aria-labelledby="remove-title">
+  <form id="remove-form">
+    <h2 id="remove-title">Xóa ảnh</h2>
+    <p id="remove-name" class="mu"></p>
+    <label for="remove-mode">Cách xóa</label>
+    <select id="remove-mode">
+      <option value="trash">Chuyển vào Thùng rác</option>
+      <option value="archive">Xóa vĩnh viễn ảnh, giữ thông tin ca</option>
+      <option value="delete">Xóa vĩnh viễn ảnh và thông tin ca</option>
+    </select>
+    <p id="remove-status" class="mu" role="status"></p>
+    <div class="photo-actions"><button class="log-action" id="remove-cancel" type="button">Hủy</button><button class="log-action" id="remove-confirm" type="submit">Chuyển vào Thùng rác</button></div>
+  </form>
+</dialog>
 <dialog id="viewer" aria-label="Ảnh gốc">
   <img id="original" alt="" draggable="false">
   <p id="photo-status" role="status" class="mu"></p>
@@ -94,10 +120,12 @@ button:disabled{opacity:.5;cursor:default}
 const byId=id=>document.getElementById(id);
 const form=byId('connect'),client=byId('client'),folder=byId('folder'),authorize=byId('authorize'),stat=byId('status'),feed=byId('feed');
 const viewer=byId('viewer'),original=byId('original'),photoStatus=byId('photo-status');
-const scope='https://www.googleapis.com/auth/drive.readonly',api='https://www.googleapis.com/drive/v3/files';
+const scope='https://www.googleapis.com/auth/drive.readonly',writeScope='https://www.googleapis.com/auth/drive',driveApi='https://www.googleapis.com/drive/v3';
 const SL=[0,5,8,13,16,21],GRACE=30*6e4,TOL=90*6e4,DAYS=14;
-let accessToken='',tokenClientId='',tokenExpiresAt=0,settingsUrl='',syncedSettings='',folderId='',nextPage='',loadingMore=false,viewToken=0;
-const S={mode:'chat',files:new Map(),map:{},imgs:{},did:false};
+let accessToken='',tokenClientId='',tokenExpiresAt=0,canWrite=false,settingsUrl='',syncedSettings='',folderId='',nextPage='',loadingMore=false,viewToken=0;
+const S={mode:'chat',files:new Map(),map:{},imgs:{}};
+const recordKey='arknightsOriginal';
+const recordType='application/vnd.noteeverything.arknights-log-record';
 try{
   client.value=localStorage.getItem('drivePhotosClient')||'';
   folder.value=localStorage.getItem('drivePhotosFolder')||'';
@@ -131,12 +159,15 @@ async function saveSettings(clientId,fid){
     syncedSettings=value;
   }catch{stat.textContent+=' Chưa lưu được cấu hình cho các máy khác.'}
 }
-async function drive(path,params,signal){
+async function drive(path,params,options={}){
   const requestToken=accessToken;
-  const response=await fetch(api+path+'?'+new URLSearchParams(params),{headers:{Authorization:'Bearer '+requestToken},cache:'no-store',signal});
+  const {method='GET',body}=options;
+  const headers={Authorization:'Bearer '+requestToken};
+  if(body)headers['Content-Type']='application/json';
+  const response=await fetch(driveApi+path+'?'+new URLSearchParams(params),{method,headers,cache:'no-store',body:body&&JSON.stringify(body)});
   if(response.status===401){
     if(accessToken===requestToken){
-      accessToken='';tokenExpiresAt=0;
+      accessToken='';tokenExpiresAt=0;canWrite=false;
       try{localStorage.removeItem('drivePhotosTok')}catch{}
       showReconnect();
     }
@@ -165,14 +196,17 @@ function details(tk){const d=[];
   return d}
 function parse(f){const m=/^ghep_(\d{4})(\d\d)(\d\d)_(\d\d)(\d\d)(\d\d)((?:_[^_.]+)*)/.exec(f.name);if(!m)return null;
   const tk=m[7].split('_').filter(x=>x&&!/^[0-9a-f]{8}-[0-9a-f-]+$/i.test(x)),up=tk.map(x=>x.toUpperCase()),
-    bad=up.some(x=>x==='CANHBAO'||x==='THIEUANH'||x==='SAIDOIHINH'),d=details(tk);
+    d=details(tk),bad=d.length>0||up.some(x=>x==='CANHBAO'||x==='THIEUANH'||x==='SAIDOIHINH');
   return{f,ts:new Date(+m[1],m[2]-1,+m[3],+m[4],+m[5],+m[6]).getTime(),bad,d}}
 const why=e=>e.p&&e.p.d.length?'<ul class="why">'+e.p.d.map(x=>'<li class="'+x.c+'">'+esc(x.t)+'</li>').join('')+'</ul>':'';
 /* Khung cố định giữ nhãn HH:00; khi có ảnh thì nhãn đổi thành giờ thực của ảnh (lấy từ tên file) */
 const hms=ts=>{const d=new Date(ts);return p2(d.getHours())+':'+p2(d.getMinutes())+':'+p2(d.getSeconds())};
 const hm=ts=>{const d=new Date(ts);return p2(d.getHours())+':'+p2(d.getMinutes())};
 function build(files,now){
-  const P=files.map(parse).filter(Boolean).sort((a,b)=>a.ts-b.ts),slots={},extra=[],E=[];
+  const originals=new Set(files.filter(f=>!f.properties?.[recordKey]).map(f=>f.id)),records=new Set();
+  const P=files.filter(f=>{const id=f.properties?.[recordKey];if(!id)return true;
+    if(originals.has(id)||records.has(id))return false;records.add(id);return true
+  }).map(parse).filter(Boolean).sort((a,b)=>a.ts-b.ts),slots={},extra=[],E=[];
   P.forEach(p=>{let best=null;const d=new Date(p.ts);
     for(let o=-1;o<=1;o++)SL.forEach(h=>{const t=new Date(d.getFullYear(),d.getMonth(),d.getDate()+o,h).getTime(),df=Math.abs(p.ts-t);if(df<=TOL&&(!best||df<best.df))best={t,df}});
     if(best){const s=slots[best.t]||(slots[best.t]={n:0});s.p=p;s.n++}else extra.push(p)});
@@ -184,13 +218,19 @@ function build(files,now){
       E.push({ts:t,label:s?hm(s.p.ts):p2(h)+':00',p:s?s.p:null,n:s?s.n:0,st:s?(s.p.bad?'bad':'ok'):(now>t+GRACE?'miss':'pend')})});
     cur=new Date(cur.getFullYear(),cur.getMonth(),cur.getDate()+1)}
   extra.forEach(p=>{const d=new Date(p.ts);E.push({ts:p.ts,label:hm(p.ts),p,n:1,st:p.bad?'bad':'ok'})});
-  return E.sort((a,b)=>a.ts-b.ts)}
+  return E.sort((a,b)=>{const x=dayStart(a.ts),y=dayStart(b.ts);
+    return x===y?a.ts-b.ts:x===+t0?-1:y===+t0?1:y-x})}
+function dayStart(ts){const d=new Date(ts);return new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()}
 const dayKey=ts=>{const d=new Date(ts);return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate()};
 function dayLabel(ts){const d=new Date(ts),n=new Date(),k=Math.round((new Date(n.getFullYear(),n.getMonth(),n.getDate())-new Date(d.getFullYear(),d.getMonth(),d.getDate()))/864e5);
   return(k===0?'Hôm nay':k===1?'Hôm qua':['Chủ nhật','Thứ hai','Thứ ba','Thứ tư','Thứ năm','Thứ sáu','Thứ bảy'][d.getDay()])+' · '+p2(d.getDate())+'/'+p2(d.getMonth()+1)}
 const MSG={ok:'Đã ghép xong, không có bất thường',bad:'Có cảnh báo, hãy xem ảnh',miss:'Không nhận được ảnh ở khung này',pend:'Chưa tới giờ'},PT={ok:'Bình thường',bad:'Cảnh báo',miss:'Không có ảnh'};
 const pill=e=>'<span class="pill '+e.st+'">'+(e.st==='pend'?'Chờ '+e.label:PT[e.st])+'</span>';
-function img(e){const f=e.p.f;S.map[f.id]=f;return'<img class="t" data-id="'+esc(f.id)+'" alt="Arknights Log '+e.label+'">'}
+function img(e){const f=e.p.f;if(f.properties?.[recordKey])return '';
+  S.map[f.id]=f;return'<img class="t" data-id="'+esc(f.id)+'" alt="Arknights Log '+e.label+'">'}
+function photoAction(e){const f=e.p.f;return f.properties?.[recordKey]?'<span class="mu">Đã lưu thông tin ca</span>':
+  '<button class="log-action mu" type="button" data-remove="'+esc(f.id)+'">Xóa ảnh</button>'}
+const resultText=e=>e.p.f.properties?.[recordKey]?(e.st==='bad'?'Ca có cảnh báo':'Ca bình thường'):MSG[e.st];
 const more=e=>e.n>1?' <span class="mu">· '+e.n+' ảnh, hiện ảnh mới nhất</span>':'';
 function until(ts){const m=Math.max(0,Math.round((ts-Date.now())/6e4)),h=Math.floor(m/60);return m<1?'sắp tới':'còn '+(h?h+' giờ ':'')+p2(m%60)+' phút'}
 const nextText=e=>'Chờ ảnh khung '+e.label+' ('+until(e.ts)+')';
@@ -198,28 +238,49 @@ function renderChat(E){let o='',last='',np=0;
   E.forEach(e=>{const k=dayKey(e.ts);if(k!==last){o+='<div class="day">'+dayLabel(e.ts)+'</div>';last=k}
     if(e.st==='pend'){if(!np){np=1;o+='<div class="row"><div class="av">⌁</div><div class="bub dash"><div class="tx" id="nx" data-ts="'+e.ts+'" data-l="'+e.label+'">'+nextText(e)+'</div></div></div>'}return}
     if(!e.p){o+='<div class="row"><div class="av">⌁</div><div class="bub"><div class="tx">'+pill(e)+' Khung '+e.label+': '+MSG.miss+'</div></div></div>';return}
-    o+='<div class="row"><div class="av">⌁</div><div class="bub"><div class="tx">'+pill(e)+' '+MSG[e.st]+more(e)+'</div>'+why(e)+img(e)+'<div class="tm mu">'+e.label+'</div></div></div>'});
+    o+='<div class="row"><div class="av">⌁</div><div class="bub"><div class="tx">'+pill(e)+' '+resultText(e)+more(e)+'</div>'+why(e)+img(e)+'<div class="photo-actions"><span class="mu">'+e.label+'</span>'+photoAction(e)+'</div></div></div>'});
   return o}
 function renderTl(E){let o='',last='';
   E.forEach(e=>{const k=dayKey(e.ts);if(k!==last){if(last)o+='</div>';o+='<div class="day" style="text-align:left">'+dayLabel(e.ts)+'</div><div class="tl">';last=k}
-    o+='<div class="it '+e.st+'"><div class="hd"><b>'+e.label+'</b>'+pill(e)+'</div>'+(e.p?'<div class="card">'+img(e)+'<p>'+MSG[e.st]+more(e)+'<span class="mu nm">Ghép lúc '+hms(e.p.ts)+(e.p.d.length?' · '+e.p.d.length+' vấn đề':'')+'</span></p></div>'+why(e):'<div class="mu">'+MSG[e.st]+'</div>')+'</div>'});
+    o+='<div class="it '+e.st+'"><div class="hd"><b>'+e.label+'</b>'+pill(e)+'</div>'+(e.p?'<div class="card">'+img(e)+'<p>'+resultText(e)+more(e)+'<span class="mu nm">Ghép lúc '+hms(e.p.ts)+(e.p.d.length?' · '+e.p.d.length+' vấn đề':'')+'</span></p></div>'+why(e)+'<div class="photo-actions">'+photoAction(e)+'</div>':'<div class="mu">'+MSG[e.st]+'</div>')+'</div>'});
   return o+(last?'</div>':'')}
 const ICON={chat:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="2.5" y="4.5" width="5.2" height="6.4" rx="1.2"/><rect x="9.4" y="4.5" width="5.2" height="6.4" rx="1.2"/><rect x="16.3" y="4.5" width="5.2" height="6.4" rx="1.2"/><rect x="2.5" y="13.1" width="5.2" height="6.4" rx="1.2"/><rect x="9.4" y="13.1" width="5.2" height="6.4" rx="1.2"/><rect x="16.3" y="13.1" width="5.2" height="6.4" rx="1.2"/></svg>',
   tl:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3.5" y="3.5" width="7.6" height="7.6" rx="1.6"/><rect x="12.9" y="3.5" width="7.6" height="7.6" rx="1.6"/><rect x="3.5" y="12.9" width="7.6" height="7.6" rx="1.6"/><rect x="12.9" y="12.9" width="7.6" height="7.6" rx="1.6"/></svg>'};
 function modeUI(){const b=byId('md'),t=S.mode==='tl';b.innerHTML=ICON[S.mode];b.setAttribute('aria-pressed',t);
   b.title=t?'Quay lại dạng chat':'Chuyển sang dạng gọn theo mốc giờ';b.setAttribute('aria-label',b.title)}
-function render(toEnd,keepTop){
-  const se=document.scrollingElement||document.documentElement,atEnd=!S.did||toEnd||se.scrollHeight-se.scrollTop-innerHeight<120,h0=se.scrollHeight;
+function render(toTop){
+  const se=document.scrollingElement||document.documentElement,top=se.scrollTop;
   const E=build([...S.files.values()],Date.now());
-  let h=nextPage?'<button id="more" type="button"'+(loadingMore?' disabled':'')+'>Xem ảnh cũ hơn</button>':'';
-  h+=E.length?(S.mode==='tl'?renderTl(E):renderChat(E)):'<div class="day">Chưa có ảnh nào trong thư mục này.</div>';
-  feed.innerHTML=h;S.did=true;watchImgs();
-  if(atEnd)se.scrollTop=se.scrollHeight;else if(keepTop)se.scrollTop+=se.scrollHeight-h0}
+  S.map={};
+  let h=S.mode==='tl'?renderTl(E):renderChat(E);
+  if(nextPage)h+='<button id="more" type="button"'+(loadingMore?' disabled':'')+'>Xem ảnh cũ hơn</button>';
+  se.style.overflowAnchor='none';
+  feed.innerHTML=h;watchImgs();
+  if(!byId('stability').hidden)renderStability(S.files.size?E:[]);
+  se.scrollTop=toTop?0:top;
+  se.style.overflowAnchor='';
+}
+function renderStability(entries){
+  const now=new Date(),days=new Map();
+  for(let offset=6;offset>=0;offset--){
+    const ts=new Date(now.getFullYear(),now.getMonth(),now.getDate()-offset).getTime();
+    days.set(dayKey(ts),{ts,ok:0,bad:0,miss:0});
+  }
+  entries.forEach(e=>{const d=days.get(dayKey(e.ts));if(d&&e.st!=='pend')d[e.st]++});
+  const labels={ok:'bình thường',bad:'cảnh báo',miss:'không nhận ảnh'};
+  byId('stability').innerHTML='<h2>Độ ổn định 7 ngày</h2><p class="mu">Theo kết quả mới nhất của mỗi ca đã tải. Các ca chờ được bỏ qua.</p>'+
+    [...days.values()].map(d=>{
+      const date=new Date(d.ts),total=d.ok+d.bad+d.miss;
+      const segments=Object.keys(labels).map(k=>d[k]?'<span class="'+k+'" style="width:'+d[k]*100/total+'%"></span>':'').join('');
+      const counts=total?Object.keys(labels).map(k=>d[k]+' '+labels[k]).join(' · '):'Chưa có dữ liệu';
+      return '<div class="chart-row"><b>'+p2(date.getDate())+'/'+p2(date.getMonth()+1)+'</b><div><div class="chart-bar" aria-hidden="true">'+segments+'</div><div class="mu">'+counts+'</div></div></div>';
+    }).join('');
+}
 /* Ảnh lấy bằng token rồi đổi thành blob: tải lười, tối đa 3 ảnh cùng lúc */
 let act=0;const Q=[];const pump=()=>{while(act<3&&Q.length)Q.shift()()};
 const lim=fn=>new Promise((res,rej)=>{Q.push(()=>{act++;fn().then(res,rej).then(()=>{act--;pump()})});pump()});
 function blob(f){return S.imgs[f.id]||(S.imgs[f.id]=lim(async()=>{
-  const r=await drive('/'+encodeURIComponent(f.id),{alt:'media'});const b=await r.blob();
+  const r=await drive('/files/'+encodeURIComponent(f.id),{alt:'media'});const b=await r.blob();
   if(!b.type.startsWith('image/'))throw new Error('Drive không trả về tệp ảnh.');return URL.createObjectURL(b)}).catch(e=>{delete S.imgs[f.id];throw e}))}
 const io=window.IntersectionObserver?new IntersectionObserver(es=>es.forEach(en=>{if(!en.isIntersecting)return;const im=en.target;io.unobserve(im);
   blob(S.map[im.dataset.id]).then(u=>{im.src=u},()=>{im.alt='Không tải được ảnh'})}),{rootMargin:'300px'}):null;
@@ -227,6 +288,7 @@ function watchImgs(){feed.querySelectorAll('img.t').forEach(im=>{const f=S.map[i
   if(S.imgs[f.id])blob(f).then(u=>{im.src=u},()=>{});else if(io)io.observe(im);else blob(f).then(u=>{im.src=u},()=>{})})}
 feed.addEventListener('click',e=>{
   if(e.target.id==='more'){listPhotos(nextPage);return}
+  const remove=e.target.closest('[data-remove]');if(remove){openRemove(S.map[remove.dataset.remove]);return}
   const im=e.target.closest('img.t');if(im)showPhoto(S.map[im.dataset.id])});
 async function showPhoto(file){
   setZoom();const my=++viewToken;photoStatus.textContent='Đang tải ảnh gốc…';original.removeAttribute('src');original.alt='';try{if(history.state?.dp!=='view')history.pushState({dp:'view'},'')}catch{}viewer.showModal();
@@ -280,25 +342,102 @@ window.addEventListener('popstate',e=>{
   if(viewer.open){viewer.close();return}
   if(d==='base'){if(document.referrer)history.back();else location.replace('./index.html')}});
 function updStatus(prefix){const d=new Date();stat.textContent=(prefix||S.files.size+' ảnh')+' · cập nhật '+p2(d.getHours())+':'+p2(d.getMinutes())}
+const byteText=bytes=>bytes>=1e9?(bytes/1e9).toLocaleString('vi-VN',{maximumFractionDigits:2})+' GB':
+  (bytes/1e6).toLocaleString('vi-VN',{maximumFractionDigits:1})+' MB';
+async function updateQuota(){
+  const quota=byId('quota');
+  try{
+    const response=await drive('/about',{fields:'storageQuota'});
+    const {storageQuota:q}=await response.json();
+    quota.textContent=!q||q.usage==null?'Chưa rõ dung lượng Drive':q.limit==null?'Drive chưa báo giới hạn dung lượng':
+      'Drive còn '+byteText(Math.max(0,Number(q.limit)-Number(q.usage)))+' / '+byteText(Number(q.limit));
+  }catch{quota.textContent='Chưa đọc được dung lượng Drive'}
+}
+const removeDialog=byId('remove-photo'),removeMode=byId('remove-mode'),removeStatus=byId('remove-status'),removeConfirm=byId('remove-confirm');
+let removeFile=null,removing=false,listRevision=0;
+function updateRemove(){
+  const trash=removeMode.value==='trash';
+  removeConfirm.textContent=trash?'Chuyển vào Thùng rác':'Xóa vĩnh viễn';
+  removeStatus.textContent=trash?'Có thể khôi phục từ Thùng rác Drive. Dung lượng chưa được giải phóng.':
+    removeMode.value==='archive'?'Ảnh không thể khôi phục. Giờ ghép và cảnh báo được giữ trong Log.':'Ảnh và thông tin từ ảnh này sẽ bị xóa.';
+}
+function openRemove(file){
+  if(!file||removing)return;
+  removeFile=file;removeMode.value='trash';byId('remove-name').textContent=file.name;updateRemove();removeDialog.showModal();
+}
+removeMode.onchange=updateRemove;
+byId('remove-cancel').onclick=()=>removeDialog.close();
+removeDialog.addEventListener('cancel',e=>{if(removing)e.preventDefault()});
+byId('remove-form').addEventListener('submit',async e=>{
+  e.preventDefault();
+  if(removing||!removeFile||!S.files.has(removeFile.id))return;
+  if(!canWrite||!accessToken||Date.now()>=tokenExpiresAt){connect(true,true);return}
+  const file=removeFile,mode=removeMode.value,path='/files/'+encodeURIComponent(file.id);
+  removing=true;removeConfirm.disabled=removeMode.disabled=byId('remove-cancel').disabled=true;
+  try{
+    const res=await drive(path,{fields:'parents,mimeType,trashed,capabilities(canTrash,canDelete)',supportsAllDrives:true});
+    const info=await res.json();
+    if(info.trashed||!info.parents?.includes(folderId)||!info.mimeType?.startsWith('image/'))throw new Error('Ảnh đã rời thư mục Log.');
+    if(!info.capabilities?.[mode==='trash'?'canTrash':'canDelete'])throw new Error('Tài khoản Google này không có quyền xóa ảnh theo cách đã chọn.');
+    const q="'"+folderId+"' in parents and trashed = false and mimeType = '"+recordType+"' and properties has { key='"+recordKey+"' and value='"+file.id+"' }";
+    const saved=await drive('/files',{q,fields:'files(id,name,properties)',supportsAllDrives:true,includeItemsFromAllDrives:true});
+    const records=(await saved.json()).files||[];
+    let record=records[0];
+    if(mode==='archive'){
+      if(!record){
+        const created=await drive('/files',{fields:'id,name,properties',supportsAllDrives:true},{method:'POST',body:{
+          name:file.name,mimeType:recordType,parents:[folderId],properties:{[recordKey]:file.id}
+        }});
+        record=await created.json();
+      }
+      if(!record?.id)throw new Error('Chưa lưu được thông tin ca. Ảnh vẫn còn trong Drive.');
+    }else{
+      for(const previous of records){
+        await drive('/files/'+encodeURIComponent(previous.id),{supportsAllDrives:true},{method:'DELETE'});
+        S.files.delete(previous.id);
+      }
+      record=null;
+    }
+    await drive(path,{supportsAllDrives:true},mode==='trash'?{method:'PATCH',body:{trashed:true}}:{method:'DELETE'});
+    listRevision++;S.files.delete(file.id);
+    if(record)S.files.set(record.id,record);
+    S.imgs[file.id]?.then(URL.revokeObjectURL,()=>{});delete S.imgs[file.id];
+    removeDialog.close();render(false);updStatus(mode==='trash'?'Đã chuyển vào Thùng rác':record?'Đã xóa ảnh và giữ thông tin ca':'Đã xóa ảnh');updateQuota();
+  }catch(error){removeStatus.textContent=error.message}
+  finally{removing=false;removeConfirm.disabled=removeMode.disabled=byId('remove-cancel').disabled=false}
+});
 async function listPhotos(pageToken='',configurationClient='',silent=false){
+  if(loadingMore||removing)return;
+  const revision=listRevision;
   authorize.disabled=true;
-  if(pageToken){loadingMore=true;render(false,false)}
+  if(pageToken){loadingMore=true;render(false)}
   else if(!silent)stat.textContent='Đang đọc thư mục…';
   try{
     if(!pageToken&&!silent){
-      const response=await drive('/'+encodeURIComponent(folderId),{fields:'mimeType,trashed'});
+      const response=await drive('/files/'+encodeURIComponent(folderId),{fields:'mimeType,trashed',supportsAllDrives:true});
       const entry=await response.json();
       if(entry.trashed||entry.mimeType!=='application/vnd.google-apps.folder')throw new Error('Hãy chọn một thư mục Drive đang hoạt động.');
     }
-    const params={q:"'"+folderId+"' in parents and trashed = false and mimeType contains 'image/'",fields:'nextPageToken,files(id,name)',orderBy:'createdTime desc',pageSize:'50'};
+    const params={q:"'"+folderId+"' in parents and trashed = false and name contains 'ghep_' and (mimeType contains 'image/' or mimeType = '"+recordType+"')",fields:'nextPageToken,files(id,name,properties,mimeType)',orderBy:'name desc',pageSize:'50',supportsAllDrives:true,includeItemsFromAllDrives:true};
     if(pageToken)params.pageToken=pageToken;
-    const response=await drive('',params);const data=await response.json();
-    (data.files||[]).forEach(f=>S.files.set(f.id,f));
+    const response=await drive('/files',params);const data=await response.json();
+    if(revision!==listRevision){if(pageToken){loadingMore=false;render(false)}return}
+    const files=data.files||[];
+    if(!pageToken){
+      const ids=new Set(files.map(f=>f.id)),last=files.at(-1)?.name;
+      S.files.forEach(f=>{
+        if(!ids.has(f.id)&&(!data.nextPageToken||(last&&f.name>last))){
+          S.files.delete(f.id);S.imgs[f.id]?.then(URL.revokeObjectURL,()=>{});delete S.imgs[f.id];
+        }
+      });
+    }
+    files.forEach(f=>{if(f.mimeType===recordType?f.properties?.[recordKey]:f.mimeType?.startsWith('image/'))S.files.set(f.id,f)});
     if(!silent)nextPage=data.nextPageToken||'';
     loadingMore=false;byId('cfgp').hidden=true;
-    render(!pageToken&&!silent,!!pageToken);updStatus();
+    render(!pageToken&&!silent);updStatus();
+    if(!pageToken)updateQuota();
     if(configurationClient)await saveSettings(configurationClient,folderId);
-  }catch(error){loadingMore=false;stat.textContent=error.message;if(pageToken)render(false,false)}
+  }catch(error){loadingMore=false;stat.textContent=error.message;if(pageToken)render(false)}
   finally{authorize.disabled=false}
 }
 function showReconnect(){
@@ -306,35 +445,39 @@ function showReconnect(){
   stat.textContent='Bấm Mở thư mục để kết nối Google Drive.';
 }
 /* Khi mở Log, chỉ dùng phiên đã lưu. Luồng OAuth chỉ chạy từ form. */
-function connect(allowPopup){
-  const selectedFolder=parseFolder(folder.value),clientId=client.value.trim();
+function connect(allowPopup,forWrite=false){
+  const selectedFolder=forWrite?folderId:parseFolder(folder.value),clientId=forWrite?tokenClientId:client.value.trim();
   if(!selectedFolder||!/^[\w-]+\.apps\.googleusercontent\.com$/.test(clientId)){byId('cfgp').hidden=false;stat.textContent='Kiểm tra lại OAuth Client ID và link hoặc mã thư mục.';return}
   const openFolder=()=>{
-    folderId=selectedFolder;nextPage='';S.files.clear();Object.values(S.imgs).forEach(p=>p.then(URL.revokeObjectURL,()=>{}));S.imgs={};S.did=false;
+    folderId=selectedFolder;listRevision++;nextPage='';loadingMore=false;S.files.clear();Object.values(S.imgs).forEach(p=>p.then(URL.revokeObjectURL,()=>{}));S.imgs={};
     try{localStorage.setItem('drivePhotosClient',clientId);localStorage.setItem('drivePhotosFolder',selectedFolder)}catch{}
     listPhotos('',clientId);
   };
-  if(accessToken&&tokenClientId===clientId&&Date.now()<tokenExpiresAt){openFolder();return}
+  if(!forWrite&&accessToken&&tokenClientId===clientId&&Date.now()<tokenExpiresAt){openFolder();return}
   if(!allowPopup){showReconnect();return}
-  authorize.disabled=true;stat.textContent='Đang chờ cấp quyền Google…';
-  const authError=(code,message)=>{authorize.disabled=false;byId('cfgp').hidden=false;
-    stat.textContent=message+' ('+code+')'};
+  const authStatus=forWrite?removeStatus:stat,authButton=forWrite?removeConfirm:authorize,requestedScope=forWrite?writeScope:scope;
+  authButton.disabled=true;authStatus.textContent='Đang chờ cấp quyền Google…';
+  const authError=(code,message)=>{authButton.disabled=false;if(!forWrite)byId('cfgp').hidden=false;
+    authStatus.textContent=message+' ('+code+')'};
   let hint='';try{hint=localStorage.getItem('drivePhotosHint')||''}catch{}
   try{
     const oauth=window.google?.accounts?.oauth2;
     if(!oauth?.initTokenClient)throw new Error('Thư viện Google Identity Services chưa sẵn sàng.');
-    const cfg={client_id:clientId,scope,
+    const cfg={client_id:clientId,scope:requestedScope,
       error_callback:error=>{const messages={popup_failed_to_open:'Không mở được cửa sổ Google. Hãy cho phép cửa sổ bật lên trên trang này rồi thử lại.',popup_closed:'Cửa sổ Google đã đóng trước khi cấp quyền. Mở lại và hoàn tất các bước trong cửa sổ đó.'};
         authError(error.type||'unknown',messages[error.type]||'Cửa sổ đăng nhập Google gặp lỗi.')},
       callback:response=>{
         if(response.error)return authError(response.error,response.error_description||'Google từ chối cấp quyền.');
-        if(!response.access_token||!oauth.hasGrantedAllScopes(response,scope))return authError('missing_scope','Hãy chọn quyền đọc Google Drive trong cửa sổ cấp quyền.');
+        if(!response.access_token||(!oauth.hasGrantedAllScopes(response,requestedScope)&&
+          (forWrite||!oauth.hasGrantedAllScopes(response,writeScope))))return authError('missing_scope',forWrite?'Cần cấp quyền quản lý Drive để xóa ảnh.':'Cần cấp quyền đọc Google Drive.');
         accessToken=response.access_token;tokenClientId=clientId;tokenExpiresAt=Date.now()+Math.max(0,Number(response.expires_in)-30)*1000;
-        try{localStorage.setItem('drivePhotosTok',JSON.stringify({t:accessToken,exp:tokenExpiresAt,cid:clientId}))}catch{}
+        canWrite=oauth.hasGrantedAllScopes(response,writeScope);
+        try{localStorage.setItem('drivePhotosTok',JSON.stringify({t:accessToken,exp:tokenExpiresAt,cid:clientId,canWrite}))}catch{}
         /* nhớ email để lần sau Google tự chọn đúng tài khoản */
         if(!hint)fetch('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)',{headers:{Authorization:'Bearer '+accessToken}}).then(r=>r.json()).then(u=>{if(u?.user?.emailAddress)localStorage.setItem('drivePhotosHint',u.user.emailAddress)}).catch(()=>{});
         /* gia hạn token khi đang xem: giữ nguyên danh sách ảnh, chỉ làm mới */
-        if(folderId===selectedFolder&&S.files.size){authorize.disabled=false;listPhotos('','',true)}else openFolder();
+        if(forWrite){authButton.disabled=false;authStatus.textContent='Đã cấp quyền. Kiểm tra lựa chọn rồi bấm xác nhận.'}
+        else if(folderId===selectedFolder&&S.files.size){authorize.disabled=false;listPhotos('','',true)}else openFolder();
       }};
     if(hint)cfg.hint=hint;
     oauth.initTokenClient(cfg).requestAccessToken({prompt:''});
@@ -342,6 +485,10 @@ function connect(allowPopup){
 }
 form.addEventListener('submit',event=>{event.preventDefault();connect(true)});
 byId('md').onclick=()=>{S.mode=S.mode==='tl'?'chat':'tl';try{localStorage.setItem('drivePhotosMode',S.mode)}catch{}modeUI();render(true)};
+byId('stability-toggle').onclick=e=>{
+  const chart=byId('stability');chart.hidden=!chart.hidden;e.currentTarget.setAttribute('aria-expanded',String(!chart.hidden));
+  if(!chart.hidden)renderStability(S.files.size?build([...S.files.values()],Date.now()):[]);
+};
 byId('cf').onclick=()=>{const c=byId('cfgp');c.hidden=!c.hidden};
 byId('rf').onclick=()=>{if(!folderId||!accessToken||Date.now()>=tokenExpiresAt)showReconnect();else listPhotos('','',true)};
 setInterval(()=>{const n=byId('nx');if(n)n.textContent=nextText({label:n.dataset.l,ts:+n.dataset.ts})},3e4);
@@ -359,7 +506,7 @@ googleScript.onload=async()=>{
     stat.textContent=loaded?'Đã nhận cấu hình từ NoteEverything. Bấm Mở thư mục để xem.':'Kết nối bằng tài khoản Google có quyền xem thư mục.';
   }catch{stat.textContent='Chưa đọc được cấu hình đồng bộ. Bạn vẫn có thể kết nối bằng hai ô trên.'}
   authorize.disabled=false;
-  try{const k=JSON.parse(localStorage.getItem('drivePhotosTok')||'null');if(k&&k.t&&k.cid===client.value.trim()&&Date.now()<k.exp){accessToken=k.t;tokenClientId=k.cid;tokenExpiresAt=k.exp}}catch{}
+  try{const k=JSON.parse(localStorage.getItem('drivePhotosTok')||'null');if(k&&k.t&&k.cid===client.value.trim()&&Date.now()<k.exp){accessToken=k.t;tokenClientId=k.cid;tokenExpiresAt=k.exp;canWrite=k.canWrite===true}}catch{}
   if(client.value&&folder.value)connect(false);
 };
 googleScript.onerror=()=>{stat.textContent='Không tải được đăng nhập Google. Kiểm tra kết nối rồi tải lại trang.'};

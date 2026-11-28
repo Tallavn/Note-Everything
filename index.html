@@ -17651,6 +17651,7 @@ function openP(){
   if(!loaded){f.src="./drive-photos.html";loaded=true;
     f.addEventListener("load",function(){try{f.contentWindow.addEventListener("keydown",function(e){if(e.key==="Escape")closeP()})}catch(e){}})}
   p.classList.add("open");p.setAttribute("aria-hidden","false");b.setAttribute("aria-expanded","true");
+  try{f.contentWindow.scrollTo(0,0)}catch(e){}
 }
 function closeP(){p.classList.remove("open");p.setAttribute("aria-hidden","true");b.setAttribute("aria-expanded","false")}
 var moved=false;
